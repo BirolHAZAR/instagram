@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kayıt Ol - ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="signup-page">
+    <div class="signup-shell">
+        <aside class="signup-brand-panel">
+            <img src="{% static 'images/logo2.png' %}" alt="ReklamAnaliz.net" class="signup-brand-logo">
+            <p class="brand-kicker">reklamanaliz.net</p>
+            <h1>Reklam zekanı tek güvenli hesapta başlat.</h1>
+            <p class="brand-copy">
+                Meta, Instagram, TikTok, Google Ads, LinkedIn ve X verilerini aynı panelde takip etmek için hesabını oluştur.
+            </p>
+            <div class="brand-metrics" aria-label="Portal özellikleri">
+                <span><strong>AI</strong><small>Analiz</small></span>
+                <span><strong>2FA</strong><small>Koruma</small></span>
+                <span><strong>SaaS</strong><small>Kontrol</small></span>
+            </div>
+            <div class="brand-points">
+                <span><i class="fas fa-envelope-circle-check"></i> Mail doğrulama zorunlu</span>
+                <span><i class="fas fa-shield-halved"></i> Çift koruma desteği</span>
+                <span><i class="fas fa-link"></i> Sosyal giriş altyapısı hazır</span>
+            </div>
+        </aside>
+
+        <div class="signup-card">
+            <div class="signup-card-top">
+                <div class="signup-title-block">
+                    <span class="signup-kicker">Yeni hesap</span>
+                    <h2>ReklamAnaliz hesabını oluştur</h2>
+                    <p>Hesabını aç, e-postanı doğrula ve platform bağlantılarını güvenli şekilde yönet.</p>
+                </div>
+                <a href="{% url 'account_login' %}" class="signin-link">
+                    <i class="fas fa-right-to-bracket"></i> Giriş Yap
+                </a>
+            </div>
+
+            <div class="signup-status-row">
+                <span><i class="fas fa-check-circle"></i> E-posta doğrulama</span>
+                <span><i class="fas fa-lock"></i> Güvenli oturum</span>
+                <span><i class="fas fa-user-shield"></i> 2FA hazır</span>
+            </div>
+
+            <div class="signup-body">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" action="{% url 'account_signup' %}" class="signup-form">
+                    {% csrf_token %}
+                    {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                    {% endif %}
+                    {% if next_url %}
+                        <input type="hidden" name="next" value="{{ next_url }}">
+                    {% endif %}
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="username">Kullanıcı Adı</label>
+                            <div class="input-group">
+                                <span class="input-icon"><i class="fas fa-user"></i></span>
+                                <input type="text" name="username" id="username" placeholder="ornek_kullanici" value="{{ form.username.value|default:'' }}" autocomplete="username" required>
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form.username.errors|join:", " }}</div>
+                            {% elif form_errors.username %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form_errors.username }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">E-posta</label>
+                            <div class="input-group">
+                                <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                                <input type="email" name="email" id="email" placeholder="ornek@email.com" value="{{ form.email.value|default:'' }}" autocomplete="email" required>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form.email.errors|join:", " }}</div>
+                            {% elif form_errors.email %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form_errors.email }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password1">Şifre</label>
+                            <div class="input-group">
+                                <span class="input-icon"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password1" id="password1" placeholder="En az 8 karakter" autocomplete="new-password" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('password1')" aria-label="Şifreyi göster">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password1.errors %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form.password1.errors|join:", " }}</div>
+                            {% elif form_errors.password1 %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form_errors.password1 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password2">Şifre Tekrar</label>
+                            <div class="input-group">
+                                <span class="input-icon"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password2" id="password2" placeholder="Şifreyi tekrar yazın" autocomplete="new-password" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('password2')" aria-label="Şifreyi göster">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password2.errors %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form.password2.errors|join:", " }}</div>
+                            {% elif form_errors.password2 %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form_errors.password2 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="error-message form-wide"><i class="fas fa-exclamation-circle"></i> {{ form.non_field_errors|join:", " }}</div>
+                    {% endif %}
+
+                    <div class="password-requirements" id="passwordRequirements">
+                        <span><i class="fas fa-shield-alt"></i> Şifre kontrolü</span>
+                        <ul>
+                            <li id="req-length"><i class="fas fa-circle"></i> 8 karakter</li>
+                            <li id="req-upper"><i class="fas fa-circle"></i> Büyük harf</li>
+                            <li id="req-lower"><i class="fas fa-circle"></i> Küçük harf</li>
+                            <li id="req-number"><i class="fas fa-circle"></i> Rakam</li>
+                        </ul>
+                    </div>
+
+                    <div class="signup-submit-row">
+                        <button type="submit" class="btn-signup">
+                            <i class="fas fa-user-plus"></i> Hesabı Oluştur
+                        </button>
+                        <p>Devam ederek üyelik ve güvenlik politikalarını kabul etmiş olursun.</p>
+                    </div>
+                </form>
+
+                <div class="social-signup-box">
+                    <div class="social-head">
+                        <strong>Sosyal hesapla devam et</strong>
+                        <span>Aktif provider’lar tek tıkla giriş sağlar.</span>
+                    </div>
+                    <div class="social-grid">
+                        {% for provider in social_login_providers %}
+                            {% if provider.configured %}
+                                <a href="{{ provider.login_url }}" class="social-provider active">
+                                    <i class="{{ provider.icon }}"></i>
+                                    <span>{{ provider.label }}</span>
+                                    <small>Aktif</small>
+                                </a>
+                            {% else %}
+                                <button type="button" class="social-provider disabled" disabled title="{{ provider.label }} için admin panelinde client id/secret tanımlanmalı">
+                                    <i class="{{ provider.icon }}"></i>
+                                    <span>{{ provider.label }}</span>
+                                    <small>Ayar gerekli</small>
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p class="security-note"><i class="fas fa-circle-info"></i> E-posta doğrulaması tamamlanmadan portal erişimi açılmaz.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = field.parentElement.querySelector('.password-toggle i');
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+function validatePassword(password) {
+    const requirements = {
+        length: password.length >= 8,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /[0-9]/.test(password)
+    };
+    const map = {
+        "req-length": requirements.length,
+        "req-upper": requirements.upper,
+        "req-lower": requirements.lower,
+        "req-number": requirements.number
+    };
+    Object.keys(map).forEach(id => {
+        const el = document.getElementById(id);
+        const icon = el.querySelector('i');
+        el.className = map[id] ? 'valid' : 'invalid';
+        icon.className = map[id] ? 'fas fa-check-circle' : 'fas fa-circle';
+    });
+}
+
+function checkPasswordMatch() {
+    const p1 = document.getElementById('password1').value;
+    const p2 = document.getElementById('password2').value;
+    let errorDiv = document.getElementById('password2Error');
+    if (p1 !== p2 && p2 !== '') {
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'password2Error';
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Şifreler eşleşmiyor.';
+            document.getElementById('password2').closest('.form-group').appendChild(errorDiv);
+        }
+        errorDiv.style.display = 'flex';
+    } else if (errorDiv) {
+        errorDiv.style.display = 'none';
+    }
+}
+
+document.getElementById('password1').addEventListener('input', function() {
+    validatePassword(this.value);
+    checkPasswordMatch();
+});
+document.getElementById('password2').addEventListener('input', checkPasswordMatch);
+</script>
+{% endblock %}

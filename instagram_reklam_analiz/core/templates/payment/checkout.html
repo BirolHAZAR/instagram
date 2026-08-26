@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+{% load static tr_numbers %}
+
+{% block title %}Ödeme - {% if is_credit_package or is_product_research_package %}{{ package.display_name }}{% else %}{{ plan.display_name }} Paketi{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/payment_checkout.css' %}?v=20260716-legal-consent-1">
+{% endblock %}
+
+{% block content %}
+<div class="checkout-wrapper">
+    <div class="container">
+        <div class="checkout-steps">
+            <div class="step-item completed"><span class="step-number"><i class="fas fa-check"></i></span> Plan Seçimi</div>
+            <div class="step-item active"><span class="step-number">2</span> Ödeme ve Fatura</div>
+            <div class="step-item"><span class="step-number">3</span> Onay</div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <form method="post" id="checkout-form" action="{% if is_credit_package %}{% url 'credit_checkout' package.id %}{% elif is_product_research_package %}{% url 'product_research_checkout' package.id %}{% else %}{% url 'checkout' plan.id %}{% endif %}" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="billing_period" value="{{ billing_period|default:'monthly' }}">
+
+                    {% if form.errors %}
+                    <div class="checkout-alert">
+                        <strong>Eksik veya hatalı bilgiler var.</strong>
+                        <span>Lütfen aşağıdaki alanları kontrol ederek tekrar deneyin.</span>
+                    </div>
+                    {% endif %}
+
+                    {% if is_agency_plan %}
+                    <section class="checkout-card">
+                        <div class="card-header-custom">
+                            <div class="card-header-icon"><i class="fas fa-users-cog"></i></div>
+                            <div>
+                                <h4 class="card-header-title">Ajans Bilgisi</h4>
+                                <p class="card-header-subtitle">Ödeme sonrasında ajans paneliniz bu adla oluşturulur.</p>
+                            </div>
+                        </div>
+                        <div class="form-floating-custom">
+                            <input type="text" class="form-control" name="agency_name" placeholder="Ajans adı" value="{{ request.POST.agency_name }}" required>
+                            <label>Ajans Adı *</label>
+                        </div>
+                    </section>
+                    {% endif %}
+
+                    {% if referrals_enabled and not is_credit_package and not is_product_research_package %}
+                    <section class="checkout-card">
+                        <div class="card-header-custom">
+                            <div class="card-header-icon"><i class="fas fa-gift"></i></div>
+                            <div>
+                                <h4 class="card-header-title">Promosyon / Referans Kodu</h4>
+                                <p class="card-header-subtitle">Bir üyeden aldığınız kod varsa buraya yazın. Hak, ödeme onaylanınca kod sahibine tanımlanır.</p>
+                            </div>
+                        </div>
+                        {% include "payment/partials/checkout_input.html" with name="referral_code" label="Promosyon kodu" value=form.referral_code.value error=form.referral_code.errors type="text" %}
+                    </section>
+                    {% endif %}
+
+                    <section class="checkout-card">
+                        <div class="card-header-custom">
+                            <div class="card-header-icon"><i class="fas fa-wallet"></i></div>
+                            <div>
+                                <h4 class="card-header-title">Ödeme Yöntemi</h4>
+                                <p class="card-header-subtitle">Kartla anında aktivasyon veya havale/EFT bildirimi oluşturun.</p>
+                            </div>
+                        </div>
+
+                        <div class="payment-methods">
+                            <label class="payment-method-card">
+                                <input type="radio" name="payment_method" value="credit_card" {% if request.POST.payment_method != "bank_transfer" %}checked{% endif %}>
+                                <div class="payment-method-content">
+                                    <div class="payment-method-icon"><i class="fas fa-credit-card"></i></div>
+                                    <div class="payment-method-title">Kredi / Banka Kartı</div>
+                                    <div class="payment-method-desc">Simülasyon ödeme, anında aktivasyon</div>
+                                </div>
+                                <div class="payment-method-check"><i class="fas fa-check"></i></div>
+                            </label>
+
+                            <label class="payment-method-card">
+                                <input type="radio" name="payment_method" value="bank_transfer" {% if request.POST.payment_method == "bank_transfer" %}checked{% endif %}>
+                                <div class="payment-method-content">
+                                    <div class="payment-method-icon"><i class="fas fa-building-columns"></i></div>
+                                    <div class="payment-method-title">Havale / EFT</div>
+                                    <div class="payment-method-desc">Bildirim sonrası manuel onay</div>
+                                </div>
+                                <div class="payment-method-check"><i class="fas fa-check"></i></div>
+                            </label>
+                        </div>
+
+                        <div id="credit-card-section">
+                            <div class="credit-card-preview">
+                                <div class="credit-card-inner visa" id="cardPreview">
+                                    <div class="card-brand">VISA</div>
+                                    <div class="card-chip"></div>
+                                    <div class="card-number-display" id="cardNumberDisplay">•••• •••• •••• ••••</div>
+                                    <div class="card-details-row">
+                                        <div>
+                                            <small>KART SAHİBİ</small>
+                                            <div class="card-holder-display" id="cardHolderDisplay">AD SOYAD</div>
+                                        </div>
+                                        <div>
+                                            <small>SON KULLANMA</small>
+                                            <div class="card-expiry-display" id="cardExpiryDisplay">AA/YY</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control" id="card_holder" name="card_holder" placeholder="Kart üzerindeki isim" oninput="updateCardPreview()">
+                                        <label>Kart Üzerindeki İsim</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control" id="card_number" name="card_number" placeholder="Kart numarası" maxlength="19" inputmode="numeric" oninput="formatCardNumber(this); updateCardPreview();">
+                                        <label>Kart Numarası</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control" id="expiry_month" name="expiry_month" placeholder="Ay" maxlength="2" inputmode="numeric" oninput="digitsOnly(this); updateCardPreview()">
+                                        <label>Ay</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control" id="expiry_year" name="expiry_year" placeholder="Yıl" maxlength="2" inputmode="numeric" oninput="digitsOnly(this); updateCardPreview()">
+                                        <label>Yıl</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating-custom">
+                                        <input type="text" class="form-control" id="cvv" name="cvv" placeholder="CVV" maxlength="4" inputmode="numeric" oninput="digitsOnly(this)">
+                                        <label>CVV</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="secure-note"><i class="fas fa-shield-halved"></i> Tam kart numarası ve CVV saklanmaz; otomatik yenileme için yalnızca şifreli ödeme tokenı ve son 4 hane tutulur.</div>
+                            {% if plan %}
+                            <label class="secure-note" style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;">
+                                <input type="checkbox" name="auto_renew" checked style="margin-top:4px;">
+                                <span>Otomatik yenileme açık kalsın. Kapatılmadığı sürece dönem sonunda kayıtlı ödeme yöntemiyle otomatik tahsilat yapılır.</span>
+                            </label>
+                            {% endif %}
+                        </div>
+
+                        <div id="bank-transfer-section" style="display:none;">
+                            <div class="bank-panel">
+                                <div>
+                                    <h5>Havale/EFT Bilgileri</h5>
+                                    <p>Ödemenizi yaptıktan sonra aşağıdaki bildirim formunu doldurun. Bildirim sistem yöneticisine e-posta olarak iletilir.</p>
+                                </div>
+                                <div class="bank-detail-grid">
+                                    <div><span>Banka</span><strong>Örnek Bankası A.Ş.</strong></div>
+                                    <div><span>Hesap Sahibi</span><strong>ReklamAnaliz.net</strong></div>
+                                    <div class="wide"><span>IBAN</span><strong>TR00 0000 0000 0000 0000 0000 00</strong></div>
+                                    <div class="wide"><span>Açıklama</span><strong>{{ request.user.email }} - {% if is_credit_package or is_product_research_package %}{{ package.display_name }}{% else %}{{ plan.display_name }}{% endif %}</strong></div>
+                                </div>
+                            </div>
+
+                            <div class="transfer-form-panel">
+                                <h5><i class="fas fa-paper-plane"></i> Ödeme Bildirim Formu</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <input type="text" class="form-control transfer-required" name="transfer_sender_name" placeholder="Gönderen adı" value="{{ transfer_details.sender_name }}">
+                                            <label>Gönderen Adı *</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <input type="text" class="form-control transfer-required" name="transfer_bank_name" placeholder="Banka adı" value="{{ transfer_details.bank_name }}">
+                                            <label>Gönderen Banka *</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <input type="date" class="form-control transfer-required" name="transfer_date" placeholder="Ödeme tarihi" value="{{ transfer_details.transfer_date }}">
+                                            <label>Ödeme Tarihi *</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <input type="text" class="form-control" name="transfer_receipt_reference" placeholder="Dekont / işlem no" value="{{ transfer_details.receipt_reference }}">
+                                            <label>Dekont / İşlem No</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-floating-custom">
+                                            <textarea class="form-control" name="transfer_note" placeholder="Ek not" rows="3">{{ transfer_details.note }}</textarea>
+                                            <label>Ek Not</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="checkout-card">
+                        <div class="card-header-custom">
+                            <div class="card-header-icon"><i class="fas fa-file-invoice"></i></div>
+                            <div>
+                                <h4 class="card-header-title">Fatura Bilgileri</h4>
+                                <p class="card-header-subtitle">Fatura ve ödeme eşleştirmesi için tüm zorunlu alanları doldurun.</p>
+                            </div>
+                        </div>
+
+                        <div class="customer-type-toggle">
+                            <button type="button" class="customer-type-btn active" id="individual-btn" onclick="switchCustomerType('individual')"><i class="fas fa-user"></i> Bireysel</button>
+                            <button type="button" class="customer-type-btn" id="company-btn" onclick="switchCustomerType('company')"><i class="fas fa-building"></i> Şirket</button>
+                        </div>
+                        <input type="hidden" name="customer_type" id="customerType" value="{{ form.customer_type.value|default:'individual' }}">
+
+                        <div class="row">
+                            <div class="col-md-6">{% include "payment/partials/checkout_input.html" with name="first_name" label="Adınız *" value=form.first_name.value error=form.first_name.errors type="text" required=True %}</div>
+                            <div class="col-md-6">{% include "payment/partials/checkout_input.html" with name="last_name" label="Soyadınız *" value=form.last_name.value error=form.last_name.errors type="text" required=True %}</div>
+
+                            <div class="col-md-12" id="tc-kimlik-field">{% include "payment/partials/checkout_input.html" with name="tc_kimlik" label="TC Kimlik Numarası *" value=form.tc_kimlik.value error=form.tc_kimlik.errors type="text" maxlength="11" inputmode="numeric" %}</div>
+
+                            <div class="col-md-12" id="company-name-field" style="display:none;">{% include "payment/partials/checkout_input.html" with name="company_name" label="Şirket Unvanı *" value=form.company_name.value error=form.company_name.errors type="text" %}</div>
+                            <div class="col-md-6" id="tax-office-field" style="display:none;">{% include "payment/partials/checkout_input.html" with name="tax_office" label="Vergi Dairesi *" value=form.tax_office.value error=form.tax_office.errors type="text" %}</div>
+                            <div class="col-md-6" id="tax-number-field" style="display:none;">{% include "payment/partials/checkout_input.html" with name="tax_number" label="Vergi No *" value=form.tax_number.value error=form.tax_number.errors type="text" maxlength="10" inputmode="numeric" %}</div>
+
+                            <div class="col-md-6">{% include "payment/partials/checkout_input.html" with name="email" label="E-posta *" value=form.email.value error=form.email.errors type="email" required=True %}</div>
+                            <div class="col-md-6">{% include "payment/partials/checkout_input.html" with name="phone" label="Telefon *" value=form.phone.value error=form.phone.errors type="tel" required=True %}</div>
+                            <div class="col-md-12">
+                                <div class="form-floating-custom">
+                                    <textarea class="form-control {% if form.address.errors %}is-invalid{% endif %}" name="address" placeholder="Adres" rows="3" required>{{ form.address.value|default_if_none:'' }}</textarea>
+                                    <label>Adres *</label>
+                                    {% for error in form.address.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">{% include "payment/partials/checkout_input.html" with name="city" label="İl *" value=form.city.value error=form.city.errors type="text" required=True %}</div>
+                            <div class="col-md-4">{% include "payment/partials/checkout_input.html" with name="district" label="İlçe *" value=form.district.value error=form.district.errors type="text" required=True %}</div>
+                            <div class="col-md-4">{% include "payment/partials/checkout_input.html" with name="zip_code" label="Posta Kodu *" value=form.zip_code.value error=form.zip_code.errors type="text" maxlength="10" required=True %}</div>
+                        </div>
+                    </section>
+
+                    <section class="checkout-card legal-acceptance-card">
+                        <div class="card-header-custom">
+                            <div class="card-header-icon"><i class="fas fa-file-signature"></i></div>
+                            <div>
+                                <h4 class="card-header-title">Sözleşme Onayları</h4>
+                                <p class="card-header-subtitle">Ödeme yönteminden bağımsız olarak aşağıdaki onaylar zorunludur.</p>
+                            </div>
+                        </div>
+                        <div class="checkout-legal-links">
+                            <a href="{% url 'legal_document_detail' slug='mesafeli-satis-sozlesmesi' %}" target="_blank" rel="noopener">Mesafeli Satış Sözleşmesi</a>
+                            <a href="{% url 'legal_document_detail' slug='on-bilgilendirme-formu' %}" target="_blank" rel="noopener">Ön Bilgilendirme Formu</a>
+                            <a href="{% url 'legal_document_detail' slug='uyelik-sozlesmesi' %}" target="_blank" rel="noopener">Üyelik Sözleşmesi</a>
+                            <a href="{% url 'legal_document_detail' slug='kullanim-kosullari' %}" target="_blank" rel="noopener">Kullanım Koşulları</a>
+                            <a href="{% url 'legal_document_detail' slug='iptal-ve-iade-politikasi' %}" target="_blank" rel="noopener">İptal ve İade Politikası</a>
+                        </div>
+                        <label class="checkout-legal-consent{% if form.legal_acceptance.errors %} has-error{% endif %}">
+                            <input type="checkbox" name="legal_acceptance" value="on" required{% if form.legal_acceptance.value %} checked{% endif %}>
+                            <span>Yukarıdaki satış ve üyelik sözleşmelerini okudum, elektronik ortamda edinme imkânım olduğunu gördüm ve kabul ediyorum.</span>
+                        </label>
+                        {% for error in form.legal_acceptance.errors %}<div class="field-error legal-field-error">{{ error }}</div>{% endfor %}
+                        <label class="checkout-legal-consent{% if form.immediate_service_consent.errors %} has-error{% endif %}">
+                            <input type="checkbox" name="immediate_service_consent" value="on" required{% if form.immediate_service_consent.value %} checked{% endif %}>
+                            <span>14 günlük cayma süresi dolmadan dijital hizmetin başlatılmasını açıkça talep ediyorum; tamamen ifa edilen veya kullanılan dijital haklarda cayma hakkının mevzuattaki ölçüde sona erebileceği konusunda bilgilendirildim.</span>
+                        </label>
+                        {% for error in form.immediate_service_consent.errors %}<div class="field-error legal-field-error">{{ error }}</div>{% endfor %}
+                    </section>
+
+                    <button type="submit" class="btn btn-checkout" id="submitButton"><i class="fas fa-lock me-2"></i> Ödemeyi Tamamla</button>
+                </form>
+
+                <div class="secure-badge-footer">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    SSL korumalı ödeme akışı, profesyonel fatura bilgisi ve manuel havale kontrolü.
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <aside class="order-summary-card">
+                    <h5><i class="fas fa-shopping-bag me-2"></i>Sipariş Özeti</h5>
+                    <div class="plan-badge-custom">{% if is_credit_package or is_product_research_package %}{{ package.display_name }}{% else %}{{ plan.display_name }} Paketi{% endif %}</div>
+                    <div class="summary-item"><span>{% if is_credit_package %}AI Kredi Paketi{% elif is_product_research_package %}Ürün Araştırma Paketi{% else %}{% if billing_period == "yearly" %}Yıllık Liste Tutarı{% else %}Aylık Plan Ücreti{% endif %}{% endif %}</span><strong>{% if is_credit_package or is_product_research_package %}{{ package.price|tr_decimal }}{% else %}{{ list_base_amount|default:plan.price|tr_decimal }}{% endif %} TL</strong></div>
+                    {% if yearly_discount_amount %}
+                    <div class="summary-item"><span>Yıllık abonelik indirimi (%20)</span><strong>-{{ yearly_discount_amount|tr_decimal }} TL</strong></div>
+                    {% endif %}
+                    {% if referral_benefits.discount_amount %}
+                    <div class="summary-item"><span>Promosyon indirimi</span><strong>-{{ referral_benefits.discount_amount|tr_decimal }} TL</strong></div>
+                    {% endif %}
+                    <div class="summary-item"><span>KDV (%20)</span><strong>{{ kdv_amount|tr_decimal }} TL</strong></div>
+                    <div class="summary-total"><span>Toplam</span><span class="total-amount">{{ total_amount|tr_decimal }} TL</span></div>
+                    <button type="button" class="btn btn-checkout" onclick="document.getElementById('checkout-form').requestSubmit();"><i class="fas fa-lock me-2"></i> Ödemeyi Tamamla</button>
+                    <ul class="guarantee-list">
+                        <li><i class="fas fa-check-circle"></i> Fatura bilgisi zorunlu alan kontrolü</li>
+                        <li><i class="fas fa-check-circle"></i> Kartta anında aktivasyon</li>
+                        <li><i class="fas fa-check-circle"></i> Havalede manuel onay ve bildirim e-postası</li>
+                        <li><i class="fas fa-check-circle"></i> 7/24 öncelikli destek</li>
+                    </ul>
+                </aside>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function digitsOnly(input) {
+    input.value = input.value.replace(/\D/g, "");
+}
+
+function formatCardNumber(input) {
+    let value = input.value.replace(/\D/g, "").slice(0, 16);
+    input.value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+    const preview = document.getElementById("cardPreview");
+    const brand = document.querySelector(".card-brand");
+    if (value.startsWith("5")) {
+        preview.className = "credit-card-inner mastercard";
+        brand.textContent = "MC";
+    } else {
+        preview.className = "credit-card-inner visa";
+        brand.textContent = "VISA";
+    }
+}
+
+function updateCardPreview() {
+    const cardNumber = document.getElementById("card_number").value || "•••• •••• •••• ••••";
+    const cardHolder = document.getElementById("card_holder").value || "AD SOYAD";
+    const expMonth = document.getElementById("expiry_month").value || "AA";
+    const expYear = document.getElementById("expiry_year").value || "YY";
+    document.getElementById("cardNumberDisplay").textContent = cardNumber;
+    document.getElementById("cardHolderDisplay").textContent = cardHolder.toUpperCase();
+    document.getElementById("cardExpiryDisplay").textContent = `${expMonth}/${expYear}`;
+}
+
+function setRequired(selector, enabled) {
+    document.querySelectorAll(selector).forEach((el) => {
+        if (enabled) el.setAttribute("required", "required");
+        else el.removeAttribute("required");
+    });
+}
+
+function switchCustomerType(type) {
+    document.getElementById("customerType").value = type;
+    document.getElementById("individual-btn").classList.toggle("active", type === "individual");
+    document.getElementById("company-btn").classList.toggle("active", type === "company");
+    document.getElementById("tc-kimlik-field").style.display = type === "individual" ? "block" : "none";
+    document.getElementById("company-name-field").style.display = type === "company" ? "block" : "none";
+    document.getElementById("tax-office-field").style.display = type === "company" ? "block" : "none";
+    document.getElementById("tax-number-field").style.display = type === "company" ? "block" : "none";
+    setRequired("input[name='tc_kimlik']", type === "individual");
+    setRequired("input[name='company_name'], input[name='tax_office'], input[name='tax_number']", type === "company");
+}
+
+function syncPaymentSections() {
+    const method = document.querySelector("input[name='payment_method']:checked").value;
+    const isBank = method === "bank_transfer";
+    document.getElementById("credit-card-section").style.display = isBank ? "none" : "block";
+    document.getElementById("bank-transfer-section").style.display = isBank ? "block" : "none";
+    setRequired("#card_holder, #card_number, #expiry_month, #expiry_year, #cvv", !isBank);
+    setRequired(".transfer-required", isBank);
+    document.getElementById("submitButton").innerHTML = isBank
+        ? '<i class="fas fa-paper-plane me-2"></i> Havale Bildirimini Gönder'
+        : '<i class="fas fa-lock me-2"></i> Ödemeyi Tamamla';
+}
+
+document.querySelectorAll("input[name='payment_method']").forEach((radio) => {
+    radio.addEventListener("change", syncPaymentSections);
+});
+
+document.getElementById("checkout-form").addEventListener("submit", function(e) {
+    const paymentMethod = document.querySelector("input[name='payment_method']:checked").value;
+    if (paymentMethod === "credit_card") {
+        const cardNumber = document.getElementById("card_number").value.replace(/\s/g, "");
+        const cvv = document.getElementById("cvv").value;
+        if (cardNumber.length !== 16) {
+            e.preventDefault();
+            alert("Lütfen 16 haneli geçerli bir kart numarası girin.");
+            return;
+        }
+        if (cvv.length < 3) {
+            e.preventDefault();
+            alert("Lütfen geçerli bir CVV girin.");
+        }
+    }
+});
+
+switchCustomerType(document.getElementById("customerType").value || "individual");
+syncPaymentSections();
+</script>
+{% endblock %}

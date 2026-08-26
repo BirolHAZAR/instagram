@@ -1,0 +1,825 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Creative Studio | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<style>
+.studio-page{max-width:none;margin:-10px -6px 0;padding:22px;min-height:calc(100vh - 110px);color:#f8fafc;background:radial-gradient(circle at 16% 0,rgba(20,184,166,.17),transparent 30%),radial-gradient(circle at 82% 12%,rgba(99,102,241,.2),transparent 34%),linear-gradient(145deg,#050816 0,#10172a 55%,#07111f 100%);border-radius:24px}.studio-top{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:14px}.studio-top h1{font-size:2rem;font-weight:950;letter-spacing:0;margin:0}.studio-top p{margin:6px 0 0;color:#a7b0c5;max-width:760px}.studio-actions{display:flex;gap:10px;flex-wrap:wrap}.studio-btn{border:1px solid rgba(34,211,238,.28);border-radius:10px;padding:11px 14px;font-weight:850;background:linear-gradient(135deg,#2563eb,#0f766e);color:#fff;text-decoration:none}.studio-btn.secondary{background:rgba(255,255,255,.07);color:#e2e8f0}.studio-flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding:12px 14px;border:1px solid rgba(148,163,184,.18);border-radius:14px;background:rgba(15,23,42,.66);color:#cbd5e1;font-size:.84rem}.studio-flow strong{color:#fff}.flow-dot{width:7px;height:7px;border-radius:999px;background:#22c55e}.studio-grid{display:grid;grid-template-columns:320px minmax(600px,1.35fr) 360px;gap:16px;align-items:start}.studio-card{background:rgba(15,23,42,.82);border:1px solid rgba(148,163,184,.18);border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.28);overflow:hidden;backdrop-filter:blur(10px)}.studio-card.main-work{min-height:690px}.studio-card-head{padding:15px 16px;border-bottom:1px solid rgba(148,163,184,.14);display:flex;align-items:center;gap:10px}.studio-card-head i{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:rgba(34,211,238,.11);color:#67e8f9}.studio-card-head h2{font-size:.98rem;margin:0;font-weight:900;color:#fff}.studio-card-body{padding:16px}.field-label{display:block;font-size:.72rem;text-transform:uppercase;font-weight:900;color:#94a3b8;margin:0 0 6px}.studio-input{width:100%;border:1px solid rgba(148,163,184,.24);background:rgba(2,6,23,.62);color:#f8fafc;border-radius:10px;padding:10px 12px;font-size:.88rem;margin-bottom:12px}.studio-input option{color:#111827}.studio-input::placeholder{color:#64748b}.studio-input:focus{outline:0;border-color:#22d3ee;background:rgba(15,23,42,.9);box-shadow:0 0 0 4px rgba(34,211,238,.1)}textarea.studio-input{min-height:86px;resize:vertical}.tone-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.tone-btn{border:1px solid rgba(148,163,184,.24);border-radius:10px;background:rgba(255,255,255,.055);padding:9px 8px;font-size:.78rem;font-weight:850;color:#cbd5e1}.tone-btn.active{background:rgba(34,211,238,.12);color:#ecfeff;border-color:#22d3ee}.generate-btn{width:100%;border:0;border-radius:12px;background:linear-gradient(135deg,#2563eb,#14b8a6);color:#fff;padding:13px 14px;font-weight:950}.variant-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.variant-card{border:1px solid rgba(148,163,184,.18);border-radius:12px;background:rgba(2,6,23,.58);padding:12px;cursor:pointer;transition:.15s}.variant-card:hover,.variant-card.active{border-color:#22d3ee;box-shadow:0 16px 32px rgba(34,211,238,.1)}.variant-media{aspect-ratio:1/1;border-radius:10px;background:#111827;overflow:hidden;margin-bottom:10px;display:grid;place-items:center}.variant-media img,.variant-media video{width:100%;height:100%;object-fit:cover}.variant-card h3{font-size:.95rem;font-weight:950;margin:0 0 6px;color:#fff}.variant-card p{font-size:.8rem;color:#a7b0c5;margin:0;line-height:1.45}.variant-meta{display:flex;justify-content:space-between;margin-top:10px;font-size:.75rem;color:#67e8f9}.empty-work{border:1px dashed rgba(148,163,184,.3);border-radius:12px;padding:70px 18px;text-align:center;color:#94a3b8;background:rgba(2,6,23,.28)}.loading{display:none;text-align:center;padding:54px;color:#cbd5e1}.spinner{width:38px;height:38px;border:4px solid rgba(148,163,184,.24);border-top-color:#22d3ee;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}@keyframes spin{to{transform:rotate(360deg)}}.phone{width:100%;max-width:330px;margin:0 auto;background:#fff;color:#111827;border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:hidden;box-shadow:0 18px 46px rgba(0,0,0,.28)}.phone-head{height:48px;display:flex;align-items:center;gap:9px;padding:0 12px;border-bottom:1px solid #eef2f7}.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f97316,#db2777);color:#fff;display:grid;place-items:center;font-weight:900}.phone-user{font-size:.78rem;font-weight:900}.phone-sub{font-size:.66rem;color:#64748b}.phone-media{position:relative;aspect-ratio:1/1;background:#f1f5f9;display:grid;place-items:center;color:#94a3b8}.phone-media img,.phone-media video{width:100%;height:100%;object-fit:cover}.platform-chip{position:absolute;left:10px;top:10px;background:rgba(15,23,42,.78);color:#fff;border-radius:999px;padding:5px 9px;font-size:.68rem;font-weight:850}.phone-icons{display:flex;gap:12px;padding:10px 12px}.phone-icons i:last-child{margin-left:auto}.phone-copy{padding:0 12px 14px;font-size:.78rem;line-height:1.45}.phone-copy strong{font-weight:950}.upload-zone{margin-top:12px;border:2px dashed rgba(148,163,184,.28);border-radius:12px;padding:14px;text-align:center;background:rgba(2,6,23,.36);cursor:pointer;color:#cbd5e1}.upload-zone.drag{border-color:#22d3ee;background:rgba(34,211,238,.08)}.upload-zone.has-file{border-color:#22c55e;background:rgba(34,197,94,.08)}.upload-zone i{font-size:1.25rem;color:#67e8f9}.file-name{font-size:.75rem;color:#86efac;font-weight:850;margin-top:5px;word-break:break-all}.publish-btn{width:100%;margin-top:12px;border:0;border-radius:12px;background:linear-gradient(135deg,#16a34a,#0f766e);color:#fff;padding:12px;font-weight:950}.publish-note{margin-top:10px;color:#94a3b8;font-size:.76rem;line-height:1.45}.publish-btn:disabled{opacity:.5;cursor:not-allowed}.recent-list{display:grid;gap:8px}.recent-item{border:1px solid rgba(148,163,184,.16);border-radius:10px;padding:10px;background:rgba(2,6,23,.28)}.recent-item strong{display:block;font-size:.84rem;color:#fff}.recent-item span{font-size:.72rem;color:#94a3b8}@media(max-width:1380px){.studio-grid{grid-template-columns:300px minmax(460px,1fr) 340px}.variant-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:1200px){.studio-grid{grid-template-columns:1fr}.studio-card{position:static}.studio-card.main-work{min-height:0}.variant-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:720px){.studio-page{margin:0 -4px;padding:14px;border-radius:16px}.studio-top{display:block}.variant-grid{grid-template-columns:1fr}}
+.studio-top,.studio-flow,.studio-grid,.studio-recent{max-width:1540px;margin-left:auto;margin-right:auto}.studio-flow{margin-bottom:16px}.studio-grid{grid-template-columns:minmax(280px,310px) minmax(560px,1fr) minmax(280px,310px);justify-content:center}.studio-card.main-work{min-height:660px}.phone{max-width:300px;background:#050816;color:#f8fafc;border:1px solid rgba(148,163,184,.22);box-shadow:0 22px 52px rgba(0,0,0,.42)}.phone-head{background:#0b1120;border-bottom:1px solid rgba(148,163,184,.18)}.phone-sub{color:#94a3b8}.phone-media{background:#020617;color:#64748b}.phone-icons{background:#050816;color:#e2e8f0;border-top:1px solid rgba(148,163,184,.14)}.phone-copy{background:#050816;color:#dbe4f0}.phone-copy span{color:#67e8f9!important}.platform-chip{background:rgba(2,6,23,.82);border:1px solid rgba(255,255,255,.16)}@media(min-width:1381px){.variant-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:1380px){.studio-top,.studio-flow,.studio-grid,.studio-recent{max-width:1180px}.studio-grid{grid-template-columns:minmax(260px,300px) minmax(460px,1fr) minmax(260px,300px)}}@media(max-width:1200px){.studio-grid{grid-template-columns:1fr}.phone{max-width:330px}}
+.main-work .studio-card-body{display:flex;flex-direction:column;align-items:flex-start}.main-work .loading,.main-work .empty-work,.main-work .variant-grid{width:100%}.main-work .variant-grid{justify-content:start;justify-items:start}.main-work .variant-card{width:100%}
+.studio-grid{display:flex;align-items:flex-start;gap:0;max-width:none;margin-left:0;margin-right:0}.studio-grid>aside:first-child{flex:0 0 320px;width:320px}.studio-grid>.main-work{flex:1 1 auto;margin-left:-1px;min-width:0;min-height:660px}.studio-grid>aside:last-child{flex:0 0 330px;width:330px;margin-left:12px}.variant-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.main-work .studio-card-body{min-height:590px}@media(max-width:1380px){.studio-grid{max-width:none}.studio-grid>aside:first-child{flex-basis:300px;width:300px}.studio-grid>aside:last-child{flex-basis:310px;width:310px;margin-left:10px}.variant-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:1200px){.studio-grid{display:grid;grid-template-columns:1fr;gap:14px}.studio-grid>aside:first-child,.studio-grid>.main-work,.studio-grid>aside:last-child{width:100%;margin-left:0;flex:auto}.main-work .studio-card-body{min-height:0}}
+.studio-input,
+select.studio-input,
+textarea.studio-input,
+input.studio-input{
+  background:#071225!important;
+  color:#f8fafc!important;
+  border-color:rgba(148,163,184,.34)!important;
+}
+.studio-input::placeholder,
+textarea.studio-input::placeholder,
+input.studio-input::placeholder{
+  color:#9aa8c7!important;
+  opacity:1!important;
+}
+select.studio-input option{
+  background:#0f172a!important;
+  color:#f8fafc!important;
+}
+select.studio-input option:checked{
+  background:#2563eb!important;
+  color:#fff!important;
+}
+.studio-input:disabled,
+.studio-input[disabled],
+select.studio-input option:disabled{
+  color:#94a3b8!important;
+  opacity:1!important;
+}
+.variant-edit{width:100%;box-sizing:border-box;margin:0 0 7px;padding:8px 9px;border:1px solid rgba(148,163,184,.25);border-radius:8px;background:#071225;color:#f8fafc;font-size:.78rem}.variant-edit:focus{outline:0;border-color:#22d3ee}.variant-edit.primary{min-height:82px;resize:vertical}.variant-save{width:100%;margin-top:8px;border:1px solid rgba(34,211,238,.35);border-radius:8px;padding:8px;background:rgba(34,211,238,.1);color:#a5f3fc;font-weight:850}.variant-save.saved{border-color:#22c55e;color:#86efac}
+.studio-input.prompt-input{min-height:240px;line-height:1.6;border-color:rgba(34,211,238,.28);background:linear-gradient(180deg,rgba(2,6,23,.82),rgba(8,18,40,.78));box-shadow:inset 0 0 28px rgba(34,211,238,.035)}
+.prompt-edit-note{display:flex;align-items:flex-start;gap:7px;margin:-5px 0 12px;color:#8fa3bf;font-size:.7rem;line-height:1.45}.prompt-edit-note i{margin-top:2px;color:#67e8f9}
+.prompt-ai-btn{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin:0 0 12px;padding:12px 14px;overflow:hidden;border:1px solid rgba(103,232,249,.42);border-radius:12px;background:linear-gradient(135deg,rgba(37,99,235,.88),rgba(13,148,136,.88));color:#fff;font-weight:950;letter-spacing:.01em;box-shadow:0 14px 32px rgba(14,116,144,.2);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.prompt-ai-btn:before{content:"";position:absolute;z-index:-1;inset:-80% 35% -80% -20%;transform:rotate(18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);transition:transform .45s ease}.prompt-ai-btn:hover{transform:translateY(-1px);border-color:#a5f3fc;box-shadow:0 18px 38px rgba(14,116,144,.3)}.prompt-ai-btn:hover:before{transform:translateX(190%) rotate(18deg)}.prompt-ai-btn:disabled{cursor:wait;opacity:.76;transform:none}.prompt-ai-icon{display:grid;place-items:center;width:28px;height:28px;flex:0 0 28px;border-radius:9px;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.prompt-analysis-status{display:none;margin:-3px 0 12px;padding:9px 10px;border:1px solid rgba(103,232,249,.16);border-radius:9px;background:rgba(8,18,40,.58);color:#67e8f9;font-size:.72rem;line-height:1.45}
+.cache-notice{position:fixed;inset:0;z-index:10080;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,6,23,.76);backdrop-filter:blur(8px)}.cache-notice.show{display:flex}.cache-notice-card{position:relative;width:min(520px,100%);overflow:hidden;border:1px solid rgba(103,232,249,.34);border-radius:22px;background:linear-gradient(145deg,#101a34,#07101f);box-shadow:0 30px 90px rgba(0,0,0,.55);padding:24px}.cache-notice-card:before{content:"";position:absolute;right:-70px;top:-90px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.18),transparent 68%)}.cache-notice-icon{position:relative;display:grid;place-items:center;width:48px;height:48px;margin-bottom:15px;border:1px solid rgba(103,232,249,.3);border-radius:15px;background:linear-gradient(135deg,rgba(37,99,235,.3),rgba(13,148,136,.28));color:#a5f3fc;font-size:1.15rem}.cache-notice-card h3{position:relative;margin:0 0 9px;color:#fff;font-size:1.12rem;font-weight:950}.cache-notice-card p{position:relative;margin:0;color:#b6c4da;font-size:.86rem;line-height:1.65}.cache-notice-actions{position:relative;display:flex;justify-content:flex-end;margin-top:20px}.cache-notice-close{border:1px solid rgba(103,232,249,.34);border-radius:11px;background:linear-gradient(135deg,#2563eb,#0f766e);color:#fff;padding:9px 16px;font-weight:900}
+.ai-progress-wrap{width:min(520px,100%);margin:16px auto 0}.ai-progress-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:7px;color:#a9bbd3;font-size:.72rem;font-weight:850}.ai-progress-track{position:relative;height:9px;overflow:hidden;border:1px solid rgba(103,232,249,.18);border-radius:999px;background:rgba(2,6,23,.78);box-shadow:inset 0 2px 5px rgba(0,0,0,.35)}.ai-progress-bar{position:relative;width:6%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#22d3ee,#14b8a6);box-shadow:0 0 18px rgba(34,211,238,.48);transition:width .45s ease}.ai-progress-bar:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.48) 46%,transparent 72%);animation:progressShine 1.25s linear infinite}.ai-progress-note{margin-top:8px;color:#8294af;font-size:.68rem;line-height:1.4}@keyframes progressShine{from{transform:translateX(-100%)}to{transform:translateX(170%)}}
+.carousel-media,.phone-media.carousel-phone{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;place-items:unset;scrollbar-width:thin;scrollbar-color:#22d3ee #0f172a}.carousel-media img,.phone-media.carousel-phone img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:center;scroll-snap-stop:always}.carousel-hint{display:flex;align-items:center;justify-content:center;gap:7px;margin:-3px 0 10px;color:#67e8f9;font-size:.72rem;font-weight:850}.carousel-count{position:absolute;z-index:3;right:10px;top:10px;padding:5px 8px;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(2,6,23,.82);color:#fff;font-size:.67rem;font-weight:900}.carousel-mode-note{display:none;margin:-4px 0 12px;padding:9px 10px;border:1px solid rgba(34,211,238,.2);border-radius:9px;background:rgba(34,211,238,.07);color:#a5f3fc;font-size:.72rem;line-height:1.4}.carousel-mode-note.show{display:block}
+.creative-directions{display:none;margin:0 0 12px}.creative-directions.show{display:block}.creative-summary{margin-bottom:8px;color:#b7c6da;font-size:.73rem;line-height:1.5}.direction-grid{display:grid;gap:7px}.direction-btn{position:relative;width:100%;cursor:pointer;text-align:left;border:1px solid rgba(103,232,249,.2);border-radius:10px;padding:10px 38px 10px 10px;background:rgba(8,18,40,.72);color:#e2e8f0;transition:.16s ease}.direction-btn:after{content:"Seç";position:absolute;right:10px;top:10px;color:#67e8f9;font-size:.62rem;font-weight:950}.direction-btn strong{display:block;color:#a5f3fc;font-size:.76rem}.direction-btn span{display:block;margin-top:3px;color:#91a4be;font-size:.68rem;line-height:1.4}.direction-btn:hover{transform:translateY(-1px);border-color:#22d3ee;background:rgba(34,211,238,.08)}.direction-btn.active{border-color:#22d3ee;background:linear-gradient(135deg,rgba(37,99,235,.2),rgba(20,184,166,.14));box-shadow:0 0 0 3px rgba(34,211,238,.08),inset 3px 0 0 #22d3ee}.direction-btn.active:after{content:"✓ Seçildi";color:#86efac}.direction-btn:focus-visible{outline:3px solid rgba(34,211,238,.28);outline-offset:2px}.quality-badge{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:4px 7px;border:1px solid rgba(34,197,94,.25);border-radius:999px;background:rgba(34,197,94,.08);color:#86efac;font-size:.68rem;font-weight:850}
+.publish-btn.is-loading{display:flex;align-items:center;justify-content:center;gap:9px;opacity:.85}
+.publish-loader{width:17px;height:17px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.publish-status{display:none;margin-top:9px;padding:9px 11px;border-radius:10px;font-size:.76rem;font-weight:800;line-height:1.4}
+.publish-status.show{display:block}.publish-status.loading{color:#a5f3fc;background:rgba(8,145,178,.13);border:1px solid rgba(34,211,238,.2)}
+.publish-status.error{color:#fecaca;background:rgba(220,38,38,.12);border:1px solid rgba(248,113,113,.2)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="studio-page">
+  <div class="studio-top">
+    <div>
+      <h1>{{ labels.creative_studio }}</h1>
+      <p>{{ labels.creative_studio_desc }}</p>
+    </div>
+    <div class="studio-actions">
+      <a class="studio-btn secondary" href="{% url 'organic_content_center' %}"><i class="fas fa-calendar-days"></i> {{ labels.content_center }}</a>
+      <a class="studio-btn" href="{% url 'organic_connections' %}"><i class="fas fa-link"></i> {{ labels.connected_accounts }}</a>
+    </div>
+  </div>
+
+  <div class="studio-flow"><strong>Nasıl çalışır?</strong><span>Ürün görsellerini yükleyin</span><span class="flow-dot"></span><span>AI promptunu hazırlayın</span><span class="flow-dot"></span><span>Görsel varyasyonları üretin</span></div>
+
+  <div class="studio-grid">
+    <aside class="studio-card">
+      <div class="studio-card-head"><i class="fas fa-wand-magic-sparkles"></i><h2>AI Görsel Üretimi</h2></div>
+      <div class="studio-card-body">
+        <input id="sourceType" type="hidden" value="scratch">
+        <select id="platformSelect" hidden aria-hidden="true">
+          {% for platform in publish_platforms %}
+          <option value="{{ platform.code }}" data-post-types="{{ platform.post_types|join:',' }}"{% if not platform.integration_ready %} disabled{% endif %}>{{ platform.name }}{% if not platform.integration_ready %} — API bağlantısı hazırlanacak{% endif %}</option>
+          {% endfor %}
+        </select>
+
+        <label class="field-label">Ürün görselleri</label>
+        <div class="upload-zone" id="referenceUploadZone" style="margin:0 0 12px;">
+          <input id="referenceMediaInput" type="file" accept="image/*" multiple hidden>
+          <i class="fas fa-photo-film"></i>
+          <div><strong>Ürün görsellerini seç</strong></div>
+          <small>Farklı açılardan en fazla 10 görsel · toplam 50 MB</small>
+          <div class="file-name" id="referenceFileName"></div>
+        </div>
+        <button id="analyzePromptBtn" class="prompt-ai-btn" type="button">
+          <span class="prompt-ai-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+          <span>Görseli analiz et ve profesyonel prompt yaz</span>
+        </button>
+        <div id="promptAnalysisStatus" class="prompt-analysis-status" role="status" aria-live="polite"></div>
+        <div id="creativeDirections" class="creative-directions"></div>
+
+        <label class="field-label">AI profesyonel görsel promptu</label>
+        <textarea id="productDesc" class="studio-input prompt-input" placeholder="Ürün görsellerini yükleyin; yapay zeka görseli analiz ederek ayrıntılı profesyonel promptu buraya yazacaktır. Oluşan promptu üretimden önce düzenleyebilirsiniz."></textarea>
+        <div class="prompt-edit-note"><i class="fas fa-pen-to-square"></i><span>AI tarafından oluşturulan prompt düzenlenebilir. Markanıza, kampanyanıza veya istediğiniz sahneye göre son rötuşları yapabilirsiniz.</span></div>
+        <label class="field-label">{{ labels.keywords }}</label>
+        <input id="keywords" class="studio-input" placeholder="{{ labels.keywords_placeholder }}">
+
+        <div id="variantCountField">
+          <label class="field-label">{{ labels.variant }}</label>
+          <select id="numVariants" class="studio-input">
+            <option value="4" selected>4 {{ labels.variant|lower }}</option>
+            <option value="3">3 {{ labels.variant|lower }}</option>
+            <option value="6">6 {{ labels.variant|lower }}</option>
+          </select>
+        </div>
+        <div id="carouselModeNote" class="carousel-mode-note"><i class="fas fa-layer-group"></i> Birden fazla görsel seçildi: Görseller düzenlenerek tek bir kaydırmalı carousel post oluşturulacak.</div>
+        <button id="generateBtn" class="generate-btn" type="button"><i class="fas fa-wand-magic-sparkles"></i> Görsel varyasyonları üret</button>
+      </div>
+    </aside>
+
+    <main class="studio-card main-work">
+      <div class="studio-card-head"><i class="fas fa-layer-group"></i><h2>{{ labels.generated_variants }}</h2></div>
+      <div class="studio-card-body">
+        <div id="loadingBox" class="loading">
+          <div class="spinner"></div><strong>{{ labels.ai_generating }}</strong>
+          <div class="ai-progress-wrap">
+            <div class="ai-progress-head"><span id="generationProgressStage">16 AI ajanı stratejiyi hazırlıyor</span><span id="generationProgressPercent">6%</span></div>
+            <div class="ai-progress-track"><div class="ai-progress-bar" id="generationProgressBar"></div></div>
+            <div class="ai-progress-note">Ürün doğruluğu korunarak başlık, metin, CTA, hashtag ve görsel varyasyonları hazırlanıyor.</div>
+          </div>
+        </div>
+        <div id="emptyBox" class="empty-work"><i class="fas fa-sparkles"></i><br>{{ labels.empty_variants }}</div>
+        <div id="variantsContainer" class="variant-grid"></div>
+      </div>
+    </main>
+
+    <aside class="studio-card">
+      <div class="studio-card-head"><i class="fas fa-mobile-screen"></i><h2>{{ labels.platform_simulator }}</h2></div>
+      <div class="studio-card-body">
+        <div class="phone">
+          <div class="phone-head"><div class="avatar" id="phoneAvatar">R</div><div><div class="phone-user" id="phoneUser">{{ labels.default_account_handle }}</div><div class="phone-sub" id="phoneSub">{{ labels.organic_preview }}</div></div></div>
+          <div class="phone-media" id="phoneMedia"><span>{{ labels.no_media }}</span><span class="platform-chip" id="phonePlatform">Instagram</span></div>
+          <div class="phone-icons"><i class="far fa-heart"></i><i class="far fa-comment"></i><i class="far fa-paper-plane"></i><i class="far fa-bookmark"></i></div>
+          <div class="phone-copy" id="phoneCopy"><strong>{{ labels.default_account_handle }}</strong> {{ labels.variant_preview_text }}</div>
+        </div>
+
+        <div class="upload-zone" id="uploadZone">
+          <input id="mediaInput" type="file" accept="image/*" hidden>
+          <i class="fas fa-cloud-arrow-up"></i>
+          <div><strong>{{ labels.add_media }}</strong></div>
+          <small>{{ labels.drag_or_choose }}</small>
+          <div class="file-name" id="fileName"></div>
+        </div>
+
+        {% if agency_scope.is_agency %}
+        <label class="field-label" for="rightAgencyClient" style="margin-top:12px;">Müşteri / Firma</label>
+        <select id="rightAgencyClient" class="studio-input agency-client-filter">
+          <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+          {% for agency_client in agency_scope.clients %}<option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>{% endfor %}
+        </select>
+        {% endif %}
+        <label class="field-label" style="margin-top:12px;">{{ labels.account }}</label>
+        <select id="accountSelect" class="studio-input"><option value="">{{ labels.select_account }}</option></select>
+        <label class="field-label">{{ labels.content_type }}</label>
+        <select id="postType" class="studio-input">
+          <option value="IMAGE">{{ labels.image }}</option>
+        </select>
+        <label class="field-label">Gönderim zamanı</label>
+        <select id="sendTiming" class="studio-input">
+          <option value="now">Şimdi gönder</option>
+          <option value="later">Tarih ve saat seç</option>
+        </select>
+        <div id="scheduleFields" style="display:none;grid-template-columns:1fr 1fr;gap:8px;">
+          <input id="scheduledDate" class="studio-input" type="date" aria-label="Gönderim tarihi">
+          <input id="scheduledTime" class="studio-input" type="time" value="12:00" aria-label="Gönderim saati">
+        </div>
+        <button id="publishBtn" class="publish-btn" type="button" disabled>Gönder</button>
+        <div id="publishStatus" class="publish-status" role="status" aria-live="polite"></div>
+        <div class="publish-note">
+          Instagram, Facebook, TikTok, X ve LinkedIn için bağlı hesabınıza platformun desteklediği içerik türünde gönderim yapabilirsiniz.
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  {% if my_projects %}
+  <div class="studio-card studio-recent" style="margin-top:16px;">
+    <div class="studio-card-head"><i class="fas fa-clock-rotate-left"></i><h2>{{ labels.recent_projects }}</h2></div>
+    <div class="studio-card-body recent-list">
+      {% for project in my_projects|slice:":6" %}
+      <div class="recent-item"><strong>{{ project.name }}</strong><span>{{ project.get_status_display }} · {{ project.created_at|date:"d.m.Y H:i" }}</span></div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+<div class="cache-notice" id="cacheNotice" role="dialog" aria-modal="true" aria-labelledby="cacheNoticeTitle" aria-describedby="cacheNoticeMessage">
+  <div class="cache-notice-card">
+    <div class="cache-notice-icon"><i class="fas fa-bolt"></i></div>
+    <h3 id="cacheNoticeTitle">Hızlı sonuç kullanıldı</h3>
+    <p id="cacheNoticeMessage"></p>
+    <div class="cache-notice-actions"><button class="cache-notice-close" id="cacheNoticeClose" type="button">Anladım</button></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let selectedTone = "professional";
+let generatedVariants = [];
+let selectedVariant = null;
+let currentProjectId = null;
+let uploadedMediaFile = null;
+let referenceMediaFiles = [];
+let publishInProgress = false;
+
+const qs = (id) => document.getElementById(id);
+const csrf = () => (document.cookie.split("; ").find(row => row.startsWith("csrftoken=")) || "").split("=")[1] || "";
+const platformNames = {instagram:"Instagram",facebook:"Facebook",tiktok:"TikTok",linkedin:"LinkedIn",x:"X"};
+const studioStateKey = "creative-studio-state-{{ request.user.id }}";
+const studioEscapeHtml = (value) => String(value ?? "").replace(/[&<>'"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch]));
+const UI = {
+  defaultAccount: "{{ labels.default_account|escapejs }}",
+  defaultAccountHandle: "{{ labels.default_account_handle|escapejs }}",
+  noMedia: "{{ labels.no_media|escapejs }}",
+  noTitle: "{{ labels.no_title|escapejs }}",
+  score: "{{ labels.score|escapejs }}",
+  selectAccount: "{{ labels.select_account|escapejs }}",
+  selectCompetitor: "{{ labels.select_competitor|escapejs }}",
+  selectAd: "{{ labels.select_ad|escapejs }}",
+  adFallback: "{{ labels.ad_fallback|escapejs }}",
+  productRequired: "{{ labels.product_required|escapejs }}",
+  competitorAdRequired: "{{ labels.competitor_ad_required|escapejs }}",
+  generationFailed: "{{ labels.generation_failed|escapejs }}",
+  networkError: "{{ labels.network_error|escapejs }}",
+  mediaTypeError: "{{ labels.media_type_error|escapejs }}",
+  variantAccountRequired: "{{ labels.variant_account_required|escapejs }}",
+  transferFailed: "{{ labels.transfer_failed|escapejs }}"
+};
+
+function saveStudioState(){
+  if(!currentProjectId || !generatedVariants.length) return;
+  const state = {
+    projectId: currentProjectId,
+    variants: generatedVariants,
+    selectedVariantNumber: selectedVariant?.variant_number || null,
+    productDescription: qs("productDesc").value,
+    keywords: qs("keywords").value,
+    agencyClient: qs("rightAgencyClient")?.value || "",
+    accountId: qs("accountSelect").value,
+    postType: qs("postType").value,
+    sendTiming: qs("sendTiming").value,
+    scheduledDate: qs("scheduledDate").value,
+    scheduledTime: qs("scheduledTime").value,
+    savedAt: Date.now()
+  };
+  try{ sessionStorage.setItem(studioStateKey, JSON.stringify(state)); }catch(error){}
+}
+
+function readStudioState(){
+  try{
+    const state = JSON.parse(sessionStorage.getItem(studioStateKey) || "null");
+    return state && state.projectId && Array.isArray(state.variants) ? state : null;
+  }catch(error){ return null; }
+}
+
+function showCacheNotice(title, message){
+  qs("cacheNoticeTitle").textContent = title;
+  qs("cacheNoticeMessage").textContent = message;
+  qs("cacheNotice").classList.add("show");
+  qs("cacheNoticeClose").focus();
+}
+function closeCacheNotice(){
+  qs("cacheNotice").classList.remove("show");
+}
+qs("cacheNoticeClose").addEventListener("click", closeCacheNotice);
+qs("cacheNotice").addEventListener("click", event => {
+  if(event.target === qs("cacheNotice")) closeCacheNotice();
+});
+document.addEventListener("keydown", event => {
+  if(event.key === "Escape" && qs("cacheNotice").classList.contains("show")) closeCacheNotice();
+});
+
+function placeholderImage(n){
+  const colors=[["#4f46e5","#06b6d4"],["#111827","#f59e0b"],["#16a34a","#0ea5e9"],["#be123c","#7c3aed"]];
+  const c=colors[(n-1)%colors.length];
+  return "data:image/svg+xml,"+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${c[0]}"/><stop offset="1" stop-color="${c[1]}"/></linearGradient></defs><rect width="900" height="900" fill="url(#g)"/><text x="450" y="430" text-anchor="middle" fill="white" font-family="Arial" font-size="54" font-weight="800">VARIANT ${n}</text><text x="450" y="495" text-anchor="middle" fill="rgba(255,255,255,.72)" font-family="Arial" font-size="24">Creative Studio</text></svg>`);
+}
+
+let generationProgressController = null;
+let promptProgressController = null;
+function startAiProgress(prefix, stages){
+  const bar = qs(`${prefix}ProgressBar`);
+  const percent = qs(`${prefix}ProgressPercent`);
+  const stage = qs(`${prefix}ProgressStage`);
+  let value = 6;
+  if(bar) bar.style.width = `${value}%`;
+  if(percent) percent.textContent = `${value}%`;
+  if(stage) stage.textContent = stages[0];
+  const timer = window.setInterval(() => {
+    const step = value < 45 ? 6 : (value < 72 ? 3 : 1);
+    value = Math.min(92, value + step);
+    if(bar) bar.style.width = `${value}%`;
+    if(percent) percent.textContent = `${value}%`;
+    if(stage) stage.textContent = stages[value < 38 ? 0 : (value < 72 ? 1 : 2)];
+  }, 780);
+  return {timer, bar, percent, stage};
+}
+function finishAiProgress(controller, finalStage){
+  if(!controller) return;
+  window.clearInterval(controller.timer);
+  if(controller.bar) controller.bar.style.width = "100%";
+  if(controller.percent) controller.percent.textContent = "100%";
+  if(controller.stage) controller.stage.textContent = finalStage;
+}
+function setLoading(active){
+  qs("loadingBox").style.display = active ? "block" : "none";
+  qs("generateBtn").disabled = active;
+  if(active){
+    generationProgressController = startAiProgress("generation", [
+      "16 AI ajanı stratejiyi hazırlıyor",
+      "Başlık ve post metinleri oluşturuluyor",
+      "Premium görsel varyasyonları işleniyor"
+    ]);
+  }else{
+    finishAiProgress(generationProgressController, "Varyasyonlar hazır");
+    generationProgressController = null;
+  }
+}
+
+function refreshPreview(){
+  const platform = qs("platformSelect").value;
+  const account = qs("accountSelect");
+  const accountName = account.selectedIndex > 0 ? account.options[account.selectedIndex].textContent.trim() : UI.defaultAccount;
+  qs("phonePlatform").textContent = platformNames[platform] || platform;
+  qs("phoneUser").textContent = "@" + accountName.replace(/^@/,"").slice(0,28);
+  qs("phoneAvatar").textContent = accountName.trim().charAt(0).toUpperCase() || "R";
+  if(selectedVariant){
+    const tags = Array.isArray(selectedVariant.hashtags) ? selectedVariant.hashtags.map(t=>"#"+String(t).replace("#","")).join(" ") : "";
+    qs("phoneCopy").innerHTML = `<strong>@${accountName.replace(/^@/,"")}</strong> ${selectedVariant.headline || ""}<br>${selectedVariant.primary_text || ""}<br><span style="color:#2563eb">${tags}</span>`;
+  }
+  renderPhoneMedia();
+  qs("publishBtn").disabled = publishInProgress || !(selectedVariant && currentProjectId && qs("accountSelect").value && (uploadedMediaFile || selectedVariant.image_url));
+}
+
+function setPublishing(active, message="", isError=false){
+  publishInProgress = active;
+  const button = qs("publishBtn");
+  const status = qs("publishStatus");
+  button.disabled = active || !(selectedVariant && currentProjectId && qs("accountSelect").value && (uploadedMediaFile || selectedVariant.image_url));
+  button.classList.toggle("is-loading", active);
+  button.setAttribute("aria-busy", active ? "true" : "false");
+  button.innerHTML = active
+    ? `<span class="publish-loader" aria-hidden="true"></span><span>Gönderiliyor…</span>`
+    : `<i class="fas fa-paper-plane" aria-hidden="true"></i><span>Gönder</span>`;
+  status.className = "publish-status" + (message ? ` show ${isError ? "error" : "loading"}` : "");
+  status.textContent = message;
+}
+
+function renderPhoneMedia(){
+  const media = qs("phoneMedia");
+  const chip = `<span class="platform-chip" id="phonePlatform">${platformNames[qs("platformSelect").value] || qs("platformSelect").value}</span>`;
+  media.classList.remove("carousel-phone");
+  if(uploadedMediaFile){
+    const url = URL.createObjectURL(uploadedMediaFile);
+    media.innerHTML = chip + `<img src="${url}" alt="">`;
+  }else if(selectedVariant && Array.isArray(selectedVariant.carousel_images) && selectedVariant.carousel_images.length > 1){
+    media.classList.add("carousel-phone");
+    const images = selectedVariant.carousel_images;
+    media.innerHTML = chip + `<span class="carousel-count">${images.length} görsel · kaydır</span>` +
+      images.map((url, index) => `<img src="${studioEscapeHtml(url)}" alt="Carousel görseli ${index + 1}">`).join("");
+  }else if(selectedVariant && selectedVariant.image_url){
+    media.innerHTML = chip + `<img src="${selectedVariant.image_url}" alt="AI reklam görseli">`;
+  }else{
+    media.innerHTML = chip + `<span>${UI.noMedia}</span>`;
+  }
+}
+
+function renderVariants(variants){
+  qs("emptyBox").style.display = "none";
+  qs("variantsContainer").innerHTML = variants.map(v => {
+    const carouselImages = Array.isArray(v.carousel_images) ? v.carousel_images : [];
+    const mediaHtml = carouselImages.length > 1
+      ? `<div class="variant-media carousel-media">${carouselImages.map((url, index) => `<img src="${studioEscapeHtml(url)}" alt="Carousel görseli ${index + 1}">`).join("")}</div><div class="carousel-hint"><i class="fas fa-hand-pointer"></i>${carouselImages.length} görsel · sağa/sola kaydır</div>`
+      : `<div class="variant-media">${v.image_url ? `<img src="${studioEscapeHtml(v.image_url)}" alt="AI reklam varyantı">` : `<div style="display:grid;place-items:center;min-height:180px;color:#94a3b8"><span><i class="fas fa-image"></i><br>Görsel yeniden üretilebilir</span></div>`}</div>`;
+    return `
+    <article class="variant-card" data-variant="${v.variant_number}">
+      ${mediaHtml}
+      <label class="field-label">Başlık</label>
+      <input class="variant-edit" data-edit="headline" value="${studioEscapeHtml(v.headline || "")}">
+      <label class="field-label">Ana metin</label>
+      <textarea class="variant-edit primary" data-edit="primary_text">${studioEscapeHtml(v.primary_text || "")}</textarea>
+      <label class="field-label">Açıklama</label>
+      <textarea class="variant-edit" data-edit="description">${studioEscapeHtml(v.description || "")}</textarea>
+      <label class="field-label">Çağrı metni</label>
+      <input class="variant-edit" data-edit="cta" value="${studioEscapeHtml(v.cta || "")}">
+      <label class="field-label">Hashtagler (virgülle ayırın)</label>
+      <input class="variant-edit" data-edit="hashtags" value="${studioEscapeHtml((v.hashtags || []).join(", "))}">
+      <button type="button" class="variant-save" data-save-variant="${v.variant_number}">Değişiklikleri Kaydet</button>
+      <div class="variant-meta"><span>${UI.score} ${v.ai_score || 0}</span><span>CTR %${v.predicted_ctr || 0}</span></div>
+      ${Number(v.quality_review_score || 0) > 0 ? `<div class="quality-badge" title="${studioEscapeHtml(v.quality_review_summary || "")}"><i class="fas fa-shield-check"></i> Sol kalite kontrolü ${Number(v.quality_review_score).toFixed(0)}/100</div>` : ""}
+      ${v.image_generation_status === "retryable" ? `<small style="color:#fbbf24">${studioEscapeHtml(v.image_generation_error)}</small>` : ""}
+      ${v.image_generation_status === "retryable" ? `<button type="button" class="retry-media-btn" data-retry-media="${v.variant_number}" style="margin-top:8px;border:1px solid #f59e0b;border-radius:9px;padding:6px 9px;background:rgba(245,158,11,.12);color:#fde68a">Görseli yeniden dene</button>` : ""}
+    </article>`;
+  }).join("");
+  document.querySelectorAll(".variant-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".variant-card").forEach(x => x.classList.remove("active"));
+      card.classList.add("active");
+      selectedVariant = generatedVariants.find(v => String(v.variant_number) === card.dataset.variant);
+      refreshPreview();
+      saveStudioState();
+    });
+  });
+  document.querySelectorAll(".variant-edit").forEach(input => {
+    input.addEventListener("input", () => {
+      const card = input.closest(".variant-card");
+      const variant = generatedVariants.find(row => String(row.variant_number) === card.dataset.variant);
+      if(!variant) return;
+      variant[input.dataset.edit] = input.dataset.edit === "hashtags"
+        ? input.value.split(",").map(item => item.trim().replace(/^#/, "")).filter(Boolean)
+        : input.value;
+      if(selectedVariant && String(selectedVariant.variant_number) === card.dataset.variant){
+        selectedVariant = variant;
+        refreshPreview();
+      }
+      saveStudioState();
+    });
+  });
+  document.querySelectorAll("[data-save-variant]").forEach(btn => btn.addEventListener("click", async event => {
+    event.stopPropagation();
+    const card = btn.closest(".variant-card");
+    const variantNumber = Number(btn.dataset.saveVariant);
+    const payload = {};
+    card.querySelectorAll("[data-edit]").forEach(input => payload[input.dataset.edit] = input.value);
+    btn.disabled = true;
+    btn.textContent = "Kaydediliyor…";
+    try{
+      const r = await fetch(`/api/creative/project/${currentProjectId}/variant/${variantNumber}/text/`, {method:"POST",headers:{"Content-Type":"application/json","X-CSRFToken":csrf()},body:JSON.stringify(payload)});
+      const d = await r.json();
+      if(!d.success) throw new Error(d.message || "Kaydedilemedi");
+      generatedVariants = generatedVariants.map(v => Number(v.variant_number) === variantNumber ? d.variant : v);
+      selectedVariant = generatedVariants.find(v => Number(v.variant_number) === variantNumber) || selectedVariant;
+      btn.classList.add("saved");
+      btn.textContent = "Kaydedildi";
+      refreshPreview();
+      saveStudioState();
+    }catch(err){ btn.textContent = err.message || "Kaydedilemedi"; }
+    finally{ btn.disabled = false; }
+  }));
+  document.querySelectorAll("[data-retry-media]").forEach(btn => btn.addEventListener("click", async event => {
+    event.stopPropagation();
+    btn.disabled = true;
+    btn.textContent = "Medya hazırlanıyor…";
+    const r = await fetch(`/api/creative/project/${currentProjectId}/variant/${btn.dataset.retryMedia}/regenerate-media/`, {method:"POST", headers:{"Content-Type":"application/json","X-CSRFToken":csrf()}, body:JSON.stringify({image:true})});
+    const d = await r.json();
+    if(d.success){ generatedVariants = generatedVariants.map(v => String(v.variant_number) === String(d.variant.variant_number) ? d.variant : v); renderVariants(generatedVariants); }
+    else { btn.disabled = false; btn.textContent = "Daha sonra yeniden dene"; }
+  }));
+  document.querySelector(".variant-card")?.click();
+}
+
+async function loadAccounts(agencyClientId = qs("rightAgencyClient")?.value || ""){
+  const select = qs("accountSelect");
+  const previousAccountId = select.value;
+  select.innerHTML = `<option value="">${UI.selectAccount}</option>`;
+  try {
+    const platforms = [...qs("platformSelect").options].filter(opt => !opt.disabled).map(opt => ({code:opt.value, name:(platformNames[opt.value] || opt.textContent).split(" — ")[0]}));
+    const results = await Promise.all(platforms.map(async platform => {
+      const params = new URLSearchParams({platform: platform.code, agency_client: agencyClientId});
+      const r = await fetch(`/api/platform-accounts/?${params.toString()}`, {cache:"no-store", credentials:"same-origin"});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const d = await r.json();
+      return {platform, accounts:(d.platforms || []).flatMap(row => row.accounts || [])};
+    }));
+    let accountCount = 0;
+    results.forEach(({platform, accounts}) => {
+      if(!accounts.length) return;
+      const group = document.createElement("optgroup");
+      group.label = platform.name;
+      accounts.forEach(acc => {
+        const opt = document.createElement("option");
+        opt.value = acc.id;
+        opt.dataset.platform = platform.code;
+        opt.textContent = acc.account_name || acc.account_id;
+        group.appendChild(opt);
+        accountCount += 1;
+      });
+      select.appendChild(group);
+    });
+    if(!accountCount){
+      const opt = document.createElement("option");
+      opt.disabled = true;
+      opt.textContent = "Bağlı hesap yok — Hesap Ekle bölümünden bağlayın";
+      select.appendChild(opt);
+    }
+    if(previousAccountId && [...select.options].some(option => option.value === previousAccountId)){
+      select.value = previousAccountId;
+    }
+  } catch(err) {
+    const opt = document.createElement("option");
+    opt.disabled = true;
+    opt.textContent = "Hesaplar yüklenemedi";
+    select.appendChild(opt);
+  }
+  refreshPreview();
+}
+
+qs("rightAgencyClient")?.addEventListener("change", async event => {
+  const select = event.currentTarget;
+  select.disabled = true;
+  try{
+    const url = new URL(window.location.href);
+    if(select.value) url.searchParams.set("agency_client", select.value);
+    else url.searchParams.delete("agency_client");
+    window.history.replaceState({}, "", url);
+    await loadAccounts(select.value);
+    saveStudioState();
+  }finally{
+    select.disabled = false;
+  }
+});
+
+function refreshPostTypes(){
+  qs("postType").innerHTML = `<option value="IMAGE">Görsel</option>`;
+}
+
+async function loadCompetitors(){
+  const platform = qs("platformSelect").value;
+  const select = qs("competitorSelect");
+  const status = qs("competitorLoadStatus");
+  select.innerHTML = `<option value="">${UI.selectCompetitor}</option>`;
+  qs("adSelect").innerHTML = `<option value="">${UI.selectAd}</option>`;
+  status.style.display = "none";
+  try {
+    const r = await fetch(`/api/competitors/${encodeURIComponent(platform)}/`, {cache:"no-store", credentials:"same-origin"});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    if(!d.success) throw new Error(d.message || UI.networkError);
+    (d.competitors || []).forEach(comp => {
+      const opt = document.createElement("option");
+      opt.value = comp.id;
+      opt.textContent = `${comp.name} (${comp.ad_count})`;
+      select.appendChild(opt);
+    });
+    if(!(d.competitors || []).length){
+      status.textContent = "Bu platform için aktif rakip reklamı bulunamadı.";
+      status.style.display = "block";
+    }
+  } catch(err) {
+    status.textContent = `Rakipler yüklenemedi: ${err.message || UI.networkError}`;
+    status.style.display = "block";
+  }
+}
+
+async function loadCompetitorAds(){
+  const compId = qs("competitorSelect").value;
+  const select = qs("adSelect");
+  const status = qs("competitorLoadStatus");
+  select.innerHTML = `<option value="">${UI.selectAd}</option>`;
+  if(!compId) return;
+  select.disabled = true;
+  status.textContent = "Rakip reklamları yükleniyor…";
+  status.style.display = "block";
+  try {
+    const r = await fetch(`/api/competitor/${encodeURIComponent(compId)}/ads/`, {cache:"no-store", credentials:"same-origin"});
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    if(!d.success) throw new Error(d.message || UI.networkError);
+    (d.ads || []).forEach(ad => {
+      const opt = document.createElement("option");
+      opt.value = ad.db_id || ad.id;
+      opt.textContent = `${ad.name || ad.title || UI.adFallback} - CTR %${ad.ctr || 0}`;
+      select.appendChild(opt);
+    });
+    status.textContent = (d.ads || []).length ? `${d.ads.length} rakip reklamı yüklendi.` : "Bu rakibe ait aktif reklam bulunamadı.";
+    status.style.color = (d.ads || []).length ? "#86efac" : "#fbbf24";
+  } catch(err) {
+    status.textContent = `Rakip reklamları yüklenemedi: ${err.message || UI.networkError}`;
+    status.style.color = "#fbbf24";
+  } finally {
+    select.disabled = false;
+  }
+}
+
+qs("accountSelect").addEventListener("change", async () => {
+  const platform = qs("accountSelect").selectedOptions[0]?.dataset.platform;
+  if(platform && qs("platformSelect").value !== platform){
+    qs("platformSelect").value = platform;
+    refreshPostTypes();
+  }
+  refreshPreview();
+  saveStudioState();
+});
+
+qs("analyzePromptBtn").addEventListener("click", async () => {
+  if(!referenceMediaFiles.length){
+    alert("Profesyonel prompt oluşturmak için en az bir ürün görseli yükleyin.");
+    return;
+  }
+  const button = qs("analyzePromptBtn");
+  const status = qs("promptAnalysisStatus");
+  button.disabled = true;
+  button.innerHTML = `<span class="prompt-ai-icon"><span class="spinner" style="display:inline-block;width:15px;height:15px;border-width:2px;margin:0"></span></span><span>Ürün ve trend analiz ediliyor…</span>`;
+  status.style.display = "block";
+  status.style.color = "#67e8f9";
+  status.innerHTML = `
+    <div class="ai-progress-head"><span id="promptProgressStage">Ürün kategorisi ve özellikleri inceleniyor</span><span id="promptProgressPercent">6%</span></div>
+    <div class="ai-progress-track"><div class="ai-progress-bar" id="promptProgressBar"></div></div>
+    <div class="ai-progress-note">Ürüne uygun güncel trend, sahne ve profesyonel prompt yönü belirleniyor.</div>`;
+  promptProgressController = startAiProgress("prompt", [
+    "Ürün kategorisi ve özellikleri inceleniyor",
+    "Güncel kreatif trend belirleniyor",
+    "Profesyonel prompt ve anahtar kelimeler yazılıyor"
+  ]);
+  try{
+    const payload = new FormData();
+    payload.append("platform", qs("platformSelect").value);
+    payload.append("context", qs("keywords").value.trim());
+    referenceMediaFiles.forEach(file => payload.append("reference_media", file));
+    const response = await fetch("/api/creative/reference-prompt/", {
+      method: "POST",
+      headers: {"X-CSRFToken": csrf()},
+      body: payload
+    });
+    const data = await response.json();
+    if(!data.success) throw new Error(data.message || "Prompt oluşturulamadı.");
+    finishAiProgress(promptProgressController, "Prompt hazır");
+    promptProgressController = null;
+    qs("productDesc").value = data.prompt || "";
+    const analyzedBasePrompt = data.prompt || "";
+    qs("keywords").value = (data.keywords || []).join(", ");
+    const directions = Array.isArray(data.creative_directions) ? data.creative_directions : [];
+    const directionBox = qs("creativeDirections");
+    directionBox.classList.toggle("show", Boolean(directions.length || data.analysis_summary));
+    directionBox.innerHTML = `
+      ${data.analysis_summary ? `<div class="creative-summary"><strong>AI ürün analizi:</strong> ${studioEscapeHtml(data.analysis_summary)}</div>` : ""}
+      <div class="direction-grid">${directions.map((direction, index) => `
+        <button type="button" class="direction-btn" data-direction-index="${index}" aria-pressed="false">
+          <strong>${studioEscapeHtml(direction.title)}</strong>
+          <span>${studioEscapeHtml(direction.why || direction.concept || "")}</span>
+        </button>`).join("")}</div>`;
+    directionBox.querySelectorAll("[data-direction-index]").forEach(button => {
+      button.addEventListener("click", () => {
+        const direction = directions[Number(button.dataset.directionIndex)];
+        const addition = direction?.prompt_addition || direction?.concept || "";
+        if(addition){
+          qs("productDesc").value = `${analyzedBasePrompt.trim()}\n\nSeçilen yaratıcı yön — ${direction.title}:\n${addition}`.trim();
+        }
+        directionBox.querySelectorAll(".direction-btn").forEach(item => {
+          item.classList.remove("active");
+          item.setAttribute("aria-pressed", "false");
+        });
+        button.classList.add("active");
+        button.setAttribute("aria-pressed", "true");
+        status.style.color = "#86efac";
+        status.textContent = `“${direction.title}” yaratıcı yönü seçildi ve profesyonel prompta uygulandı.`;
+      });
+    });
+    status.style.color = "#86efac";
+    status.textContent = "Profesyonel prompt ve ürüne özel anahtar kelimeler hazır. İsterseniz ikisini de düzenleyebilirsiniz.";
+    if(data.cached){
+      showCacheNotice(
+        "1 saatlik prompt sonucu kullanıldı",
+        "Aynı ürün görselleri daha önce analiz edildiği için doğrulanmış profesyonel prompt ve anahtar kelimeler önbellekten getirildi. Bu işlem yeniden AI kontörü veya token harcamaz; sistem çalışmaya devam etmektedir."
+      );
+    }
+  }catch(error){
+    finishAiProgress(promptProgressController, "İşlem tamamlanamadı");
+    promptProgressController = null;
+    status.style.color = "#fca5a5";
+    status.textContent = error.message || UI.networkError;
+  }finally{
+    button.disabled = false;
+    button.innerHTML = `<span class="prompt-ai-icon"><i class="fas fa-wand-magic-sparkles"></i></span><span>Görseli analiz et ve profesyonel prompt yaz</span>`;
+  }
+});
+
+qs("generateBtn").addEventListener("click", async () => {
+  if(!referenceMediaFiles.length){ alert("Önce ürün görsellerini yükleyin."); return; }
+  if(!qs("productDesc").value.trim()){ alert("Önce “Görseli analiz et ve prompt yaz” butonuyla profesyonel promptu oluşturun."); return; }
+  setLoading(true);
+  qs("variantsContainer").innerHTML = "";
+  try{
+    const payload = new FormData();
+    payload.append("source_type", "scratch");
+    payload.append("product_description", qs("productDesc").value.trim());
+    payload.append("target_audience", "");
+    payload.append("keywords", JSON.stringify(qs("keywords").value.split(",").map(x=>x.trim()).filter(Boolean)));
+    payload.append("tone", selectedTone);
+    payload.append("num_variants", Number(qs("numVariants").value));
+    payload.append("generate_visuals", "true");
+    payload.append("project_name", `Creative Studio - ${new Date().toLocaleDateString("tr-TR")}`);
+    referenceMediaFiles.forEach(file => payload.append("reference_media", file));
+    const r = await fetch("/api/creative/generate/", {method:"POST",headers:{"X-CSRFToken":csrf()},body:payload});
+    const d = await r.json();
+    if(!d.success) throw new Error(d.message || UI.generationFailed);
+    currentProjectId = d.project_id;
+    generatedVariants = d.variants || [];
+    renderVariants(generatedVariants);
+    saveStudioState();
+    if(d.ecosystem_cached){
+      showCacheNotice(
+        "30 dakikalık 16 AI stratejisi kullanıldı",
+        "Bu ürün ve prompt için 16 AI ajanının yakın zamanda hazırladığı strateji yeniden kullanıldı. Yeni görsel varyasyonlarınız yine üretildi; yalnızca gereksiz ajan tekrarını önleyerek süre, token ve kontör tasarrufu sağlandı."
+      );
+    }
+  }catch(err){ alert(err.message || UI.networkError); qs("emptyBox").style.display = "block"; }
+  finally{ setLoading(false); }
+});
+
+const uploadZone = qs("uploadZone");
+const mediaInput = qs("mediaInput");
+uploadZone.addEventListener("click", () => mediaInput.click());
+uploadZone.addEventListener("dragover", e => { e.preventDefault(); uploadZone.classList.add("drag"); });
+uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("drag"));
+uploadZone.addEventListener("drop", e => { e.preventDefault(); uploadZone.classList.remove("drag"); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+mediaInput.addEventListener("change", e => { if(e.target.files[0]) handleFile(e.target.files[0]); });
+function handleFile(file){
+  if(!file.type.startsWith("image/")){ alert(UI.mediaTypeError); return; }
+  uploadedMediaFile = file;
+  uploadZone.classList.add("has-file");
+  qs("fileName").textContent = file.name;
+  refreshPreview();
+}
+
+const referenceUploadZone = qs("referenceUploadZone");
+const referenceMediaInput = qs("referenceMediaInput");
+referenceUploadZone.addEventListener("click", () => referenceMediaInput.click());
+referenceUploadZone.addEventListener("dragover", event => { event.preventDefault(); referenceUploadZone.classList.add("drag"); });
+referenceUploadZone.addEventListener("dragleave", () => referenceUploadZone.classList.remove("drag"));
+referenceUploadZone.addEventListener("drop", event => {
+  event.preventDefault();
+  referenceUploadZone.classList.remove("drag");
+  if(event.dataTransfer.files.length) handleReferenceFiles([...event.dataTransfer.files]);
+});
+referenceMediaInput.addEventListener("change", event => { if(event.target.files.length) handleReferenceFiles([...event.target.files]); });
+function handleReferenceFiles(files){
+  if(files.length > 10){ alert("En fazla 10 ürün görseli seçebilirsiniz."); return; }
+  if(files.some(file => !file.type.startsWith("image/"))){ alert("Lütfen yalnızca görsel dosyaları seçin."); return; }
+  if(files.some(file => file.size > 15 * 1024 * 1024) || files.reduce((sum,file)=>sum+file.size,0) > 50 * 1024 * 1024){ alert("Her görsel en fazla 15 MB, toplam boyut en fazla 50 MB olabilir."); return; }
+  referenceMediaFiles = files;
+  const carouselMode = files.length > 1;
+  qs("variantCountField").style.display = carouselMode ? "none" : "block";
+  qs("carouselModeNote").classList.toggle("show", carouselMode);
+  qs("generateBtn").innerHTML = carouselMode
+    ? `<i class="fas fa-layer-group"></i> Tek carousel post üret`
+    : `<i class="fas fa-wand-magic-sparkles"></i> Görsel varyasyonları üret`;
+  qs("productDesc").value = "";
+  qs("keywords").value = "";
+  qs("promptAnalysisStatus").style.display = "none";
+  referenceUploadZone.classList.add("has-file");
+  qs("referenceFileName").textContent = `${files.length} görsel seçildi: ${files.map(file=>file.name).join(", ")}`;
+}
+
+qs("publishBtn").addEventListener("click", async () => {
+  if(publishInProgress) return;
+  if(!selectedVariant || !currentProjectId || !qs("accountSelect").value){ alert(UI.variantAccountRequired); return; }
+  const fd = new FormData();
+  fd.append("project_id", currentProjectId);
+  fd.append("variant_number", selectedVariant.variant_number);
+  fd.append("platform_account_id", qs("accountSelect").value);
+  fd.append("post_type", qs("postType").value);
+  if(qs("sendTiming").value === "later"){
+    const date = qs("scheduledDate").value;
+    const time = qs("scheduledTime").value;
+    if(!date || !time){ alert("Lütfen gönderim tarihi ve saatini seçin."); return; }
+    fd.append("scheduled_at", `${date}T${time}`);
+  }
+  if(uploadedMediaFile) fd.append("media_file", uploadedMediaFile);
+  setPublishing(true, qs("sendTiming").value === "later"
+    ? "Gönderi planlanıyor, lütfen bekleyin…"
+    : "Görsel platforma aktarılıyor, bu işlem biraz sürebilir…");
+  try{
+    const r = await fetch("/api/creative/publish/", {method:"POST",headers:{"X-CSRFToken":csrf()},body:fd});
+    const d = await r.json().catch(() => ({success:false, message:`Sunucu yanıtı okunamadı (HTTP ${r.status}).`}));
+    if(!r.ok || !d.success) throw new Error(d.message || UI.transferFailed);
+    setPublishing(true, d.message || "Gönderi başarıyla aktarıldı.");
+    window.location.href = d.redirect_url || "/organic-content/";
+  }catch(error){
+    setPublishing(false, error.message || UI.transferFailed, true);
+  }
+});
+
+qs("sendTiming").addEventListener("change", () => {
+  qs("scheduleFields").style.display = qs("sendTiming").value === "later" ? "grid" : "none";
+  saveStudioState();
+});
+qs("postType").addEventListener("change", saveStudioState);
+qs("scheduledDate").addEventListener("change", saveStudioState);
+qs("scheduledTime").addEventListener("change", saveStudioState);
+
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+qs("scheduledDate").min = new Date().toISOString().slice(0, 10);
+qs("scheduledDate").value = tomorrow.toISOString().slice(0, 10);
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const restoredState = readStudioState();
+  if(restoredState){
+    currentProjectId = restoredState.projectId;
+    generatedVariants = restoredState.variants;
+    qs("productDesc").value = restoredState.productDescription || "";
+    qs("keywords").value = restoredState.keywords || "";
+    if(qs("rightAgencyClient") && restoredState.agencyClient !== undefined){
+      qs("rightAgencyClient").value = restoredState.agencyClient;
+    }
+  }
+  refreshPostTypes();
+  await loadAccounts(restoredState?.agencyClient || "");
+  if(restoredState){
+    if([...qs("accountSelect").options].some(option => option.value === String(restoredState.accountId || ""))){
+      qs("accountSelect").value = String(restoredState.accountId || "");
+      const platform = qs("accountSelect").selectedOptions[0]?.dataset.platform;
+      if(platform) qs("platformSelect").value = platform;
+    }
+    qs("postType").value = restoredState.postType || "IMAGE";
+    qs("sendTiming").value = restoredState.sendTiming || "now";
+    qs("scheduledDate").value = restoredState.scheduledDate || qs("scheduledDate").value;
+    qs("scheduledTime").value = restoredState.scheduledTime || "12:00";
+    qs("scheduleFields").style.display = qs("sendTiming").value === "later" ? "grid" : "none";
+    renderVariants(generatedVariants);
+    const wantedCard = document.querySelector(`[data-variant="${restoredState.selectedVariantNumber}"]`);
+    if(wantedCard) wantedCard.click();
+  }
+  refreshPreview();
+});
+</script>
+{% endblock %}

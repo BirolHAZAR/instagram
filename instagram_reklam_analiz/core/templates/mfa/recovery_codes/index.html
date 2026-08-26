@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kurtarma Kodlar&#305;{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>Kurtarma Kodlar&#305;</h3>
+                <p>Bu kodlar telefonunuza eri&#351;emedi&#287;inizde hesab&#305;n&#305;za girmeniz i&#231;in kullan&#305;l&#305;r.</p>
+                <a href="{% url 'mfa_index' %}" class="allauth-side-link">
+                    <i class="fas fa-arrow-left"></i>2FA Ayarlar&#305;
+                </a>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head">
+                    <span><i class="fas fa-key"></i>Yedek eri&#351;im</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>Kurtarma Kodlar&#305;</h1>
+                    <p>{{ unused_codes|length }} / {{ total_count }} kurtarma kodu kullan&#305;labilir durumda.</p>
+                    {% if can_view_codes %}
+                        <textarea id="recovery_codes" rows="{{ unused_codes|length }}" readonly class="recovery-code-box">{% for code in unused_codes %}{% if forloop.counter0 %}
+{% endif %}{{ code }}{% endfor %}</textarea>
+                    {% endif %}
+                    <div class="allauth-action-row">
+                        {% if can_download_codes %}
+                            <a href="{% url 'mfa_download_recovery_codes' %}" class="allauth-primary-btn">
+                                <i class="fas fa-download"></i>Kodlar&#305; &#304;ndir
+                            </a>
+                        {% endif %}
+                        {% if can_generate_codes %}
+                            <a href="{% url 'mfa_generate_recovery_codes' %}" class="allauth-side-link">
+                                <i class="fas fa-rotate"></i>Yeni Kod Olu&#351;tur
+                            </a>
+                        {% endif %}
+                    </div>
+                    {% if MFA_RECOVERY_CODES_SHOW_ONCE and can_view_codes %}
+                        <label class="recovery-confirm">
+                            <input type="checkbox" id="codes_saved">
+                            <span>Kurtarma kodlar&#305;m&#305; g&#252;venli bir yere kaydettim.</span>
+                        </label>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'mfa/js/recovery_codes.js' %}"></script>
+<script src="{% static 'account/js/onload.js' %}"></script>
+<script data-allauth-onload="allauth.recoveryCodes.forms.viewForm" type="application/json">{
+    "ids": {
+        "saveConfirmation": "codes_saved",
+        "recoveryCodes": "recovery_codes"
+    }
+}</script>
+{% endblock %}

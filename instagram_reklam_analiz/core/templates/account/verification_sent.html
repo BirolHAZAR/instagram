@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}E-posta Doğrulama - ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="signup-page auth-state-page">
+    <div class="signup-shell auth-state-shell">
+        <aside class="signup-brand-panel">
+            <img src="{% static 'images/logo2.png' %}" alt="ReklamAnaliz.net" class="signup-brand-logo">
+            <p class="brand-kicker">güvenli hesap</p>
+            <h1>E-posta doğrulaması hesabını korur.</h1>
+            <p class="brand-copy">
+                Panel erişimi açılmadan önce hesabın sana ait olduğunu doğrularız. Bu adım reklam verilerini,
+                ödeme kayıtlarını ve platform bağlantılarını güvende tutar.
+            </p>
+            <div class="brand-points">
+                <span><i class="fas fa-envelope-circle-check"></i> Güvenli e-posta doğrulama</span>
+                <span><i class="fas fa-user-shield"></i> Hesap sahipliği kontrolü</span>
+                <span><i class="fas fa-lock"></i> Yönetici paneli için ek koruma</span>
+            </div>
+        </aside>
+
+        <div class="signup-card auth-state-card">
+            <div class="auth-state-icon success">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <span class="signup-kicker">doğrulama bekleniyor</span>
+            <h2>E-posta adresinizi doğrulayın</h2>
+            <p>
+                Doğrulama bağlantısını e-posta adresinize gönderdik. Gelen kutunuzu kontrol edin ve bağlantıya
+                tıklayarak hesabınızı aktifleştirin.
+            </p>
+
+            <div class="auth-state-steps">
+                <div>
+                    <strong>1</strong>
+                    <span>Gelen kutusunu kontrol edin</span>
+                </div>
+                <div>
+                    <strong>2</strong>
+                    <span>Spam veya gereksiz klasörüne bakın</span>
+                </div>
+                <div>
+                    <strong>3</strong>
+                    <span>Bağlantıya tıklayıp panele dönün</span>
+                </div>
+            </div>
+
+            <div class="auth-state-actions">
+                <a href="{% url 'account_login' %}" class="btn-signup">
+                    <i class="fas fa-right-to-bracket"></i> Giriş ekranına dön
+                </a>
+                <a href="{% url 'contact' %}" class="auth-secondary-action">
+                    <i class="fas fa-headset"></i> Destek al
+                </a>
+            </div>
+
+            <p class="security-note auth-state-note">
+                <i class="fas fa-circle-info"></i>
+                E-posta birkaç dakika içinde gelmezse adresinizi ve spam klasörünü kontrol edin.
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

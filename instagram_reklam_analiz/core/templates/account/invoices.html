@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tr_numbers %}
+
+{% block title %}Faturalar&#305;m{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/account_invoices.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="invoices-wrapper">
+    <div class="container">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'my_account' %}">
+                                    <i class="fas fa-home me-1"></i>Hesab&#305;m
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">Faturalar&#305;m</li>
+                        </ol>
+                    </nav>
+                    <h2 class="mt-2">
+                        <i class="fas fa-file-invoice me-2"></i>Faturalar&#305;m
+                    </h2>
+                    <p class="page-subtitle">Fatura ge&#231;mi&#351;inizi inceleyin, detaylar&#305; a&#231;&#305;n ve A4 PDF olarak indirin.</p>
+                </div>
+                <div class="col-lg-5 mt-3 mt-lg-0">
+                    <div class="page-actions">
+                        <a href="{% url 'my_account' %}" class="btn-soft">
+                            <i class="fas fa-arrow-left"></i>Hesab&#305;ma Git
+                        </a>
+                        <a href="{% url 'pricing' %}" class="btn-primary-invoice">
+                            <i class="fas fa-plus"></i>Yeni Abonelik
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if invoices %}
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                    <div class="stat-value">{{ invoices|length|tr_int }}</div>
+                    <div class="stat-label">Toplam Fatura</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-value">{{ paid_count|tr_int }}</div>
+                    <div class="stat-label">&#214;denen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="stat-value">{{ pending_count|tr_int }}</div>
+                    <div class="stat-label">Bekleyen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-lira-sign"></i></div>
+                    <div class="stat-value">{{ total_amount|tr_decimal }}</div>
+                    <div class="stat-label">Toplam Tutar</div>
+                </div>
+            </div>
+
+            <div class="invoice-list-card">
+                <div class="list-card-head">
+                    <div>
+                        <h5>Fatura Ge&#231;mi&#351;i</h5>
+                        <p>Son fatura: {{ last_invoice.created_at|date:"d.m.Y"|default:"-" }}</p>
+                    </div>
+                    <span class="secure-badge">
+                        <i class="fas fa-shield-alt"></i>G&#252;venli ar&#351;iv
+                    </span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>Fatura No</th>
+                                <th>Tarih</th>
+                                <th>A&#231;&#305;klama</th>
+                                <th class="text-end">KDV</th>
+                                <th class="text-end">Toplam</th>
+                                <th>Durum</th>
+                                <th class="text-end">Aksiyon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in invoices %}
+                            <tr>
+                                <td data-label="Fatura No">
+                                    <code>{{ invoice.invoice_number }}</code>
+                                </td>
+                                <td data-label="Tarih">
+                                    <strong>{{ invoice.created_at|date:"d.m.Y" }}</strong>
+                                    <small>{{ invoice.created_at|date:"H:i" }}</small>
+                                </td>
+                                <td data-label="A&#231;&#305;klama">
+                                    <span class="invoice-desc">{{ invoice.description|default:"Hizmet bedeli" }}</span>
+                                    {% if invoice.subscription and invoice.subscription.plan %}
+                                        <small>{{ invoice.subscription.plan.display_name }} Paketi</small>
+                                    {% endif %}
+                                </td>
+                                <td data-label="KDV" class="text-end">{{ invoice.kdv_amount|tr_decimal }} TL</td>
+                                <td data-label="Toplam" class="text-end total-cell">{{ invoice.total_amount|tr_decimal }} TL</td>
+                                <td data-label="Durum">
+                                    {% if invoice.status == 'paid' %}
+                                        <span class="status-pill paid"><i class="fas fa-check"></i>&#214;dendi</span>
+                                    {% elif invoice.status == 'cancelled' %}
+                                        <span class="status-pill cancelled"><i class="fas fa-ban"></i>&#304;ptal</span>
+                                    {% else %}
+                                        <span class="status-pill pending"><i class="fas fa-clock"></i>{{ invoice.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td data-label="Aksiyon" class="text-end">
+                                    <div class="row-actions">
+                                        <a href="{% url 'invoice_detail' invoice.id %}" class="icon-action detail" title="Detay">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'invoice_pdf' invoice.id %}" target="_blank" rel="noopener" class="icon-action pdf" title="PDF">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-file-invoice"></i></div>
+                <h3>Fatura Bulunamad&#305;</h3>
+                <p>Hen&#252;z olu&#351;turulmu&#351; bir faturan&#305;z yok.</p>
+                <a href="{% url 'pricing' %}" class="btn-primary-invoice">
+                    <i class="fas fa-shopping-cart"></i>Paketleri &#304;ncele
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

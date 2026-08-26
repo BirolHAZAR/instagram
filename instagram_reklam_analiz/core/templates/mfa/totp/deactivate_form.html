@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Authenticator Devre D&#305;&#351;&#305; B&#305;rak{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>&#199;ift Koruma</h3>
+                <p>Bu i&#351;lem hesab&#305;n&#305;zdaki authenticator tabanl&#305; ek korumay&#305; kapat&#305;r.</p>
+                <a href="{% url 'mfa_index' %}" class="allauth-side-link">
+                    <i class="fas fa-arrow-left"></i>2FA Ayarlar&#305;
+                </a>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head danger">
+                    <span><i class="fas fa-triangle-exclamation"></i>G&#252;venlik uyar&#305;s&#305;</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>Authenticator Devre D&#305;&#351;&#305; B&#305;rak</h1>
+                    <p>Authenticator uygulamas&#305; ile giri&#351; korumas&#305;n&#305; kapatmak istedi&#287;inizden emin misiniz?</p>
+                    {% url 'mfa_deactivate_totp' as action_url %}
+                    <form method="post" action="{{ action_url }}" class="allauth-form">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="allauth-danger-btn">
+                            <i class="fas fa-power-off"></i>Devre D&#305;&#351;&#305; B&#305;rak
+                        </button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

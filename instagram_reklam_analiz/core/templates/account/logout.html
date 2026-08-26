@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Çıkış Yap - ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="signup-page">
+    <div class="signup-shell logout-shell">
+        <aside class="signup-brand-panel">
+            <img src="{% static 'images/logo2.png' %}" alt="ReklamAnaliz.net" class="signup-brand-logo">
+            <p class="brand-kicker">reklamanaliz.net</p>
+            <h1>Oturumunu güvenli şekilde kapat.</h1>
+            <p class="brand-copy">
+                Paylaşımlı cihazlarda çıkış yapmak hesabını, platform bağlantılarını ve raporlarını korur.
+            </p>
+            <div class="brand-points">
+                <span><i class="fas fa-lock"></i> Güvenli oturum kapanışı</span>
+                <span><i class="fas fa-user-shield"></i> Hesap koruması</span>
+                <span><i class="fas fa-clock-rotate-left"></i> Kaldığın yerden devam</span>
+            </div>
+        </aside>
+
+        <div class="signup-card logout-card">
+            <div class="logout-confirm-icon">
+                <i class="fas fa-right-from-bracket"></i>
+            </div>
+
+            <div class="logout-confirm-content">
+                <span class="signup-kicker">Oturum işlemi</span>
+                <h2>Çıkış yapmak istiyor musun?</h2>
+                <p>
+                    {% if user.is_authenticated %}
+                        <strong>{{ user.username }}</strong> hesabındaki aktif oturum kapatılacak.
+                    {% else %}
+                        Aktif oturum bulunamadı.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="logout-security-note">
+                <i class="fas fa-circle-info"></i>
+                <span>Çıkış yaptıktan sonra panele tekrar erişmek için yeniden giriş yapman gerekir.</span>
+            </div>
+
+            <form method="POST" action="{% url 'account_logout' %}" class="logout-actions">
+                {% csrf_token %}
+                {% if redirect_field_value %}
+                    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                {% endif %}
+                <button type="submit" class="btn-logout-confirm">
+                    <i class="fas fa-right-from-bracket"></i> Evet, Çıkış Yap
+                </button>
+                <a href="{% url 'dashboard' %}" class="btn-logout-cancel">
+                    <i class="fas fa-xmark"></i> Panelde Kal
+                </a>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

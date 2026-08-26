@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ labels.content_creator }} | ReklamAnaliz.net{% endblock %}
+{% block extra_css %}
+<style>
+.organic-shell{max-width:1500px;margin:0 auto}.organic-hero{position:relative;overflow:hidden;border:1px solid rgba(139,132,255,.24);border-radius:30px;background:linear-gradient(135deg,rgba(16,23,53,.96),rgba(5,8,22,.9));box-shadow:0 30px 80px rgba(0,0,0,.34);padding:28px;margin-bottom:22px}.organic-hero:before{content:"";position:absolute;right:-120px;top:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.18),transparent 62%)}.organic-kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,212,255,.24);background:rgba(0,212,255,.08);color:#9eeaff;border-radius:999px;padding:7px 12px;font-weight:900;font-size:.78rem}.organic-title{font-size:clamp(1.7rem,3vw,3rem);font-weight:950;letter-spacing:-.06em;margin:14px 0 8px}.organic-subtitle{color:var(--text-secondary);max-width:850px;font-size:1rem;line-height:1.7}.organic-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.organic-card{background:rgba(15,20,41,.82);border:1px solid rgba(139,132,255,.2);border-radius:24px;padding:20px;box-shadow:0 22px 60px rgba(0,0,0,.24);height:100%}.organic-card h3,.organic-card h5{color:#fff;font-weight:950}.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}.metric-card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border:1px solid rgba(139,132,255,.18);border-radius:22px;padding:18px}.metric-label{color:var(--text-muted);font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.metric-value{font-size:1.75rem;font-weight:950;color:#fff;letter-spacing:-.04em}.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.filter-bar select,.filter-bar input,.composer-field{background:rgba(255,255,255,.06)!important;border:1px solid rgba(139,132,255,.22)!important;color:#fff!important;border-radius:16px!important;padding:11px 13px!important}.filter-bar option,.composer-field option{color:#111}.post-row{display:grid;grid-template-columns:68px 1fr auto;gap:14px;align-items:center;padding:14px;border:1px solid rgba(139,132,255,.14);border-radius:18px;background:rgba(255,255,255,.035);margin-bottom:10px}.post-thumb{width:68px;height:68px;border-radius:18px;background:linear-gradient(135deg,rgba(108,99,255,.28),rgba(0,212,255,.14));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;overflow:hidden}.post-thumb img{width:100%;height:100%;object-fit:cover}.post-title{font-weight:900;color:#fff}.post-meta{color:var(--text-muted);font-size:.82rem}.status-pill{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:.76rem;font-weight:900;background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.2)}.status-pill.planned{background:rgba(255,159,10,.12);color:#ffd18a;border-color:rgba(255,159,10,.22)}.platform-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.platform-tile{border:1px solid rgba(139,132,255,.18);border-radius:20px;padding:16px;background:rgba(255,255,255,.04)}.platform-icon{width:44px;height:44px;border-radius:15px;background:rgba(108,99,255,.17);display:flex;align-items:center;justify-content:center;color:#9eeaff;font-size:1.3rem;margin-bottom:10px}.composer-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.composer-field{width:100%;margin-bottom:12px}.composer-field::placeholder{color:#7f89a8}.empty-state{text-align:center;padding:36px;border:1px dashed rgba(139,132,255,.28);border-radius:24px;color:var(--text-secondary)}@media(max-width:992px){.metric-grid{grid-template-columns:repeat(2,1fr)}.composer-grid,.platform-grid{grid-template-columns:1fr}.post-row{grid-template-columns:52px 1fr}.post-row>div:last-child{grid-column:1/-1}.post-thumb{width:52px;height:52px}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="organic-shell">
+    <section class="organic-hero">
+        <span class="organic-kicker"><i class="fas fa-pen-nib"></i> {{ labels.content_creator }}</span>
+        <h1 class="organic-title">{{ labels.content_creator_title }}</h1>
+        <p class="organic-subtitle">{{ labels.content_creator_desc }}</p>
+    </section>
+
+    <div class="composer-grid">
+        <div class="organic-card">
+            <h3>{{ labels.new_content }}</h3>
+            <form method="post">
+                {% csrf_token %}
+                <label class="post-meta">{{ labels.client_platform_account }}</label>
+                <select class="composer-field" name="platform_account">
+                    <option value="">{{ labels.no_account_selected }}</option>
+                    {% for a in accounts %}
+                    <option value="{{ a.id }}">{% if a.agency_client %}{{ a.agency_client.name }} - {% endif %}{{ a.platform.name }} - {{ a.account_name|default:a.account_id }}</option>
+                    {% endfor %}
+                </select>
+                <label class="post-meta">{{ labels.platform_connection }}</label>
+                <select class="composer-field" name="platform_connection">
+                    <option value="">{{ labels.no_platform_selected }}</option>
+                    {% for c in connections %}<option value="{{ c.id }}">{{ c.platform.name }} - {{ c.name|default:c.user.username }}</option>{% endfor %}
+                </select>
+                <label class="post-meta">{{ labels.content_type }}</label>
+                <select class="composer-field" name="post_type">
+                    {% for key,label in post_type_choices %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+                </select>
+                <label class="post-meta">{{ labels.caption }}</label>
+                <textarea class="composer-field" name="caption" rows="7" placeholder="{{ labels.caption_placeholder }}"></textarea>
+                <label class="post-meta">{{ labels.visual_url }}</label>
+                <input class="composer-field" name="image_url" placeholder="https://...">
+                <label class="post-meta">{{ labels.video_url }}</label>
+                <input class="composer-field" name="video_url" placeholder="https://...">
+                <label class="post-meta">{{ labels.permalink_ref_url }}</label>
+                <input class="composer-field" name="permalink" placeholder="https://...">
+                <label class="post-meta">{{ labels.planned_time }}</label>
+                <input class="composer-field" name="scheduled_at" type="datetime-local">
+                <button class="btn btn-accent" type="submit"><i class="fas fa-save me-2"></i>{{ labels.create_draft }}</button>
+                <a href="{% url 'organic_content_center' %}" class="btn btn-outline-light ms-2">{{ labels.back_to_center }}</a>
+            </form>
+        </div>
+        <div class="organic-card">
+            <h5>{{ labels.why_organic_separate }}</h5>
+            <p class="post-meta">{{ labels.why_organic_desc }}</p>
+            <div class="platform-grid" style="grid-template-columns:1fr;">
+                {% for p in supported_platforms %}
+                <div class="platform-tile d-flex align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-3"><div class="platform-icon mb-0"><i class="{{ p.icon }}"></i></div><strong>{{ p.name }}</strong></div>
+                    <span class="status-pill {% if p.status_key != 'ready' %}planned{% endif %}">{{ p.status }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

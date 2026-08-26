@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Hukuk ve Politikalar | ReklamAnaliz.net{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/legal.css' %}?v=contrast-20260716-1">{% endblock %}
+
+{% block content %}
+<section class="legal-shell">
+    <header class="legal-page-head">
+        <div>
+            <span class="legal-eyebrow">Şeffaflık merkezi</span>
+            <h1>Hukuk ve Politikalar</h1>
+            <p>Sözleşmelerimizi, veri kullanım bildirimlerimizi ve hizmet ilkelerimizi buradan inceleyebilirsiniz.</p>
+        </div>
+        {% if user.is_staff %}
+        <a class="legal-admin-link" href="{% url 'admin:core_legaldocument_changelist' %}"><i class="fas fa-pen"></i> Admin'de Düzenle</a>
+        {% endif %}
+    </header>
+
+    {% if preview_mode %}
+    <div class="legal-preview-note"><i class="fas fa-eye"></i> Personel önizlemesi: taslak ve arşiv kayıtları da gösteriliyor.</div>
+    {% endif %}
+
+    {% for category, documents in grouped_documents %}
+    <section class="legal-category">
+        <h2>{{ category }}</h2>
+        <div class="legal-grid">
+            {% for document in documents %}
+            <a class="legal-card" href="{{ document.get_absolute_url }}">
+                <span class="legal-card-icon"><i class="fas fa-file-shield"></i></span>
+                <span class="legal-card-copy">
+                    <strong>{{ document.title }}</strong>
+                    <span>{{ document.summary }}</span>
+                    <small>v{{ document.version }}{% if document.effective_date %} · {{ document.effective_date|date:"d.m.Y" }}{% endif %}</small>
+                </span>
+                {% if document.status != 'published' %}<em>{{ document.get_status_display }}</em>{% endif %}
+                <i class="fas fa-chevron-right legal-card-arrow"></i>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% empty %}
+    <div class="legal-empty">
+        <i class="fas fa-file-circle-check"></i>
+        <h2>Yayımlanmış metin bulunmuyor</h2>
+        <p>Hukuki metinler inceleme ve yayın hazırlığı aşamasındadır.</p>
+        {% if user.is_staff %}<a href="?preview=1">Taslakları önizle</a>{% endif %}
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}

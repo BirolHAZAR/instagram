@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Instagram Reklam Analiz{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
+        <div>
+            <a href="{% url 'campaign_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Yeni Kampanya
+            </a>
+            <a href="{% url 'instagram_dashboard' %}" class="btn btn-primary">
+                <i class="fab fa-instagram"></i> Instagram Hesapları
+            </a>
+        </div>
+    </div>
+    
+    <!-- İstatistik Kartları -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Aktif Kampanyalar</h6>
+                            <h2 class="mb-0">{{ active_campaigns|default:"0" }}</h2>
+                        </div>
+                        <i class="fas fa-bullhorn fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Toplam Kampanya</h6>
+                            <h2 class="mb-0">{{ total_campaigns|default:"0" }}</h2>
+                        </div>
+                        <i class="fas fa-list fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Toplam Harcama</h6>
+                            <h2 class="mb-0">{{ total_spent|default:"0" }} ₺</h2>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Ort. CTR</h6>
+                            <h2 class="mb-0">{{ avg_ctr|default:"0" }}%</h2>
+                        </div>
+                        <i class="fas fa-percent fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Son Kampanyalar -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-clock"></i> Son Kampanyalar</h5>
+        </div>
+        <div class="card-body">
+            {% if recent_campaigns %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Kampanya Adı</th>
+                            <th>Instagram Hesabı</th>
+                            <th>Durum</th>
+                            <th>Bütçe</th>
+                            <th>Harcama</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for campaign in recent_campaigns %}
+                        <tr>
+                            <td>{{ campaign.campaign_name }}</td>
+                            <td>@{{ campaign.instagram_account.username }}</td>
+                            <td>
+                                {% if campaign.status == 'active' %}
+                                <span class="badge bg-success">Aktif</span>
+                                {% elif campaign.status == 'paused' %}
+                                <span class="badge bg-warning">Duraklatıldı</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Sona Erdi</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ campaign.budget }} ₺</td>
+                            <td>{{ campaign.spent_amount }} ₺</td>
+                            <td>
+                                <a href="{% url 'campaign_detail' campaign.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'ai_analyze_campaign' campaign.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-robot"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <p>Henüz kampanya oluşturulmamış.</p>
+                <a href="{% url 'campaign_create' %}" class="btn btn-primary">İlk Kampanyanı Oluştur</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% load tr_numbers %}
+<section class="ct-exec-summary" aria-label="Bugünkü durum özeti">
+    <div class="ct-exec-pill" data-tip="Kontrol Kulesi’nde takip edilen toplam kampanya adedini gösterir."><i class="fas fa-bullhorn"></i><div><span>Kampanya</span><strong>{{ today_summary.campaigns|tr_int }}</strong></div></div>
+    <div class="ct-exec-pill" data-tip="Kampanyaların altında izlenen toplam reklam grubu sayısını gösterir."><i class="fas fa-layer-group"></i><div><span>Reklam Grubu</span><strong>{{ today_summary.ad_groups|tr_int }}</strong></div></div>
+    <div class="ct-exec-pill" data-tip="Takip edilen toplam reklam adedini gösterir."><i class="fas fa-rectangle-ad"></i><div><span>Reklam</span><strong>{{ today_summary.ads|tr_int }}</strong></div></div>
+    <div class="ct-exec-pill" data-tip="Öncelikli kontrol gerektiren kritik uyarı sayısını gösterir."><i class="fas fa-triangle-exclamation"></i><div><span>Kritik Uyarı</span><strong>{{ today_summary.critical_alerts|tr_int }}</strong></div></div>
+    <div class="ct-exec-pill" data-tip="Henüz aksiyona dönmemiş öneri veya görev sayısını gösterir."><i class="fas fa-robot"></i><div><span>Bekleyen Tavsiye</span><strong>{{ today_summary.pending_tasks|tr_int }}</strong></div></div>
+    <div class="ct-exec-pill" data-tip="Tamamlanan veya uygulanmış olarak işaretlenen görev sayısını gösterir."><i class="fas fa-check-circle"></i><div><span>Uygulanan</span><strong>{{ today_summary.applied_tasks|tr_int }}</strong></div></div>
+  </section>

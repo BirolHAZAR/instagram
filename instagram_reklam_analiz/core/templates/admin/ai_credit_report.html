@@ -1,0 +1,220 @@
+﻿{% extends "admin/base_site.html" %}
+{% load i18n admin_dashboard %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .report-shell { display: grid; gap: 18px; }
+    .report-hero {
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #dbe3ef;
+        border-top: 5px solid #2563eb;
+        color: #111827;
+        padding: 20px 22px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+    .report-hero h1 { color: #111827; margin: 0 0 8px; }
+    .report-hero p { color: #475569; margin: 0; font-weight: 600; }
+    .metric-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    }
+    .metric-card {
+        background: #fff;
+        border: 1px solid #dbe3ef;
+        border-top: 5px solid #2563eb;
+        border-radius: 8px;
+        min-height: 116px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+    .metric-card strong { color: #111827; display: block; font-size: 30px; margin-top: 6px; }
+    .metric-card span { color: #334155; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .metric-card small { display: block; margin-top: 6px; font-weight: 700; }
+    .report-panel {
+        background: #fff;
+        border: 1px solid #dbe3ef;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+        overflow-x: auto;
+    }
+    .report-panel h2 { color: #111827; font-size: 17px; margin: 0 0 12px; }
+    .report-table { border-collapse: collapse; width: 100%; min-width: 840px; font-size: 13px; table-layout: fixed; }
+    .report-table,
+    .report-table thead,
+    .report-table tbody,
+    .report-table tr {
+        background: #ffffff !important;
+        color: #111827 !important;
+    }
+    .report-table th, .report-table td {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border-bottom: 1px solid #eef2f7;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    .report-table th {
+        background: #f8fafc !important;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+    .report-table tfoot th {
+        background: #eef2ff !important;
+        color: #111827 !important;
+        border-top: 2px solid #c7d2fe;
+        font-size: 13px;
+    }
+    .report-table td.num, .report-table th.num { text-align: right; }
+    .report-table a { color: #1d4ed8 !important; font-weight: 800; text-decoration: none; }
+    .report-table a:hover { text-decoration: underline; }
+    .muted { color: #64748b !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-shell">
+    <p style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="button" href="{% url 'admin:index' %}">Admin ana sayfaya dön</a>
+        <a class="button" href="{% url 'admin:core_featureusageledger_changelist' %}">AI işlem geçmişi</a>
+        <a class="button" href="{% url 'admin:core_aicreditledger_changelist' %}">Kredi hareketleri</a>
+        <a class="button" href="{% url 'admin:core_openaitokenusageledger_changelist' %}">Gerçek token kullanımı</a>
+        <a class="button" href="{% url 'admin:core_aioperationtariff_changelist' %}">AI tarifeleri</a>
+    </p>
+    <section class="report-hero">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div>
+                <h1>AI Kontör Raporu</h1>
+                <p>Üye ve ajans bazında aktif 1 aylık üyelik dönemi, kredi limiti, kullanılan kontör ve kalan kontör özeti. Kullanılmayan aylık kredi sonraki döneme devretmez.</p>
+            </div>
+            <form method="post" action="{% url 'admin:sync_openai_usage' %}" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="button" style="font-weight:800;">OpenAI'den Yenile</button>
+            </form>
+        </div>
+    </section>
+    <section class="metric-grid">
+        <article class="metric-card"><span>Son 30 gün başarılı</span><strong>{{ usage_success_count }}</strong></article>
+        <article class="metric-card"><span>Son 30 gün engellenen</span><strong style="color:#b45309;">{{ usage_blocked_count }}</strong></article>
+        <article class="metric-card"><span>Son 30 gün hata/iade</span><strong style="color:#b91c1c;">{{ usage_failed_count }}</strong></article>
+    </section>
+
+    <section class="metric-grid">
+        <article class="metric-card"><span>SaaS aylık alınan kontör</span><strong>{{ saas_credit_pool.purchased|tr_int }}</strong><small class="muted">{{ saas_credit_pool.period_label }}</small></article>
+        <article class="metric-card"><span>OpenAI gerçek kullanım</span><strong>{{ saas_credit_pool.used|tr_int }}</strong></article>
+        <article class="metric-card"><span>SaaS kalan kontör</span><strong>{{ saas_credit_pool.remaining|tr_int }}</strong></article>
+        <article class="metric-card"><span>SaaS kullanım yüzdesi</span><strong>{{ saas_credit_pool.usage_percent|tr_percent }}</strong></article>
+        <article class="metric-card"><span>Toplam yüklenen kontör</span><strong>{{ total_loaded|tr_int }}</strong></article>
+        <article class="metric-card"><span>Toplam kullanılan kontör</span><strong>{{ total_used|tr_int }}</strong></article>
+        <article class="metric-card"><span>Toplam kalan kontör</span><strong>{{ total_remaining|tr_int }}</strong></article>
+        <article class="metric-card"><span>Raporlanan üye / ajans</span><strong>{{ total_users|tr_int }} / {{ total_organizations|tr_int }}</strong></article>
+    </section>
+    {% if saas_credit_pool.note %}
+    <p style="margin:12px 0;color:#475569;font-weight:700;">OpenAI senkron notu: {{ saas_credit_pool.note }}</p>
+    {% endif %}
+
+    <section class="report-panel">
+        <h2>Üye Kontör Özeti</h2>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Üye</th>
+                    <th>Aktif Dönem</th>
+                    <th>Plan</th>
+                    <th class="num">Kredi Limiti</th>
+                    <th class="num">Yüklenen</th>
+                    <th class="num">Kullanılan</th>
+                    <th class="num">Kalan</th>
+                    <th>Son Hareket</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in user_rows %}
+                    <tr>
+                        <td><a href="{{ row.detail_url }}">{{ row.email|default:row.name }}</a><br><span class="muted">{{ row.name }}</span></td>
+                        <td>{{ row.cycle_start|date:"d.m.Y" }} - {{ row.cycle_end|date:"d.m.Y" }}</td>
+                        <td>{{ row.plan }}</td>
+                        <td class="num">{{ row.credit_limit|tr_int }}</td>
+                        <td class="num">{{ row.loaded|tr_int }}</td>
+                        <td class="num">{{ row.used|tr_int }}</td>
+                        <td class="num">{{ row.remaining|tr_int }}</td>
+                        <td>{{ row.last_movement_at|date:"d.m.Y H:i"|default:"-" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="8">Üye kontör kaydı bulunamadı.</td></tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="3">Toplam</th>
+                    <th class="num">{{ user_totals.credit_limit|tr_int }}</th>
+                    <th class="num">{{ user_totals.loaded|tr_int }}</th>
+                    <th class="num">{{ user_totals.used|tr_int }}</th>
+                    <th class="num">{{ user_totals.remaining|tr_int }}</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </section>
+
+    <section class="report-panel">
+        <h2>Ajans Kontör Özeti</h2>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Ajans</th>
+                    <th>Aktif Dönem</th>
+                    <th>Sahip</th>
+                    <th>Plan</th>
+                    <th class="num">Kredi Limiti</th>
+                    <th class="num">Yüklenen</th>
+                    <th class="num">Kullanılan</th>
+                    <th class="num">Kalan</th>
+                    <th>Son Hareket</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in organization_rows %}
+                    <tr>
+                        <td><a href="{{ row.detail_url }}">{{ row.name }}</a></td>
+                        <td>{{ row.cycle_start|date:"d.m.Y" }} - {{ row.cycle_end|date:"d.m.Y" }}</td>
+                        <td>{{ row.owner }}</td>
+                        <td>{{ row.plan }}</td>
+                        <td class="num">{{ row.credit_limit|tr_int }}</td>
+                        <td class="num">{{ row.loaded|tr_int }}</td>
+                        <td class="num">{{ row.used|tr_int }}</td>
+                        <td class="num">{{ row.remaining|tr_int }}</td>
+                        <td>{{ row.last_movement_at|date:"d.m.Y H:i"|default:"-" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="9">Ajans kontör kaydı bulunamadı.</td></tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="4">Toplam</th>
+                    <th class="num">{{ organization_totals.credit_limit|tr_int }}</th>
+                    <th class="num">{{ organization_totals.loaded|tr_int }}</th>
+                    <th class="num">{{ organization_totals.used|tr_int }}</th>
+                    <th class="num">{{ organization_totals.remaining|tr_int }}</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </section>
+</div>
+{% endblock %}

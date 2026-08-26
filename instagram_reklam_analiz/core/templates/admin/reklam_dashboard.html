@@ -1,0 +1,95 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+<style>
+    .dashboard-container { padding: 24px; background: #f1f5f9; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .stat-card.primary { border-top: 4px solid #3b82f6; }
+    .stat-card.success { border-top: 4px solid #10b981; }
+    .stat-card.warning { border-top: 4px solid #f59e0b; }
+    .stat-card.danger { border-top: 4px solid #ef4444; }
+    .stat-value { font-size: 32px; font-weight: 700; color: #1e293b; }
+    .stat-label { font-size: 13px; color: #64748b; margin-top: 8px; }
+    .data-card { background: white; border-radius: 16px; margin-bottom: 30px; overflow: hidden; }
+    .data-card-header { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+    .data-card-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    .data-table th { background: #f8fafc; font-weight: 600; font-size: 12px; color: #64748b; }
+    .badge-success { background: #d1fae5; color: #059669; padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+    .badge-danger { background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+    .badge-warning { background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1 style="margin-bottom: 24px;"> {{ title }}</h1>
+    
+    <!-- İstatistik Kartları -->
+    <div class="stats-grid">
+        <div class="stat-card primary">
+            <div class="stat-value">{{ total_ads }}</div>
+            <div class="stat-label">Toplam Reklam</div>
+            <div style="font-size: 12px; color: #10b981;">{{ active_ads }} aktif</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-value">{{ avg_ctr }}%</div>
+            <div class="stat-label">Ortalama CTR</div>
+            <div style="font-size: 12px;">Rakipler: {{ competitor_avg_ctr }}%</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-value">{{ avg_performance }}/100</div>
+            <div class="stat-label">Performans Skoru</div>
+        </div>
+        <div class="stat-card primary">
+            <div class="stat-value">{{ total_impressions|tr_decimal }}</div>
+            <div class="stat-label">Toplam Gösterim</div>
+        </div>
+    </div>
+    
+    <!-- Medya Tipi Dağılımı -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <h3> Medya Tipine Göre Performans</h3>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr><th>Medya Tipi</th><th>Reklam Sayısı</th><th>Ort. CTR</th><th>Performans Skoru</th></tr>
+            </thead>
+            <tbody>
+                {% for item in media_distribution %}
+                <tr>
+                    <td>{% if item.media_type == 'image' %}Görsel{% elif item.media_type == 'video' %}Video{% elif item.media_type == 'carousel' %}Carousel{% else %}Reels{% endif %}</td>
+                    <td>{{ item.count }}</td>
+                    <td>%{{ item.avg_ctr|tr_decimal }}</td>
+                    <td><span class="badge-{% if item.avg_performance >= 70 %}success{% else %}warning{% endif %}">{{ item.avg_performance|tr_decimal }}/100</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- En İyi Reklamlar -->
+    <div class="data-card">
+        <div class="data-card-header">
+            <h3> En İyi Performans Gösteren Reklamlar</h3>
+        </div>
+        <table class="data-table">
+            <thead><tr><th>Reklam Adı</th><th>CTR</th><th>Gösterim</th><th>Skor</th></tr></thead>
+            <tbody>
+                {% for ad in best_ads %}
+                <tr>
+                    <td>{{ ad.name|truncatechars:40 }}</td>
+                    <td>%{{ ad.ctr|tr_decimal }}</td>
+                    <td>{{ ad.impressions|tr_decimal }}</td>
+                    <td><span class="badge-success">{{ ad.performance_score }}/100</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

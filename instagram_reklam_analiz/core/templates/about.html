@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if current_language == "en" %}About - ReklamAnaliz.net | AI Advertising Intelligence{% else %}Hakkımızda - ReklamAnaliz.net | AI Destekli Reklam Zekası{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ra-page">
+    <div class="ra-container">
+        <section class="ra-hero">
+            <div>
+                <div class="ra-eyebrow"><i class="fas fa-brain"></i> {% if current_language == "en" %}About ReklamAnaliz.net{% else %}ReklamAnaliz.net hakkında{% endif %}</div>
+                <h1>
+                    {% if current_language == "en" %}
+                    The intelligent platform that turns advertising data into <span class="ra-gradient">clear decisions.</span>
+                    {% else %}
+                    Reklam verisini <span class="ra-gradient">anlaşılır kararlara</span> dönüştüren akıllı platform.
+                    {% endif %}
+                </h1>
+                <p>
+                    {% if current_language == "en" %}
+                    ReklamAnaliz.net brings Meta, Instagram, Facebook, TikTok, Google Ads, LinkedIn, X, and Google Analytics data into one center. It does more than show reports: it explains performance, detects risks, tracks competitor ads, and helps you produce better advertising ideas with AI.
+                    {% else %}
+                    ReklamAnaliz.net; Meta, Instagram, Facebook, TikTok, Google Ads, LinkedIn, X ve Google Analytics verilerini tek merkezde birleştirir. Sadece rapor göstermez; reklam performansını yorumlar, sorunları tespit eder, rakip reklamlarını takip eder ve yapay zeka ile daha iyi reklam fikirleri üretmenize yardımcı olur.
+                    {% endif %}
+                </p>
+                <div class="ra-actions">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="ra-btn ra-btn-primary"><i class="fas fa-chart-simple"></i> {% if current_language == "en" %}Go to Dashboard{% else %}Kontrol Paneline Git{% endif %}</a>
+                    {% else %}
+                    <a href="{% url 'account_signup' %}" class="ra-btn ra-btn-primary"><i class="fas fa-rocket"></i> {% if current_language == "en" %}Start Your Ad Intelligence{% else %}Reklam Zekanızı Başlatın{% endif %}</a>
+                    {% endif %}
+                    <a href="{% url 'contact' %}" class="ra-btn ra-btn-ghost"><i class="fas fa-comments"></i> {% if current_language == "en" %}Contact Us{% else %}Bize Ulaşın{% endif %}</a>
+                </div>
+            </div>
+            <div class="ra-hero-visual">
+                <div class="ra-octo-orbit"></div>
+                <img src="{% static 'images/octo-one.webp' %}" class="ra-octo" alt="Octo AI" onerror="this.style.display='none';">
+                <div class="ra-float f1"><i class="fab fa-facebook"></i> Meta Ads</div>
+                <div class="ra-float f2"><i class="fab fa-google"></i> Google Ads</div>
+                <div class="ra-float f3"><i class="fab fa-tiktok"></i> TikTok</div>
+                <div class="ra-float f4"><i class="fas fa-chart-line"></i> Analytics</div>
+                <div class="ra-float f5"><i class="fas fa-lightbulb"></i> {% if current_language == "en" %}AI Advice{% else %}AI Öneri{% endif %}</div>
+            </div>
+        </section>
+
+        <section class="ra-section">
+            <div class="ra-section-head">
+                <h2>{% if current_language == "en" %}Our job is not to display ads; it is to make advertising budget easier to manage intelligently.{% else %}Bizim işimiz reklamları göstermek değil, reklam bütçesini daha akıllı yönetilebilir hale getirmek.{% endif %}</h2>
+                <p>{% if current_language == "en" %}Classic reporting screens give you numbers. ReklamAnaliz.net explains what those numbers mean, which campaigns are losing strength, which creatives can scale, and how competitors are moving in the market.{% else %}Klasik raporlama ekranları size sayı verir. ReklamAnaliz.net ise bu sayıların ne anlama geldiğini, hangi kampanyanın güç kaybettiğini, hangi kreatifin ölçeklenebileceğini ve rakiplerinizin pazarda nasıl hareket ettiğini anlaşılır şekilde sunar.{% endif %}</p>
+            </div>
+            <div class="ra-grid-3">
+                <div class="ra-card"><div class="ra-icon"><i class="fas fa-plug"></i></div><h3>{% if current_language == "en" %}All channels in one center{% else %}Tüm kanallar tek merkezde{% endif %}</h3><p>{% if current_language == "en" %}Compare ad accounts and Google Analytics results from one professional dashboard instead of jumping between separate panels.{% else %}Reklam hesaplarınızı ve Google Analytics verilerinizi ayrı ayrı takip etmek yerine, performansı tek panelde karşılaştırabilirsiniz.{% endif %}</p></div>
+                <div class="ra-card"><div class="ra-icon"><i class="fas fa-wand-magic-sparkles"></i></div><h3>{% if current_language == "en" %}AI-powered recommendations{% else %}AI destekli öneriler{% endif %}</h3><p>{% if current_language == "en" %}The system does not only say performance increased or decreased; it creates practical recommendations for budget, targeting, copy, and creatives.{% else %}Sistem sadece düştü veya yükseldi demez; bütçe, hedefleme, kreatif ve metin tarafında uygulanabilir öneriler üretir.{% endif %}</p></div>
+                <div class="ra-card"><div class="ra-icon"><i class="fas fa-user-secret"></i></div><h3>{% if current_language == "en" %}Competitor ad intelligence{% else %}Rakip reklam zekası{% endif %}</h3><p>{% if current_language == "en" %}Track competitor ads to catch market messages, offers, and creative angles earlier.{% else %}Rakiplerinizin reklam hareketlerini izleyerek pazardaki mesajları, teklifleri ve yaratıcı fikirleri daha hızlı yakalamanızı sağlar.{% endif %}</p></div>
+            </div>
+        </section>
+
+        <section class="ra-section">
+            <div class="ra-story">
+                <div class="ra-mini-octo">
+                    <img src="{% static 'images/octo-analyst.webp' %}" alt="Octo Analyst" onerror="this.style.display='none';">
+                    <div>
+                        <span class="ra-chip">{% if current_language == "en" %}Octo AI advertising assistant{% else %}Octo AI reklam asistanı{% endif %}</span>
+                        <h3>{% if current_language == "en" %}Octo is the intelligent analysis character of the brand.{% else %}Octo, markanın akıllı analiz karakteridir.{% endif %}</h3>
+                        <p>{% if current_language == "en" %}Octo gathers data, marks anomalies, captures competitor signals, and recommends clear actions for advertising managers.{% else %}Octo; verileri toplar, anormallikleri işaretler, rakip sinyallerini yakalar ve reklam yöneticisine sade, uygulanabilir aksiyonlar önerir.{% endif %}</p>
+                    </div>
+                </div>
+                <div class="ra-process">
+                    <div class="ra-step"><h4>{% if current_language == "en" %}Connects the data{% else %}Verileri bağlar{% endif %}</h4><p>{% if current_language == "en" %}Advertising platforms and Analytics are collected in a single performance view.{% else %}Tüm reklam platformları ve Google Analytics tek performans görünümünde toplanır.{% endif %}</p></div>
+                    <div class="ra-step"><h4>{% if current_language == "en" %}Reads performance{% else %}Performansı okur{% endif %}</h4><p>{% if current_language == "en" %}Spend, conversions, ROAS, CTR, CPC, and creative signals are evaluated together.{% else %}Harcama, dönüşüm, ROAS, CTR, CPC ve kreatif performans sinyalleri birlikte değerlendirilir.{% endif %}</p></div>
+                    <div class="ra-step"><h4>{% if current_language == "en" %}Creates recommendations{% else %}Öneri ve reklam fikri üretir{% endif %}</h4><p>{% if current_language == "en" %}AI produces new ad copy, creative angles, budget moves, and competitor-based opportunities.{% else %}AI; yeni reklam metinleri, kreatif açıları, bütçe yönlendirmeleri ve rakip bazlı fırsatlar sunar.{% endif %}</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="ra-section">
+            <div class="ra-section-head">
+                <h2>{% if current_language == "en" %}How We Work{% else %}Çalışma prensiplerimiz{% endif %}</h2>
+                <p>{% if current_language == "en" %}We design the product to speed up daily decisions for advertisers and agencies.{% else %}Ürünü, reklam verenlerin ve ajansların günlük kararlarını hızlandırmak için tasarlıyoruz.{% endif %}</p>
+            </div>
+            <div class="ra-grid-2">
+                <div class="ra-card"><div class="ra-icon"><i class="fas fa-bullseye"></i></div><h3>{% if current_language == "en" %}Mission{% else %}Misyonumuz{% endif %}</h3><p>{% if current_language == "en" %}Help businesses use advertising budgets more consciously by turning complex metrics into clear actions.{% else %}İşletmelerin reklam bütçesini daha bilinçli kullanmasını sağlamak; karmaşık metrikleri sadeleştirerek doğru aksiyona dönüştürmek.{% endif %}</p></div>
+                <div class="ra-card"><div class="ra-icon"><i class="fas fa-eye"></i></div><h3>{% if current_language == "en" %}Vision{% else %}Vizyonumuz{% endif %}</h3><p>{% if current_language == "en" %}Become a strong and trusted marketing technology brand that unifies multi-platform advertising intelligence.{% else %}Türkiye'den çıkan, çoklu platform reklam zekasını tek panelde sunan güçlü ve güvenilir bir pazarlama teknolojisi markası olmak.{% endif %}</p></div>
+                <div class="ra-card"><div class="ra-icon"><i class="fas fa-shield-halved"></i></div><h3>{% if current_language == "en" %}Trust and clarity{% else %}Güven ve şeffaflık{% endif %}</h3><p>{% if current_language == "en" %}We show what is strong, risky, and improvable in plain language.{% else %}Kullanıcıya neyin iyi, neyin riskli, neyin iyileştirilebilir olduğunu açık ve anlaşılır şekilde gösteririz.{% endif %}</p></div>
+                <div class="ra-card"><div class="ra-icon"><i class="fas fa-layer-group"></i></div><h3>{% if current_language == "en" %}Unified view{% else %}Bütünleşik bakış{% endif %}</h3><p>{% if current_language == "en" %}We interpret advertising, website behavior, and competitor signals together instead of limiting decisions to one platform.{% else %}Tek platformun verisine sıkışmadan; reklam, web sitesi davranışı ve rakip sinyallerini birlikte yorumlarız.{% endif %}</p></div>
+            </div>
+        </section>
+
+        <section class="ra-cta">
+            <div>
+                <h2>{% if current_language == "en" %}Do not just monitor your ads; let them be interpreted, improved, and turned into better campaigns.{% else %}Reklamlarınız sadece izlenmesin; yorumlansın, öneri üretsin ve daha iyi kampanyalara dönüşsün.{% endif %}</h2>
+                <p>{% if current_language == "en" %}ReklamAnaliz.net is an AI-powered decision center for advertising performance.{% else %}ReklamAnaliz.net, işletmeler için reklam performansını anlaşılır hale getiren AI destekli karar merkezidir.{% endif %}</p>
+            </div>
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="ra-btn ra-btn-primary"><i class="fas fa-chart-line"></i> {% if current_language == "en" %}Go to Dashboard{% else %}Panele Git{% endif %}</a>
+            {% else %}
+            <a href="{% url 'account_signup' %}" class="ra-btn ra-btn-primary"><i class="fas fa-rocket"></i> {% if current_language == "en" %}Start Now{% else %}Hemen Başlayın{% endif %}</a>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

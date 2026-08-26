@@ -1,0 +1,669 @@
+.octo-task-engine-v4 {
+  position: relative;
+  overflow: hidden;
+}
+
+.octo-task-engine-v4 * {
+  box-sizing: border-box;
+}
+
+.octo-task-info-pill {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.10);
+  border: 1px solid rgba(34, 197, 94, 0.18);
+  color: rgba(187, 247, 208, 0.94);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.octo-task-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-right: 96px;
+  margin-bottom: 14px;
+}
+
+.octo-task-head h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.15;
+  letter-spacing: 0.035em;
+  font-weight: 900;
+}
+
+.octo-task-head small {
+  display: block;
+  margin-top: 5px;
+  color: rgba(226, 232, 240, 0.62);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.octo-task-total {
+  min-width: 68px;
+  display: grid;
+  place-items: center;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.36);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  text-align: center;
+}
+
+.octo-task-total strong {
+  display: block;
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.octo-task-total span {
+  display: block;
+  margin-top: 4px;
+  font-size: 9.5px;
+  line-height: 1;
+  color: rgba(226, 232, 240, 0.58);
+}
+
+.octo-task-section-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.octo-task-section-card {
+  min-width: 0;
+  border-radius: 18px;
+  padding: 11px;
+  background: rgba(15, 23, 42, 0.30);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.octo-task-section-card.bad {
+  border-top: 3px solid rgba(248, 113, 113, 0.85);
+}
+
+.octo-task-section-card.mid {
+  border-top: 3px solid rgba(251, 191, 36, 0.85);
+}
+
+.octo-task-section-card.good {
+  border-top: 3px solid rgba(34, 197, 94, 0.85);
+}
+
+.octo-task-section-header {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 9px;
+}
+
+.octo-task-section-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(248, 250, 252, 0.86);
+  font-size: 13px;
+}
+
+.octo-task-section-title {
+  min-width: 0;
+}
+
+.octo-task-section-title strong {
+  display: block;
+  color: rgba(248, 250, 252, 0.96);
+  font-size: 12.5px;
+  line-height: 1.18;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.octo-task-section-title span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(226, 232, 240, 0.52);
+  font-size: 10.5px;
+  line-height: 1.2;
+}
+
+.octo-task-section-count {
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.055);
+  text-align: center;
+}
+
+.octo-task-section-count strong {
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.octo-task-section-count span {
+  margin-top: 3px;
+  font-size: 9px;
+  line-height: 1;
+  color: rgba(226, 232, 240, 0.48);
+}
+
+.octo-task-section-note {
+  min-height: 30px;
+  margin: 8px 0 9px;
+  color: rgba(226, 232, 240, 0.55);
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+.octo-task-campaign-list {
+  display: grid;
+  gap: 7px;
+  max-height: 308px;
+  overflow-y: auto;
+  padding-right: 3px;
+  scrollbar-width: thin;
+}
+
+.octo-task-campaign-card {
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 9px;
+  min-height: 71px;
+  padding: 9px;
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.24);
+  border: 1px solid rgba(148, 163, 184, 0.10);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.octo-task-campaign-card:hover {
+  transform: translateY(-1px);
+  background: rgba(15, 23, 42, 0.42);
+  border-color: rgba(148, 163, 184, 0.20);
+  color: inherit;
+  text-decoration: none;
+}
+
+.octo-task-campaign-left {
+  min-width: 0;
+}
+
+.octo-task-campaign-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+  color: rgba(125, 211, 252, 0.82);
+  font-size: 9.5px;
+  line-height: 1;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.octo-task-campaign-left strong {
+  display: block;
+  max-width: 100%;
+  color: rgba(248, 250, 252, 0.92);
+  font-size: 11.5px;
+  line-height: 1.2;
+  font-weight: 850;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.octo-task-campaign-left p {
+  margin: 4px 0 0;
+  color: rgba(226, 232, 240, 0.58);
+  font-size: 10.5px;
+  line-height: 1.28;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.octo-task-campaign-right {
+  display: grid;
+  place-items: center;
+  padding: 6px 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.055);
+  text-align: center;
+}
+
+.octo-task-campaign-right em {
+  color: rgba(248, 250, 252, 0.94);
+  font-size: 13px;
+  line-height: 1;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.octo-task-campaign-right span {
+  margin-top: 3px;
+  color: rgba(226, 232, 240, 0.44);
+  font-size: 8.5px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.octo-task-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 72px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.045);
+  color: rgba(226, 232, 240, 0.58);
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.octo-task-empty.main {
+  grid-column: 1 / -1;
+  display: grid;
+  min-height: 120px;
+  place-items: center;
+}
+
+.octo-task-empty.main i {
+  font-size: 20px;
+}
+
+.octo-task-empty.main strong {
+  font-size: 13px;
+  color: rgba(248, 250, 252, 0.88);
+}
+
+.octo-task-empty.main span {
+  font-size: 11px;
+  color: rgba(226, 232, 240, 0.54);
+}
+
+@media (max-width: 1280px) {
+  .octo-task-section-list {
+    grid-template-columns: 1fr;
+  }
+
+  .octo-task-campaign-list {
+    max-height: 308px;
+  }
+
+  .octo-task-head {
+    padding-right: 0;
+  }
+
+  .octo-task-info-pill {
+    position: static;
+    width: fit-content;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .octo-task-head {
+    flex-direction: column;
+  }
+
+  .octo-task-campaign-card {
+    grid-template-columns: 1fr;
+  }
+
+  .octo-task-campaign-right {
+    width: 56px;
+    justify-self: end;
+  }
+}
+
+
+.octo-task-campaign-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  min-width: 100vw;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(2, 6, 23, 0.76);
+  backdrop-filter: blur(12px);
+  box-sizing: border-box;
+}
+
+.octo-task-campaign-modal.show {
+  display: flex;
+}
+
+.octo-task-campaign-modal-panel {
+  position: relative;
+  z-index: 2147483001;
+  width: min(1040px, calc(100vw - 48px));
+  max-height: min(820px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.99), rgba(2, 6, 23, 0.99));
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 44px 140px rgba(0, 0, 0, 0.64);
+}
+
+.octo-task-campaign-modal-head {
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(255, 255, 255, 0.045);
+  flex: 0 0 auto;
+}
+
+.octo-task-campaign-modal-head span {
+  display: block;
+  color: rgba(148, 163, 184, 0.92);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.octo-task-campaign-modal-head strong {
+  display: block;
+  margin-top: 4px;
+  max-width: min(690px, calc(100vw - 270px));
+  color: #fff;
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.octo-task-campaign-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.octo-task-campaign-modal-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.22);
+  color: rgba(187, 247, 208, 0.96);
+  font-size: 11px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.octo-task-campaign-modal-close {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.octo-task-campaign-modal-body {
+  min-height: 0;
+  overflow: auto;
+  padding: 18px;
+  color: #fff;
+}
+
+.octo-task-campaign-loading,
+.octo-task-popup-error {
+  padding: 22px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  color: rgba(226, 232, 240, 0.84);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.octo-task-popup-score-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.octo-task-popup-score {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(108, 99, 255, .92), rgba(0, 212, 255, .34));
+  border: 1px solid rgba(255, 255, 255, .16);
+}
+
+.octo-task-popup-score strong {
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.octo-task-popup-score span,
+.octo-task-popup-label span {
+  display: block;
+  color: rgba(226, 232, 240, .68);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.octo-task-popup-label strong {
+  display: block;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 950;
+  margin-bottom: 4px;
+}
+
+.octo-task-popup-kpis {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.octo-task-popup-kpis div,
+.octo-task-popup-box {
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  padding: 13px;
+}
+
+.octo-task-popup-kpis span {
+  display: block;
+  color: rgba(148, 163, 184, 0.9);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.octo-task-popup-kpis strong {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.octo-task-popup-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.octo-task-popup-box h4 {
+  margin: 0 0 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.octo-task-popup-box ul {
+  margin: 0;
+  padding-left: 18px;
+  color: rgba(226, 232, 240, 0.74);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+html.octo-task-modal-lock,
+body.octo-task-modal-lock {
+  overflow: hidden;
+}
+
+@media (max-width: 820px) {
+  .octo-task-campaign-modal {
+    padding: 12px;
+  }
+
+  .octo-task-campaign-modal-panel {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    border-radius: 20px;
+  }
+
+  .octo-task-campaign-modal-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .octo-task-campaign-modal-head strong {
+    max-width: calc(100vw - 48px);
+  }
+
+  .octo-task-campaign-modal-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .octo-task-popup-kpis,
+  .octo-task-popup-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.octo-task-popup-direct-note {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(96, 165, 250, 0.20);
+  color: rgba(219, 234, 254, 0.92);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.octo-task-source-group{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-height:0;
+}
+
+.octo-task-source-group + .octo-task-source-group{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(148,163,184,.16);
+}
+
+.octo-task-source-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  color:rgba(226,232,240,.72);
+}
+
+.octo-task-source-head span{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+
+.octo-task-source-head em{
+  min-width:24px;
+  height:24px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:rgba(15,23,42,.82);
+  border:1px solid rgba(148,163,184,.18);
+  color:#f8fafc;
+  font-style:normal;
+}
+
+.octo-task-source-group.competitor .octo-task-source-head span,
+.octo-task-campaign-card.is-competitor-task .octo-task-campaign-kicker{
+  color:#fbbf24;
+}
+
+.octo-task-campaign-card.is-competitor-task{
+  border-color:rgba(251,191,36,.24);
+}

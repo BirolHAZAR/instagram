@@ -1,0 +1,119 @@
+{% load tr_numbers %}
+<div class="ct-card ct-section ct-competitor-center-card ct-competitor-premium-card ct-equal-card">
+  <span class="ct-tip warn" data-tip="Rakip reklam hareketlerini, baskı seviyesini, paylaşım sesini ve karşı hamle ihtiyacını özetler."><i class="fas fa-circle-info"></i> Rakip</span>
+
+  <div class="ct-competitor-premium-head">
+    <div>
+      <span class="ct-competitor-eyebrow"><i class="fas fa-binoculars"></i> Rekabet İzleme</span>
+      <h3>RAKİP İSTİHBARAT MERKEZİ</h3>
+      <p>Rakip reklam baskısı, paylaşım sesi ve uygulanacak karşı hamle özeti</p>
+    </div>
+    <a class="ct-mini-link" href="{% url 'competitor_intelligence' %}">Tümü →</a>
+  </div>
+
+  <div class="ct-competitor-score-zone">
+    <div class="ct-competitor-pressure-ring {{ competitor_intelligence.state }}" style="--ct-pressure:{{ competitor_intelligence.pressure_score|default:0 }}">
+      <strong>{{ competitor_intelligence.pressure_score|default:0 }}</strong>
+      <span>Baskı</span>
+    </div>
+    <div class="ct-competitor-pressure-copy">
+      <small>Rakip Tehdit Seviyesi</small>
+      <b>{{ competitor_intelligence.threat_icon }} {{ competitor_intelligence.threat_label }}</b>
+      <span class="ct-competitor-momentum {{ competitor_intelligence.growth_state }}">
+        {{ competitor_intelligence.growth_icon }} Momentum {{ competitor_intelligence.growth_label }}
+      </span>
+    </div>
+
+    <div class="ct-competitor-kpi-grid" aria-label="Rakip özet metrikleri">
+      <div>
+        <span>Yeni Reklam</span>
+        <strong>{{ competitor_intelligence.new_ads_label|default:"0" }}</strong>
+      </div>
+      <div>
+        <span>Paylaşım Sesi</span>
+        <strong>{{ competitor_intelligence.share_of_voice_label|default:"%0" }}</strong>
+      </div>
+      <div>
+        <span>Lider Rakip</span>
+        <strong>{{ competitor_intelligence.top_threat|default:"0" }}</strong>
+      </div>
+      <div>
+        <span>CPM Baskı</span>
+        <strong>{{ competitor_intelligence.cpm_forecast_label|default:"%0-3" }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="ct-competitor-forecast-grid">
+    <div class="ct-competitor-forecast risk">
+      <b><i class="fas fa-triangle-exclamation"></i> Risk Tahmini</b>
+      <p>{{ competitor_intelligence.forecast_tr }}</p>
+    </div>
+    <div class="ct-competitor-forecast opportunity">
+      <b><i class="fas fa-bolt"></i> Fırsat Sinyali</b>
+      <p>{{ competitor_intelligence.opportunity_tr }}</p>
+    </div>
+  </div>
+
+  <div class="ct-competitor-heatmap">
+    {% for row in competitor_intelligence.heatmap %}
+      <div class="ct-competitor-heat-row {{ row.state }}" title="{{ row.name }} için rakip baskı skoru: {{ row.threat_score }}">
+        <strong>{{ row.name }}</strong>
+        <span class="ct-competitor-score-pill">
+          <small>Aktivite</small>
+          <b>+{{ row.activity }}</b>
+        </span>
+        <span class="ct-competitor-score-pill">
+          <small>Pay</small>
+          <b>{{ row.share }}</b>
+        </span>
+        <em class="ct-competitor-score-pill">
+          <small>Skor</small>
+          <b>{{ row.threat_score }}</b>
+        </em>
+      </div>
+    {% empty %}
+      <div class="ct-empty">Competitor reklam verisi bulunamadı. Veri geldikçe rakip baskısı ve fırsat sinyalleri burada oluşacak.</div>
+    {% endfor %}
+  </div>
+
+  <div class="ct-competitor-company-grid" aria-label="Rakip firma bazlı reklam listesi">
+    {% for company in competitor_ad_groups %}
+      <section class="ct-competitor-company-column">
+        <div class="ct-competitor-company-head">
+          <div>
+            <span>Rakip Firma</span>
+            <strong>{{ company.name }}</strong>
+          </div>
+          <em>{{ company.count|default:0|tr_int }}</em>
+        </div>
+        <p>{{ company.name }} firmasının en güncel reklamları. İlk 5 reklam görünür, diğerleri bu kolonun scroll alanında kalır.</p>
+
+        <div class="ct-competitor-company-ad-list" aria-label="{{ company.name }} reklamları">
+          {% for ad in company.rows %}
+            <a class="ct-competitor-company-ad"
+               href="{% url 'competitor_intelligence' %}?open_competitor_ad={{ ad.id }}&competitor={{ company.name|urlencode }}"
+               title="{{ company.name }} · {{ ad.title }}">
+              <div class="ct-competitor-company-ad-main">
+                <strong>{{ ad.title }}</strong>
+                <span>{{ ad.text }}</span>
+              </div>
+              <div class="ct-competitor-company-ad-meta">
+                <span>{{ ad.seen_label }}</span>
+                <span>{{ ad.platform }}</span>
+                <em>{{ ad.format }}</em>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    {% empty %}
+      <div class="ct-empty">Rakip firma bazlı listelenecek reklam bulunamadı.</div>
+    {% endfor %}
+  </div>
+
+  <div class="ct-competitor-advisor">
+    <b><i class="fas fa-robot"></i> Octo Karşı Hamle</b>
+    <p>{{ competitor_intelligence.recommendation_tr }}</p>
+  </div>
+</div>

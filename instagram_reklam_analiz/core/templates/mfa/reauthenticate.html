@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}2FA Onay&#305;{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>&#199;ift Koruma</h3>
+                <p>G&#252;venlik ayarlar&#305;n&#305;z&#305; de&#287;i&#351;tirmek i&#231;in do&#287;rulay&#305;c&#305; uygulama kodunu girin.</p>
+                <a href="{% url 'mfa_index' %}" class="allauth-side-link">
+                    <i class="fas fa-arrow-left"></i>2FA Ayarlar&#305;
+                </a>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head">
+                    <span><i class="fas fa-mobile-screen-button"></i>Authenticator kodu</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>2FA Onay&#305;</h1>
+                    <p>Kimlik do&#287;rulay&#305;c&#305; uygulaman&#305;zdaki tek kullan&#305;ml&#305;k kodu girin.</p>
+                    {% url 'mfa_reauthenticate' as action_url %}
+                    <form method="post" action="{{ action_url }}" class="allauth-form">
+                        {% csrf_token %}
+                        {{ redirect_field }}
+                        {{ form.as_p }}
+                        <button type="submit" class="allauth-primary-btn">
+                            <i class="fas fa-check"></i>Onayla
+                        </button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

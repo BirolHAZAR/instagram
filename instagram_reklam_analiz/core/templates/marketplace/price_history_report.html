@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block title %}Fiyat Geçmişi{% endblock %}
+
+{% block extra_css %}
+<style>
+  .mph-page{padding:24px;color:#f8fafc}
+  .mph-shell{max-width:1720px;margin:0 auto}
+  .mph-top{border:1px solid rgba(148,163,184,.22);border-radius:8px;background:#0f172a;padding:20px;display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+  .mph-title{margin:0;font-size:1.75rem;font-weight:950;color:#fff}
+  .mph-lead{margin:7px 0 0;color:#cbd5e1;line-height:1.5}
+  .mph-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .mph-btn{height:40px;border:1px solid rgba(125,211,252,.28);border-radius:8px;background:rgba(56,189,248,.12);color:#f8fafc;text-decoration:none;font-weight:850;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 12px}
+  .mph-filter{margin-top:16px;border:1px solid rgba(148,163,184,.22);border-radius:8px;background:#0f172a;padding:12px;display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+  .mph-field label{display:block;color:#94a3b8;font-size:.74rem;font-weight:900;margin-bottom:6px}
+  .mph-select{height:40px;min-width:280px;border:1px solid rgba(148,163,184,.32);border-radius:8px;background:#0b1527;color:#f8fafc;padding:0 10px}
+  .mph-panel{margin-top:16px;border:1px solid rgba(148,163,184,.22);border-radius:8px;background:#0f172a;overflow:hidden}
+  .mph-table-wrap{overflow-x:auto}
+  .mph-table{width:100%;border-collapse:collapse;min-width:1080px}
+  .mph-table th{background:#111c33;color:#94a3b8;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;text-align:left;padding:11px 12px;border-bottom:1px solid rgba(148,163,184,.18)}
+  .mph-table td{padding:12px;border-bottom:1px solid rgba(148,163,184,.12);vertical-align:middle;color:#e2e8f0}
+  .mph-product-row{cursor:pointer;transition:background .18s ease}
+  .mph-product-row:hover{background:rgba(56,189,248,.07)}
+  .mph-product-row.open{background:rgba(56,189,248,.1)}
+  .mph-toggle{width:30px;height:30px;border:1px solid rgba(125,211,252,.25);border-radius:8px;background:rgba(56,189,248,.1);color:#7dd3fc;display:grid;place-items:center}
+  .mph-toggle i{transition:transform .2s ease}
+  .mph-product-row.open .mph-toggle i{transform:rotate(180deg)}
+  .mph-detail-row{display:none}
+  .mph-detail-row.open{display:table-row}
+  .mph-detail-cell{padding:0!important;background:#07101f}
+  .mph-history-scroll{max-height:510px;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#38bdf8 #0b1527;scrollbar-width:thin}
+  .mph-history-table{width:100%;border-collapse:collapse;min-width:980px}
+  .mph-history-table th{position:sticky;top:0;z-index:2;background:#111c33;color:#94a3b8;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:9px 12px}
+  .mph-history-table td{padding:10px 12px;border-top:1px solid rgba(148,163,184,.1);font-size:.78rem}
+  .mph-history-empty{padding:25px;text-align:center;color:#94a3b8}
+  .mph-name{font-weight:950;color:#fff}
+  .mph-muted{color:#94a3b8;font-size:.78rem}
+  .mph-price{font-weight:950;color:#f8fafc;white-space:nowrap}
+  .mph-change{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:.76rem;font-weight:950;white-space:nowrap}
+  .mph-change.up{background:rgba(34,197,94,.14);color:#86efac}
+  .mph-change.down{background:rgba(239,68,68,.14);color:#fca5a5}
+  .mph-change.stable{background:rgba(148,163,184,.14);color:#cbd5e1}
+  .mph-alert{border:1px solid rgba(148,163,184,.22);border-radius:8px;display:flex;gap:9px;margin-top:12px;padding:11px 13px;font-weight:800}
+  .mph-alert.success{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.3);color:#bbf7d0}
+  .mph-alert.error{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);color:#fecaca}
+  .mph-delete{height:34px;border:1px solid rgba(248,113,113,.34);border-radius:8px;background:rgba(239,68,68,.12);color:#fecaca;font-size:.72rem;font-weight:950;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+  .mph-empty{padding:44px 20px;text-align:center;color:#94a3b8}
+  .mph-empty strong{display:block;color:#fff;margin-bottom:6px}
+  .mph-pages{display:flex;justify-content:flex-end;gap:8px;padding:12px}
+  @media(max-width:760px){.mph-page{padding:14px}.mph-top{display:block}.mph-actions{margin-top:12px}.mph-title{font-size:1.45rem}.mph-select{min-width:100%;width:100%}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mph-page">
+  <div class="mph-shell">
+    <section class="mph-top">
+      <div>
+        <h1 class="mph-title">Fiyat Geçmişi Raporu</h1>
+        <p class="mph-lead">Takip edilen ürünlerin ölçüm geçmişini, fiyat yönünü ve önerilen fiyat değişimini kullanıcı bazlı raporlayın.</p>
+      </div>
+      <div class="mph-actions">
+        <a class="mph-btn" href="{% url 'marketplace_price_tracking' %}"><i class="fas fa-chart-line"></i> Fiyat Takibi</a>
+        <a class="mph-btn" href="{% url 'marketplace_product_research' %}"><i class="fas fa-magnifying-glass-chart"></i> Ürün Araştırması</a>
+      </div>
+    </section>
+
+    {% if messages %}
+      {% for message in messages %}
+      <div class="mph-alert {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+        <i class="fas fa-{% if message.tags == 'error' %}triangle-exclamation{% else %}circle-check{% endif %}"></i>
+        <span>{{ message }}</span>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <form class="mph-filter" method="get">
+      <div class="mph-field">
+        <label>Ürün araştırması</label>
+        <select class="mph-select" name="research">
+          <option value="">Tüm ürünler</option>
+          {% for research in tracked_researches %}
+          <option value="{{ research.id }}" {% if selected_research == research.id|stringformat:"s" %}selected{% endif %}>{{ research }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="mph-btn" type="submit"><i class="fas fa-filter"></i> Filtrele</button>
+      <a class="mph-btn" href="{% url 'marketplace_price_history_report' %}"><i class="fas fa-rotate-left"></i> Temizle</a>
+    </form>
+
+    <section class="mph-panel">
+      {% if rows %}
+      <div class="mph-table-wrap">
+        <table class="mph-table">
+          <thead>
+            <tr>
+              <th>Ürün</th>
+              <th>Son Ölçüm</th>
+              <th>Son Minimum</th>
+              <th>Son Ortalama</th>
+              <th>Son Önerilen</th>
+              <th>Ölçüm Sayısı</th>
+              <th>İşlem</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr class="mph-product-row" data-target="history-{{ row.research.id }}" tabindex="0" role="button" aria-expanded="false">
+              <td>
+                <div class="mph-name">{{ row.name }}</div>
+                <div class="mph-muted">{{ row.research.detected_category|default:row.research.prompt }}</div>
+              </td>
+              <td>{% if row.latest %}<div class="mph-name">{{ row.latest.checked_at|date:"d.m.Y H:i" }}</div>{% else %}<span class="mph-muted">Henüz ölçüm yok</span>{% endif %}</td>
+              <td class="mph-price">{% if row.latest %}{{ row.latest.min_price }} TL{% else %}—{% endif %}</td>
+              <td class="mph-price">{% if row.latest %}{{ row.latest.average_price }} TL{% else %}—{% endif %}</td>
+              <td class="mph-price">{% if row.latest %}{{ row.latest.recommended_price }} TL{% else %}—{% endif %}</td>
+              <td><span class="mph-change stable"><i class="fas fa-clock-rotate-left"></i> {{ row.history_count }} ölçüm</span></td>
+              <td>
+                <form class="mph-delete-form" method="post" data-product="{{ row.name|escape }}">
+                  {% csrf_token %}
+                  <input type="hidden" name="research_id" value="{{ row.research.id }}">
+                  <button class="mph-delete" type="submit"><i class="fas fa-trash-can"></i> Kalıcı Sil</button>
+                </form>
+              </td>
+              <td><button class="mph-toggle" type="button" aria-label="Fiyat geçmişini aç"><i class="fas fa-chevron-down"></i></button></td>
+            </tr>
+            <tr class="mph-detail-row" id="history-{{ row.research.id }}">
+              <td class="mph-detail-cell" colspan="8">
+                {% if row.histories %}
+                <div class="mph-history-scroll">
+                  <table class="mph-history-table">
+                    <thead><tr><th>Tarih</th><th>Minimum</th><th>Ortalama</th><th>Maksimum</th><th>Önerilen</th><th>Değişim</th><th>Rekabet</th><th>Sonuç</th></tr></thead>
+                    <tbody>
+                    {% for history in row.histories %}
+                      <tr>
+                        <td><strong>{{ history.checked_at|date:"d.m.Y H:i" }}</strong></td>
+                        <td class="mph-price">{{ history.min_price }} TL</td>
+                        <td class="mph-price">{{ history.average_price }} TL</td>
+                        <td class="mph-price">{{ history.max_price }} TL</td>
+                        <td class="mph-price">{{ history.recommended_price }} TL</td>
+                        <td>
+                          {% if history.change_direction == 'up' %}
+                          <span class="mph-change up"><i class="fas fa-arrow-trend-up"></i> +{{ history.recommended_price_change }} TL · %{{ history.recommended_price_change_percent }}</span>
+                          {% elif history.change_direction == 'down' %}
+                          <span class="mph-change down"><i class="fas fa-arrow-trend-down"></i> {{ history.recommended_price_change }} TL · %{{ history.recommended_price_change_percent }}</span>
+                          {% else %}
+                          <span class="mph-change stable"><i class="fas fa-minus"></i> Değişmedi</span>
+                          {% endif %}
+                        </td>
+                        <td><span class="mph-muted">Yüksek {{ history.high_competition_count }} · Orta {{ history.medium_competition_count }} · Düşük {{ history.low_competition_count }}</span></td>
+                        <td><span class="mph-muted">{{ history.result_count }} ilan</span></td>
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                {% else %}
+                <div class="mph-history-empty">Bu ürün için henüz fiyat ölçümü oluşmadı.</div>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if page_obj.has_other_pages %}
+      <div class="mph-pages">
+        {% if page_obj.has_previous %}<a class="mph-btn" href="?research={{ selected_research }}&page={{ page_obj.previous_page_number }}">Önceki</a>{% endif %}
+        <span class="mph-muted">Sayfa {{ page_obj.number }} / {{ paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a class="mph-btn" href="?research={{ selected_research }}&page={{ page_obj.next_page_number }}">Sonraki</a>{% endif %}
+      </div>
+      {% endif %}
+      {% else %}
+      <div class="mph-empty">
+        <strong>Henüz fiyat geçmişi yok</strong>
+        <span>Fiyat Takibi ekranından ürünleri takibe aldığınızda ölçümler burada raporlanır.</span>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.querySelectorAll('.mph-product-row').forEach(function (row) {
+    function toggleRow() {
+      const detail = document.getElementById(row.dataset.target);
+      if (!detail) return;
+      const open = !detail.classList.contains('open');
+      detail.classList.toggle('open', open);
+      row.classList.toggle('open', open);
+      row.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    row.addEventListener('click', function (event) {
+      if (event.target.closest('form, button, a')) return;
+      toggleRow();
+    });
+    row.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleRow();
+      }
+    });
+    const button = row.querySelector('.mph-toggle');
+    if (button) button.addEventListener('click', toggleRow);
+  });
+  document.querySelectorAll('.mph-delete-form').forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+      const product = form.dataset.product || 'Bu ürün';
+      const accepted = window.confirm(
+        product + ' kalıcı olarak silinecek. Tüm araştırma sonuçları, fiyat ölçümleri ve görsel geri alınamaz. Devam edilsin mi?'
+      );
+      if (!accepted) {
+        event.preventDefault();
+        return;
+      }
+      const button = form.querySelector('.mph-delete');
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Kalıcı siliniyor';
+      }
+    });
+  });
+</script>
+{% endblock %}

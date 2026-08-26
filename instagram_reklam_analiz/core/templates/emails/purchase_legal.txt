@@ -1,0 +1,19 @@
+{% if is_sample %}BU BİR ÖRNEK E-POSTADIR.
+
+{% endif %}Sayın {{ recipient_name }},
+
+{{ item_name }} için ödeme/sipariş kaydınız alınmıştır.
+
+Ödeme yöntemi: {{ payment_method }}
+Durum: {{ payment_status }}
+Toplam: {{ amount }} TL
+Referans: {{ payment_reference }}
+Onay zamanı: {{ accepted_at|date:"d.m.Y H:i" }}
+
+Ödeme sırasında onayladığınız sözleşmeler PDF olarak bu e-postaya eklenmiştir:
+{% for document in documents %}- {{ document.title }} (v{{ document.version }})
+{% endfor %}
+Bu e-postayı ve eklerini saklamanızı öneririz.
+
+ReklamAnaliz.net
+info@reklamanaliz.net

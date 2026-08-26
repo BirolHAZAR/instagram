@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hesap Silme Talebi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/account_delete_confirm.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="delete-wrapper">
+    <div class="container">
+        <div class="delete-shell">
+            <aside class="delete-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <span class="delete-kicker">Hesap Ya&#351;am D&#246;ng&#252;s&#252;</span>
+                <h1>Hesap silme talebi</h1>
+                <p>Bu i&#351;lem hesab&#305;n&#305;z&#305; hemen kal&#305;c&#305; olarak silmez. Devam eden aboneli&#287;iniz varsa hak kayb&#305; olmamas&#305; i&#231;in ask&#305; s&#252;reci abonelik biti&#351;inden sonra ba&#351;lar.</p>
+                <a href="{% url 'profile' %}" class="delete-back">
+                    <i class="fas fa-arrow-left"></i>Profile D&#246;n
+                </a>
+            </aside>
+
+            <main class="delete-panel">
+                <div class="delete-panel-head">
+                    <span><i class="fas fa-triangle-exclamation"></i>Dikkatli onay gerekir</span>
+                </div>
+
+                <div class="delete-panel-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="delete-alert {{ message.tags }}">
+                                <i class="fas fa-info-circle"></i>{{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <section class="delete-warning">
+                        <div class="delete-warning-icon">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <div>
+                            <h2>Ask&#305; s&#252;reci haklar&#305;n&#305;z bittikten sonra ba&#351;lar</h2>
+                            <p>Aktif aboneli&#287;iniz yoksa hesap hemen ask&#305;ya al&#305;n&#305;r. Devam eden aboneli&#287;iniz varsa hesab&#305;n&#305;z abonelik biti&#351;inden sonraki g&#252;n ask&#305;ya al&#305;n&#305;r ve 3 ayl&#305;k s&#252;re o tarihten itibaren say&#305;l&#305;r.</p>
+                        </div>
+                    </section>
+
+                    <div class="delete-rules">
+                        <div>
+                            <i class="fas fa-eye-slash"></i>
+                            <strong>Abonelik hakk&#305;n&#305;z korunur</strong>
+                            <p>Devam eden abonelik varsa hesab&#305;n&#305;z ask&#305;ya abonelik biti&#351;inden sonra al&#305;n&#305;r.</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-rotate-left"></i>
+                            <strong>Ask&#305;dayken giri&#351; geri a&#231;ar</strong>
+                            <p>Ask&#305; ba&#351;lad&#305;ktan sonra 3 ay dolmadan giri&#351; yaparsan&#305;z silme talebi iptal edilir.</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-trash"></i>
+                            <strong>3 ay sonra kal&#305;c&#305; silinir</strong>
+                            <p>Bu s&#252;rede hi&#231; giri&#351; olmazsa hesab&#305;n&#305;za ait veriler otomatik temizlik g&#246;reviyle silinir.</p>
+                        </div>
+                    </div>
+
+                    <form method="post" action="{% url 'account_delete' %}" id="deleteForm" class="delete-form">
+                        {% csrf_token %}
+                        <label class="delete-confirm-check">
+                            <input type="checkbox" id="deleteConfirmCheck" required>
+                            <span>Aktif aboneli&#287;im varsa ask&#305; s&#252;recinin abonelik biti&#351;inden sonra ba&#351;layaca&#287;&#305;n&#305;, ask&#305;dan 3 ay sonra kal&#305;c&#305; silme yap&#305;laca&#287;&#305;n&#305; anl&#305;yorum.</span>
+                        </label>
+
+                        <div class="delete-actions">
+                            <button type="submit" class="delete-btn-danger" id="deleteBtn">
+                                <i class="fas fa-user-slash"></i>Hesab&#305; Ask&#305;ya Al
+                            </button>
+                            <a href="{% url 'profile' %}" class="delete-btn-soft">
+                                <i class="fas fa-times"></i>Vazge&#231;
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById('deleteForm')?.addEventListener('submit', function (event) {
+    var checkbox = document.getElementById('deleteConfirmCheck');
+    if (!checkbox || !checkbox.checked) {
+        event.preventDefault();
+        return;
+    }
+
+    var confirmed = window.confirm('Devam eden aboneliginiz varsa aski sureci abonelik bitiminden sonra baslar. Aski basladiktan 3 ay sonra giris olmazsa hesap kalici silinir. Onayliyor musunuz?');
+    if (!confirmed) {
+        event.preventDefault();
+        return;
+    }
+
+    var button = document.getElementById('deleteBtn');
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner"></span> Isleniyor...';
+    }
+});
+</script>
+{% endblock %}

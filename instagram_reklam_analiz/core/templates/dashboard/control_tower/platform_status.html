@@ -1,0 +1,23 @@
+<section class="ct-card ct-section ct-platform-status-section">
+    <span class="ct-tip info" data-tip="Platformların bağlantı, senkronizasyon ve aktif hesap durumunu tek bakışta gösterir. Sorunlu platformlar Sync Center üzerinden kontrol edilir."><i class="fas fa-circle-info"></i> Platform</span>
+    <div class="ct-platform-head">
+      <div>
+        <h3>PLATFORM DURUM MERKEZİ</h3>
+        <span>Veri kaynaklarının bağlantı, sync ve aktif hesap durumu</span>
+      </div>
+      <a class="ct-mini-link" href="{% url 'sync_center' %}">Sync Center →</a>
+    </div>
+    <div class="ct-platform-grid">
+      {% for platform in platform_status_cards %}
+        <a class="ct-platform-card {{ platform.status }}" href="{% url 'sync_center' %}" title="{{ platform.name }} · {{ platform.status_label }}" data-tip="{{ platform.name }} durumu: {{ platform.status_label }}. {{ platform.message }} Son sync: {{ platform.last_sync_label }}">
+          <div class="ct-platform-icon"><i class="{{ platform.icon }}"></i></div>
+          <div class="ct-platform-name"><strong>{{ platform.name }}</strong><i class="ct-status-dot"></i></div>
+          <div class="ct-platform-meta">
+            <span>{{ platform.status_label }}</span>
+            <b>{{ platform.message }}</b>
+            <span>Son sync: {{ platform.last_sync_label }}</span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>

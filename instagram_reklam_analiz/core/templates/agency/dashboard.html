@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ajans Yönetim Paneli - ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="agency-page">
+  <div class="agency-shell">
+    <div class="agency-topbar">
+      <div class="agency-title">
+        <h1>{{ organization.name }}</h1>
+        <p>Ajans müşterileri, platform hesapları, rakipler ve rapor markası tek merkezde.</p>
+      </div>
+      <div class="agency-actions">
+        {% if can_manage_members %}<a class="agency-btn" href="{% url 'agency_members' organization.id %}"><i class="fas fa-user-shield"></i> Kullanıcılar</a>{% endif %}
+        {% if can_manage_accounts %}<a class="agency-btn" href="{% url 'agency_platform_account_create' organization.id %}"><i class="fas fa-link"></i> Hesap Bağla</a>{% endif %}
+        {% if can_manage_competitors %}<a class="agency-btn" href="{% url 'agency_competitor_create' organization.id %}"><i class="fas fa-crosshairs"></i> Rakip Ekle</a>{% endif %}
+        {% if can_manage_clients %}<a class="agency-btn primary" href="{% url 'agency_client_create' organization.id %}"><i class="fas fa-plus"></i> Müşteri Ekle</a>{% endif %}
+        {% if can_manage_members %}<a class="agency-btn" href="{% url 'agency_branding' organization.id %}"><i class="fas fa-image"></i> Logo & Rapor</a>{% endif %}
+      </div>
+    </div>
+
+    <div class="agency-grid">
+      <div class="agency-stat"><span>Müşteri / Marka</span><strong>{{ client_count }}{% if client_limit %}/{{ client_limit }}{% endif %}</strong></div>
+      <div class="agency-stat"><span>Kullanıcı</span><strong>{{ member_count }}/{{ seat_limit }}</strong></div>
+      <div class="agency-stat"><span>Platform Hesabı</span><strong>{{ platform_account_count }}</strong></div>
+      <div class="agency-stat"><span>Rakip Profili</span><strong>{{ competitor_count }}</strong></div>
+    </div>
+
+    <div class="agency-layout">
+      <section class="agency-panel">
+        <h2>Müşteri çalışma alanları</h2>
+        {% if clients %}
+        <div class="agency-client-list">
+          {% for client in clients %}
+          <a class="agency-client-card" href="{% url 'agency_client_detail' organization.id client.id %}">
+            {% if client.logo %}<img class="agency-client-logo" src="{{ client.logo.url }}" alt="{{ client.name }}">{% else %}<div class="agency-client-logo">{{ client.name|slice:":1" }}</div>{% endif %}
+            <div>
+              <h3>{{ client.name }}</h3>
+              <p>{{ client.website|default:"Web sitesi eklenmedi" }}</p>
+            </div>
+            <div class="agency-chip-row">
+              <span class="agency-chip">{{ client.platform_account_count }} hesap</span>
+              <span class="agency-chip">{{ client.competitor_count }} rakip</span>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="agency-empty">Henüz müşteri çalışma alanı yok.</div>
+        {% endif %}
+      </section>
+
+      <aside class="agency-panel">
+        <h2>Rapor markası</h2>
+        <div class="agency-client-card">
+          {% if organization.logo %}<img class="agency-logo-preview" src="{{ organization.logo.url }}" alt="{{ organization.name }}">{% else %}<div class="agency-logo-preview">{{ organization.name|slice:":1" }}</div>{% endif %}
+          <div>
+            <h3>{{ organization.report_brand_name|default:organization.name }}</h3>
+            <p>{% if organization.use_logo_on_reports %}PDF raporlarında logo aktif{% else %}PDF raporlarında logo pasif{% endif %}</p>
+          </div>
+        </div>
+
+        <h2 style="margin-top:22px;">Son hesaplar</h2>
+        {% if platform_accounts %}
+        <table class="agency-table">
+          <tbody>
+          {% for account in platform_accounts %}
+            <tr><td>{{ account.agency_client.name }}</td><td>{{ account.platform.name }}</td><td>{{ account.account_name|default:account.account_id }}</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="agency-empty">Bağlı hesap yok.</div>
+        {% endif %}
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %}

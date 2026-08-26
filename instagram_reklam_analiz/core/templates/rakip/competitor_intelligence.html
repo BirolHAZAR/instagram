@@ -1,0 +1,717 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tr_numbers %}
+
+{% block title %}Rekabet İstihbaratı | ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root{
+        --intel-bg:#050816;
+        --intel-panel:#101832;
+        --intel-panel-2:#131d3c;
+        --intel-line:rgba(139,132,255,.18);
+        --intel-line-strong:rgba(139,132,255,.32);
+        --intel-text:#f8fafc;
+        --intel-soft:#aeb8d5;
+        --intel-muted:#7783a7;
+        --intel-cyan:#35d5ff;
+        --intel-purple:#7c6dff;
+        --intel-green:#22c55e;
+        --intel-orange:#f59e0b;
+        --intel-red:#ef4444;
+    }
+    body{
+        background:
+            radial-gradient(circle at 14% 0%,rgba(124,109,255,.26),transparent 32%),
+            radial-gradient(circle at 86% 8%,rgba(53,213,255,.16),transparent 28%),
+            linear-gradient(180deg,#050816,#081029 58%,#050816);
+        color:var(--intel-text);
+    }
+    .intel-shell{max-width:1480px;margin:0 auto;padding:18px 22px 34px;}
+    .intel-hero{
+        position:relative;
+        overflow:hidden;
+        border:1px solid var(--intel-line);
+        border-radius:22px;
+        background:linear-gradient(135deg,rgba(16,24,50,.96),rgba(8,15,36,.94));
+        box-shadow:0 28px 72px rgba(0,0,0,.34);
+        margin-bottom:16px;
+    }
+    .intel-hero-inner{
+        position:relative;
+        z-index:2;
+        display:grid;
+        grid-template-columns:minmax(0,1fr) 250px;
+        gap:22px;
+        align-items:center;
+        padding:22px;
+    }
+    .intel-hero:before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:linear-gradient(90deg,rgba(53,213,255,.08),transparent 42%,rgba(124,109,255,.12));
+        pointer-events:none;
+    }
+    .intel-kicker{
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        border:1px solid rgba(53,213,255,.24);
+        background:rgba(53,213,255,.08);
+        color:#bff3ff;
+        border-radius:999px;
+        padding:7px 11px;
+        font-weight:900;
+        font-size:.72rem;
+        text-transform:uppercase;
+        letter-spacing:0;
+        margin-bottom:12px;
+    }
+    .intel-title{
+        color:#fff;
+        font-weight:950;
+        font-size:clamp(1.75rem,3vw,3rem);
+        line-height:1.05;
+        letter-spacing:0;
+        margin:0 0 10px;
+    }
+    .intel-subtitle{
+        color:var(--intel-soft);
+        max-width:910px;
+        font-size:1rem;
+        line-height:1.65;
+        margin:0;
+    }
+    .intel-brief{
+        display:grid;
+        gap:9px;
+        border:1px solid rgba(139,132,255,.18);
+        border-radius:16px;
+        background:rgba(5,8,22,.38);
+        padding:14px;
+    }
+    .brief-item{display:flex;gap:10px;align-items:flex-start;color:#dbe6ff;font-size:.84rem;line-height:1.45;}
+    .brief-item i{color:var(--intel-cyan);margin-top:2px;}
+    .metric-grid{
+        display:grid;
+        grid-template-columns:repeat(5,minmax(0,1fr));
+        gap:12px;
+        margin-bottom:16px;
+    }
+    .metric-card{
+        min-height:118px;
+        border:1px solid var(--intel-line);
+        border-radius:18px;
+        background:linear-gradient(180deg,rgba(19,29,60,.86),rgba(10,16,40,.86));
+        padding:16px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:space-between;
+        text-align:center;
+        box-shadow:0 18px 44px rgba(0,0,0,.22);
+    }
+    .metric-card span{color:var(--intel-muted);font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:0;}
+    .metric-card strong{color:#fff;font-size:1.65rem;font-weight:950;line-height:1;}
+    .metric-card small{color:var(--intel-soft);font-size:.78rem;}
+    .metric-card.is-{{ pressure_class }}{border-color:rgba(53,213,255,.34);}
+    .metric-card.is-danger{border-color:rgba(239,68,68,.42);}
+    .metric-card.is-warning{border-color:rgba(245,158,11,.42);}
+    .metric-card.is-good{border-color:rgba(34,197,94,.36);}
+    .intel-grid{
+        display:grid;
+        grid-template-columns:minmax(0,1fr) 390px;
+        gap:16px;
+        align-items:start;
+    }
+    .intel-panel{
+        border:1px solid var(--intel-line);
+        border-radius:18px;
+        background:rgba(16,24,50,.88);
+        box-shadow:0 22px 58px rgba(0,0,0,.25);
+        overflow:hidden;
+    }
+    .panel-head{
+        min-height:58px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:14px;
+        padding:14px 16px;
+        border-bottom:1px solid var(--intel-line);
+        background:linear-gradient(135deg,rgba(10,16,40,.94),rgba(19,29,60,.82));
+    }
+    .panel-head h2{margin:0;color:#fff;font-size:.98rem;font-weight:950;}
+    .panel-head p{margin:4px 0 0;color:var(--intel-soft);font-size:.78rem;}
+    .panel-count{color:#bff3ff;font-weight:900;font-size:.78rem;border:1px solid rgba(53,213,255,.22);border-radius:999px;padding:6px 10px;background:rgba(53,213,255,.08);white-space:nowrap;}
+    .platform-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:14px 16px;border-bottom:1px solid var(--intel-line);}
+    .platform-card{
+        border:1px solid rgba(139,132,255,.16);
+        border-radius:14px;
+        background:rgba(255,255,255,.035);
+        padding:12px;
+    }
+    .platform-card strong{display:block;color:#fff;font-size:.9rem;margin-bottom:7px;}
+    .platform-card span{display:block;color:var(--intel-soft);font-size:.76rem;}
+    .bar{height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:10px;}
+    .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--intel-cyan),var(--intel-purple));}
+    .competitor-list{display:grid;gap:10px;padding:14px 16px;}
+    .competitor-card{
+        display:grid;
+        grid-template-columns:64px minmax(0,1fr) 320px;
+        gap:14px;
+        align-items:center;
+        border:1px solid rgba(139,132,255,.16);
+        border-radius:16px;
+        background:rgba(255,255,255,.04);
+        padding:12px;
+    }
+    .competitor-avatar{
+        width:54px;
+        height:54px;
+        border-radius:16px;
+        display:grid;
+        place-items:center;
+        color:#fff;
+        background:linear-gradient(135deg,var(--intel-purple),#273a8a);
+        font-weight:950;
+        font-size:1rem;
+    }
+    .competitor-main strong{display:block;color:#fff;font-size:.98rem;margin-bottom:4px;}
+    .competitor-main small{display:block;color:var(--intel-soft);font-size:.76rem;line-height:1.45;}
+    .tag-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
+    .tag{
+        display:inline-flex;
+        align-items:center;
+        gap:5px;
+        border-radius:999px;
+        border:1px solid rgba(139,132,255,.22);
+        background:rgba(139,132,255,.12);
+        color:#e7e4ff;
+        padding:5px 8px;
+        font-size:.68rem;
+        font-weight:900;
+        white-space:nowrap;
+    }
+    .tag.good{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.12);color:#86efac;}
+    .tag.warning{border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.12);color:#ffd18a;}
+    .tag.danger{border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.12);color:#fca5a5;}
+    .competitor-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+    .mini{
+        border:1px solid rgba(139,132,255,.14);
+        border-radius:13px;
+        background:rgba(5,8,22,.38);
+        padding:9px;
+        text-align:center;
+        min-width:0;
+    }
+    .mini b{display:block;color:#fff;font-size:.92rem;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .mini em{display:block;color:var(--intel-muted);font-style:normal;font-size:.62rem;font-weight:900;text-transform:uppercase;margin-top:3px;}
+    .side-stack{display:grid;gap:16px;}
+    .top-ad-list{display:grid;gap:10px;padding:14px;}
+    .ad-card{
+        display:grid;
+        grid-template-columns:74px minmax(0,1fr);
+        gap:11px;
+        border:1px solid rgba(139,132,255,.16);
+        border-radius:15px;
+        background:rgba(255,255,255,.04);
+        padding:10px;
+    }
+    .ad-thumb{width:74px;height:74px;border-radius:12px;background:#081029;overflow:hidden;display:grid;place-items:center;color:var(--intel-cyan);}
+    .ad-thumb img{width:100%;height:100%;object-fit:cover;}
+    .ad-card strong{display:block;color:#fff;font-size:.82rem;line-height:1.35;margin-bottom:4px;}
+    .ad-card span{display:block;color:var(--intel-soft);font-size:.7rem;line-height:1.35;}
+    .ad-metrics{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+    .ad-metrics b{font-size:.67rem;color:#dbe6ff;border:1px solid rgba(139,132,255,.16);border-radius:999px;padding:4px 7px;background:rgba(5,8,22,.34);}
+    .competitor-card{cursor:pointer;transition:.18s ease;}
+    .competitor-card:hover{border-color:rgba(53,213,255,.36);background:rgba(53,213,255,.06);transform:translateY(-1px);}
+    .competitor-card.is-open{border-color:rgba(53,213,255,.48);box-shadow:0 18px 42px rgba(53,213,255,.08);}
+    .competitor-expand{display:none;border:1px solid rgba(53,213,255,.16);border-radius:16px;background:rgba(5,8,22,.32);padding:12px;margin-top:-2px;}
+    .competitor-expand.is-open{display:block;}
+    .expand-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;color:#dbe6ff;font-size:.78rem;font-weight:900;}
+    .expand-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+    .inline-ad-card{display:grid;grid-template-columns:74px minmax(0,1fr) 140px;gap:11px;align-items:center;border:1px solid rgba(139,132,255,.16);border-radius:14px;background:rgba(255,255,255,.04);padding:10px;cursor:pointer;transition:.16s ease;}
+    .inline-ad-card:hover,.ad-card:hover{border-color:rgba(53,213,255,.4);background:rgba(53,213,255,.06);}
+    .inline-ad-info strong{display:block;color:#fff;font-size:.82rem;line-height:1.35;margin-bottom:4px;}
+    .inline-ad-info span{display:block;color:var(--intel-soft);font-size:.7rem;line-height:1.35;}
+    .inline-ad-metrics{display:grid;gap:5px;text-align:right;}
+    .inline-ad-metrics b{color:#fff;font-size:.76rem;}
+    .inline-ad-metrics small{color:var(--intel-muted);font-size:.62rem;font-weight:900;text-transform:uppercase;}
+    .ad-card{cursor:pointer;transition:.16s ease;}
+    .modal-backdrop-intel{position:fixed;inset:0;z-index:2147483500;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,.78);backdrop-filter:blur(10px);padding:22px;isolation:isolate;}
+    .modal-backdrop-intel.is-open{display:flex;}
+    .intel-modal{width:min(1080px,100%);max-height:92vh;overflow:auto;border:1px solid rgba(139,132,255,.28);border-radius:20px;background:#0b132c;box-shadow:0 34px 90px rgba(0,0,0,.55);color:#fff;}
+    .modal-head{position:sticky;top:0;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:16px 18px;border-bottom:1px solid rgba(139,132,255,.18);background:linear-gradient(135deg,rgba(16,24,50,.98),rgba(10,16,40,.98));}
+    .modal-head h3{margin:0;color:#fff;font-size:1.1rem;font-weight:950;}
+    .modal-head span{display:block;color:var(--intel-soft);font-size:.78rem;margin-top:4px;}
+    .modal-close{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;font-weight:950;}
+    .modal-body{padding:16px 18px;display:grid;gap:14px;}
+    .modal-overview{display:grid;grid-template-columns:240px minmax(0,1fr);gap:14px;}
+    .modal-media{height:240px;border-radius:16px;background:#081029;border:1px solid rgba(139,132,255,.16);overflow:hidden;display:grid;place-items:center;color:var(--intel-cyan);}
+    .modal-media img{width:100%;height:100%;object-fit:cover;}
+    .modal-copy{border:1px solid rgba(139,132,255,.16);border-radius:16px;background:rgba(255,255,255,.04);padding:14px;}
+    .modal-copy p{color:#dbe6ff;font-size:.86rem;line-height:1.55;margin:0 0 10px;}
+    .modal-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+    .modal-metric{border:1px solid rgba(139,132,255,.16);border-radius:13px;background:rgba(5,8,22,.36);padding:10px;text-align:center;}
+    .modal-metric b{display:block;color:#fff;font-size:.95rem;}
+    .modal-metric small{display:block;color:var(--intel-muted);font-size:.64rem;text-transform:uppercase;font-weight:900;margin-top:3px;}
+    .rule-grid,.agent-grid,.action-list{display:grid;gap:8px;}
+    .rule-item,.agent-item,.action-item{border:1px solid rgba(139,132,255,.16);border-radius:13px;background:rgba(255,255,255,.04);padding:10px;}
+    .rule-item strong,.agent-item strong,.action-item strong{display:block;color:#fff;font-size:.82rem;margin-bottom:4px;}
+    .rule-item span,.agent-item span,.action-item span{display:block;color:var(--intel-soft);font-size:.74rem;line-height:1.45;}
+    .agent-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .modal-section-title{display:flex;align-items:center;justify-content:space-between;color:#fff;font-weight:950;font-size:.9rem;margin:4px 0;}
+    .ai-button{border:0;border-radius:12px;background:linear-gradient(135deg,#2563eb,#14b8a6);color:#fff;padding:10px 13px;font-weight:950;}
+    .ai-button:disabled{opacity:.6;cursor:wait;}
+    .analysis-summary{border:1px solid rgba(53,213,255,.2);border-radius:14px;background:rgba(53,213,255,.07);padding:12px;color:#dff7ff;font-size:.82rem;line-height:1.5;}
+    .decision-box{padding:14px;}
+    .decision-item{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid rgba(139,132,255,.12);}
+    .decision-item:last-child{border-bottom:0;}
+    .decision-item i{color:var(--intel-cyan);margin-top:3px;}
+    .decision-item strong{display:block;color:#fff;font-size:.82rem;margin-bottom:3px;}
+    .decision-item span{display:block;color:var(--intel-soft);font-size:.74rem;line-height:1.45;}
+    .empty-state{text-align:center;color:var(--intel-soft);padding:34px 18px;}
+    .empty-state i{font-size:2rem;color:var(--intel-cyan);margin-bottom:10px;}
+    @media(max-width:1220px){
+        .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+        .intel-grid{grid-template-columns:1fr;}
+        .platform-strip{grid-template-columns:repeat(2,minmax(0,1fr));}
+    }
+    @media(max-width:820px){
+        .intel-shell{padding:12px 12px 24px;}
+        .intel-hero-inner{grid-template-columns:1fr;}
+        .intel-brief{display:none;}
+        .metric-grid,.platform-strip{grid-template-columns:1fr;}
+        .competitor-card{grid-template-columns:1fr;}
+        .expand-grid,.inline-ad-card,.modal-overview,.agent-grid{grid-template-columns:1fr;}
+        .inline-ad-metrics{text-align:left;grid-template-columns:repeat(3,minmax(0,1fr));}
+        .modal-metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
+        .competitor-metrics{grid-template-columns:repeat(3,minmax(0,1fr));}
+        .modal-backdrop-intel{padding:10px;}
+        .intel-modal{max-height:calc(100dvh - 20px);}
+    }
+    body.intel-modal-open{overflow:hidden;}
+    .intel-agency-filter{display:flex;align-items:center;gap:14px;margin:0 0 16px;padding:15px 18px;border:1px solid var(--intel-line-strong);border-radius:18px;background:rgba(16,24,50,.9)}.intel-agency-filter label{font-weight:900;color:#fff;white-space:nowrap}.intel-agency-filter select{margin-left:auto;width:min(450px,100%);background:rgba(255,255,255,.07);border:1px solid rgba(139,132,255,.35);color:#fff;border-radius:13px;padding:10px 12px}.intel-agency-filter option{color:#111}@media(max-width:650px){.intel-agency-filter{align-items:stretch;flex-direction:column}.intel-agency-filter select{margin-left:0;width:100%}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="intel-shell">
+    <section class="intel-hero">
+        <div class="intel-hero-inner">
+            <div>
+                <span class="intel-kicker"><i class="fas fa-binoculars"></i> Rekabet İstihbarat Merkezi</span>
+                <h1 class="intel-title">Rakibin ne yaptığını değil, neden hızlandığını gör.</h1>
+                <p class="intel-subtitle">Bu ekran rakip profillerini reklam temposu, etkileşim hacmi, görünürlük ve kreatif sinyallerle okur. Amaç tek tek reklam bakmak değil; pazardaki baskıyı, fırsatı ve karşı hamle ihtiyacını anlamaktır.</p>
+            </div>
+            <div class="intel-brief">
+                <div class="brief-item"><i class="fas fa-wave-square"></i><span>Reklam sayısı, rakibin pazara ne kadar baskı yaptığını gösterir.</span></div>
+                <div class="brief-item"><i class="fas fa-fire"></i><span>Etkileşim ve gösterim, hangi mesajların ilgi topladığını öne çıkarır.</span></div>
+                <div class="brief-item"><i class="fas fa-bullseye"></i><span>Öne çıkan reklamlar, kreatif ve teklif tarafında karşı hamle fikri verir.</span></div>
+            </div>
+        </div>
+    </section>
+
+    {% if agency_scope.is_agency %}
+    <form class="intel-agency-filter" method="get" action="{{ request.path }}">
+        <label for="intelligenceAgencyClient"><i class="fas fa-building-user me-2"></i>Müşteri / Firma</label>
+        <select id="intelligenceAgencyClient" name="agency_client" onchange="this.form.submit()">
+            <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+            {% for agency_client in agency_scope.clients %}<option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>{% endfor %}
+        </select>
+    </form>
+    {% endif %}
+
+    <div class="metric-grid">
+        <div class="metric-card is-{{ pressure_class }}">
+            <span>Rekabet Baskısı</span>
+            <strong>{{ pressure_score|default:0 }}</strong>
+            <small>{{ pressure_label }}</small>
+        </div>
+        <div class="metric-card">
+            <span>Aktif Rakip</span>
+            <strong>{{ active_competitors|tr_int }}</strong>
+            <small>{{ total_competitors|tr_int }} kayıt içinde</small>
+        </div>
+        <div class="metric-card">
+            <span>Rakip Reklam</span>
+            <strong>{{ total_ads|tr_int }}</strong>
+            <small>İzlenen kreatif hacmi</small>
+        </div>
+        <div class="metric-card">
+            <span>Tahmini Gösterim</span>
+            <strong>{{ total_impressions|tr_int }}</strong>
+            <small>Rakip reklam metriklerinden</small>
+        </div>
+        <div class="metric-card">
+            <span>Ortalama CTR</span>
+            <strong>{{ avg_ctr|tr_decimal }}%</strong>
+            <small>Rakip reklam ortalaması</small>
+        </div>
+    </div>
+
+    <div class="intel-grid">
+        <section class="intel-panel">
+            <div class="panel-head">
+                <div>
+                    <h2><i class="fas fa-building me-2"></i> Rakip Davranış Haritası</h2>
+                    <p>Rakipler reklam hacmine ve etkileşim sinyaline göre sıralanır.</p>
+                </div>
+                <span class="panel-count">{{ total_competitors|tr_int }} rakip</span>
+            </div>
+
+            {% if platform_breakdown %}
+            <div class="platform-strip">
+                {% for platform in platform_breakdown|slice:":4" %}
+                <div class="platform-card">
+                    <strong>{{ platform.platform_name }}</strong>
+                    <span>{{ platform.competitors|tr_int }} rakip · {{ platform.ads|tr_int }} reklam</span>
+                    <span>{{ platform.engagement|tr_int }} etkileşim</span>
+                    <div class="bar"><i style="width:{% widthratio platform.ads total_ads 100 %}%"></i></div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="competitor-list">
+                {% if platform_rows %}
+                    {% for row in platform_rows %}
+                    <article class="competitor-card" data-competitor-card="{{ row.id }}" onclick="toggleCompetitorAds({{ row.id }})">
+                        <div class="competitor-avatar">{{ row.platform_name|slice:":1" }}</div>
+                        <div class="competitor-main">
+                            <strong>{{ row.name }}</strong>
+                            <small>{{ row.platform_name }} · {{ row.platform_code }}</small>
+                            {% if row.top_ad_name %}
+                            <small>Öne çıkan reklam: {{ row.top_ad_name }}</small>
+                            {% endif %}
+                            <div class="tag-row">
+                                <span class="tag {{ row.pressure_class }}"><i class="fas fa-signal"></i> {{ row.pressure }}</span>
+                                {% if row.is_active %}
+                                <span class="tag good"><i class="fas fa-circle-check"></i> Aktif izleniyor</span>
+                                {% else %}
+                                <span class="tag"><i class="fas fa-pause"></i> Pasif</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="competitor-metrics">
+                            <div class="mini"><b>{{ row.ads_count|tr_int }}</b><em>Reklam</em></div>
+                            <div class="mini"><b>{{ row.estimated_engagement|tr_int }}</b><em>Etkileşim</em></div>
+                            <div class="mini"><b>{{ row.avg_ctr|tr_decimal }}%</b><em>CTR</em></div>
+                        </div>
+                    </article>
+                    <div class="competitor-expand" id="competitorAds{{ row.id }}">
+                        <div class="expand-head">
+                            <span><i class="fas fa-rectangle-ad"></i> {{ row.name }} reklamları</span>
+                            <span>{{ row.ads_count|tr_int }} reklam</span>
+                        </div>
+                        <div class="expand-grid" data-ads-grid="{{ row.id }}">
+                            <div class="empty-state" style="padding:16px;"><i class="fas fa-spinner fa-spin"></i><p>Reklamlar yükleniyor...</p></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-building"></i>
+                        <p>Henüz rakip eklenmemiş.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <aside class="side-stack">
+            <section class="intel-panel">
+                <div class="panel-head">
+                    <div>
+                        <h2><i class="fas fa-compass me-2"></i> Karar Özeti</h2>
+                        <p>Bu alan aksiyon sinyalini özetler.</p>
+                    </div>
+                </div>
+                <div class="decision-box">
+                    <div class="decision-item">
+                        <i class="fas fa-gauge-high"></i>
+                        <div>
+                            <strong>{{ pressure_label }}</strong>
+                            <span>Rakip baskı skoru {{ pressure_score|default:0 }}. Reklam hacmi ve aktif rakip sayısı birlikte okunur.</span>
+                        </div>
+                    </div>
+                    <div class="decision-item">
+                        <i class="fas fa-user-secret"></i>
+                        <div>
+                            <strong>{% if strongest_competitor %}{{ strongest_competitor.name }}{% else %}Rakip sinyali bekleniyor{% endif %}</strong>
+                            <span>{% if strongest_competitor %}En yüksek reklam/etkileşim hacmine sahip rakip. Kreatif ve teklif dili ayrıca incelenmeli.{% else %}Rakip verisi oluştuğunda en baskın profil burada gösterilir.{% endif %}</span>
+                        </div>
+                    </div>
+                    <div class="decision-item">
+                        <i class="fas fa-lightbulb"></i>
+                        <div>
+                            <strong>Karşı hamle alanı</strong>
+                            <span>CTR ve etkileşimi yüksek rakip reklamları, yeni kreatif açıları ve teklif testleri için öncelikli kaynak olmalı.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="intel-panel">
+                <div class="panel-head">
+                    <div>
+                        <h2><i class="fas fa-fire me-2"></i> Öne Çıkan Reklamlar</h2>
+                        <p>Etkileşim ve gösterim sinyaline göre sıralı.</p>
+                    </div>
+                </div>
+                <div class="top-ad-list">
+                    {% if top_ads %}
+                        {% for ad in top_ads %}
+                        <article class="ad-card" onclick="openAdModal({{ ad.ad_id }})">
+                            <div class="ad-thumb">
+                                {% if ad.preview_image_url %}
+                                <img src="{{ ad.preview_image_url }}" alt="{{ ad.ad_name }}">
+                                {% else %}
+                                <i class="fas fa-ad"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <strong>{{ ad.ad_name }}</strong>
+                                <span>{{ ad.competitor_name }} · {{ ad.platform_name }}</span>
+                                <span>{{ ad.date }}</span>
+                                <div class="ad-metrics">
+                                    <b>{{ ad.impressions|tr_int }} gösterim</b>
+                                    <b>{{ ad.engagement|tr_int }} etkileşim</b>
+                                    <b>{{ ad.ctr|tr_decimal }}% CTR</b>
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-ad"></i>
+                            <p>Henüz öne çıkan rakip reklam metriği bulunmuyor.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<div class="modal-backdrop-intel" id="adModalBackdrop" aria-hidden="true">
+    <div class="intel-modal">
+        <div class="modal-head">
+            <div>
+                <h3 id="modalAdTitle">Rakip reklam detayı</h3>
+                <span id="modalAdMeta"></span>
+            </div>
+            <button class="modal-close" type="button" onclick="closeAdModal()">×</button>
+        </div>
+        <div class="modal-body" id="adModalBody">
+            <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Reklam detayı yükleniyor...</p></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const loadedCompetitors = new Set();
+let activeAdId = null;
+
+function csrfToken(){
+    return (document.cookie.split("; ").find(row => row.startsWith("csrftoken=")) || "").split("=")[1] || "";
+}
+
+function escapeHtml(value){
+    return String(value || "").replace(/[&<>"']/g, function(char){
+        return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[char];
+    });
+}
+
+async function toggleCompetitorAds(competitorId){
+    const card = document.querySelector(`[data-competitor-card="${competitorId}"]`);
+    const box = document.getElementById(`competitorAds${competitorId}`);
+    if(!box) return;
+    const willOpen = !box.classList.contains("is-open");
+    document.querySelectorAll(".competitor-expand.is-open").forEach(el => {
+        if(el !== box) el.classList.remove("is-open");
+    });
+    document.querySelectorAll(".competitor-card.is-open").forEach(el => {
+        if(el !== card) el.classList.remove("is-open");
+    });
+    box.classList.toggle("is-open", willOpen);
+    if(card) card.classList.toggle("is-open", willOpen);
+    if(!willOpen || loadedCompetitors.has(competitorId)) return;
+
+    const grid = box.querySelector(`[data-ads-grid="${competitorId}"]`);
+    try{
+        const response = await fetch(`/competitor-intelligence/api/competitor/${competitorId}/ads/`);
+        const data = await response.json();
+        if(!data.success || !data.ads.length){
+            grid.innerHTML = `<div class="empty-state" style="padding:16px;"><i class="fas fa-ad"></i><p>Bu rakip için reklam bulunmuyor.</p></div>`;
+            loadedCompetitors.add(competitorId);
+            return;
+        }
+        grid.innerHTML = data.ads.map(renderInlineAd).join("");
+        loadedCompetitors.add(competitorId);
+    }catch(error){
+        grid.innerHTML = `<div class="empty-state" style="padding:16px;"><i class="fas fa-triangle-exclamation"></i><p>Reklamlar yüklenemedi.</p></div>`;
+    }
+}
+
+function renderInlineAd(ad){
+    const image = ad.preview_image_url
+        ? `<img src="${escapeHtml(ad.preview_image_url)}" alt="">`
+        : `<i class="fas fa-ad"></i>`;
+    return `
+        <article class="inline-ad-card" onclick="openAdModal(${ad.id}); event.stopPropagation();">
+            <div class="ad-thumb">${image}</div>
+            <div class="inline-ad-info">
+                <strong>${escapeHtml(ad.name)}</strong>
+                <span>${escapeHtml(ad.objective)} · ${escapeHtml(ad.ad_format)} · ${escapeHtml(ad.status)}</span>
+                <span>${escapeHtml(ad.last_seen_at || "")}</span>
+            </div>
+            <div class="inline-ad-metrics">
+                <div><b>${ad.metrics.impressions_label}</b><small>Gösterim</small></div>
+                <div><b>${ad.metrics.engagement_label}</b><small>Etkileşim</small></div>
+                <div><b>${ad.metrics.ctr_label}</b><small>CTR</small></div>
+            </div>
+        </article>
+    `;
+}
+
+async function openAdModal(adId){
+    activeAdId = adId;
+    const backdrop = document.getElementById("adModalBackdrop");
+    const body = document.getElementById("adModalBody");
+    // `main` creates its own stacking context. Portal the overlay to `body` so
+    // the fixed navbar/sidebar can never cover the modal header.
+    if(backdrop.parentElement !== document.body){
+        document.body.appendChild(backdrop);
+    }
+    backdrop.classList.add("is-open");
+    backdrop.setAttribute("aria-hidden", "false");
+    document.body.classList.add("intel-modal-open");
+    body.innerHTML = `<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Reklam detayı yükleniyor...</p></div>`;
+    try{
+        const response = await fetch(`/competitor-intelligence/api/ad/${adId}/`);
+        const data = await response.json();
+        if(!data.success) throw new Error("detail failed");
+        renderAdModal(data.ad);
+    }catch(error){
+        body.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Reklam detayı alınamadı.</p></div>`;
+    }
+}
+
+function closeAdModal(){
+    const backdrop = document.getElementById("adModalBackdrop");
+    backdrop.classList.remove("is-open");
+    backdrop.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("intel-modal-open");
+}
+
+function openRequestedCompetitorAd(){
+    const requestedId = new URLSearchParams(window.location.search || "").get("open_competitor_ad");
+    if(requestedId && /^\d+$/.test(requestedId)){
+        openAdModal(Number(requestedId));
+    }
+}
+
+if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", openRequestedCompetitorAd, {once:true});
+}else{
+    openRequestedCompetitorAd();
+}
+
+function renderAdModal(ad){
+    document.getElementById("modalAdTitle").textContent = ad.name;
+    document.getElementById("modalAdMeta").textContent = `${ad.competitor_name} · ${ad.platform_name} · ${ad.status}`;
+    const media = ad.preview_image_url
+        ? `<img src="${escapeHtml(ad.preview_image_url)}" alt="">`
+        : `<i class="fas fa-ad"></i>`;
+    const rules = (ad.rule_insights || []).map(rule => `
+        <div class="rule-item">
+            <strong>${escapeHtml(rule.title)} · Öncelik ${rule.priority}</strong>
+            <span>${escapeHtml(rule.comment)}</span>
+            <span><b>Aksiyon:</b> ${escapeHtml(rule.action)}</span>
+        </div>
+    `).join("");
+    document.getElementById("adModalBody").innerHTML = `
+        <div class="modal-overview">
+            <div class="modal-media">${media}</div>
+            <div class="modal-copy">
+                <p><b>Başlık:</b> ${escapeHtml(ad.headline || ad.name)}</p>
+                <p>${escapeHtml(ad.primary_text || ad.description || "Reklam metni bulunmuyor.")}</p>
+                <p><b>CTA:</b> ${escapeHtml(ad.call_to_action || "-")} ${ad.landing_url ? ` · <a href="${escapeHtml(ad.landing_url)}" target="_blank" rel="noopener" style="color:#7dd3fc;">Landing</a>` : ""}</p>
+                <div class="modal-metrics">
+                    <div class="modal-metric"><b>${ad.metrics.impressions_label}</b><small>Gösterim</small></div>
+                    <div class="modal-metric"><b>${ad.metrics.clicks_label}</b><small>Tıklama</small></div>
+                    <div class="modal-metric"><b>${ad.metrics.engagement_label}</b><small>Etkileşim</small></div>
+                    <div class="modal-metric"><b>${ad.metrics.ctr_label}</b><small>CTR</small></div>
+                    <div class="modal-metric"><b>${ad.metrics.cpc_label}</b><small>CPC</small></div>
+                    <div class="modal-metric"><b>${ad.metrics.roas_label}</b><small>ROAS</small></div>
+                    <div class="modal-metric"><b>${ad.metrics.conversions_label}</b><small>Dönüşüm</small></div>
+                    <div class="modal-metric"><b>${escapeHtml(ad.last_seen_at || "-")}</b><small>Son görülme</small></div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="modal-section-title">
+                <span><i class="fas fa-scale-balanced"></i> Rakibe Uygun Octo Kural Yorumları</span>
+                <button class="ai-button" id="aiAnalyzeBtn" type="button" onclick="runAdAnalysis()">AI Analiz</button>
+            </div>
+            <div class="rule-grid">${rules}</div>
+        </div>
+        <div id="analysisResult"></div>
+    `;
+}
+
+async function runAdAnalysis(){
+    if(!activeAdId) return;
+    const button = document.getElementById("aiAnalyzeBtn");
+    const target = document.getElementById("analysisResult");
+    button.disabled = true;
+    button.textContent = "AI analiz ediyor...";
+    target.innerHTML = `<div class="empty-state" style="padding:16px;"><i class="fas fa-spinner fa-spin"></i><p>● Analiz hazırlanıyor...</p></div>`;
+    try{
+        const response = await fetch(`/competitor-intelligence/api/ad/${activeAdId}/analysis/`, {
+            method: "POST",
+            headers: {"X-CSRFToken": csrfToken()}
+        });
+        const data = await response.json();
+        if(!data.success) throw new Error("analysis failed");
+        renderAnalysis(data.analysis);
+    }catch(error){
+        target.innerHTML = `<div class="empty-state" style="padding:16px;"><i class="fas fa-triangle-exclamation"></i><p>Analiz oluşturulamadı.</p></div>`;
+    }finally{
+        button.disabled = false;
+        button.textContent = "AI Analiz";
+    }
+}
+
+function renderAnalysis(analysis){
+    const agents = (analysis.agents || []).map(agent => `
+        <div class="agent-item">
+            <strong><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#667eea;margin-right:9px;"></span>Analiz sonucu</strong>
+            <span>${escapeHtml(agent.comment)}</span>
+        </div>
+    `).join("");
+    const actions = (analysis.actions || []).map((action, index) => `
+        <div class="action-item"><strong>${index + 1}. Aksiyon</strong><span>${escapeHtml(action)}</span></div>
+    `).join("");
+    document.getElementById("analysisResult").innerHTML = `
+        <div class="analysis-summary"><b>Genel skor: ${analysis.overall_score}/100</b><br>${escapeHtml(analysis.summary)}</div>
+        <div class="modal-section-title"><span><i class="fas fa-circle-check"></i> AI Analiz Sonuçları</span></div>
+        <div class="agent-grid">${agents}</div>
+        <div class="modal-section-title"><span><i class="fas fa-list-check"></i> Önerilen Aksiyonlar</span></div>
+        <div class="action-list">${actions}</div>
+    `;
+}
+
+document.addEventListener("keydown", function(event){
+    if(event.key === "Escape") closeAdModal();
+});
+document.getElementById("adModalBackdrop").addEventListener("click", function(event){
+    if(event.target === this) closeAdModal();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ campaign.subject }}</title>
+</head>
+<body style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#172033">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">Reklam performansınızı tek merkezden yönetmeye devam edin.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#eef2f7">
+    <tr><td align="center" style="padding:36px 14px">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:640px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 14px 45px rgba(15,23,42,.10)">
+        <tr>
+          <td style="padding:25px 34px;background:#081225;border-bottom:1px solid #1e2d49">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
+              <td><img src="cid:brand-logo" width="420" alt="ReklamAnaliz.net" style="display:block;width:420px;max-width:100%;height:auto;border:0"></td>
+              <td></td>
+            </tr></table>
+          </td>
+        </tr>
+        <tr><td style="height:5px;background:linear-gradient(90deg,#4f46e5,#22d3ee)"></td></tr>
+        <tr>
+          <td style="padding:42px 38px 18px">
+            <div style="color:#4f46e5;font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:13px">Performans yolculuğunuz devam etsin</div>
+            <h1 style="margin:0 0 15px;color:#0f172a;font-size:30px;line-height:1.2;letter-spacing:-.8px">Merhaba {{ first_name }},</h1>
+            <div style="font-size:16px;line-height:1.75;color:#475569">{{ campaign.body|linebreaks }}</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 38px 24px">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px">
+              <tr>
+                <td width="33%" align="center" style="padding:18px 8px;border-right:1px solid #e2e8f0"><div style="font-size:20px;margin-bottom:7px">◉</div><div style="font-size:12px;line-height:1.4;color:#334155;font-weight:700">Tek panelde<br>performans</div></td>
+                <td width="34%" align="center" style="padding:18px 8px;border-right:1px solid #e2e8f0"><div style="font-size:20px;margin-bottom:7px">↗</div><div style="font-size:12px;line-height:1.4;color:#334155;font-weight:700">Bütçe ve ROAS<br>önerileri</div></td>
+                <td width="33%" align="center" style="padding:18px 8px"><div style="font-size:20px;margin-bottom:7px">✦</div><div style="font-size:12px;line-height:1.4;color:#334155;font-weight:700">Octo AI<br>karar desteği</div></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:5px 38px 38px">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr><td align="center" bgcolor="#4f46e5" style="border-radius:10px">
+              <a href="{{ campaign.cta_url }}" style="display:inline-block;padding:15px 28px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:800;letter-spacing:.1px">{{ campaign.cta_text }} &nbsp;→</a>
+            </td></tr></table>
+            <p style="margin:17px 0 0;color:#94a3b8;font-size:12px;line-height:1.5">Sorularınız için bu e-postayı yanıtlamanız yeterli.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:23px 34px;background:#081225;color:#8092ad;font-size:11px;line-height:1.6;text-align:center">
+            <strong style="color:#dbe5f3">ReklamAnaliz.net</strong> · Yapay zekâ destekli reklam karar merkezi<br>
+            Bu e-posta üyelik süreciniz kapsamında gönderilmiştir.
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

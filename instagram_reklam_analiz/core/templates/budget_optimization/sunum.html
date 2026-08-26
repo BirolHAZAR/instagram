@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}🎯 Bütçe Optimizasyonu - Nasıl Çalışır?{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">🚀 Akıllı Bütçe Optimizasyonu</h1>
+        <p class="lead">AI destekli kurallarla reklam bütçelerini otomatik yönetin.</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-sliders-h fa-3x text-primary mb-3"></i>
+                    <h5>1. Kural Belirle</h5>
+                    <p>Min/max bütçe, adım miktarı, hedef ROAS ve geriye dönük saatleri kendin belirle.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                    <h5>2. Otomatik Analiz</h5>
+                    <p>Sistem saatlik olarak performansı değerlendirir ve bütçeleri akıllıca ayarlar.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-history fa-3x text-warning mb-3"></i>
+                    <h5>3. İzle ve Geri Al</h5>
+                    <p>Her değişiklik loglanır, istersen tek tıkla eski bütçene dönebilirsin.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-5">
+        <a href="{% url 'apply_rules_to_campaigns' %}" class="btn btn-primary btn-lg rounded-pill px-5">Hemen Başla</a>
+        <a href="{% url 'budget_optimization_dashboard' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-5 ms-2">Kurallarımı Yönet</a>
+    </div>
+</div>
+{% endblock %}

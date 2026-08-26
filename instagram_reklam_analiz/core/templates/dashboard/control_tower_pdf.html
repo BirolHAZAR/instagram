@@ -1,0 +1,101 @@
+{% load tr_numbers %}
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <title>Kontrol Kulesi Raporu</title>
+  <style>
+    @page { size: A4; margin: 18mm 14mm; }
+    body{font-family:Arial, sans-serif;color:#111827;font-size:12px;line-height:1.45;}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #7C3AED;padding-bottom:12px;margin-bottom:16px;}
+    h1{margin:0;font-size:24px;letter-spacing:-.4px;color:#111827;}
+    .muted{color:#6B7280;font-size:11px;}
+    .badge{display:inline-block;background:#F3E8FF;color:#6D28D9;border-radius:999px;padding:5px 10px;font-weight:700;font-size:11px;}
+    .grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin:12px 0 16px;}
+    .card{border:1px solid #E5E7EB;border-radius:12px;padding:12px;background:#FAFAFF;}
+    .label{font-size:10px;text-transform:uppercase;color:#6B7280;font-weight:700;}
+    .value{font-size:22px;font-weight:800;margin-top:5px;color:#111827;}
+    .section{margin-top:18px;page-break-inside:avoid;}
+    h2{font-size:15px;margin:0 0 8px;color:#111827;border-bottom:1px solid #E5E7EB;padding-bottom:6px;}
+    table{width:100%;border-collapse:collapse;margin-top:8px;}
+    th,td{border-bottom:1px solid #E5E7EB;padding:7px 6px;text-align:left;vertical-align:top;}
+    th{background:#F9FAFB;font-size:10px;text-transform:uppercase;color:#4B5563;}
+    .ok{color:#059669;font-weight:700;}.bad{color:#DC2626;font-weight:700;}.mid{color:#D97706;font-weight:700;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Kontrol Kulesi Raporu</h1>
+      <div class="muted">Rapor aralığı: {{ filters.date_label }} · Varsayılan son {{ filters.selected_days }} gün</div>
+    </div>
+    <div class="badge">AI POWERED</div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="label">Octo AI Skoru</div><div class="value">{{ summary.octo_score }}/100</div></div>
+    <div class="card"><div class="label">ROAS</div><div class="value">{{ summary.avg_roas|tr_decimal:2 }}x</div></div>
+    <div class="card"><div class="label">CPC</div><div class="value">{{ summary.avg_cpc|tr_money }}</div></div>
+    <div class="card"><div class="label">CTR</div><div class="value">{{ summary.avg_ctr|tr_percent }}</div></div>
+    <div class="card"><div class="label">Dönüşüm Oranı</div><div class="value">{{ summary.conversion_rate|tr_percent }}</div></div>
+    <div class="card"><div class="label">Harcama</div><div class="value">{{ summary.total_spend|tr_money }}</div></div>
+  </div>
+
+  <div class="section">
+    <h2>Özet KPI</h2>
+    <table>
+      <tr><th>Metrik</th><th>Değer</th><th>Değişim</th></tr>
+      <tr><td>Gösterim</td><td>{{ summary.total_impressions|tr_int }}</td><td>{{ summary.impression_label }}</td></tr>
+      <tr><td>Tıklama</td><td>{{ summary.total_clicks|tr_int }}</td><td>{{ summary.click_label }}</td></tr>
+      <tr><td>Dönüşüm</td><td>{{ summary.total_conversions|tr_int }}</td><td>{{ summary.conversion_label }}</td></tr>
+      <tr><td>Gelir</td><td>{{ summary.total_revenue|tr_money }}</td><td>-</td></tr>
+      <tr><td>Aktif Reklam</td><td>{{ summary.active_ads|tr_int }}</td><td>-</td></tr>
+      <tr><td>Rakip Reklam</td><td>{{ summary.competitor_ads|tr_int }}</td><td>-</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Performans Trendi - {{ trend.period_label }}</h2>
+    <table>
+      <tr><th>KPI</th><th>Değer</th><th>Değişim</th></tr>
+      <tr><td>Harcama</td><td>{{ trend.spend|tr_money }}</td><td>{{ trend.spend_label }}</td></tr>
+      <tr><td>Gelir</td><td>{{ trend.revenue|tr_money }}</td><td>{{ trend.revenue_label }}</td></tr>
+      <tr><td>ROAS</td><td>{{ trend.roas|tr_decimal:2 }}x</td><td>{{ trend.roas_label }}</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Octo Radar</h2>
+    <table>
+      <tr><th>Alan</th><th>Skor</th><th>Ham Değer</th></tr>
+      {% for item in radar.items %}
+      <tr><td>{{ item.label }}</td><td>{{ item.value }}/100</td><td>{{ item.raw }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Creative Performance Wall</h2>
+    <table>
+      <tr><th>Creative</th><th>CTR</th><th>ROAS</th><th>Yorgunluk</th><th>Skor</th></tr>
+      {% for creative in creative_wall %}
+      <tr><td>{{ creative.name }}</td><td>{{ creative.ctr|tr_percent }}</td><td>{{ creative.roas|tr_decimal:2 }}x</td><td>{{ creative.fatigue|tr_decimal:0 }}</td><td>{{ creative.score }}/100</td></tr>
+      {% empty %}
+      <tr><td colspan="5">Bu aralıkta creative metriği bulunamadı.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Octo AI Tavsiyeleri</h2>
+    <table>
+      <tr><th>#</th><th>Tavsiye</th><th>Etki</th></tr>
+      {% for rec in ai_recommendations %}
+      <tr><td>{{ forloop.counter }}</td><td>{{ rec.title }}</td><td>{{ rec.impact }}</td></tr>
+      {% empty %}
+      <tr><td colspan="3">Aktif tavsiye bulunamadı.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</body>
+</html>

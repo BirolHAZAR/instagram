@@ -1,0 +1,79 @@
+{% load tr_numbers %}
+<section class="ct-bottom ct-decision-layout">
+  <div class="ct-left-area">
+    <div class="ct-top-row">
+      <div class="ct-decision-col ct-decision-competitor">
+        <div class="ct-card ct-section">
+          <span class="ct-tip warn" data-tip="COMPETITOR tipindeki reklamlardan rakip yoğunluğu ve paylaşım sesi hesaplanır."><i class="fas fa-circle-info"></i> Rakip</span>
+          <div class="ct-section-title"><h3>COMPETITOR İSTİHBARAT MERKEZİ</h3><a class="ct-mini-link" href="{% url 'competitor_intelligence' %}">Tümü &rarr;</a></div>
+          <table class="ct-competitor-table">
+            <thead>
+              <tr>
+                <th>COMPETITOR</th>
+                <th>YENİ REKLAM</th>
+                <th>TREND</th>
+                <th>PAYLAŞIM SESİ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in competitor_rows %}
+                <tr>
+                  <td><strong>{{ row.name }}</strong></td>
+                  <td>+{{ row.new_ads }}</td>
+                  <td><span class="{% if row.trend == 'up' %}ct-trend up{% elif row.trend == 'down' %}ct-trend down{% endif %}">{{ row.trend_icon }}</span></td>
+                  <td><div class="ct-share">{{ row.share }}%<span><i style="--w:{{ row.share }}%"></i></span></div></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="ct-empty">Competitor reklam verisi bulunamadı.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="ct-decision-col ct-decision-performance">
+        <div class="ct-card ct-section ct-decision-center-card {{ decision_center.health_state|default:'neutral' }}">
+          <span class="ct-tip info" data-tip="{{ decision_center.tooltip_tr|default:'Kampanya, kreatif, rakip, uyarı ve görev verilerinden karar özeti üretir.' }}"><i class="fas fa-circle-info"></i> Karar</span>
+          <div class="ct-decision-center-head">
+            <div>
+              <h3>OCTO KARAR MERKEZİ</h3>
+              <p>Bugün ne yapmalısın? &middot; Son güncelleme {{ decision_center.updated_at }}</p>
+            </div>
+            <div class="ct-decision-live-pill"><i class="fas fa-database"></i> DB Snapshot Ready</div>
+          </div>
+
+          <div class="ct-decision-metric-grid">
+            {% for metric in decision_center.metrics %}
+              <div class="ct-decision-metric {{ metric.direction.state }}" data-tip="{{ metric.tooltip_tr }}">
+                <span>{{ metric.label_tr }} <i class="fas fa-circle-info"></i></span>
+                <strong>{{ metric.direction.icon }} {{ metric.prefix }}{{ metric.value|tr_decimal }}</strong>
+                <small>{{ metric.direction.label_tr }}</small>
+              </div>
+            {% empty %}
+              <div class="ct-empty">Karar merkezi için snapshot verisi hazırlanıyor.</div>
+            {% endfor %}
+          </div>
+
+          <div class="ct-decision-action-list">
+            {% for item in decision_center.items %}
+              <div class="ct-decision-action {{ item.state }} {{ item.priority }}" data-tip="{{ item.detail_tr }}">
+                <div class="ct-decision-action-icon">{{ item.icon }}</div>
+                <div class="ct-decision-action-body">
+                  <strong>{{ item.title_tr }}</strong>
+                  <span>{{ item.detail_tr }}</span>
+                </div>
+                <div class="ct-decision-impact">{% if item.impact %}{{ item.impact|tr_decimal }} TL{% else %}İzle{% endif %}</div>
+              </div>
+            {% empty %}
+              <div class="ct-empty">Bugün için karar aksiyonu bulunmuyor.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>    </div>
+
+    <div class="ct-creative-row">
+      {% include "dashboard/control_tower/creative_wall.html" %}
+    </div>
+  </div>
+
+</section>

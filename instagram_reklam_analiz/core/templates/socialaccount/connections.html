@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sosyal Giri&#351;ler{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/social_connections.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="social-wrapper">
+    <div class="container">
+        <div class="social-header">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'my_account' %}">
+                                    <i class="fas fa-home me-1"></i>Hesab&#305;m
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">Sosyal Giri&#351;ler</li>
+                        </ol>
+                    </nav>
+                    <h2 class="mt-2">
+                        <i class="fas fa-link me-2"></i>Sosyal Giri&#351;ler
+                    </h2>
+                    <p>Google, Facebook ve di&#287;er sosyal hesap ba&#287;lant&#305;lar&#305;n&#305;z&#305; buradan y&#246;netin.</p>
+                </div>
+                <div class="col-lg-5 mt-3 mt-lg-0">
+                    <div class="social-header-actions">
+                        <a href="{% url 'my_account' %}" class="btn-social-soft">
+                            <i class="fas fa-arrow-left"></i>Hesab&#305;ma Git
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="social-grid">
+            <section class="social-card">
+                <div class="card-head">
+                    <div>
+                        <h5>Ba&#287;l&#305; Hesaplar</h5>
+                        <p>Bu hesaplarla parola girmeden g&#252;venli oturum a&#231;abilirsiniz.</p>
+                    </div>
+                    <span class="security-pill">
+                        <i class="fas fa-shield-alt"></i>G&#252;venli ba&#287;lant&#305;
+                    </span>
+                </div>
+
+                {% if form.accounts %}
+                    {% url 'socialaccount_connections' as action_url %}
+                    <form method="post" action="{{ action_url }}" class="connections-form" data-confirm-remove="Se&#231;ili sosyal hesap ba&#287;lant&#305;s&#305;n&#305; kald&#305;rmak istedi&#287;inizden emin misiniz?">
+                        {% csrf_token %}
+                        <div class="connected-list">
+                            {% for acc in form.fields.account.choices %}
+                                {% with account=acc.0.instance.get_provider_account %}
+                                <label class="connected-item provider-{{ account.account.provider }}">
+                                    <input type="radio" name="account" value="{{ account.account.pk }}">
+                                    <span class="connection-radio"></span>
+                                    <span class="provider-icon">
+                                        {% if account.account.provider == 'google' %}
+                                            <i class="fab fa-google"></i>
+                                        {% elif account.account.provider == 'facebook' %}
+                                            <i class="fab fa-facebook-f"></i>
+                                        {% elif account.account.provider == 'instagram' %}
+                                            <i class="fab fa-instagram"></i>
+                                        {% elif account.account.provider == 'tiktok' %}
+                                            <i class="fab fa-tiktok"></i>
+                                        {% else %}
+                                            <i class="fas fa-link"></i>
+                                        {% endif %}
+                                    </span>
+                                    <span class="provider-copy">
+                                        <strong>{{ account }}</strong>
+                                        <span>{{ account.get_brand.name }}</span>
+                                    </span>
+                                    <span class="connected-badge">
+                                        <i class="fas fa-check"></i>Ba&#287;l&#305;
+                                    </span>
+                                </label>
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="connection-actions">
+                            <button type="submit" class="btn-social-danger" data-remove-connection>
+                                <i class="fas fa-trash"></i>Se&#231;ili Ba&#287;lant&#305;y&#305; Kald&#305;r
+                            </button>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="empty-connections">
+                        <div class="empty-icon"><i class="fas fa-link-slash"></i></div>
+                        <h5>Ba&#287;l&#305; sosyal hesap yok</h5>
+                        <p>Oturumu h&#305;zland&#305;rmak i&#231;in a&#351;a&#287;&#305;daki sa&#287;lay&#305;c&#305;lardan birini ba&#287;layabilirsiniz.</p>
+                    </div>
+                {% endif %}
+            </section>
+
+            <aside class="social-card add-card">
+                <div class="card-head compact">
+                    <div>
+                        <h5>Yeni Ba&#287;lant&#305; Ekle</h5>
+                        <p>Bir sa&#287;lay&#305;c&#305; se&#231;erek sosyal giri&#351;i hesab&#305;n&#305;za ba&#287;lay&#305;n.</p>
+                    </div>
+                </div>
+                <div class="provider-panel">
+                    {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+                    {% include "socialaccount/snippets/login_extra.html" %}
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.connections-form');
+        if (!form) return;
+        const removeButton = form.querySelector('[data-remove-connection]');
+        if (!removeButton) return;
+        removeButton.addEventListener('click', function(event) {
+            if (!window.confirm(form.dataset.confirmRemove)) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}

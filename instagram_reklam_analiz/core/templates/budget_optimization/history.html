@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load tr_numbers %}
+{% block title %}Optimizasyon Geçmişi | Reklamanaliz.net{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root{
+        --ra-bg:#050816;--ra-card:#0b1028;--ra-card2:#111936;--ra-border:rgba(255,255,255,.10);
+        --ra-text:#f8fafc;--ra-muted:#94a3b8;--ra-soft:#cbd5e1;--ra-primary:#7c3aed;--ra-cyan:#38bdf8;
+        --ra-green:#22c55e;--ra-red:#ef4444;--ra-yellow:#f59e0b;--ra-blue:#60a5fa;
+    }
+    .history-shell{padding:24px;color:var(--ra-text)}
+    .history-hero{border:1px solid var(--ra-border);border-radius:28px;padding:24px 26px;margin-bottom:18px;background:radial-gradient(circle at 12% 10%,rgba(124,58,237,.34),transparent 33%),radial-gradient(circle at 86% 12%,rgba(56,189,248,.18),transparent 33%),linear-gradient(135deg,rgba(15,23,42,.98),rgba(6,10,28,.98));box-shadow:0 24px 70px rgba(0,0,0,.28)}
+    .history-hero h1{font-size:28px;font-weight:950;margin:0 0 7px;letter-spacing:-.035em}.history-hero p{margin:0;color:var(--ra-muted);max-width:900px}.hero-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}.ra-btn{height:42px;border:1px solid rgba(255,255,255,.13);border-radius:14px;background:rgba(255,255,255,.07);color:#fff;text-decoration:none;font-weight:900;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px}.ra-btn:hover{color:#fff;background:rgba(255,255,255,.12)}.ra-btn-primary{border:0;background:linear-gradient(135deg,#7c3aed,#38bdf8);box-shadow:0 12px 30px rgba(124,58,237,.22)}
+    .how-card{border:1px solid var(--ra-border);border-radius:24px;background:linear-gradient(180deg,rgba(17,25,54,.94),rgba(8,13,31,.94));padding:20px;margin-bottom:18px}.how-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}.how-head h2{font-size:18px;margin:0;font-weight:950}.how-head p{margin:5px 0 0;color:var(--ra-muted);font-size:13px}.how-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.how-step{border:1px solid rgba(255,255,255,.10);border-radius:18px;background:rgba(255,255,255,.055);padding:15px}.how-step .icon{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(124,58,237,.18);font-size:20px;margin-bottom:9px}.how-step h3{font-size:14px;font-weight:950;margin:0 0 5px}.how-step p{font-size:12px;color:var(--ra-muted);margin:0;line-height:1.45}.rule-box{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.rule-mini{border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.045);padding:12px}.rule-mini strong{display:block;font-size:12px}.rule-mini span{display:block;margin-top:4px;color:var(--ra-muted);font-size:11px;line-height:1.35}
+    .kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-bottom:18px}.kpi-card{border:1px solid var(--ra-border);border-radius:20px;background:rgba(255,255,255,.055);padding:16px;backdrop-filter:blur(16px)}.kpi-card small{display:block;color:var(--ra-muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:950}.kpi-card strong{display:block;margin-top:7px;font-size:23px;font-weight:950;font-variant-numeric:tabular-nums}.green{color:#86efac}.red{color:#fca5a5}.yellow{color:#fde68a}
+    .filter-card{border:1px solid var(--ra-border);background:linear-gradient(180deg,rgba(17,25,54,.95),rgba(8,13,31,.95));border-radius:22px;padding:16px;margin-bottom:18px}.filter-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:10px;align-items:end}.ra-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ra-muted);font-weight:950;margin-bottom:6px}.ra-input,.ra-select{width:100%;height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:#fff;padding:0 13px;font-weight:750}.ra-select option{background:#fff;color:#111827}
+    .table-card{border:1px solid var(--ra-border);background:linear-gradient(180deg,rgba(17,25,54,.96),rgba(8,13,31,.96));border-radius:24px;overflow:hidden;box-shadow:0 18px 56px rgba(0,0,0,.22)}.table-head{padding:17px 20px;border-bottom:1px solid var(--ra-border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.table-head h2{font-size:17px;font-weight:950;margin:0}.table-head span{font-size:12px;color:var(--ra-muted)}.history-table{width:100%;border-collapse:collapse}.history-table th{padding:13px 14px;text-align:left;color:var(--ra-muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;background:rgba(255,255,255,.04);border-bottom:1px solid var(--ra-border)}.history-table td{padding:14px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:middle}.reklam-row{cursor:pointer;transition:.18s}.reklam-row:hover{background:rgba(255,255,255,.045)}.reklam-title{font-weight:950;color:#fff}.sub-text{font-size:12px;color:var(--ra-muted);margin-top:3px}.ok-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:rgba(34,197,94,.13);border:1px solid rgba(34,197,94,.25);color:#86efac;padding:6px 10px;font-size:11px;font-weight:950}.pill{border-radius:999px;padding:6px 10px;font-size:11px;font-weight:950;display:inline-flex;align-items:center;gap:5px}.pill.success{background:rgba(34,197,94,.14);color:#86efac;border:1px solid rgba(34,197,94,.24)}.pill.warning{background:rgba(239,68,68,.14);color:#fca5a5;border:1px solid rgba(239,68,68,.24)}.pill.info{background:rgba(56,189,248,.13);color:#93c5fd;border:1px solid rgba(56,189,248,.22)}.pill.muted{background:rgba(148,163,184,.12);color:#cbd5e1;border:1px solid rgba(148,163,184,.18)}.budget-flow{font-weight:950;font-variant-numeric:tabular-nums}.trend-up{color:#86efac}.trend-down{color:#fca5a5}.trend-same{color:#cbd5e1}.detail-row td{padding:0!important;background:rgba(3,7,18,.38)}.detail-content{padding:18px 20px;border-top:1px solid rgba(255,255,255,.08)}.detail-title{font-weight:950;margin-bottom:10px}.detail-table{width:100%;border-collapse:collapse;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden}.detail-table th{background:rgba(124,58,237,.12);padding:10px;font-size:11px;color:#dbeafe}.detail-table td{padding:11px 10px;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px}.empty-state{text-align:center;padding:52px 20px;color:var(--ra-muted)}.empty-state .icon{font-size:44px;margin-bottom:10px}.collapse-icon{opacity:.75;transition:.2s}.reklam-row.is-open .collapse-icon{transform:rotate(90deg)}
+    @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.how-grid{grid-template-columns:1fr}.rule-box{grid-template-columns:1fr 1fr}.filter-grid{grid-template-columns:1fr 1fr}.history-table{min-width:1040px}.table-wrap{overflow:auto}}@media(max-width:720px){.history-shell{padding:14px}.history-hero{padding:20px}.history-hero h1{font-size:22px}.filter-grid,.rule-box{grid-template-columns:1fr}.kpi-grid{grid-template-columns:1fr}.hero-actions{justify-content:flex-start}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="history-shell">
+    <div class="history-hero">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <h1>📜 Optimizasyon Geçmişi</h1>
+                <p>Reklam bazında son durumları ve geçmiş bütçe optimizasyonlarını görüntüleyin. En güncel optimizasyonlar üstte listelenir; satıra tıklayınca detay geçmişi açılır.</p>
+            </div>
+            <div class="col-lg-4 hero-actions">
+                <a href="{% url 'budget_optimization' %}" class="ra-btn">← Bütçe Optimizasyonu</a>
+                <a href="{% url 'budget_optimization' %}" class="ra-btn ra-btn-primary">Yeni Optimizasyon</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="how-card">
+        <div class="how-head">
+            <div>
+                <h2>🤖 Bütçe Optimizasyonu Nasıl Çalışır?</h2>
+                <p>Eski sayfadaki önemli mantık korunmuştur: sistem hedef ROAS’a göre bütçeyi artırma, azaltma veya sabit tutma kararı üretir; kayıtlar geçmişte takip edilir.</p>
+            </div>
+        </div>
+        <div class="how-grid">
+            <div class="how-step"><div class="icon">🎚️</div><h3>1. Kural Belirle</h3><p>Min/max bütçe, adım miktarı, hedef ROAS ve geriye dönük süreyi kendin belirlersin.</p></div>
+            <div class="how-step"><div class="icon">📈</div><h3>2. Performans Analizi</h3><p>Sistem reklam performansını değerlendirir. ROAS hedefin üzerindeyse bütçe artar, altındaysa azalır.</p></div>
+            <div class="how-step"><div class="icon">🧾</div><h3>3. Log ve Manuel Uygulama</h3><p>Her optimizasyon kaydı tutulur. Platform bütçesi otomatik değişmez; üye kendi panelinde manuel uygular.</p></div>
+        </div>
+        <div class="rule-box">
+            <div class="rule-mini"><strong>Min / Max Bütçe</strong><span>Bütçenin altına düşmeyeceği veya üstüne çıkamayacağı güvenli sınırlar.</span></div>
+            <div class="rule-mini"><strong>Adım Miktarı</strong><span>Her optimizasyonda eklenecek veya çıkarılacak TL miktarı.</span></div>
+            <div class="rule-mini"><strong>Hedef ROAS</strong><span>Örn: 2.0 = 200% getiri. Karar motorunun ana hedefidir.</span></div>
+            <div class="rule-mini"><strong>Geçmiş Takibi</strong><span>Tüm işlemler tarih sırasıyla kayıt altına alınır ve reklam bazında açılır.</span></div>
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card"><small>Optimize Edilen Reklam</small><strong>{{ total_reklams|tr_int }}</strong></div>
+        <div class="kpi-card"><small>Toplam Kayıt</small><strong>{{ total_logs|tr_int }}</strong></div>
+        <div class="kpi-card"><small>Bütçe Artışı</small><strong class="green">{{ increase_count|tr_int }}</strong></div>
+        <div class="kpi-card"><small>Bütçe Azalışı</small><strong class="red">{{ decrease_count|tr_int }}</strong></div>
+        <div class="kpi-card"><small>Net Değişim</small><strong>{% if total_delta > 0 %}<span class="green">+{{ total_delta|tr_money }}</span>{% elif total_delta < 0 %}<span class="red">{{ total_delta|tr_money }}</span>{% else %}{{ total_delta|tr_money }}{% endif %}</strong></div>
+    </div>
+
+    <form method="get" class="filter-card" id="filterForm">
+        <div class="filter-grid">
+            <div><div class="ra-label">Reklam Ara</div><input class="ra-input" type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Reklam adı veya ID..." onkeypress="if(event.keyCode==13) this.form.submit()"></div>
+            <div><div class="ra-label">Platform</div><select class="ra-select" name="platform" onchange="this.form.submit()"><option value="">Tümü</option>{% for platform in platforms %}<option value="{{ platform.code }}" {% if selected_platform == platform.code %}selected{% endif %}>{{ platform.name }}</option>{% endfor %}</select></div>
+            <div><div class="ra-label">Hesap</div><select class="ra-select" name="account_id" onchange="this.form.submit()"><option value="">Tüm hesaplar</option>{% for account in accounts %}<option value="{{ account.id }}" {% if selected_account == account.id|stringformat:'s' %}selected{% endif %}>{{ account.account_name|default:account.account_id }}</option>{% endfor %}</select></div>
+            <button class="ra-btn ra-btn-primary" type="submit">Filtrele</button>
+        </div>
+    </form>
+
+    <div class="table-card">
+        <div class="table-head"><div><h2>Optimize Edilmiş Reklamlar</h2><span>Satıra tıklayınca reklamın optimizasyon geçmişi açılır.</span></div></div>
+        {% if reklam_list %}
+        <div class="table-wrap">
+            <table class="history-table">
+                <thead><tr><th></th><th>Durum</th><th>Reklam</th><th>Platform</th><th>Yeni Bütçe</th><th>Eski Bütçe</th><th>Son Tarih</th><th>Bütçe Durumu</th><th>Kayıt</th></tr></thead>
+                <tbody>
+                    {% for item in reklam_list %}
+                    <tr class="reklam-row" data-reklam-id="{{ item.reklam.id }}">
+                        <td><span class="collapse-icon">›</span></td>
+                        <td><span class="ok-badge">✓ Optimize</span></td>
+                        <td><div class="reklam-title">{{ item.reklam.name|default:item.reklam.headline|default:"Reklam"|truncatechars:56 }}</div><div class="sub-text">ID: {{ item.reklam.id }} • {{ item.reklam.campaign.name|default:"Kampanya yok" }} • {{ item.reklam.ad_group.name|default:"Reklam grubu yok" }}</div></td>
+                        <td><span class="pill muted">{{ item.platform_name|default:item.last_log.platform_code|upper }}</span></td>
+                        <td><div class="budget-flow green">{{ item.last_log.new_budget|tr_money }}</div></td>
+                        <td><div class="budget-flow">{{ item.last_log.old_budget|tr_money }}</div></td>
+                        <td><strong>{{ item.last_log.created_at|date:"d.m.Y" }}</strong><div class="sub-text">{{ item.last_log.created_at|time:"H:i" }}</div></td>
+                        <td>{% if item.trend == 'up' %}<span class="pill success">↑ Yükseldi</span>{% elif item.trend == 'down' %}<span class="pill warning">↓ Azaldı</span>{% else %}<span class="pill info">— Sabit</span>{% endif %}</td>
+                        <td>{{ item.log_count|tr_int }}</td>
+                    </tr>
+                    <tr class="detail-row" id="detail-{{ item.reklam.id }}" style="display:none;">
+                        <td colspan="9">
+                            <div class="detail-content">
+                                <div class="detail-title">📋 {{ item.reklam.name|default:"Reklam" }} optimizasyon geçmişi</div>
+                                <div class="table-responsive">
+                                    <table class="detail-table">
+                                        <thead><tr><th>Tarih</th><th>Eski Bütçe</th><th>Yeni Bütçe</th><th>Kural</th><th>ROAS / Harcama</th><th>Sebep</th><th>Durum</th></tr></thead>
+                                        <tbody>
+                                            {% for log in item.logs %}
+                                            <tr>
+                                                <td>{{ log.created_at|date:"d.m.Y H:i" }}</td>
+                                                <td>{{ log.old_budget|tr_money }}</td>
+                                                <td><strong>{{ log.new_budget|tr_money }}</strong></td>
+                                                <td>{{ log.rule.name|default:"Kural yok" }}</td>
+                                                <td>{% if log.performance_data.roas %}{{ log.performance_data.roas|tr_decimal }}x{% else %}-{% endif %}<div class="sub-text">{% if log.performance_data.spend %}{{ log.performance_data.spend|tr_money }}{% endif %}</div></td>
+                                                <td>{{ log.reason|truncatechars:90 }}</td>
+                                                <td>{% if log.success %}<span class="pill success">Başarılı</span>{% else %}<span class="pill warning">Hata</span>{% endif %}</td>
+                                            </tr>
+                                            {% empty %}
+                                            <tr><td colspan="7" class="text-muted">Bu reklam için henüz optimizasyon kaydı yok.</td></tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><div class="icon">📭</div><h5>Optimize edilmiş reklam bulunamadı</h5><p>Bütçe Optimizasyonu sayfasında reklam seçip “Optimize Et” dediğinde kayıtlar burada görünecek.</p></div>
+        {% endif %}
+    </div>
+</div>
+<script>
+(function(){
+    document.querySelectorAll('.reklam-row').forEach(function(row){
+        row.addEventListener('click', function(){
+            const id = this.getAttribute('data-reklam-id');
+            const detail = document.getElementById('detail-' + id);
+            if(!detail) return;
+            const open = detail.style.display !== 'none';
+            detail.style.display = open ? 'none' : 'table-row';
+            this.classList.toggle('is-open', !open);
+        });
+    });
+})();
+</script>
+{% endblock %}

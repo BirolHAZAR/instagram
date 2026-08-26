@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Instagram Hesabı Ekle{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <!-- Paket Bilgisi -->
+            {% if subscription and subscription.plan %}
+            <div class="alert alert-info mb-4">
+                <h5 class="alert-heading">📦 Paket Bilginiz</h5>
+                <p class="mb-1"><strong>{{ plan_name }}</strong> Paketi</p>
+                <p class="mb-1">
+                    Eklenen Hesaplar: <strong>{{ current_count }}</strong> / 
+                    <strong>{{ max_accounts }}</strong>
+                </p>
+                {% if not can_add %}
+                <hr>
+                <p class="mb-0 text-danger">
+                    ⚠️ Hesap ekleme limitinize ulaştınız! Daha fazla hesap eklemek için paketinizi yükseltin.
+                </p>
+                <a href="{% url 'pricing' %}" class="btn btn-warning mt-2">
+                    <i class="fas fa-crown"></i> Paket Yükselt
+                </a>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="alert alert-warning mb-4">
+                <h5 class="alert-heading">⚠️ Aktif Abonelik Yok</h5>
+                <p>Instagram hesabı eklemek için önce bir üyelik paketi satın almalısınız.</p>
+                <a href="{% url 'pricing' %}" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart"></i> Paket Satın Al
+                </a>
+            </div>
+            {% endif %}
+            
+            <!-- Ekleme Formu (sadece ekleme hakkı varsa göster) -->
+            {% if can_add %}
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fab fa-instagram"></i> Instagram Hesabı Ekle
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'add_instagram_account' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Instagram Kullanıcı Adı</label>
+                            <div class="input-group">
+                                <span class="input-group-text">@</span>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="username" 
+                                       name="username" 
+                                       placeholder="kullaniciadi"
+                                       required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="access_token" class="form-label">Access Token</label>
+                            <textarea class="form-control" 
+                                      id="access_token" 
+                                      name="access_token" 
+                                      rows="3" 
+                                      placeholder="Instagram Graph API Access Token"
+                                      required></textarea>
+                            <small class="text-muted">
+                                Token almak için 
+                                <a href="https://developers.facebook.com/tools/explorer/" target="_blank">
+                                    Facebook Graph API Explorer
+                                </a>
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-plus-circle"></i> Hesap Ekle
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

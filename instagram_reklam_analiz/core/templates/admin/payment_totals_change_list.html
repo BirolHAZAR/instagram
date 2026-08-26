@@ -1,0 +1,20 @@
+{% extends "admin/change_list.html" %}
+
+{% block result_list %}
+{{ block.super }}
+{% if payment_total_rows %}
+<div class="payment-total-panel">
+    <table class="payment-total-table">
+        <tfoot>
+            <tr>
+                <th>Toplam</th>
+                <td>{{ payment_total_count }} kayıt</td>
+                {% for row in payment_total_rows %}
+                    <td><strong>{{ row.label }}</strong><span>{{ row.value }}</span></td>
+                {% endfor %}
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% if agency_scope and agency_scope.is_agency %}
+<form class="exec-agency-filter" method="get" action="{{ request.path }}" aria-label="Yönetici Paneli ajans firması filtresi">
+    <div class="exec-agency-icon"><i class="fas fa-building-user"></i></div>
+    <div class="exec-agency-copy">
+        <span>AJANS FİRMASI</span>
+        <strong>{% if agency_scope.selected_client %}{{ agency_scope.selected_client.name }}{% else %}Tüm firmalar{% endif %}</strong>
+        <small>Yönetici özeti, kampanyalar ve metrikler seçilen firmaya göre yenilenir.</small>
+    </div>
+    <label class="exec-agency-select" for="execAgencyClientScope">
+        <span><i class="fas fa-filter"></i> Raporlanacak firma</span>
+        <select id="execAgencyClientScope" name="agency_client" onchange="this.form.submit()">
+            <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+            {% for agency_client in agency_scope.clients %}
+            <option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <div class="exec-agency-state">
+        <i class="fas fa-circle-check"></i>
+        <span>{% if agency_scope.selected_client %}Firma filtresi aktif{% else %}Ajans geneli gösteriliyor{% endif %}</span>
+    </div>
+</form>
+{% endif %}

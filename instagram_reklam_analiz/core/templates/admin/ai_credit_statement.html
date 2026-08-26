@@ -1,0 +1,152 @@
+{% extends "admin/base_site.html" %}
+{% load admin_dashboard %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .statement-shell { display: grid; gap: 18px; }
+    .statement-hero {
+        background: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #dbe3ef;
+        border-top: 5px solid #2563eb;
+        color: #111827;
+        padding: 20px 22px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+    .statement-hero h1 { color: #111827; margin: 0 0 8px; }
+    .statement-hero a { color: #1d4ed8; font-weight: 800; text-decoration: none; }
+    .metric-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    }
+    .metric-card {
+        background: #fff;
+        border: 1px solid #dbe3ef;
+        border-top: 5px solid #2563eb;
+        border-radius: 8px;
+        min-height: 116px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+    .metric-card strong { color: #111827; display: block; font-size: 30px; margin-top: 6px; }
+    .metric-card span { color: #334155; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .statement-panel {
+        background: #fff;
+        border: 1px solid #dbe3ef;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+        overflow-x: auto;
+    }
+    .statement-table { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 13px; table-layout: fixed; }
+    .statement-table,
+    .statement-table thead,
+    .statement-table tbody,
+    .statement-table tr {
+        background: #ffffff !important;
+        color: #111827 !important;
+    }
+    .statement-table th, .statement-table td {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border-bottom: 1px solid #eef2f7;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    .statement-table th {
+        background: #f8fafc !important;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+    .statement-table tfoot th,
+    .statement-table tfoot td {
+        background: #eef2ff !important;
+        color: #111827 !important;
+        border-top: 2px solid #c7d2fe;
+        font-weight: 800;
+    }
+    .statement-table td.num, .statement-table th.num { text-align: right; }
+    .credit-in { color: #15803d !important; font-weight: 800; }
+    .credit-out { color: #b91c1c !important; font-weight: 800; }
+    .muted { color: #64748b !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="statement-shell">
+    <p>
+        <a class="button" href="{% url 'admin:ai_credit_report' %}">AI kontör raporuna dön</a>
+        <a class="button" href="{% url 'admin:index' %}">Admin ana sayfaya dön</a>
+    </p>
+    <section class="statement-hero">
+        <h1>{{ title }}</h1>
+        <a href="{% url 'admin:ai_credit_report' %}">{{ back_label }}</a>
+    </section>
+
+    <section class="metric-grid">
+        <article class="metric-card"><span>Toplam yüklenen</span><strong>{{ summary.loaded|tr_int }}</strong></article>
+        <article class="metric-card"><span>Toplam kullanılan</span><strong>{{ summary.used|tr_int }}</strong></article>
+        <article class="metric-card"><span>Kalan kontör</span><strong>{{ summary.remaining|tr_int }}</strong></article>
+        <article class="metric-card"><span>Son hareket</span><strong>{{ summary.last_movement_at|date:"d.m.Y"|default:"-" }}</strong></article>
+    </section>
+
+    <section class="statement-panel">
+        <h2>Kontör Ekstresi</h2>
+        <table class="statement-table">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Üye</th>
+                    <th>Ajans</th>
+                    <th>İşlem Türü</th>
+                    <th class="num">Hareket</th>
+                    <th class="num">İşlem Sonrası Kalan</th>
+                    <th>İşlem / Açıklama</th>
+                    <th>Referans</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in movements %}
+                    <tr>
+                        <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>{{ item.user.email|default:item.user.username }}</td>
+                        <td>{{ item.organization.name|default:"-" }}</td>
+                        <td>{{ item.get_action_display }}</td>
+                        <td class="num">
+                            {% if item.amount < 0 %}
+                                <span class="credit-out">{{ item.amount|tr_int }}</span>
+                            {% else %}
+                                <span class="credit-in">+{{ item.amount|tr_int }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="num">{{ item.balance_after|tr_int }}</td>
+                        <td>{{ item.note|default:"-" }}</td>
+                        <td><span class="muted">{{ item.reference|default:"-" }}</span></td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="8">Bu kayıt için kontör hareketi bulunamadı.</td></tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="4">Toplam hareket</th>
+                    <th class="num">{{ movement_total|tr_int }}</th>
+                    <th colspan="3"></th>
+                </tr>
+            </tfoot>
+        </table>
+    </section>
+</div>
+{% endblock %}

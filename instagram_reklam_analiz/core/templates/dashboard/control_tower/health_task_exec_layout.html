@@ -1,0 +1,62 @@
+{% load tr_numbers %}
+<section class="ct-health-task-exec-layout">
+  <div class="ct-health-task-grid">
+    <div class="ct-health-slot">
+      <div class="ct-card ct-section ct-campaign-health-card">
+        <span class="ct-tip good" data-tip="Aktif kampanyalar ROAS, CTR, CVR, CPC, CPA, CPM, harcama verimliliği, trend, veri güveni ve kritik uyarı risklerine göre skorlanır. En çok müdahale gerekenler üstte gösterilir."><i class="fas fa-circle-info"></i> Sağlık</span>
+
+        <div class="ct-section-title ct-health-title-v5">
+          <div>
+            <h3>KAMPANYA SAĞLIK MERKEZİ</h3>
+            <small>{{ campaign_health_count|default:0|tr_int }} aktif kampanya &middot; risk skoruna göre sıralı</small>
+          </div>
+          <a class="ct-mini-link" href="{% url 'health_center' %}">Tümü &rarr;</a>
+        </div>
+
+        <div class="ct-health-list ct-health-pro-list-v5">
+          {% for row in campaign_health %}
+            <div class="ct-health-pro-row-v5 {{ row.level }}" data-tip="{{ row.detail }}">
+              <div class="ct-health-rank-v5">{{ forloop.counter }}</div>
+
+              <div class="ct-health-main-v5">
+                <div class="ct-health-name-v5" title="{{ row.name }}">{{ row.name }}</div>
+                <div class="ct-health-meta-v5">
+                  <span>{{ row.platform }}</span>
+                  <span>{{ row.label }}</span>
+                  <span>{{ row.reason }}</span>
+                </div>
+
+                <div class="ct-health-metrics-v5">
+                  <div><span>ROAS</span><strong>{{ row.roas|tr_decimal }}</strong></div>
+                  <div><span>CTR</span><strong>{{ row.ctr|tr_decimal }}%</strong></div>
+                  <div><span>CVR</span><strong>{{ row.conversion_rate|tr_decimal }}%</strong></div>
+                  <div><span>CPC</span><strong>{{ row.cpc|tr_decimal }} TL</strong></div>
+                  <div><span>CPA</span><strong>{{ row.cpa|tr_decimal }} TL</strong></div>
+                </div>
+
+                <div class="ct-health-foot-v5">
+                  <span>Harcama {{ row.spend|tr_decimal }} TL</span>
+                  <span>Gelir {{ row.revenue|tr_decimal }} TL</span>
+                  <span>Dönüşüm {{ row.conversions|tr_decimal }}</span>
+                  <span>Veri {{ row.data_confidence }}%</span>
+                </div>
+              </div>
+
+              <div class="ct-health-trend-v5 {% if row.delta >= 0 %}up{% else %}down{% endif %}">
+                {% if row.delta >= 0 %}&#8593;{% else %}&#8595;{% endif %} {{ row.delta_abs }}
+              </div>
+
+              <div class="ct-health-score-box-v5 {{ row.level }}">
+                <strong>{{ row.score }}</strong>
+                <span>{{ row.label }}</span>
+              </div>
+            </div>
+          {% empty %}
+            <div class="ct-empty">Aktif kampanya metriği bulunamadı.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

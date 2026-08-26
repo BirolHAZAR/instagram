@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load humanize static %}
+
+{% load notification_icons %}
+{% block title %}Bildirim Merkezi | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}?v=notification-targets-20260716-1">
+{% endblock %}
+
+{% block content %}
+<div class="notification-page">
+    <section class="notification-hero">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h1 class="mb-2 notification-page-title"><i class="fas fa-bell"></i> Bildirim Merkezi</h1>
+                <p class="mb-0 notification-page-lead">Rakip, reklam, AI, kampanya ve kritik sistem uyarılarını tek merkezden yönetin.</p>
+            </div>
+            <div class="notification-actions">
+                <form method="post" action="{% url 'mark_all_notifications_read' %}">
+                    {% csrf_token %}
+                    <button class="btn btn-accent" type="submit">Tümünü Okundu Yap</button>
+                </form>
+                <a href="{% url 'activity_log' %}" class="btn btn-outline-light">Aktivite Akışı</a>
+            </div>
+        </div>
+        <div class="notification-stats">
+            <div class="notification-stat"><span>Toplam</span><strong>{{ counts.total }}</strong></div>
+            <div class="notification-stat"><span>Okunmamış</span><strong id="notificationUnreadCount">{{ counts.unread }}</strong></div>
+            <div class="notification-stat"><span>Kritik</span><strong class="level-critical">{{ counts.critical }}</strong></div>
+            <div class="notification-stat"><span>Uyarı</span><strong class="level-warning">{{ counts.warning }}</strong></div>
+        </div>
+        <form class="notification-filter" method="get">
+            <input type="search" name="q" value="{{ query }}" placeholder="Bildirim ara...">
+            <select name="level">
+                <option value="">Tüm seviyeler</option>
+                {% for level in level_filters %}<option value="{{ level.key }}" {% if selected_level == level.key %}selected{% endif %}>{{ level.label }}</option>{% endfor %}
+            </select>
+            <select name="status">
+                <option value="">Tüm durumlar</option>
+                <option value="unread" {% if selected_status == 'unread' %}selected{% endif %}>Okunmamış</option>
+                <option value="read" {% if selected_status == 'read' %}selected{% endif %}>Okunmuş</option>
+            </select>
+            <button class="btn btn-accent" type="submit">Filtrele</button>
+        </form>
+    </section>
+
+    <div class="notification-layout">
+        <section class="notification-card" id="notificationList">
+            {% if notifications %}
+                {% for n in notifications %}
+                <div class="notification-row{% if not n.is_read %} unread{% endif %}{% if n.icon == 'bullhorn' %} announcement{% endif %}" id="notification-row-{{ n.id }}">
+                    <a href="{% url 'open_notification' n.id %}" class="notification-row-open" aria-label="{{ n.title }} bildirimini aç">
+                        <div class="notification-row-icon">{{ n.icon|notification_icon }}</div>
+                        <div class="notification-row-body">
+                            <div class="notification-row-title level-{{ n.level }}">{{ n.title }}</div>
+                            <div class="notification-row-message">{{ n.message }}</div>
+                            <div class="notification-row-time">{{ n.created_at|timesince }} önce</div>
+                        </div>
+                    </a>
+                    <div class="notification-actions">
+                        <a href="{% url 'open_notification' n.id %}" class="btn btn-sm btn-outline-info"><i class="fas fa-arrow-up-right-from-square"></i> İlgili Kaydı Aç</a>
+                        {% if not n.is_read %}
+                        <form method="post" action="{% url 'mark_notification_read' n.id %}" class="js-mark-notification-read" data-row-id="notification-row-{{ n.id }}">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-outline-light" type="submit">Okundu</button>
+                        </form>
+                        {% endif %}
+                        <form method="post" action="{% url 'delete_notification' n.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Sil</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="p-5 text-center notification-empty">Bildirim bulunamadı.</div>
+            {% endif %}
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="p-3 d-flex justify-content-between">
+                {% if page_obj.has_previous %}<a class="btn btn-outline-light" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&level={{ selected_level }}&status={{ selected_status }}">Önceki</a>{% else %}<span></span>{% endif %}
+                <span class="notification-muted">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}<a class="btn btn-outline-light" href="?page={{ page_obj.next_page_number }}&q={{ query }}&level={{ selected_level }}&status={{ selected_status }}">Sonraki</a>{% else %}<span></span>{% endif %}
+            </div>
+            {% endif %}
+        </section>
+
+        <aside class="notification-card p-4" id="notification-preferences">
+            <h4 class="notification-preferences-title"><i class="fas fa-sliders"></i> Bildirim Tercihleri</h4>
+            <form method="post" action="{% url 'update_notification_preferences' %}">
+                {% csrf_token %}
+                <label class="pref-row">Uygulama içi <input type="checkbox" name="in_app_enabled" {% if preferences.in_app_enabled %}checked{% endif %}></label>
+                <label class="pref-row">Canlı bildirim <input type="checkbox" name="realtime_enabled" {% if preferences.realtime_enabled %}checked{% endif %}></label>
+                <label class="pref-row">Rakip <input type="checkbox" name="competitor_notifications" {% if preferences.competitor_notifications %}checked{% endif %}></label>
+                <label class="pref-row">AI <input type="checkbox" name="ai_notifications" {% if preferences.ai_notifications %}checked{% endif %}></label>
+                <label class="pref-row">Kampanya <input type="checkbox" name="campaign_notifications" {% if preferences.campaign_notifications %}checked{% endif %}></label>
+                <label class="pref-row">Optimizasyon <input type="checkbox" name="optimization_notifications" {% if preferences.optimization_notifications %}checked{% endif %}></label>
+                <label class="pref-row">Kritik uyarılar <input type="checkbox" name="critical_notifications" {% if preferences.critical_notifications %}checked{% endif %}></label>
+                <label class="pref-row">Sistem <input type="checkbox" name="system_notifications" {% if preferences.system_notifications %}checked{% endif %}></label>
+                <label class="pref-row">E-posta <input type="checkbox" name="email_enabled" {% if preferences.email_enabled %}checked{% endif %}></label>
+                <label class="pref-row">Günlük özet <input type="checkbox" name="daily_summary_enabled" {% if preferences.daily_summary_enabled %}checked{% endif %}></label>
+                <button class="btn btn-accent w-100 mt-3" type="submit">Tercihleri Kaydet</button>
+            </form>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function updateUnreadCount(nextCount) {
+        const value = Number(nextCount || 0);
+        const pageCounter = document.getElementById('notificationUnreadCount');
+        if (pageCounter) pageCounter.textContent = String(value);
+        if (typeof window.setAlertBadgeCount === 'function') window.setAlertBadgeCount(value);
+    }
+
+    document.querySelectorAll('.js-mark-notification-read').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+                if (!data || !data.success) return;
+                const row = document.getElementById(form.dataset.rowId);
+                if (row) {
+                    row.classList.remove('unread');
+                    if (new URLSearchParams(window.location.search).get('status') === 'unread') row.remove();
+                }
+                form.remove();
+                updateUnreadCount(data.unread_count);
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

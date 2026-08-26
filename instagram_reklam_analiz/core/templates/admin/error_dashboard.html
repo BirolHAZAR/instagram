@@ -1,0 +1,248 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_error_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <!-- ==================== HEADER ==================== -->
+    <div class="dashboard-header">
+        <h1> {{ title }}</h1>
+        <p>Son güncelleme: {{ today }} | Rapor dönemi: {{ week_range }}</p>
+        <div class="header-stats">
+            <div class="header-stat">
+                <div class="header-stat-value">{{ total_users }}</div>
+                <div class="header-stat-label">Aktif Kullanıcı</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-value">{{ active_subscriptions }}</div>
+                <div class="header-stat-label">Aktif Abonelik</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-value">{{ total_ads }}</div>
+                <div class="header-stat-label">Toplam Reklam</div>
+            </div>
+            <div class="header-stat">
+                <div class="header-stat-value">{{ total_competitors }}</div>
+                <div class="header-stat-label">Aktif Rakip</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== HIZLI AKSİYONLAR ==================== -->
+    <div class="quick-actions">
+        <h3>Hızlı Aksiyonlar</h3>
+        <div class="quick-buttons">
+            <a href="{{ sentry_url }}" target="_blank" class="quick-btn">Sentry'e Git</a>
+            <a href="{% url 'admin:core_anomalyalert_changelist' %}" class="quick-btn">Tüm Anomaliler</a>
+            <a href="{% url 'admin:core_opportunitywindow_changelist' %}" class="quick-btn">Tüm Fırsatlar</a>
+        </div>
+    </div>
+    
+    <!-- ==================== ANA STAT KARTLARI ==================== -->
+    <div class="stats-grid">
+        <div class="stat-card critical">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Kritik Anomaliler</span>
+                <span class="stat-card-icon"></span>
+            </div>
+            <div class="stat-card-value">{{ critical_anomalies }}</div>
+            <div class="stat-card-change">Toplam {{ total_anomalies }} anomali</div>
+            {% if total_anomalies > 0 %}
+            <div class="progress-bar">
+                <div class="progress-fill critical" style="width: {% widthratio critical_anomalies total_anomalies 100 %}%"></div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="stat-card success">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Aktif Fırsatlar</span>
+                <span class="stat-card-icon"></span>
+            </div>
+            <div class="stat-card-value">{{ active_opportunities }}</div>
+            <div class="stat-card-change">Ort. Güven: %{{ avg_confidence|default:"0" }}</div>
+        </div>
+        
+        <div class="stat-card primary">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Reklam Performansı</span>
+                <span class="stat-card-icon"></span>
+            </div>
+            <div class="stat-card-value">%{{ avg_ctr|default:"0" }}</div>
+            <div class="stat-card-change">Ortalama CTR</div>
+        </div>
+        
+        <div class="stat-card info">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Ortalama Skor</span>
+                <span class="stat-card-icon"></span>
+            </div>
+            <div class="stat-card-value">{{ avg_performance|default:"0" }}/100</div>
+            <div class="stat-card-change">Reklam Performans Skoru</div>
+            {% if avg_performance > 0 %}
+            <div class="progress-bar">
+                <div class="progress-fill success" style="width: {{ avg_performance }}%"></div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="stat-card dark">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Instagram Hesapları</span>
+                <span class="stat-card-icon"></span>
+            </div>
+            <div class="stat-card-value">{{ total_instagram_accounts }}</div>
+            <div class="stat-card-change">{{ total_followers|default:"0"|tr_decimal }} takipçi</div>
+        </div>
+        
+        <div class="stat-card warning">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Okunmamış Uyarılar</span>
+                <span class="stat-card-icon"></span>
+            </div>
+            <div class="stat-card-value">{{ unread_anomalies }}</div>
+            <div class="stat-card-change">Acil müdahale gerekli</div>
+        </div>
+    </div>
+    
+    <!-- ==================== İKİLİ KOLONLAR ==================== -->
+    <div class="two-columns">
+        
+        <!-- Anomali Tipleri -->
+        <div class="data-card">
+            <div class="data-card-header">
+                <h3>Anomali Tipleri Dağılımı</h3>
+            </div>
+            <div style="padding: 20px;">
+                {% for type, count in alert_types.items %}
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span style="font-size: 13px; color: var(--text-secondary);">{{ type|title }}</span>
+                    <span style="font-weight: 600; color: var(--text-primary);">{{ count }}</span>
+                </div>
+                {% empty %}
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Henüz anomali yok</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Fırsat Tipleri -->
+        <div class="data-card">
+            <div class="data-card-header">
+                <h3>Fırsat Tipleri Dağılımı</h3>
+            </div>
+            <div style="padding: 20px;">
+                {% for type, count in opportunity_types.items %}
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span style="font-size: 13px; color: var(--text-secondary);">{{ type|title }}</span>
+                    <span style="font-weight: 600; color: var(--text-primary);">{{ count }}</span>
+                </div>
+                {% empty %}
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Henüz fırsat yok</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- ==================== SON ANOMALİLER TABLOSU ==================== -->
+    <div class="data-card" style="margin-bottom: 32px;">
+        <div class="data-card-header">
+            <h3>Son Anomali Uyarıları</h3>
+            <a href="{% url 'admin:core_anomalyalert_changelist' %}">Tümünü Gör -></a>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Seviye</th>
+                    <th>Başlık</th>
+                    <th>Kullanıcı</th>
+                    <th>Tarih</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alert in recent_anomalies %}
+                <tr>
+                    <td><span class="badge badge-{{ alert.severity }}">{{ alert.get_severity_display }}</span></td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ alert.title|truncatechars:50 }}</td>
+                    <td>{{ alert.user.username|default:"-" }}</td>
+                    <td>{{ alert.detected_at|date:"d.m.Y H:i" }}</td>
+                    <td>{% if alert.is_read %}Okundu{% else %}Okunmadı{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align: center; padding: 40px;">Hiç anomali yok! Her şey yolunda.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- ==================== SON REKLAMLAR TABLOSU ==================== -->
+    <div class="data-card" style="margin-bottom: 32px;">
+        <div class="data-card-header">
+            <h3>En Son Reklamlar</h3>
+            <a href="{% url 'admin:core_reklamlist_changelist' %}">Tümünü Gör -></a>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Reklam Adı</th>
+                    <th>Gösterim</th>
+                    <th>Tıklama</th>
+                    <th>CTR</th>
+                    <th>Skor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad in recent_ads %}
+                <tr>
+                    <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ ad.name|truncatechars:40 }}</td>
+                    <td>{{ ad.impressions|default:"0"|tr_decimal }}</td>
+                    <td>{{ ad.clicks|default:"0"|tr_decimal }}</td>
+                    <td>%{{ ad.ctr|default:"0"|tr_decimal }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if ad.performance_score >= 70 %}badge-success
+                            {% elif ad.performance_score >= 40 %}badge-info
+                            {% else %}badge-critical{% endif %}">
+                            {{ ad.performance_score|default:"0" }}/100
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align: center; padding: 40px;">Henüz reklam yok</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- ==================== ALTYAPI DURUMU ==================== -->
+    <div class="stats-grid">
+        <div class="stat-card info">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Sentry.io</span>
+                <span class="stat-card-icon"></span>
+            </div>
+            <div class="stat-card-value">Bağlı</div>
+            <div class="stat-card-change">
+                <a href="{{ sentry_url }}" target="_blank" style="color: var(--primary);">Detaylı hata takibi için tıklayın</a>
+            </div>
+        </div>
+        
+        <div class="stat-card primary">
+            <div class="stat-card-header">
+                <span class="stat-card-title">Rakip Karşılaştırma</span>
+                <span class="stat-card-icon"></span>
+            </div>
+            <div class="stat-card-value">{{ competitor_ads }}</div>
+            <div class="stat-card-change">{{ total_competitors }} rakip, {{ competitor_ads }} reklam analiz ediliyor</div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

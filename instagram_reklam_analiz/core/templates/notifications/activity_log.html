@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Aktivite Ak&#305;&#351;&#305; | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="activity-page">
+    <section class="activity-hero">
+        <div>
+            <span class="activity-kicker"><i class="fas fa-clock-rotate-left"></i> Aktivite Ak&#305;&#351;&#305;</span>
+            <h1>{{ owner_label }} &#252;ye i&#231;in i&#351;lem ge&#231;mi&#351;i</h1>
+            <p>Bu ekran yaln&#305;zca giri&#351; yapan &#252;yenin hesap hareketlerini g&#246;sterir. Platform ba&#287;lant&#305;lar&#305;, senkronizasyonlar, bildirimler ve optimizasyon kay&#305;tlar&#305; burada izlenir.</p>
+        </div>
+        <div class="activity-hero-actions">
+            <span class="activity-owner"><i class="fas fa-user-shield"></i> Sadece bu &#252;ye</span>
+            <a href="{% url 'notification_center' %}" class="btn btn-accent"><i class="fas fa-bell"></i> Bildirim Merkezi</a>
+        </div>
+    </section>
+
+    <section class="activity-stats">
+        <div class="activity-stat"><span>Toplam Kay&#305;t</span><strong>{{ summary.total|tr_int }}</strong><small>Bu &#252;yeye ait aktivite</small></div>
+        <div class="activity-stat"><span>Ba&#351;ar&#305;l&#305;</span><strong>{{ summary.success|tr_int }}</strong><small>Tamamlanan i&#351;lem</small></div>
+        <div class="activity-stat"><span>Uyar&#305; / Hata</span><strong>{{ summary.warning|tr_int }}</strong><small>Takip gerektiren kay&#305;t</small></div>
+        <div class="activity-stat"><span>Son Aktivite</span><strong>{% if summary.latest %}{{ summary.latest.created_at|date:"H:i" }}{% else %}-{% endif %}</strong><small>{% if summary.latest %}{{ summary.latest.created_at|date:"d.m.Y" }}{% else %}Hen&#252;z kay&#305;t yok{% endif %}</small></div>
+    </section>
+
+    <form class="activity-filter" method="get">
+        <input type="search" name="q" value="{{ query }}" placeholder="Ba&#351;l&#305;k, a&#231;&#305;klama veya akt&#246;r ara">
+        <select name="type">
+            <option value="">T&#252;m mod&#252;ller</option>
+            {% for action in action_filters %}
+            <option value="{{ action.key }}" {% if selected_type == action.key %}selected{% endif %}>{{ action.label }} ({{ action.count|tr_int }})</option>
+            {% endfor %}
+        </select>
+        <select name="level">
+            <option value="">T&#252;m durumlar</option>
+            {% for item in level_filters %}
+            <option value="{{ item.key }}" {% if selected_level == item.key %}selected{% endif %}>{{ item.label }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-accent" type="submit"><i class="fas fa-filter"></i> Filtrele</button>
+        <a class="btn btn-outline-light" href="{% url 'activity_log' %}">Temizle</a>
+    </form>
+
+    <section class="activity-card">
+        <div class="activity-table-head">
+            <span>&#304;&#351;lem</span>
+            <span>Mod&#252;l</span>
+            <span>Durum</span>
+            <span>Zaman</span>
+            <span></span>
+        </div>
+        {% for row in activities %}
+        {% with a=row.item %}
+        <article class="activity-row activity-level-{{ a.level }}">
+            <div class="activity-main">
+                <div class="activity-icon"><i class="fas {{ row.icon_class }}"></i></div>
+                <div class="activity-copy">
+                    <strong>{{ row.title }}</strong>
+                    <p>{{ row.message }}</p>
+                    <small>&#304;&#351;lemi yapan: {{ row.actor }}</small>
+                </div>
+            </div>
+            <div class="activity-module">{{ row.module_label }}</div>
+            <div><span class="activity-status activity-status-{{ a.level }}">{{ row.status_label }}</span></div>
+            <div class="activity-time"><strong>{{ a.created_at|date:"d.m.Y" }}</strong><span>{{ a.created_at|time:"H:i" }}</span></div>
+            <div class="activity-action">
+                {% if row.detail_link %}<a href="{{ row.detail_link }}">Detay</a>{% else %}<span>Tekil detay yok</span>{% endif %}
+            </div>
+        </article>
+        {% endwith %}
+        {% empty %}
+        <div class="p-5 text-center notification-empty">Hen&#252;z aktivite yok.</div>
+        {% endfor %}
+    </section>
+
+    {% if page_obj.has_other_pages %}
+    <nav class="activity-pagination">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_level %}&level={{ selected_level }}{% endif %}">&#214;nceki</a>{% endif %}
+        <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_level %}&level={{ selected_level }}{% endif %}">Sonraki</a>{% endif %}
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

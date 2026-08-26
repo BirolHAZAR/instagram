@@ -1,0 +1,10 @@
+from core.tasks.v2_platform_sync import sync_v2_platform_account_ads, sync_all_v2_platform_accounts
+
+sync_facebook_ads = sync_v2_platform_account_ads
+sync_tiktok_ads = sync_v2_platform_account_ads
+sync_google_ads = sync_v2_platform_account_ads
+sync_linkedin_ads = sync_v2_platform_account_ads
+sync_x_ads = sync_v2_platform_account_ads
+sync_youtube_ads = sync_v2_platform_account_ads
+sync_instagram_ads = sync_v2_platform_account_ads
+sync_all_platform_accounts = sync_all_v2_platform_accounts

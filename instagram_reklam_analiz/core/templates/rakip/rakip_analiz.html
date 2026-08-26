@@ -1,0 +1,659 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rakip Analiz Sistemi{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/rakip_analiz.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    
+    <!-- ==================== ABONELÄ°K KONTROL KARTLARI ==================== -->
+    {% if not has_subscription %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning d-flex align-items-center p-4 border-0 shadow-sm" style="border-radius: 16px; background: linear-gradient(135deg, #fff3cd, #ffe69c);">
+                <div class="me-3"><i class="bi bi-exclamation-triangle-fill display-6 text-warning"></i></div>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-1">âš ï¸ Aktif Abonelik BulunamadÄ±</h5>
+                    <p class="mb-2">Rakip analizi yapabilmek iÃ§in bir Ã¼yelik paketi satÄ±n almalÄ±sÄ±nÄ±z.</p>
+                    <a href="{% url 'pricing' %}" class="btn btn-primary"><i class="bi bi-cart-check"></i> Paketleri Ä°ncele</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif is_bronze %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger d-flex align-items-center p-4 border-0 shadow-sm" style="border-radius: 16px; background: linear-gradient(135deg, #f8d7da, #f5c2c7);">
+                <div class="me-3"><i class="bi bi-lock-fill display-6 text-danger"></i></div>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-1">ğŸ”’ Rakip Analizi Paketinize Dahil DeÄŸil</h5>
+                    <p class="mb-2">{{ plan_name }} paketi rakip analizi Ã¶zelliÄŸi iÃ§ermiyor.</p>
+                    <a href="{% url 'pricing' %}" class="btn btn-primary"><i class="bi bi-arrow-up-circle"></i> Paket YÃ¼kselt</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif not can_add_competitor and has_subscription %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info d-flex align-items-center p-4 border-0 shadow-sm" style="border-radius: 16px; background: linear-gradient(135deg, #cff4fc, #9eeaf9);">
+                <div class="me-3"><i class="bi bi-speedometer2 display-6 text-info"></i></div>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-1">ğŸ“Š Rakip Limitiniz Dolu</h5>
+                    <p class="mb-2">{{ plan_name }} paketinizde <strong>{{ max_competitors }}</strong> rakip hakkÄ±nÄ±z var. Åu an <strong>{{ current_count }}</strong> rakibiniz var.</p>
+                    <a href="{% url 'pricing' %}" class="btn btn-primary"><i class="bi bi-arrow-up-circle"></i> Paket YÃ¼kselt</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if has_subscription and can_add_competitor %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-success d-flex align-items-center p-3 border-0 shadow-sm" style="border-radius: 16px; background: linear-gradient(135deg, #d1e7dd, #a3cfbb);">
+                <div class="me-3"><i class="bi bi-check-circle-fill display-6 text-success"></i></div>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading mb-1">{{ plan_name }} Paketi - Rakip Limiti: <strong>{{ max_competitors }}</strong></h6>
+                    <p class="mb-0 small">Eklenen: <strong>{{ current_count }}</strong> | Kalan: <strong>{{ remaining }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ==================== BAÅLIK SATIRI ==================== -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h2"><i class="bi bi-building"></i> Rakip Analiz Sistemi</h1>
+                
+                {% if has_subscription and can_add_competitor %}
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCompetitorModal">
+                    <i class="bi bi-plus-circle"></i> Yeni Rakip Ekle
+                </button>
+                {% elif not has_subscription %}
+                <a href="{% url 'pricing' %}" class="btn btn-warning"><i class="bi bi-cart-check"></i> Ã–nce Paket SatÄ±n Al</a>
+                {% elif is_bronze %}
+                <a href="{% url 'pricing' %}" class="btn btn-warning"><i class="bi bi-arrow-up-circle"></i> Paket YÃ¼kselt</a>
+                {% elif not can_add_competitor %}
+                <a href="{% url 'pricing' %}" class="btn btn-warning"><i class="bi bi-arrow-up-circle"></i> Limit Dolu - Paket YÃ¼kselt</a>
+                {% endif %}
+            </div>
+            <p class="text-muted">Instagram Ã¼zerinde rakip hesaplarÄ± takip edin ve reklamlarÄ±nÄ± analiz edin</p>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-5 d-none">
+        <i class="bi bi-building display-1 text-muted"></i>
+        <h3 class="mt-3">HenÃ¼z Rakip EklenmemiÅŸ</h3>
+        <p class="text-muted">Instagram kullanÄ±cÄ± adÄ± ile yeni bir rakip ekleyerek baÅŸlayÄ±n</p>
+        
+        {% if has_subscription and can_add_competitor %}
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCompetitorModal">
+            <i class="bi bi-plus-circle"></i> Ä°lk Rakibi Ekle
+        </button>
+        {% elif not has_subscription %}
+        <a href="{% url 'pricing' %}" class="btn btn-warning"><i class="bi bi-cart-check"></i> Paket SatÄ±n Al</a>
+        {% elif is_bronze %}
+        <a href="{% url 'pricing' %}" class="btn btn-warning"><i class="bi bi-arrow-up-circle"></i> Paket YÃ¼kselt</a>
+        {% elif not can_add_competitor %}
+        <a href="{% url 'pricing' %}" class="btn btn-warning"><i class="bi bi-arrow-up-circle"></i> Limit Dolu - Paket YÃ¼kselt</a>
+        {% endif %}
+    </div>
+    
+    <!-- Rakipler Listesi -->
+    <div id="competitorsList"></div>
+</div>
+
+<!-- Add Competitor Modal -->
+<div class="modal fade" id="addCompetitorModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-building-add"></i> Yeni Rakip Ekle</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="competitorForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-instagram"></i> Instagram KullanÄ±cÄ± AdÄ± <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">@</span>
+                            <input type="text" class="form-control" name="instagram_username" id="instagramUsername" required placeholder="ornek_kullanici" autocomplete="off">
+                            <button class="btn btn-outline-primary" type="button" onclick="searchInstagram()">
+                                <i class="bi bi-search"></i> Ara
+                            </button>
+                        </div>
+                        <div id="instagramSearchResult" class="mt-2"></div>
+                    </div>
+                    
+                    <div id="instagramInfo" style="display: none;">
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-3 text-center">
+                                        <img id="profilePicture" src="" class="rounded-circle" width="80" height="80">
+                                    </div>
+                                    <div class="col-9">
+                                        <h5 id="fullNameDisplay"></h5>
+                                        <p id="bioDisplay" class="small"></p>
+                                        <div class="row">
+                                            <div class="col-4"><span class="fw-bold" id="followersCount">0</span><br><small>TakipÃ§i</small></div>
+                                            <div class="col-4"><span class="fw-bold" id="mediaCount">0</span><br><small>GÃ¶nderi</small></div>
+                                            <div class="col-4"><span id="verifiedBadge" class="badge bg-info">âœ… DoÄŸrulanmÄ±ÅŸ</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" name="full_name" id="fullName">
+                    <input type="hidden" name="followers_count" id="followersCountInput">
+                    <input type="hidden" name="media_count" id="mediaCountInput">
+                    <input type="hidden" name="is_verified" id="isVerified">
+                    <input type="hidden" name="profile_picture" id="profilePictureInput">
+                    <input type="hidden" name="bio" id="bioInput">
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-tag"></i> Rakip AdÄ± (Opsiyonel)</label>
+                        <input type="text" class="form-control" name="name" placeholder="Ã–rn: Trendyol, Hepsiburada...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-globe"></i> Web Sitesi</label>
+                        <input type="url" class="form-control" name="website" placeholder="https://www.rakip.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-tags"></i> Kategori</label>
+                        <select class="form-select" name="category">
+                            <option value="direct">DoÄŸrudan Rakip</option>
+                            <option value="indirect">DolaylÄ± Rakip</option>
+                            <option value="potential">Potansiyel Rakip</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-card-text"></i> AÃ§Ä±klama</label>
+                        <textarea class="form-control" name="description" rows="2" placeholder="Bu rakip hakkÄ±nda notlar..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ä°ptal</button>
+                <button type="button" class="btn btn-primary" onclick="addCompetitor()">
+                    <i class="bi bi-save"></i> Rakip Olarak Ekle
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Analiz Popup Modal -->
+<div class="modal fade" id="aiAnalysisModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius: 20px; overflow: hidden; border: none;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none;">
+                <div>
+                    <h5 class="modal-title" id="aiModalTitle"><i class="bi bi-robot"></i> Yapay Zeka Reklam Analizi</h5>
+                    <small id="aiModalSubtitle" style="opacity: 0.9;">Kapsamlı AI analizi</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="aiModalBody" style="padding: 0; max-height: 70vh; overflow-y: auto;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    let searchedUserData = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCompetitors();
+    });
+
+    // ==================== CSRF TOKEN ====================
+    function getCSRFToken() {
+        const token = document.querySelector('[name=csrfmiddlewaretoken]');
+        return token ? token.value : '';
+    }
+
+    // ==================== INSTAGRAM ARAMA ====================
+    async function searchInstagram() {
+        const username = document.getElementById('instagramUsername').value.trim();
+        if (!username) {
+            showToast('LÃ¼tfen Instagram kullanÄ±cÄ± adÄ± girin!', 'warning');
+            return;
+        }
+        
+        const cleanUsername = username.replace('@', '').replace('instagram.com/', '').replace('/', '').toLowerCase();
+        document.getElementById('instagramUsername').value = cleanUsername;
+        
+        const searchBtn = document.querySelector('#instagramUsername + button');
+        const originalText = searchBtn.innerHTML;
+        searchBtn.disabled = true;
+        searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> AranÄ±yor...';
+        
+        try {
+            // Ã–nce backend API'yi dene
+            const response = await fetch('/api/competitors/search/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ username: cleanUsername })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.user_data) {
+                // Hesap bulundu - gerÃ§ek veri
+                searchedUserData = data.user_data;
+                displayInstagramInfo(data.user_data);
+                showToast(`âœ… @${cleanUsername} bulundu!`, 'success');
+            } else {
+                searchedUserData = null;
+                document.getElementById('instagramInfo').style.display = 'none';
+                document.getElementById('instagramSearchResult').innerHTML = '<div class="alert alert-warning mt-2"><i class="bi bi-info-circle"></i> Bu Instagram hesabi dogrulanamadi. Rakip eklemek icin gercek hesap verisi gerekli.</div>';
+                showToast(`@${cleanUsername} icin gercek hesap verisi bulunamadi.`, 'warning');
+            }
+        } catch (error) {
+            console.error('Arama hatasÄ±:', error);
+            searchedUserData = null;
+            document.getElementById('instagramInfo').style.display = 'none';
+            document.getElementById('instagramSearchResult').innerHTML = '<div class="alert alert-danger mt-2"><i class="bi bi-exclamation-triangle"></i> Instagram aramasi tamamlanamadi. Lutfen baglantiyi ve API ayarlarini kontrol edin.</div>';
+            showToast('Instagram aramasi tamamlanamadi.', 'danger');
+        } finally {
+            searchBtn.disabled = false;
+            searchBtn.innerHTML = originalText;
+        }
+    }
+    function displayInstagramInfo(userData) {
+        document.getElementById('instagramInfo').style.display = 'block';
+        document.getElementById('profilePicture').src = userData.profile_picture || `https://ui-avatars.com/api/?name=${userData.username.charAt(0).toUpperCase()}&background=6366f1&color=fff&size=80`;
+        document.getElementById('fullNameDisplay').textContent = userData.full_name || userData.username;
+        document.getElementById('bioDisplay').textContent = userData.bio || 'Bio bilgisi bulunmuyor';
+        document.getElementById('followersCount').textContent = (userData.followers_count || 0).toLocaleString();
+        document.getElementById('mediaCount').textContent = (userData.media_count || 0).toLocaleString();
+        
+        if (userData.is_verified) {
+            document.getElementById('verifiedBadge').style.display = 'inline-block';
+        } else {
+            document.getElementById('verifiedBadge').style.display = 'none';
+        }
+        
+        document.getElementById('fullName').value = userData.full_name || '';
+        document.getElementById('followersCountInput').value = userData.followers_count || 0;
+        document.getElementById('mediaCountInput').value = userData.media_count || 0;
+        document.getElementById('isVerified').value = userData.is_verified || false;
+        document.getElementById('profilePictureInput').value = userData.profile_picture || '';
+        document.getElementById('bioInput').value = userData.bio || '';
+        document.getElementById('instagramSearchResult').innerHTML = '';
+    }
+
+    // ==================== RAKÄ°P EKLEME ====================
+    function addCompetitor() {
+        const username = document.getElementById('instagramUsername')?.value?.trim();
+        if (!username) {
+            showToast('LÃ¼tfen Instagram kullanÄ±cÄ± adÄ± girin!', 'warning');
+            return;
+        }
+        
+        if (!searchedUserData) {
+            showToast('LÃ¼tfen Ã¶nce bir hesap arayÄ±n!', 'warning');
+            return;
+        }
+        
+        const userData = searchedUserData;
+        
+        const formData = new FormData();
+        formData.append('instagram_username', username.replace('@', ''));
+        formData.append('name', document.querySelector('[name="name"]')?.value || userData.full_name || username);
+        formData.append('full_name', userData.full_name || '');
+        formData.append('followers_count', userData.followers_count || 0);
+        formData.append('media_count', userData.media_count || 0);
+        formData.append('is_verified', userData.is_verified || false);
+        formData.append('profile_picture', userData.profile_picture || '');
+        formData.append('description', document.querySelector('[name="description"]')?.value || '');
+        formData.append('category', document.querySelector('[name="category"]')?.value || 'direct');
+        formData.append('website', document.querySelector('[name="website"]')?.value || '');
+        const addBtn = document.querySelector('#addCompetitorModal .modal-footer .btn-primary');
+        const originalText = addBtn?.innerHTML;
+        if (addBtn) {
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Ekleniyor...';
+        }
+        
+        fetch('/api/competitors/add/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCSRFToken() },
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message || 'âœ… Rakip baÅŸarÄ±yla eklendi!', 'success');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addCompetitorModal'));
+                if (modal) modal.hide();
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('âŒ ' + (data.message || 'Bir hata oluÅŸtu!'), 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Ekleme hatasÄ±:', error);
+            showToast('âŒ BaÄŸlantÄ± hatasÄ±!', 'danger');
+        })
+        .finally(() => {
+            if (addBtn) {
+                addBtn.disabled = false;
+                addBtn.innerHTML = originalText;
+            }
+        });
+    }
+
+    // ==================== RAKÄ°P LÄ°STELEME ====================
+    async function loadCompetitors() {
+        const container = document.getElementById('competitorsList');
+        const emptyState = document.getElementById('emptyState');
+        
+        try {
+            const response = await fetch('/api/competitors/');
+            const data = await response.json();
+            
+            if (data.success && data.competitors && data.competitors.length > 0) {
+                displayCompetitors(data.competitors);
+                if (emptyState) emptyState.classList.add('d-none');
+            } else {
+                if (emptyState) emptyState.classList.remove('d-none');
+            }
+        } catch (error) {
+            console.error('Listeleme hatasÄ±:', error);
+            if (emptyState) emptyState.classList.remove('d-none');
+        }
+    }
+
+    function displayCompetitors(competitors) {
+        const container = document.getElementById('competitorsList');
+        if (!container) return;
+        
+        let html = '';
+        competitors.forEach(comp => {
+            const verifiedBadge = comp.is_verified ? '<span class="badge bg-info ms-1">âœ… DoÄŸrulanmÄ±ÅŸ</span>' : '';
+            
+            html += `
+                <div class="card mb-4 shadow-sm" id="competitor-${comp.id}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap">
+                            <div class="d-flex mb-2 mb-sm-0">
+                                ${comp.profile_picture ? `<img src="${comp.profile_picture}" class="rounded-circle me-3" width="60" height="60" onerror="this.src='https://ui-avatars.com/api/?name=${comp.username}&background=6366f1&color=fff&size=60'">` : '<div class="rounded-circle me-3 bg-primary d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;"><i class="bi bi-building text-white fs-2"></i></div>'}
+                                <div>
+                                    <h5 class="card-title mb-1"><i class="bi bi-instagram"></i> @${escapeHtml(comp.instagram_username)} ${verifiedBadge}</h5>
+                                    <h6 class="text-muted small">${escapeHtml(comp.name) || ''}</h6>
+                                    <div class="mt-1">
+                                        <span class="badge bg-secondary">${comp.category === 'direct' ? 'DoÄŸrudan Rakip' : comp.category === 'indirect' ? 'DolaylÄ± Rakip' : 'Potansiyel Rakip'}</span>
+                                        <span class="badge bg-primary ms-1">ğŸ‘¥ ${(comp.followers_count || 0).toLocaleString()}</span>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">Eklenme: ${comp.created_at}</small>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="https://instagram.com/${comp.instagram_username}" target="_blank" class="btn btn-sm btn-outline-info me-1">
+                                    <i class="bi bi-instagram"></i> Profil
+                                </a>
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="fetchAds(${comp.id})">
+                                    <i class="bi bi-cloud-download"></i> ReklamlarÄ± Ã‡ek
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCompetitor(${comp.id})">
+                                    <i class="bi bi-trash"></i> Sil
+                                </button>
+                            </div>
+                        </div>
+                        <div id="ads-${comp.id}" class="mt-3">
+                            <div class="text-muted small text-center py-3">
+                                <i class="bi bi-info-circle"></i> "ReklamlarÄ± Ã‡ek" butonuna tÄ±klayÄ±n
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    // ==================== RAKÄ°P SÄ°LME ====================
+    function deleteCompetitor(competitorId) {
+        if (!confirm('Bu rakibi silmek istediÄŸinize emin misiniz?')) return;
+        
+        fetch(`/api/competitors/${competitorId}/delete/`, {
+            method: 'DELETE',
+            headers: { 'X-CSRFToken': getCSRFToken() },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message || 'Rakip silindi!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.message || 'Silme iÅŸlemi baÅŸarÄ±sÄ±z!', 'danger');
+            }
+        })
+        .catch(error => {
+            showToast('BaÄŸlantÄ± hatasÄ±!', 'danger');
+        });
+    }
+
+    // ==================== REKLAMLARI Ã‡EK ====================
+    async function fetchAds(competitorId) {
+        const adsContainer = document.getElementById(`ads-${competitorId}`);
+        if (!adsContainer) return;
+        
+        adsContainer.innerHTML = `<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div><span class="ms-2">Reklamlar yÃ¼kleniyor...</span></div>`;
+        
+        try {
+            const url = `/api/competitors/${competitorId}/ads/`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.success && data.ads && data.ads.length > 0) {
+                displayAds(adsContainer, data.ads, competitorId);
+            } else {
+                adsContainer.innerHTML = `<div class="alert alert-warning text-center">Reklam bulunamadÄ±</div>`;
+            }
+        } catch (error) {
+            adsContainer.innerHTML = `<div class="alert alert-danger">Hata: ${error.message}</div>`;
+        }
+    }
+
+    // ==================== REKLAM KARTLARI (4'lÃ¼ yan yana) ====================
+// ==================== REKLAM KARTLARI (4'lÃ¼ yan yana + Responsive) ====================
+function displayAds(container, ads, competitorId) {
+    // Responsive grid: XL'de 4, LG'de 3, MD'de 2, SM'de 1
+    let html = '<div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">';
+    
+    ads.forEach((ad, index) => {
+        const adId = ad.id || `comp_ad_${competitorId}_${index}`;
+        const adName = escapeHtml(ad.name || ad.title || 'Reklam');
+        const adType = ad.media_type || 'image';
+        const imgUrl = ad.image_url || ad.media_url || '';
+        
+        const imp = ad.impressions || 0;
+        const clk = ad.clicks || 0;
+        const ctr = ad.ctr || 0;
+        const spd = ad.spend || 0;
+        const rch = ad.reach || 0;
+        const freq = ad.frequency || (rch > 0 ? parseFloat((imp / rch).toFixed(1)) : 0);
+        const score = ad.overall_score || ad.performance_score || 0;
+        
+        let mediaTypeText = 'ğŸ“¸ GÃ¶rsel';
+        if (adType === 'video') mediaTypeText = 'ğŸ¥ Video';
+        else if (adType === 'carousel') mediaTypeText = 'ğŸ–¼ï¸ Carousel';
+        else if (adType === 'reels') mediaTypeText = 'ğŸ“± Reels';
+        
+        const hourlyData = ad.hourly_engagement || [];
+        const maxH = Math.max(...hourlyData, 1);
+        const peaks = ad.peak_hours || [];
+        const hourlyChart = hourlyData.map((v, h) => {
+            const isPeak = peaks.includes(h);
+            return `<div class="hourly-bar" style="height:${(v/maxH*100)}%;background:${isPeak ? 'linear-gradient(180deg,#f58529,#dd2a7b)' : '#cbd5e1'};" title="${h}:00 - ${v}${isPeak ? ' (Pik!)' : ''}"></div>`;
+        }).join('');
+        
+        const ageData = ad.age_distribution || {};
+        const ageHtml = Object.entries(ageData).slice(0,5).map(([a,v]) => 
+            `<div class="demographic-row"><div class="label">${a}</div><div class="bar-container"><div class="bar-fill" style="width:${v}%;background:${a==='25-34'?'#f58529':'#cbd5e1'};"></div></div><div class="bar-value">${v}%</div></div>`
+        ).join('');
+        
+        const cityData = ad.city_distribution || {};
+        const cityHtml = Object.entries(cityData).slice(0,4).map(([c,v]) =>
+            `<div class="demographic-row"><div class="label" style="width:50px;">${c.substring(0,6)}</div><div class="bar-container"><div class="bar-fill" style="width:${v}%;background:linear-gradient(90deg,#667eea,#764ba2);"></div></div><div class="bar-value">${v}%</div></div>`
+        ).join('');
+        
+        const devData = ad.device_split || {};
+        const devHtml = Object.entries(devData).map(([d,v]) => {
+            let icon = 'ğŸ“±';
+            if (d.toLowerCase().includes('masa')) icon = 'ğŸ’»';
+            else if (d.toLowerCase().includes('tablet')) icon = 'ğŸ“‹';
+            let color = '#4CAF50';
+            if (d.toLowerCase().includes('masa')) color = '#2196F3';
+            else if (d.toLowerCase().includes('tablet')) color = '#FF9800';
+            return `<div class="device-dist"><span>${icon}</span><div class="device-bar" style="width:${v}%;background:${color};"></div><strong>${v}%</strong></div>`;
+        }).join('');
+        
+        html += `
+        <div class="col">
+            <div class="card ad-card h-100 border-0 shadow-sm" style="border-radius: 16px; overflow: hidden; min-width: 250px;">
+                <div class="ad-media" style="position:relative;height:200px;background:#f3f4f6;">
+                    ${imgUrl ? '<img src="'+imgUrl+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'">' : '<div style="height:100%;display:flex;align-items:center;justify-content:center;"><i class="bi bi-image display-1 text-muted"></i></div>'}
+                    <span class="ad-type-badge">${mediaTypeText}</span>
+                </div>
+                <div class="card-body p-2">
+                    <h6 class="fw-bold mb-1" style="font-size:0.8rem;">${adName.substring(0, 45)}</h6>
+                    
+                    <details class="collapsible-section" open>
+                        <summary style="font-size:0.65rem;cursor:pointer;">ğŸ“Š Metrikler</summary>
+                        <div class="row g-1 mt-1">
+                            <div class="col-6"><div class="metric-mini"><div class="label">ğŸ‘ï¸ GÃ¶sterim</div><div class="value">${formatNumber(imp)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">ğŸ–±ï¸ TÄ±klama</div><div class="value">${formatNumber(clk)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">ğŸ“Š CTR</div><div class="value">%${parseFloat(ctr).toFixed(2)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">ğŸ’° Harcama</div><div class="value">â‚º${formatNumber(spd)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">ğŸ‘¥ EriÅŸim</div><div class="value">${formatNumber(rch)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">ğŸ”„ Frekans</div><div class="value">${parseFloat(freq).toFixed(1)}x</div></div></div>
+                        </div>
+                    </details>
+                    
+                    <details class="collapsible-section">
+                        <summary style="font-size:0.65rem;cursor:pointer;">â° EtkileÅŸim Saatleri</summary>
+                        <div style="font-size:0.55rem;color:#888;margin-bottom:3px;">ğŸ”¥ Pik: ${peaks.map(h=>h+':00').join(', ')}</div>
+                        <div class="hourly-chart">${hourlyChart}</div>
+                    </details>
+                    
+                    <details class="collapsible-section">
+                        <summary style="font-size:0.65rem;cursor:pointer;">ğŸ‘¥ Demografi</summary>
+                        <div style="font-size:0.55rem;font-weight:600;margin-bottom:3px;">YaÅŸ DaÄŸÄ±lÄ±mÄ±</div>
+                        ${ageHtml}
+                    </details>
+                    
+                    <details class="collapsible-section">
+                        <summary style="font-size:0.65rem;cursor:pointer;">ğŸ™ï¸ Åehir & Cihaz</summary>
+                        <div style="font-size:0.55rem;font-weight:600;margin-bottom:3px;">ğŸŒ Åehir</div>
+                        ${cityHtml}
+                        <div style="font-size:0.55rem;font-weight:600;margin:6px 0 3px;">ğŸ“± Cihaz</div>
+                        ${devHtml}
+                    </details>
+                    
+                    <div class="mt-2">
+                        <div class="d-flex justify-content-between small mb-1" style="font-size:0.6rem;">
+                            <span>Performans</span><span class="fw-bold">${score}/100</span>
+                        </div>
+                        <div style="height:4px;background:#e5e7eb;border-radius:2px;">
+                            <div style="width:${score}%;height:100%;background:${score>70?'#10b981':(score>50?'#f59e0b':'#ef4444')};border-radius:2px;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-white border-0 pt-0 pb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted" style="font-size:0.6rem;">ğŸ“… ${ad.created_at || 'Yeni'}</small>
+                        <button class="btn btn-ai-analyze btn-sm" onclick="openAIPopup('${adId}', '${adName.replace(/'/g, "\\'")}')">
+                            <i class="bi bi-robot"></i> AI Analiz Et
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+    // ==================== AI ANALÄ°Z POPUP ====================
+    function openAIPopup(adId, adTitle) {
+        const modal = new bootstrap.Modal(document.getElementById('aiAnalysisModal'));
+        modal.show();
+        document.getElementById('aiModalTitle').innerHTML = '<i class="bi bi-robot"></i> AI Reklam Analizi';
+        document.getElementById('aiModalSubtitle').textContent = (adTitle || 'Reklam').substring(0, 80) + '...';
+        
+        const agents = ['Duygu Analizi','Ä°Ã§erik Kalitesi','Hashtag Stratejisi','Rakip KarÅŸÄ±laÅŸtÄ±rma','Performans Tahmini','BÃ¼tÃ§e Optimizasyonu','Lead Potansiyeli','Pazar Uyumu','EtkileÅŸim Stratejisi','Ã–neri Motoru','Influencer Uyumu','Genel SaÄŸlÄ±k'];
+        const body = document.getElementById('aiModalBody');
+        
+        body.innerHTML = `
+            <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:white;padding:40px 30px;min-height:500px;text-align:center;">
+                <div class="spinner-border text-light mb-3" style="width:3rem;height:3rem;"></div>
+                <h5 class="text-white">ğŸ”„ AI Analizi Devam Ediyor</h5>
+                <p class="text-white-50">AI analizi hazırlanıyor...</p>
+                <div class="progress mb-4" style="height:30px;border-radius:15px;background:rgba(255,255,255,0.1);">
+                    <div id="popup-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%;border-radius:15px;background:linear-gradient(90deg,#4CAF50,#8BC34A);">0%</div>
+                </div>
+                <div id="popup-agents" style="text-align:left;max-width:500px;margin:0 auto;">
+                    ${agents.map((a,i)=>`<div id="pa-${i}" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;margin-bottom:5px;font-size:14px;background:rgba(255,255,255,0.08);opacity:0.5;"><span style="font-size:18px;">●</span><span>Analiz hazırlanıyor...</span></div>`).join('')}
+                </div>
+            </div>`;
+        
+        showAIUnavailable(body);
+    }
+    
+    function showAIUnavailable(body) {
+        body.innerHTML = `
+            <div style="padding:30px;text-align:center;">
+                <i class="bi bi-exclamation-triangle" style="font-size:48px;color:#dc3545;"></i>
+                <h5 style="margin-top:16px;">Rakip reklam AI analizi hazir degil</h5>
+                <p style="color:#6c757d;">Bu ekran sahte skor uretmez. Gercek rakip reklam AI endpoint'i baglandiginda analiz burada gosterilecek.</p>
+            </div>`;
+        document.getElementById('aiModalSubtitle').textContent = 'AI endpoint gerekli';
+    }
+
+    // ==================== YARDIMCI FONKSÄ°YONLAR ====================
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatNumber(num) {
+        return window.raFormatNumber(num);
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `position-fixed bottom-0 end-0 p-3 m-3 toast align-items-center text-white bg-${type} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
+    }
+</script>
+{% endblock %}
+
+

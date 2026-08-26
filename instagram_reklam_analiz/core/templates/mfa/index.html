@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}&#199;ift Koruma{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/account_mfa.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="mfa-wrapper">
+    <div class="container">
+        <div class="mfa-header">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'my_account' %}">
+                                    <i class="fas fa-home me-1"></i>Hesab&#305;m
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">&#199;ift Koruma</li>
+                        </ol>
+                    </nav>
+                    <h2 class="mt-2">
+                        <i class="fas fa-shield-halved me-2"></i>&#199;ift Koruma
+                    </h2>
+                    <p>Hesab&#305;n&#305;z&#305; ikinci bir do&#287;rulama katman&#305;yla g&#252;venceye al&#305;n.</p>
+                </div>
+                <div class="col-lg-5 mt-3 mt-lg-0">
+                    <div class="mfa-header-actions">
+                        <a href="{% url 'my_account' %}" class="btn-mfa-soft">
+                            <i class="fas fa-arrow-left"></i>Hesab&#305;ma Git
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mfa-status-card {% if is_mfa_enabled %}enabled{% else %}disabled{% endif %}">
+            <div class="mfa-status-icon">
+                {% if is_mfa_enabled %}
+                    <i class="fas fa-lock"></i>
+                {% else %}
+                    <i class="fas fa-unlock"></i>
+                {% endif %}
+            </div>
+            <div>
+                <span class="status-kicker">G&#252;venlik Durumu</span>
+                {% if is_mfa_enabled %}
+                    <h4>&#199;ift koruma aktif</h4>
+                    <p>Hesab&#305;n&#305;z oturum a&#231;ma s&#305;ras&#305;nda ek do&#287;rulama ile korunuyor.</p>
+                {% else %}
+                    <h4>&#199;ift koruma aktif de&#287;il</h4>
+                    <p>Hesab&#305;n&#305;z&#305; daha g&#252;venli hale getirmek i&#231;in kimlik do&#287;rulay&#305;c&#305; uygulamay&#305; etkinle&#351;tirin.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mfa-grid">
+            {% if "totp" in MFA_SUPPORTED_TYPES %}
+            <section class="mfa-card">
+                <div class="method-icon app"><i class="fas fa-mobile-screen-button"></i></div>
+                <div class="method-copy">
+                    <h5>Kimlik Do&#287;rulay&#305;c&#305; Uygulama</h5>
+                    {% if authenticators.totp %}
+                        <p>Authenticator uygulamas&#305; ile kod &#252;retimi aktif.</p>
+                        <span class="method-badge active"><i class="fas fa-check"></i>Aktif</span>
+                    {% else %}
+                        <p>Google Authenticator, Microsoft Authenticator veya benzeri bir uygulama kullanabilirsiniz.</p>
+                        <span class="method-badge inactive"><i class="fas fa-clock"></i>Aktif de&#287;il</span>
+                    {% endif %}
+                </div>
+                <div class="method-action">
+                    {% if authenticators.totp %}
+                        <a href="{% url 'mfa_deactivate_totp' %}" class="btn-mfa-danger">
+                            <i class="fas fa-power-off"></i>Devre D&#305;&#351;&#305; B&#305;rak
+                        </a>
+                    {% else %}
+                        <a href="{% url 'mfa_activate_totp' %}" class="btn-mfa-primary">
+                            <i class="fas fa-shield-plus"></i>Etkinle&#351;tir
+                        </a>
+                    {% endif %}
+                </div>
+            </section>
+            {% endif %}
+
+            {% if "recovery_codes" in MFA_SUPPORTED_TYPES %}
+                {% with unused_count=authenticators.recovery_codes.get_unused_codes|length %}
+                <section class="mfa-card">
+                    <div class="method-icon codes"><i class="fas fa-key"></i></div>
+                    <div class="method-copy">
+                        <h5>Kurtarma Kodlar&#305;</h5>
+                        {% if authenticators.recovery_codes %}
+                            <p>{{ unused_count }} kurtarma kodu kullan&#305;labilir durumda.</p>
+                            <span class="method-badge active"><i class="fas fa-check"></i>Haz&#305;r</span>
+                        {% else %}
+                            <p>Telefonunuza eri&#351;emedi&#287;inizde hesab&#305;n&#305;za girmek i&#231;in yedek kod olu&#351;turun.</p>
+                            <span class="method-badge inactive"><i class="fas fa-triangle-exclamation"></i>Olu&#351;turulmad&#305;</span>
+                        {% endif %}
+                    </div>
+                    <div class="method-action action-stack">
+                        {% if is_mfa_enabled %}
+                            {% if authenticators.recovery_codes and unused_count > 0 and not MFA_RECOVERY_CODES_SHOW_ONCE %}
+                                <a href="{% url 'mfa_view_recovery_codes' %}" class="btn-mfa-soft">
+                                    <i class="fas fa-eye"></i>G&#246;r
+                                </a>
+                                <a href="{% url 'mfa_download_recovery_codes' %}" class="btn-mfa-soft">
+                                    <i class="fas fa-download"></i>&#304;ndir
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'mfa_generate_recovery_codes' %}" class="btn-mfa-primary">
+                                <i class="fas fa-rotate"></i>Yeni Kod Olu&#351;tur
+                            </a>
+                        {% else %}
+                            <span class="method-note">&#214;nce &#231;ift korumay&#305; etkinle&#351;tirin.</span>
+                        {% endif %}
+                    </div>
+                </section>
+                {% endwith %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

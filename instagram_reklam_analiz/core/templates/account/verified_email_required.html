@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}E-posta Do&#287;rulamas&#305; Gerekli{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>E-posta G&#252;venli&#287;i</h3>
+                <p>Bu alana eri&#351;mek i&#231;in e-posta adresinizi do&#287;rulaman&#305;z gerekir.</p>
+                <a href="{% url 'account_email' %}" class="allauth-side-link">
+                    <i class="fas fa-envelope"></i>E-posta Ayarlar&#305;
+                </a>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head">
+                    <span><i class="fas fa-envelope-circle-check"></i>Do&#287;rulama gerekli</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>E-posta Do&#287;rulamas&#305; Gerekli</h1>
+                    <p>L&#252;tfen hesab&#305;n&#305;za ba&#287;l&#305; e-posta adresini do&#287;rulay&#305;n ve tekrar deneyin.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

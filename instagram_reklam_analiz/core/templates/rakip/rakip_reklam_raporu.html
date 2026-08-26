@@ -1,0 +1,904 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rakip Reklam Raporu{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: #6366f1;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --gray: #64748b;
+        --light: #f8fafc;
+        --border: #e2e8f0;
+    }
+    
+    * { box-sizing: border-box; }
+    body { background: #f1f5f9; margin: 0; }
+    
+    .rapor-container {
+        display: flex;
+        min-height: calc(100vh - 56px);
+        background: #f1f5f9;
+    }
+    
+    .filter-sidebar {
+        width: 300px; min-width: 300px;
+        background: white;
+        border-right: 1px solid var(--border);
+        position: sticky; top: 0;
+        height: 100vh; z-index: 10;
+        display: flex; flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .filter-header-bar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1rem 1.2rem; background: white;
+        cursor: pointer; user-select: none;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0; z-index: 5;
+    }
+    .filter-header-bar:hover { background: #fafbfd; }
+    .filter-header-bar .filter-title {
+        font-size: 1rem; font-weight: 700; color: var(--dark);
+        display: flex; align-items: center; gap: 8px;
+    }
+    .filter-header-bar .filter-title i { color: var(--primary); }
+    .filter-header-bar .toggle-icon {
+        width: 32px; height: 32px; border-radius: 8px;
+        background: #f1f5f9; border: none;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem; color: var(--dark);
+        transition: transform 0.3s ease; cursor: pointer;
+    }
+    .filter-sidebar.open .filter-header-bar .toggle-icon {
+        transform: rotate(180deg); background: #e2e8f0;
+    }
+    
+    .filter-body-wrapper {
+        flex: 1; overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        max-height: 0;
+    }
+    .filter-sidebar.open .filter-body-wrapper {
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+    }
+    .filter-body-inner { padding: 0 1.2rem 1.5rem; border-top: 1px solid var(--border); }
+    
+    .filter-body-wrapper::-webkit-scrollbar { width: 5px; }
+    .filter-body-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    
+    .search-box-top { position: relative; margin-top: 1rem; margin-bottom: 0.8rem; }
+    .search-box-top input {
+        width: 100%; padding: 10px 12px 10px 38px;
+        border-radius: 10px; border: 1.5px solid var(--border);
+        font-size: 0.85rem; background: white;
+    }
+    .search-box-top .search-icon {
+        position: absolute; left: 12px; top: 50%;
+        transform: translateY(-50%); color: var(--gray); font-size: 0.9rem;
+    }
+    
+    .date-row { display: flex; gap: 8px; margin-bottom: 0.8rem; }
+    .date-row .date-field { flex: 1; }
+    .date-row .date-field label {
+        display: block; font-size: 0.65rem; font-weight: 700;
+        color: var(--dark); text-transform: uppercase;
+        letter-spacing: 0.5px; margin-bottom: 3px;
+    }
+    .date-row .date-field input {
+        width: 100%; padding: 7px 8px; border-radius: 8px;
+        border: 1.5px solid var(--border); font-size: 0.8rem; background: white;
+    }
+    
+    .filter-group { margin-bottom: 0.8rem; }
+    .filter-group label {
+        display: block; font-size: 0.65rem; font-weight: 700;
+        color: var(--dark); text-transform: uppercase;
+        letter-spacing: 0.5px; margin-bottom: 3px;
+    }
+    .filter-group select, .filter-group input {
+        width: 100%; padding: 8px 10px; border-radius: 8px;
+        border: 1.5px solid var(--border); font-size: 0.82rem; background: white;
+    }
+    
+    .filter-separator { border-top: 1px dashed var(--border); margin: 0.8rem 0; opacity: 0.6; }
+    
+    .btn-apply {
+        width: 100%; padding: 10px; background: var(--primary);
+        color: white; border: none; border-radius: 10px;
+        font-weight: 700; font-size: 0.85rem; cursor: pointer; margin-top: 0.3rem;
+    }
+    .btn-reset {
+        display: block; width: 100%; text-align: center;
+        padding: 8px; background: var(--border); color: var(--dark);
+        border-radius: 10px; text-decoration: none;
+        font-weight: 600; font-size: 0.8rem; margin-top: 0.4rem;
+    }
+    
+    .content-area { flex: 1; padding: 1.2rem; overflow-y: auto; height: 100vh; }
+    
+    .stats-row { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+    .stat-card {
+        flex: 1; background: white; border-radius: 10px;
+        padding: 0.6rem 0.4rem; text-align: center;
+        border: 1px solid var(--border);
+        min-width: 80px;
+    }
+    .stat-card .icon {
+        width: 28px; height: 28px; border-radius: 6px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; margin: 0 auto 4px;
+    }
+    .stat-card .icon.primary { background: #eef2ff; color: #6366f1; }
+    .stat-card .icon.success { background: #d1fae5; color: #10b981; }
+    .stat-card .icon.warning { background: #fef3c7; color: #f59e0b; }
+    .stat-card .icon.danger { background: #fee2e2; color: #ef4444; }
+    .stat-card .icon.info { background: #dbeafe; color: #3b82f6; }
+    .stat-card .value { font-size: 1rem; font-weight: 700; color: var(--dark); }
+    .stat-card .label { font-size: 0.6rem; color: var(--gray); text-transform: uppercase; font-weight: 600; }
+    
+    .table-container { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; overflow-x: auto; }
+    .table-container thead th {
+        background: #fafafa; font-size: 0.7rem; text-transform: uppercase;
+        font-weight: 700; color: var(--gray); padding: 0.7rem;
+        border-bottom: 2px solid var(--border); white-space: nowrap;
+    }
+    .table-container tbody td {
+        padding: 0.6rem 0.7rem; vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9; font-size: 0.82rem;
+    }
+    .table-container tbody tr { cursor: pointer; }
+    .table-container tbody tr:hover { background: #f8fafc; }
+    
+    .ad-thumb { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 2px solid var(--border); }
+    
+    .badge-status { padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+    .badge-active { background: #d1fae5; color: #065f46; }
+    .badge-paused { background: #fef3c7; color: #92400e; }
+    .badge-completed { background: #dbeafe; color: #1e40af; }
+    
+    .badge-score { padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
+    .badge-score.high { background: #d1fae5; color: #065f46; }
+    .badge-score.medium { background: #fef3c7; color: #92400e; }
+    .badge-score.low { background: #fee2e2; color: #991b1b; }
+    
+    .competitor-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+    
+    .clickable-name { color: var(--dark); font-weight: 600; font-size: 0.82rem; cursor: pointer; }
+    .clickable-name:hover { color: var(--primary); text-decoration: underline; }
+    
+    /* POPUP */
+    .phone-popup-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);
+        z-index: 99999; justify-content: center; align-items: center; padding: 1rem;
+    }
+    .phone-popup-overlay.active { display: flex; }
+    
+    .phone-frame {
+        width: 390px; max-width: 95vw; height: 750px; max-height: 90vh;
+        background: #0f172a; border-radius: 40px; padding: 12px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 3px #1e293b, 0 0 0 6px #0f172a;
+        position: relative;
+    }
+    .phone-notch { width: 140px; height: 28px; background: #0f172a; border-radius: 0 0 18px 18px; margin: 0 auto 6px; }
+    
+    .phone-screen {
+        background: white; border-radius: 28px;
+        height: calc(100% - 40px); overflow-y: auto;
+        display: flex; flex-direction: column;
+    }
+    .phone-screen::-webkit-scrollbar { width: 3px; }
+    .phone-screen::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    
+    .phone-app-header {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white; padding: 14px 16px;
+        position: sticky; top: 0; z-index: 5;
+        display: flex; align-items: center; justify-content: space-between;
+        border-radius: 28px 28px 0 0;
+    }
+    .phone-app-header .back-btn, .phone-app-header .menu-dots {
+        background: rgba(255,255,255,0.2); border: none;
+        color: white; width: 28px; height: 28px; border-radius: 50%;
+        font-size: 0.9rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .phone-app-header .header-title { font-size: 0.85rem; font-weight: 700; }
+    
+    .phone-body { padding: 14px; flex: 1; }
+    
+    .phone-media-area {
+        width: 100%; aspect-ratio: 1/1; background: #f1f5f9;
+        border-radius: 16px; overflow: hidden; margin-bottom: 12px;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .phone-media-area img, .phone-media-area video { width: 100%; height: 100%; object-fit: cover; }
+    .phone-media-area .no-media { color: #94a3b8; font-size: 0.8rem; text-align: center; }
+    
+    .phone-ad-title { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+    .phone-ad-account { font-size: 0.75rem; color: var(--gray); margin-bottom: 8px; }
+    .phone-status-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+    
+    .accordion-section { margin-bottom: 6px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; background: white; }
+    .accordion-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 11px 14px; background: #f8fafc; cursor: pointer;
+        border: none; width: 100%; text-align: left;
+    }
+    .accordion-header:hover { background: #f1f5f9; }
+    .accordion-header .acc-title { font-size: 0.7rem; font-weight: 700; color: #334155; text-transform: uppercase; }
+    .accordion-header .acc-icon { font-size: 0.7rem; color: #64748b; transition: transform 0.3s; }
+    .accordion-section.open .accordion-header .acc-icon { transform: rotate(180deg); }
+    .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.35s; }
+    .accordion-section.open .accordion-body { max-height: 800px; }
+    .accordion-content { padding: 12px 14px; border-top: 1px solid #e2e8f0; }
+    
+    .phone-metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .phone-metric-item {
+        background: #f8fafc; border-radius: 10px; padding: 10px;
+        text-align: center; border: 1px solid #e2e8f0;
+    }
+    .phone-metric-item .pm-value { font-size: 1rem; font-weight: 700; color: #0f172a; }
+    .phone-metric-item .pm-label { font-size: 0.58rem; color: var(--gray); text-transform: uppercase; font-weight: 600; margin-top: 2px; }
+    
+    .phone-metric-full {
+        background: #f8fafc; border-radius: 10px; padding: 10px 12px;
+        display: flex; justify-content: space-between; align-items: center;
+        border: 1px solid #e2e8f0; margin-bottom: 6px;
+    }
+    .phone-metric-full:last-child { margin-bottom: 0; }
+    .phone-metric-full .pmf-label { font-size: 0.7rem; font-weight: 600; color: #334155; }
+    .phone-metric-full .pmf-value { font-size: 0.9rem; font-weight: 700; color: #0f172a; }
+    
+    .heatmap-bar { display: flex; height: 28px; border-radius: 8px; overflow: hidden; gap: 2px; margin-bottom: 6px; }
+    .heatmap-segment { display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: white; }
+    .heatmap-labels { display: flex; justify-content: space-between; font-size: 0.6rem; color: #64748b; }
+    
+    .demographic-bar-container { margin-bottom: 6px; }
+    .demographic-bar-label { display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 500; color: #475569; margin-bottom: 3px; }
+    .demographic-bar { height: 20px; background: #e2e8f0; border-radius: 6px; overflow: hidden; }
+    .demographic-bar-fill { height: 100%; border-radius: 6px; transition: width 0.4s; }
+    
+    .phone-action-row { display: flex; gap: 8px; margin-top: 12px; }
+    .phone-btn { flex: 1; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 0.78rem; border: none; cursor: pointer; }
+    .phone-btn.outline { background: white; color: var(--primary); border: 1.5px solid var(--primary); }
+    
+    .close-phone-popup {
+        position: absolute; top: -40px; right: 0;
+        background: rgba(255,255,255,0.15); border: none;
+        color: white; width: 32px; height: 32px; border-radius: 50%;
+        font-size: 1rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+    
+    .source-info { background: #f1f5f9; border-radius: 10px; padding: 10px; margin-top: 10px; text-align: center; font-size: 0.7rem; color: #64748b; }
+    
+    @media (max-width: 768px) {
+        .rapor-container { flex-direction: column; }
+        .filter-sidebar { width: 100%; min-width: 100%; height: auto; position: relative; max-height: 50vh; }
+        .stats-row { flex-wrap: wrap; }
+        .stat-card { flex: 0 0 calc(33.33% - 4px); }
+        .phone-frame { width: 340px; height: 650px; border-radius: 30px; padding: 8px; }
+        .phone-screen { border-radius: 22px; }
+        .phone-app-header { border-radius: 22px 22px 0 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rapor-container">
+    
+    <!-- SOL FÄ°LTRE -->
+    <div class="filter-sidebar open" id="filterSidebar">
+        <div class="filter-header-bar" id="filterToggle">
+            <span class="filter-title"><i class="fas fa-sliders-h"></i> Filtreler</span>
+            <button class="toggle-icon"><i class="fas fa-chevron-up"></i></button>
+        </div>
+        <div class="filter-body-wrapper" id="filterBody">
+            <div class="filter-body-inner">
+                <form method="GET" action="{% url 'rakip_reklam_raporu' %}" id="filterForm">
+                    <div class="search-box-top">
+                        <span class="search-icon"><i class="fas fa-search"></i></span>
+                        <input type="text" name="arama" id="arama" value="{{ filtre_arama }}" placeholder="Reklam adÄ± ara...">
+                    </div>
+                    
+                    <div class="date-row">
+                        <div class="date-field">
+                            <label>ğŸ“… BaÅŸlangÄ±Ã§</label>
+                            <input type="date" name="baslangic_tarih" id="baslangic_tarih" value="{{ filtre_baslangic }}">
+                        </div>
+                        <div class="date-field">
+                            <label>ğŸ“… BitiÅŸ</label>
+                            <input type="date" name="bitis_tarih" id="bitis_tarih" value="{{ filtre_bitis }}">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-separator"></div>
+                    
+                    <div class="filter-group">
+                        <label>ğŸ‘¥ Rakip</label>
+                        <select name="rakip" id="rakip">
+                            <option value="">TÃ¼m Rakipler</option>
+                            {% for comp in competitors %}
+                            <option value="{{ comp.id }}" {% if filtre_rakip == comp.id|stringformat:"s" %}selected{% endif %}>@{{ comp.instagram_username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>ğŸ–¼ï¸ Medya Tipi</label>
+                        <select name="medya_tipi" id="medya_tipi">
+                            <option value="">TÃ¼mÃ¼</option>
+                            <option value="image" {% if filtre_medya_tipi == 'image' %}selected{% endif %}>ğŸ“¸ GÃ¶rsel</option>
+                            <option value="video" {% if filtre_medya_tipi == 'video' %}selected{% endif %}>ğŸ¥ Video</option>
+                            <option value="carousel" {% if filtre_medya_tipi == 'carousel' %}selected{% endif %}>ğŸ–¼ï¸ Carousel</option>
+                            <option value="reels" {% if filtre_medya_tipi == 'reels' %}selected{% endif %}>ğŸ“± Reels</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>ğŸ“Š Durum</label>
+                        <select name="durum" id="durum">
+                            <option value="">TÃ¼mÃ¼</option>
+                            <option value="ACTIVE" {% if filtre_durum == 'ACTIVE' %}selected{% endif %}>âœ… Aktif</option>
+                            <option value="PAUSED" {% if filtre_durum == 'PAUSED' %}selected{% endif %}>â¸ï¸ DuraklatÄ±ldÄ±</option>
+                            <option value="COMPLETED" {% if filtre_durum == 'COMPLETED' %}selected{% endif %}>âœ… TamamlandÄ±</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn-apply"><i class="fas fa-filter"></i> Filtreleri Uygula</button>
+                    <a href="{% url 'rakip_reklam_raporu' %}" class="btn-reset"><i class="fas fa-sync-alt"></i> SÄ±fÄ±rla</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SAÄ Ä°Ã‡ERÄ°K -->
+    <div class="content-area">
+        <div class="stats-row">
+            <div class="stat-card"><div class="icon primary"><i class="fas fa-ad"></i></div><div class="value">{{ toplam_reklam }}</div><div class="label">Rakip Reklam</div></div>
+            <div class="stat-card"><div class="icon info"><i class="fas fa-eye"></i></div><div class="value">{{ toplam_gosterim|default:"0" }}</div><div class="label">GÃ¶sterim</div></div>
+            <div class="stat-card"><div class="icon success"><i class="fas fa-mouse-pointer"></i></div><div class="value">{{ toplam_tiklama|default:"0" }}</div><div class="label">TÄ±klama</div></div>
+            <div class="stat-card"><div class="icon warning"><i class="fas fa-turkish-lira-sign"></i></div><div class="value">{{ toplam_harcama|tr_decimal }} â‚º</div><div class="label">Harcama</div></div>
+            <div class="stat-card"><div class="icon primary"><i class="fas fa-bullseye"></i></div><div class="value">{{ toplam_donusum|default:"0" }}</div><div class="label">DÃ¶nÃ¼ÅŸÃ¼m</div></div>
+            <div class="stat-card"><div class="icon danger"><i class="fas fa-star"></i></div><div class="value">%{{ ortalama_ctr }}</div><div class="label">Ort. CTR</div></div>
+        </div>
+        
+        <!-- Ä°kinci istatistik satÄ±rÄ± -->
+        <div class="stats-row">
+            <div class="stat-card"><div class="icon success"><i class="fas fa-heart"></i></div><div class="value">{{ toplam_begeni|default:"0" }}</div><div class="label">BeÄŸeni</div></div>
+            <div class="stat-card"><div class="icon info"><i class="fas fa-comment"></i></div><div class="value">{{ toplam_yorum|default:"0" }}</div><div class="label">Yorum</div></div>
+            <div class="stat-card"><div class="icon warning"><i class="fas fa-share"></i></div><div class="value">{{ toplam_paylasim|default:"0" }}</div><div class="label">PaylaÅŸÄ±m</div></div>
+            <div class="stat-card"><div class="icon primary"><i class="fas fa-bookmark"></i></div><div class="value">{{ toplam_kaydetme|default:"0" }}</div><div class="label">Kaydetme</div></div>
+            <div class="stat-card"><div class="icon danger"><i class="fas fa-chart-line"></i></div><div class="value">%{{ ortalama_etkilesim }}</div><div class="label">Ort. EtkileÅŸim</div></div>
+            <div class="stat-card"><div class="icon success"><i class="fas fa-trophy"></i></div><div class="value">%{{ ortalama_roi }}</div><div class="label">Ort. ROI</div></div>
+        </div>
+        
+        {% if reklamlar %}
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Reklam</th><th>Rakip</th><th>TÃ¼r</th><th>Durum</th>
+                        <th>GÃ¶sterim</th><th>TÄ±klama</th><th>CTR</th>
+                        <th>BÃ¼tÃ§e</th><th>Harcama</th><th>Skor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reklam in reklamlar %}
+                    <tr>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                {% if reklam.media_url %}
+                                <img src="{{ reklam.media_url }}" class="ad-thumb" style="cursor:pointer;" onclick="openPhonePopup('{{ reklam.instagram_ad_id }}')">
+                                {% elif reklam.thumbnail_url %}
+                                <img src="{{ reklam.thumbnail_url }}" class="ad-thumb" style="cursor:pointer;" onclick="openPhonePopup('{{ reklam.instagram_ad_id }}')">
+                                {% else %}
+                                <div style="width:40px;height:40px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="openPhonePopup('{{ reklam.instagram_ad_id }}')">
+                                    <i class="fas fa-image" style="color:#94a3b8;"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <div class="clickable-name" onclick="openPhonePopup('{{ reklam.instagram_ad_id }}')">{{ reklam.name|truncatechars:30 }}</div>
+                                    <small style="color:var(--gray);">{{ reklam.created_at|date:"d.m.Y" }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="competitor-badge">@{{ reklam.competitor_username|default:"-" }}</span>
+                        </td>
+                        <td>{{ reklam.media_type|default:"image" }}</td>
+                        <td>
+                            {% if reklam.status == 'ACTIVE' %}<span class="badge-status badge-active">Aktif</span>
+                            {% elif reklam.status == 'PAUSED' %}<span class="badge-status badge-paused">Durdu</span>
+                            {% elif reklam.status == 'COMPLETED' %}<span class="badge-status badge-completed">Bitti</span>
+                            {% else %}<span class="badge-status badge-completed">{{ reklam.status }}</span>{% endif %}
+                        </td>
+                        <td>{{ reklam.impressions }}</td>
+                        <td>{{ reklam.clicks }}</td>
+                        <td style="font-weight:600;">%{{ reklam.ctr|tr_decimal }}</td>
+                        <td>{{ reklam.budget|tr_decimal }} â‚º</td>
+                        <td style="color:var(--danger);">{{ reklam.spend|tr_decimal }} â‚º</td>
+                        <td>
+                            {% if reklam.performance_score >= 70 %}<span class="badge-score high">{{ reklam.performance_score }}</span>
+                            {% elif reklam.performance_score >= 40 %}<span class="badge-score medium">{{ reklam.performance_score }}</span>
+                            {% else %}<span class="badge-score low">{{ reklam.performance_score }}</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="table-container" style="text-align:center;padding:3rem;">
+            <i class="fas fa-search" style="font-size:3rem;color:#cbd5e1;margin-bottom:1rem;"></i>
+            <h5>Rakip Reklam BulunamadÄ±</h5>
+            <p style="color:var(--gray);">Filtreleri deÄŸiÅŸtirerek tekrar deneyin.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- POPUP -->
+<div class="phone-popup-overlay" id="phonePopup">
+    <div class="phone-frame">
+        <button class="close-phone-popup" onclick="closePhonePopup()"><i class="fas fa-times"></i></button>
+        <div class="phone-notch"></div>
+        <div class="phone-screen" id="phoneScreen">
+            <div class="phone-app-header">
+                <button class="back-btn" onclick="closePhonePopup()"><i class="fas fa-chevron-left"></i></button>
+                <span class="header-title">Rakip Reklam DetayÄ±</span>
+                <button class="menu-dots"><i class="fas fa-ellipsis-v"></i></button>
+            </div>
+            <div class="phone-body" id="phoneBody">
+                <div style="text-align:center;padding:40px;color:#94a3b8;">
+                    <i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+                    YÃ¼kleniyor...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ========== VERÄ°TABANINDAN GELEN VERÄ°LER ==========
+const reklamData = {
+    {% for reklam in reklamlar %}
+    "{{ reklam.instagram_ad_id }}": {
+        name: "{{ reklam.name|escapejs }}",
+        competitorUsername: "{{ reklam.competitor_username|default:'-'|escapejs }}",
+        competitorFullName: "{{ reklam.competitor_full_name|default:''|escapejs }}",
+        mediaUrl: "{{ reklam.media_url|default:'' }}",
+        mediaType: "{{ reklam.media_type|default:'image' }}",
+        status: "{{ reklam.status|default:'ACTIVE' }}",
+        description: "{{ reklam.description|default:''|escapejs }}",
+        createdAt: "{{ reklam.created_at|date:'d.m.Y H:i' }}",
+        dataSource: "{{ reklam.data_source|default:'-' }}",
+        title: "{{ reklam.title|default:''|escapejs }}",
+        thumbnailUrl: "{{ reklam.thumbnail_url|default:'' }}",
+        
+        impressions: "{{ reklam.impressions|default:'0' }}",
+        clicks: "{{ reklam.clicks|default:'0' }}",
+        ctr: "{{ reklam.ctr|default:'0' }}",
+        reach: "{{ reklam.reach|default:'0' }}",
+        frequency: "{{ reklam.frequency|default:'0' }}",
+        engagement: "{{ reklam.engagement|default:'0' }}",
+        engagementRate: "{{ reklam.engagement_rate|default:'0' }}",
+        conversions: "{{ reklam.conversions|default:'0' }}",
+        conversionRate: "{{ reklam.conversion_rate|default:'0' }}",
+        performanceScore: "{{ reklam.performance_score|default:'0' }}",
+        
+        spend: "{{ reklam.spend|default:'0' }}",
+        budget: "{{ reklam.budget|default:'0' }}",
+        budgetUsagePercent: "{{ reklam.budget_usage_percent|default:'0' }}",
+        cpm: "{{ reklam.cpm|default:'0' }}",
+        cpc: "{{ reklam.cpc|default:'0' }}",
+        roi: "{{ reklam.roi|default:'0' }}",
+        
+        likes: "{{ reklam.likes|default:'0' }}",
+        comments: "{{ reklam.comments|default:'0' }}",
+        shares: "{{ reklam.shares|default:'0' }}",
+        saves: "{{ reklam.saves|default:'0' }}",
+        videoViews: "{{ reklam.video_views|default:'0' }}",
+        videoCompletionRate: "{{ reklam.video_completion_rate|default:'0' }}",
+        profileVisits: "{{ reklam.profile_visits|default:'0' }}",
+        websiteVisits: "{{ reklam.website_visits|default:'0' }}",
+        
+        ageDistribution: {{ reklam.age_distribution|default:'{}'|safe }},
+        genderSplit: {{ reklam.gender_split|default:'{}'|safe }},
+        cityDistribution: {{ reklam.city_distribution|default:'{}'|safe }},
+        deviceSplit: {{ reklam.device_split|default:'{}'|safe }},
+        hourlyEngagement: {{ reklam.hourly_engagement|default:'[]'|safe }},
+        peakHours: {{ reklam.peak_hours|default:'[]'|safe }},
+        hashtags: {{ reklam.hashtags|default:'[]'|safe }},
+        
+        notes: "{{ reklam.notes|default:''|escapejs }}",
+        tags: "{{ reklam.tags|default:''|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+// ========== FÄ°LTRE TOGGLE ==========
+document.addEventListener('DOMContentLoaded', function() {
+    const filterSidebar = document.getElementById('filterSidebar');
+    const filterToggle = document.getElementById('filterToggle');
+    if (filterToggle) {
+        filterToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterSidebar.classList.toggle('open');
+        });
+    }
+    filterSidebar.classList.add('open');
+});
+
+// ========== ACCORDION ==========
+function toggleAccordion(header) {
+    const section = header.closest('.accordion-section');
+    if (section) section.classList.toggle('open');
+}
+
+// ========== YARDIMCI FONKSÄ°YONLAR ==========
+function getHeatColor(v) {
+    const val = parseInt(v) || 0;
+    if (val >= 70) return '#ef4444';
+    if (val >= 50) return '#f97316';
+    if (val >= 30) return '#f59e0b';
+    return '#10b981';
+}
+
+function getScoreColor(v) {
+    const val = parseInt(v) || 0;
+    if (val >= 70) return '#10b981';
+    if (val >= 40) return '#f59e0b';
+    return '#ef4444';
+}
+
+function parseJSONField(data, defaultValue) {
+    if (typeof data === 'string') {
+        try { return JSON.parse(data); }
+        catch(e) { return defaultValue; }
+    }
+    return data || defaultValue;
+}
+
+function buildBarHTML(label, value, color, maxValue) {
+    const pct = Math.min(100, Math.max(0, parseFloat(value) || 0));
+    const displayMax = maxValue || 100;
+    const width = Math.min(100, (pct / displayMax) * 100);
+    return `
+        <div class="demographic-bar-container">
+            <div class="demographic-bar-label"><span>${label}</span><span>%${pct.toFixed(1)}</span></div>
+            <div class="demographic-bar"><div class="demographic-bar-fill" style="width:${width}%; background:${color};"></div></div>
+        </div>`;
+}
+
+function formatNumber(num) {
+    return window.raFormatNumber(num);
+}
+
+function formatCurrency(num) {
+    return window.raFormatMoney(num);
+}
+
+// ========== POPUP ==========
+function openPhonePopup(adId) {
+    const ad = reklamData[adId];
+    if (!ad) return;
+    
+    const phoneScreen = document.getElementById('phoneScreen');
+    
+    const ageDist = parseJSONField(ad.ageDistribution, {});
+    const genderSplit = parseJSONField(ad.genderSplit, {});
+    const cityDist = parseJSONField(ad.cityDistribution, {});
+    const deviceSplit = parseJSONField(ad.deviceSplit, {});
+    const hourlyEng = parseJSONField(ad.hourlyEngagement, []);
+    const peakHours = parseJSONField(ad.peakHours, []);
+    const hashtags = parseJSONField(ad.hashtags, []);
+    
+    const statusMap = {
+        'ACTIVE': '<span class="badge-status badge-active">âœ… Aktif</span>',
+        'PAUSED': '<span class="badge-status badge-paused">â¸ï¸ DuraklatÄ±ldÄ±</span>',
+        'COMPLETED': '<span class="badge-status badge-completed">âœ… TamamlandÄ±</span>',
+    };
+    const statusBadge = statusMap[ad.status] || '<span class="badge-status badge-completed">' + ad.status + '</span>';
+    
+    const score = parseInt(ad.performanceScore) || 0;
+    let scoreBadge = '';
+    if (score >= 70) scoreBadge = '<span class="badge-score high">â­ ' + score + '/100</span>';
+    else if (score >= 40) scoreBadge = '<span class="badge-score medium">â­ ' + score + '/100</span>';
+    else scoreBadge = '<span class="badge-score low">â­ ' + score + '/100</span>';
+    
+    let mediaHtml = '';
+    if (ad.mediaUrl) {
+        if (ad.mediaType === 'video' || ad.mediaType === 'reels') {
+            mediaHtml = '<div class="phone-media-area"><video controls autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"><source src="' + ad.mediaUrl + '" type="video/mp4"></video></div>';
+        } else {
+            mediaHtml = '<div class="phone-media-area"><img src="' + ad.mediaUrl + '" alt="' + ad.name + '" style="width:100%;height:100%;object-fit:cover;"></div>';
+        }
+    } else if (ad.thumbnailUrl) {
+        mediaHtml = '<div class="phone-media-area"><img src="' + ad.thumbnailUrl + '" alt="' + ad.name + '" style="width:100%;height:100%;object-fit:cover;"></div>';
+    } else {
+        mediaHtml = '<div class="phone-media-area"><div class="no-media"><i class="fas fa-image" style="font-size:2.5rem;display:block;margin-bottom:8px;"></i>GÃ¶rsel bulunamadÄ±</div></div>';
+    }
+    
+    let descHtml = '';
+    if (ad.description) {
+        descHtml = '<p style="font-size:0.78rem;color:#475569;margin-bottom:10px;line-height:1.5;">' + ad.description + '</p>';
+    }
+    
+    // IsÄ± haritasÄ±
+    let heatmapHtml = '<p style="font-size:0.7rem;color:#94a3b8;text-align:center;">IsÄ± haritasÄ± verisi bulunamadÄ±</p>';
+    if (hourlyEng && hourlyEng.length > 0) {
+        const groups = [
+            { name: 'ğŸŒ… Sabah', hours: [6,7,8,9], total: 0 },
+            { name: 'â˜€ï¸ Ã–ÄŸle', hours: [10,11,12,13], total: 0 },
+            { name: 'ğŸŒ¤ï¸ Ã–.Sonra', hours: [14,15,16,17], total: 0 },
+            { name: 'ğŸŒ† AkÅŸam', hours: [18,19,20,21], total: 0 },
+            { name: 'ğŸŒ™ Gece', hours: [22,23,0,1,2,3,4,5], total: 0 }
+        ];
+        
+        groups.forEach(g => {
+            g.hours.forEach(h => {
+                if (hourlyEng[h] !== undefined) g.total += (parseInt(hourlyEng[h]) || 0);
+            });
+        });
+        
+        const total = groups.reduce((sum, g) => sum + g.total, 0) || 1;
+        
+        heatmapHtml = '<div class="heatmap-bar">';
+        groups.forEach(g => {
+            const pct = Math.round((g.total / total) * 100);
+            heatmapHtml += `<div class="heatmap-segment" style="flex:${pct || 1};background:${getHeatColor(pct)}" title="${g.name}: ${pct}%">${pct}%</div>`;
+        });
+        heatmapHtml += '</div><div class="heatmap-labels">';
+        groups.forEach(g => { heatmapHtml += '<span>' + g.name + '</span>'; });
+        heatmapHtml += '</div>';
+        
+        if (peakHours && peakHours.length > 0) {
+            heatmapHtml += '<p style="font-size:0.65rem;color:#64748b;margin-top:6px;">ğŸ”¥ Pik Saatler: <strong>' + peakHours.map(h => h + ':00').join(', ') + '</strong></p>';
+        }
+    }
+    
+    // Demografi
+    let demoHtml = '<p style="font-size:0.7rem;color:#94a3b8;text-align:center;">Demografi verisi bulunamadÄ±</p>';
+    if (Object.keys(ageDist).length > 0) {
+        demoHtml = '<div style="font-size:0.65rem;font-weight:700;color:#64748b;margin-bottom:8px;">ğŸ“… YaÅŸ GruplarÄ±</div>';
+        const ageColors = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe'];
+        let colorIdx = 0;
+        const ageEntries = Object.entries(ageDist);
+        const ageMax = Math.max(...ageEntries.map(([,v]) => parseFloat(v) || 0), 100);
+        
+        ageEntries.forEach(([label, value]) => {
+            demoHtml += buildBarHTML(label, value, ageColors[colorIdx % ageColors.length], ageMax);
+            colorIdx++;
+        });
+        
+        if (Object.keys(genderSplit).length > 0) {
+            demoHtml += '<div style="font-size:0.65rem;font-weight:700;color:#64748b;margin:8px 0 6px;">âš¥ Cinsiyet DaÄŸÄ±lÄ±mÄ±</div>';
+            demoHtml += '<div class="phone-metrics-grid">';
+            Object.entries(genderSplit).forEach(([label, value]) => {
+                const color = (label.toLowerCase().includes('erkek') || label.toLowerCase().includes('male')) ? '#3b82f6' : '#ec4899';
+                const icon = (label.toLowerCase().includes('erkek') || label.toLowerCase().includes('male')) ? 'â™‚ï¸' : 'â™€ï¸';
+                demoHtml += `<div class="phone-metric-item"><div class="pm-value" style="color:${color};">%${parseFloat(value).toFixed(1)}</div><div class="pm-label">${icon} ${label}</div></div>`;
+            });
+            demoHtml += '</div>';
+        }
+    }
+    
+    // Åehir daÄŸÄ±lÄ±mÄ±
+    let cityHtml = '<p style="font-size:0.7rem;color:#94a3b8;text-align:center;">Åehir verisi bulunamadÄ±</p>';
+    if (Object.keys(cityDist).length > 0) {
+        cityHtml = '';
+        const cityColors = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe', '#f3e8ff'];
+        let cIdx = 0;
+        const cityEntries = Object.entries(cityDist).sort(([,a], [,b]) => (parseFloat(b)||0) - (parseFloat(a)||0)).slice(0, 8);
+        const cityMax = Math.max(...cityEntries.map(([,v]) => parseFloat(v) || 0), 100);
+        
+        cityEntries.forEach(([label, value]) => {
+            cityHtml += buildBarHTML(label, value, cityColors[cIdx % cityColors.length], cityMax);
+            cIdx++;
+        });
+    }
+    
+    // Cihaz daÄŸÄ±lÄ±mÄ±
+    let deviceHtml = '<p style="font-size:0.7rem;color:#94a3b8;text-align:center;">Cihaz verisi bulunamadÄ±</p>';
+    if (Object.keys(deviceSplit).length > 0) {
+        deviceHtml = '<div class="phone-metrics-grid">';
+        Object.entries(deviceSplit).forEach(([label, value]) => {
+            let icon = 'ğŸ“±';
+            if (label.toLowerCase().includes('desktop') || label.toLowerCase().includes('masa')) icon = 'ğŸ’»';
+            else if (label.toLowerCase().includes('tablet')) icon = 'ğŸ“‹';
+            deviceHtml += `<div class="phone-metric-item"><div class="pm-value">%${parseFloat(value).toFixed(1)}</div><div class="pm-label">${icon} ${label}</div></div>`;
+        });
+        deviceHtml += '</div>';
+    }
+    
+    // Hashtagler
+    let hashtagHtml = '';
+    if (hashtags && hashtags.length > 0) {
+        hashtagHtml = '<div style="font-size:0.65rem;font-weight:700;color:#64748b;margin-top:8px;">#ï¸âƒ£ Hashtag\'ler</div>';
+        hashtagHtml += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">';
+        hashtags.forEach(tag => {
+            hashtagHtml += '<span style="background:#eef2ff;color:#6366f1;padding:2px 8px;border-radius:12px;font-size:0.65rem;">#' + tag + '</span>';
+        });
+        hashtagHtml += '</div>';
+    }
+    
+    document.getElementById('phoneBody').innerHTML = `
+        ${mediaHtml}
+        <div class="phone-ad-title">${ad.name}</div>
+        <div class="phone-ad-account">
+            ğŸ¢ Rakip: @${ad.competitorUsername} Â· ${ad.createdAt}
+            ${ad.competitorFullName ? '<br>ğŸ“› ' + ad.competitorFullName : ''}
+        </div>
+        <div class="phone-status-row">
+            ${statusBadge} ${scoreBadge}
+        </div>
+        ${ad.title ? '<p style="font-size:0.85rem;font-weight:600;color:#1e293b;margin-bottom:4px;">' + ad.title + '</p>' : ''}
+        ${descHtml}
+        
+        <!-- 1. PERFORMANS METRÄ°KLERÄ° -->
+        <div class="accordion-section open">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="acc-title">ğŸ“Š Performans Metrikleri</span>
+                <span class="acc-icon">â–¼</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-content">
+                <div class="phone-metrics-grid">
+                    <div class="phone-metric-item"><div class="pm-value">${formatNumber(ad.impressions)}</div><div class="pm-label">ğŸ‘ï¸ GÃ¶sterim</div></div>
+                    <div class="phone-metric-item"><div class="pm-value">${formatNumber(ad.reach)}</div><div class="pm-label">ğŸ“ EriÅŸim</div></div>
+                    <div class="phone-metric-item"><div class="pm-value">${formatNumber(ad.clicks)}</div><div class="pm-label">ğŸ–±ï¸ TÄ±klama</div></div>
+                    <div class="phone-metric-item"><div class="pm-value">%${parseFloat(ad.ctr).toFixed(2)}</div><div class="pm-label">ğŸ“Š CTR</div></div>
+                    <div class="phone-metric-item"><div class="pm-value">${formatNumber(ad.engagement)}</div><div class="pm-label">ğŸ’¬ EtkileÅŸim</div></div>
+                    <div class="phone-metric-item"><div class="pm-value">%${parseFloat(ad.engagementRate).toFixed(2)}</div><div class="pm-label">ğŸ“ˆ EtkileÅŸim OranÄ±</div></div>
+                    <div class="phone-metric-item"><div class="pm-value">${formatNumber(ad.conversions)}</div><div class="pm-label">ğŸ¯ DÃ¶nÃ¼ÅŸÃ¼m</div></div>
+                    <div class="phone-metric-item"><div class="pm-value">%${parseFloat(ad.conversionRate).toFixed(2)}</div><div class="pm-label">ğŸ“Š DÃ¶nÃ¼ÅŸÃ¼m OranÄ±</div></div>
+                </div>
+                ${parseFloat(ad.frequency) > 0 ? '<div class="phone-metric-full"><span class="pmf-label">ğŸ”„ Frekans</span><span class="pmf-value">' + parseFloat(ad.frequency).toFixed(1) + '</span></div>' : ''}
+            </div></div>
+        </div>
+        
+        <!-- 2. VÄ°DEO METRÄ°KLERÄ° -->
+        ${(ad.mediaType === 'video' || ad.mediaType === 'reels') && (parseFloat(ad.videoViews) > 0 || parseFloat(ad.videoCompletionRate) > 0) ? `
+        <div class="accordion-section">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="acc-title">â–¶ï¸ Video Metrikleri</span>
+                <span class="acc-icon">â–¼</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-content">
+                ${parseFloat(ad.videoViews) > 0 ? '<div class="phone-metric-full"><span class="pmf-label">ğŸ‘ï¸ Video Ä°zlenme</span><span class="pmf-value">' + formatNumber(ad.videoViews) + '</span></div>' : ''}
+                ${parseFloat(ad.videoCompletionRate) > 0 ? '<div class="phone-metric-full"><span class="pmf-label">âœ… Tamamlanma OranÄ±</span><span class="pmf-value">%' + parseFloat(ad.videoCompletionRate).toFixed(1) + '</span></div>' : ''}
+            </div></div>
+        </div>` : ''}
+        
+        <!-- 3. ISI HARÄ°TASI -->
+        <div class="accordion-section">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="acc-title">ğŸ”¥ EtkileÅŸim Saatleri (IsÄ± HaritasÄ±)</span>
+                <span class="acc-icon">â–¼</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-content">${heatmapHtml}</div></div>
+        </div>
+        
+        <!-- 4. BÃœTÃ‡E & HARCAMA -->
+        <div class="accordion-section">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="acc-title">ğŸ’° BÃ¼tÃ§e & Harcama</span>
+                <span class="acc-icon">â–¼</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-content">
+                <div class="phone-metric-full"><span class="pmf-label">ğŸ’° Harcama</span><span class="pmf-value" style="color:#ef4444;">${formatCurrency(ad.spend)}</span></div>
+                <div class="phone-metric-full"><span class="pmf-label">ğŸ’µ BÃ¼tÃ§e</span><span class="pmf-value">${formatCurrency(ad.budget)}</span></div>
+                <div class="phone-metric-full"><span class="pmf-label">ğŸ“Š BÃ¼tÃ§e KullanÄ±mÄ±</span><span class="pmf-value">%${parseFloat(ad.budgetUsagePercent).toFixed(1)}</span></div>
+                <div class="phone-metric-full"><span class="pmf-label">ğŸ“ˆ CPM (1000 GÃ¶sterim)</span><span class="pmf-value">${formatCurrency(ad.cpm)}</span></div>
+                <div class="phone-metric-full"><span class="pmf-label">ğŸ’¸ CPC (TÄ±klama BaÅŸÄ±)</span><span class="pmf-value">${formatCurrency(ad.cpc)}</span></div>
+                <div class="phone-metric-full"><span class="pmf-label">ğŸ“Š ROI</span><span class="pmf-value" style="color:${getScoreColor(ad.roi)};">%${parseFloat(ad.roi).toFixed(2)}</span></div>
+            </div></div>
+        </div>
+        
+        <!-- 5. DEMOGRAFÄ° -->
+        <div class="accordion-section">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="acc-title">ğŸ‘¥ Demografi - YaÅŸ & Cinsiyet</span>
+                <span class="acc-icon">â–¼</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-content">${demoHtml}</div></div>
+        </div>
+        
+        <!-- 6. ETKÄ°LEÅÄ°M DETAYLARI -->
+        <div class="accordion-section">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="acc-title">â¤ï¸ EtkileÅŸim DetaylarÄ±</span>
+                <span class="acc-icon">â–¼</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-content">
+                <div class="phone-metrics-grid">
+                    <div class="phone-metric-item"><div class="pm-value" style="color:#ef4444;">${formatNumber(ad.likes)}</div><div class="pm-label">â¤ï¸ BeÄŸeni</div></div>
+                    <div class="phone-metric-item"><div class="pm-value" style="color:#3b82f6;">${formatNumber(ad.comments)}</div><div class="pm-label">ğŸ’¬ Yorum</div></div>
+                    <div class="phone-metric-item"><div class="pm-value" style="color:#10b981;">${formatNumber(ad.shares)}</div><div class="pm-label">ğŸ”„ PaylaÅŸÄ±m</div></div>
+                    <div class="phone-metric-item"><div class="pm-value" style="color:#f59e0b;">${formatNumber(ad.saves)}</div><div class="pm-label">ğŸ”– Kaydetme</div></div>
+                </div>
+                ${parseFloat(ad.profileVisits) > 0 ? '<div class="phone-metric-full"><span class="pmf-label">ğŸ‘¤ Profil Ziyareti</span><span class="pmf-value">' + formatNumber(ad.profileVisits) + '</span></div>' : ''}
+                ${parseFloat(ad.websiteVisits) > 0 ? '<div class="phone-metric-full"><span class="pmf-label">ğŸŒ Web Ziyareti</span><span class="pmf-value">' + formatNumber(ad.websiteVisits) + '</span></div>' : ''}
+            </div></div>
+        </div>
+        
+        <!-- 7. ÅEHÄ°R DAÄILIMI -->
+        <div class="accordion-section">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="acc-title">ğŸŒ Åehir DaÄŸÄ±lÄ±mÄ±</span>
+                <span class="acc-icon">â–¼</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-content">${cityHtml}</div></div>
+        </div>
+        
+        <!-- 8. CÄ°HAZ DAÄILIMI -->
+        <div class="accordion-section">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="acc-title">ğŸ“± Cihaz DaÄŸÄ±lÄ±mÄ±</span>
+                <span class="acc-icon">â–¼</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-content">${deviceHtml}</div></div>
+        </div>
+        
+        <!-- 9. HASHTAG'LER -->
+        ${hashtagHtml ? `
+        <div class="accordion-section">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span class="acc-title">#ï¸âƒ£ Hashtag'ler</span>
+                <span class="acc-icon">â–¼</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-content">${hashtagHtml}</div></div>
+        </div>` : ''}
+        
+        <!-- Kaynak bilgisi -->
+        <div class="source-info">
+            ğŸ“¡ Veri KaynaÄŸÄ±: <strong>${ad.dataSource}</strong>
+            ${ad.tags ? ' Â· ğŸ·ï¸ <strong>' + ad.tags + '</strong>' : ''}
+            <br>ğŸ• GÃ¼ncelleme: ${ad.createdAt}
+        </div>
+        
+        <div class="phone-action-row">
+            <button class="phone-btn outline" onclick="closePhonePopup()"><i class="fas fa-times"></i> Kapat</button>
+        </div>
+    `;
+    
+    document.getElementById('phonePopup').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    if (phoneScreen) {
+        phoneScreen.scrollTo({ top: 0, behavior: 'instant' });
+    }
+}
+
+function closePhonePopup() {
+    document.getElementById('phonePopup').classList.remove('active');
+    document.body.style.overflow = '';
+    const video = document.querySelector('#phoneBody video');
+    if (video) video.pause();
+}
+
+document.getElementById('phonePopup').addEventListener('click', function(e) {
+    if (e.target === this) closePhonePopup();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePhonePopup();
+});
+</script>
+{% endblock %}
+

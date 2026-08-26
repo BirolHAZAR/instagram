@@ -1,0 +1,341 @@
+﻿{% extends "base.html" %}
+{% load static tr_numbers %}
+
+{% block title %}Octo GÃ¶rev Merkezi | ReklamAnaliz.net{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/octo_task_center.css' %}?v=octo-task-page-v1">
+
+<div class="octo-page-shell">
+  <header class="octo-page-hero">
+    <div>
+      <span class="octo-eyebrow"><i class="fas fa-list-check"></i> OCTO TASK ENGINE</span>
+      <h1>OCTO GÃ–REV MERKEZÄ°</h1>
+      <p>Aktif kampanya ve aktif reklamlardan gelen gerÃ§ek sinyalleri gÃ¶rev panosuna dÃ¶nÃ¼ÅŸtÃ¼rÃ¼r.</p>
+    </div>
+    <div class="octo-hero-actions">
+      <a class="octo-hero-btn" href="{% url 'control_tower' %}"><i class="fas fa-tower-broadcast"></i> Kontrol Kulesi</a>
+      <a class="octo-hero-btn primary" href="{% url 'campaign_center' %}"><i class="fas fa-chart-line"></i> Campaign Center</a>
+    </div>
+  </header>
+
+  <section class="octo-stats-grid">
+    <article class="octo-stat-card critical">
+      <span>Kritik</span>
+      <strong>{{ stats.critical|default:0 }}</strong>
+      <small>Acil gÃ¶rev</small>
+    </article>
+    <article class="octo-stat-card warning">
+      <span>UyarÄ±</span>
+      <strong>{{ stats.warning|default:0 }}</strong>
+      <small>YakÄ±n takip</small>
+    </article>
+    <article class="octo-stat-card opportunity">
+      <span>FÄ±rsat</span>
+      <strong>{{ stats.opportunity|default:0 }}</strong>
+      <small>BÃ¼yÃ¼me alanÄ±</small>
+    </article>
+    <article class="octo-stat-card assigned">
+      <span>Atanan</span>
+      <strong>{{ stats.viewed|default:0 }}</strong>
+      <small>Ä°nceleniyor</small>
+    </article>
+    <article class="octo-stat-card done">
+      <span>TamamlandÄ±</span>
+      <strong>{{ stats.done|default:0 }}</strong>
+      <small>KapatÄ±lan</small>
+    </article>
+    <article class="octo-stat-card overdue">
+      <span>Geciken</span>
+      <strong>{{ overdue_count|default:0 }}</strong>
+      <small>Tekrar bakÄ±lmalÄ±</small>
+    </article>
+  </section>
+
+  <section class="octo-filter-panel">
+    <form method="get" class="octo-filter-form">
+      <label>
+        <span>Durum</span>
+        <select name="status">
+          {% for value,label in status_options %}
+            <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>ModÃ¼l</span>
+        <select name="module">
+          <option value="">TÃ¼m ModÃ¼ller</option>
+          {% for value,label in module_options %}
+            <option value="{{ value }}" {% if filters.module == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        <span>Seviye</span>
+        <select name="severity">
+          <option value="">TÃ¼m Seviyeler</option>
+          {% for value,label in severity_options %}
+            <option value="{{ value }}" {% if filters.severity == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="octo-search">
+        <span>Arama</span>
+        <input type="search" name="q" value="{{ filters.q }}" placeholder="Kampanya veya gÃ¶rev ara">
+      </label>
+      <button type="submit"><i class="fas fa-filter"></i> Filtrele</button>
+    </form>
+  </section>
+
+  <section class="octo-board" aria-label="Octo gÃ¶rev kolonlarÄ±">
+    {% for column in columns %}
+      <div class="octo-column {{ column.state }}">
+        <div class="octo-column-head">
+          <div class="octo-column-icon"><i class="fas {{ column.icon }}"></i></div>
+          <div>
+            <strong>{{ column.title }}</strong>
+            <span>{{ column.subtitle }}</span>
+          </div>
+          <em>{{ column.count }}</em>
+        </div>
+
+        <div class="octo-column-body">
+          {% for task in column.rows %}
+            <article class="octo-task-card {{ task.severity }}"
+                     data-task-id="{{ task.id }}"
+                     data-task-title="{{ task.title|default:'Octo gÃ¶revi'|escape }}"
+                     data-task-message="{{ task.message|default:''|escape }}"
+                     data-task-action="{{ task.action|default:'Ä°ncele'|escape }}"
+                     data-task-campaign="{{ task.campaign|default:'Genel hesap gÃ¶revi'|escape }}"
+                     data-task-platform="{{ task.platform|default:'-'|escape }}"
+                     data-task-module="{{ task.module_label|default:'Genel'|escape }}"
+                     data-task-severity="{{ task.severity_label|default:'GÃ¶rev'|escape }}"
+                     data-task-status="{{ task.status_label|default:'AÃ§Ä±k'|escape }}"
+                     data-task-priority="{{ task.priority_score|default:'0' }}"
+                     data-task-detected="{{ task.detected_value|default:'-'|escape }}"
+                     data-task-previous="{{ task.previous_value|default:'-'|escape }}"
+                     data-task-change="{% if task.change_percent %}%{{ task.change_percent|tr_decimal }}{% else %}-{% endif %}"
+                     data-task-source-start="{{ task.source_period_start|date:'d.m.Y'|default:'-' }}"
+                     data-task-source-end="{{ task.source_period_end|date:'d.m.Y'|default:'-' }}"
+                     data-task-last-detected="{{ task.last_detected_at|date:'d.m.Y H:i'|default:'-' }}"
+                     data-task-snoozed-until="{{ task.snoozed_until|date:'d.m.Y H:i'|default:'-' }}">
+              <div class="octo-task-top">
+                <span>{{ task.severity_label }}</span>
+                <b>{{ task.priority_score }}</b>
+              </div>
+
+              <h3>{{ task.title }}</h3>
+              <p>{{ task.message|truncatechars:130 }}</p>
+
+              <div class="octo-task-meta">
+                <span><i class="fas fa-bullhorn"></i> {{ task.campaign }}</span>
+                <span><i class="fas fa-plug-circle-check"></i> {{ task.platform }}</span>
+                <span><i class="fas fa-layer-group"></i> {{ task.module_label }}</span>
+              </div>
+
+              <div class="octo-task-metrics">
+                <div><span>Mevcut</span><strong>{{ task.detected_value|default:"-" }}</strong></div>
+                <div><span>Ã–nceki</span><strong>{{ task.previous_value|default:"-" }}</strong></div>
+                <div><span>DeÄŸiÅŸim</span><strong>{% if task.change_percent %}%{{ task.change_percent|tr_decimal }}{% else %}-{% endif %}</strong></div>
+              </div>
+
+              {% if task.status != "done" %}
+                <div class="octo-task-status-row status-{{ task.status }}">
+                  {% if task.status == "snoozed" %}
+                    <span class="octo-status-badge is-snoozed"><i class="fas fa-clock"></i> Ertelendi</span>
+                  {% elif task.status == "viewed" %}
+                    <span class="octo-status-badge is-viewed"><i class="fas fa-user-check"></i> Ä°nceleniyor</span>
+                  {% else %}
+                    <span class="octo-status-badge is-open"><i class="far fa-circle"></i> Bekliyor</span>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+              <div class="octo-task-actions{% if task.status == 'done' %} done-actions{% endif %}">
+                {% if task.status == "done" %}
+                  <button data-action="reopened"><i class="fas fa-arrow-rotate-left"></i> Geri AÃ§</button>
+                  <span class="octo-status-badge is-done"><i class="fas fa-check-circle"></i> TamamlandÄ±</span>
+                {% elif task.status == "snoozed" %}
+                  <button data-action="reopened"><i class="fas fa-arrow-rotate-left"></i> Geri AÃ§</button>
+                  <button data-action="done" class="success"><i class="far fa-square"></i> YapÄ±ldÄ± Ä°ÅŸaretle</button>
+                {% elif task.status == "viewed" %}
+                  <button data-action="done" class="success"><i class="far fa-square"></i> YapÄ±ldÄ± Ä°ÅŸaretle</button>
+                  <button data-action="snoozed"><i class="fas fa-clock"></i> Ertele</button>
+                  <button data-action="reopened"><i class="fas fa-arrow-rotate-left"></i> AÃ§Ä±k Yap</button>
+                {% else %}
+                  <button data-action="viewed"><i class="fas fa-user-check"></i> Ata</button>
+                  <button data-action="done" class="success"><i class="far fa-square"></i> YapÄ±ldÄ± Ä°ÅŸaretle</button>
+                  <button data-action="snoozed"><i class="fas fa-clock"></i> Ertele</button>
+                {% endif %}
+              </div>
+            </article>
+          {% empty %}
+            <div class="octo-column-empty">
+              <i class="fas fa-circle-check"></i>
+              <span>Bu kolonda gÃ¶rev yok.</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </section>
+
+  <div class="octo-task-modal-backdrop" id="octoTaskModalBackdrop" aria-hidden="true"></div>
+  <div class="octo-task-modal" id="octoTaskModal" role="dialog" aria-modal="true" aria-labelledby="octoTaskModalTitle" aria-hidden="true">
+    <div class="octo-task-modal-head">
+      <div>
+        <span id="octoTaskModalSeverity">GÃ¶rev</span>
+        <h2 id="octoTaskModalTitle">Octo gÃ¶revi</h2>
+      </div>
+      <button type="button" class="octo-task-modal-close" id="octoTaskModalClose" aria-label="GÃ¶rev detayÄ±nÄ± kapat">
+        <i class="fas fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="octo-task-modal-body">
+      <div class="octo-task-modal-main">
+        <div class="octo-task-detail-block">
+          <small>GÃ¶rev AÃ§Ä±klamasÄ±</small>
+          <p id="octoTaskModalMessage">-</p>
+        </div>
+        <div class="octo-task-detail-block action">
+          <small>Ã–nerilen Aksiyon</small>
+          <p id="octoTaskModalAction">-</p>
+        </div>
+      </div>
+
+      <div class="octo-task-modal-grid">
+        <div><span>Kampanya / Reklam</span><strong id="octoTaskModalCampaign">-</strong></div>
+        <div><span>Platform</span><strong id="octoTaskModalPlatform">-</strong></div>
+        <div><span>ModÃ¼l</span><strong id="octoTaskModalModule">-</strong></div>
+        <div><span>Durum</span><strong id="octoTaskModalStatus">-</strong></div>
+        <div><span>Ã–ncelik Skoru</span><strong id="octoTaskModalPriority">-</strong></div>
+        <div><span>Son Tespit</span><strong id="octoTaskModalLastDetected">-</strong></div>
+      </div>
+
+      <div class="octo-task-modal-metrics">
+        <div><span>Mevcut DeÄŸer</span><strong id="octoTaskModalDetected">-</strong></div>
+        <div><span>Ã–nceki DeÄŸer</span><strong id="octoTaskModalPrevious">-</strong></div>
+        <div><span>DeÄŸiÅŸim</span><strong id="octoTaskModalChange">-</strong></div>
+      </div>
+
+      <div class="octo-task-modal-period">
+        <span><i class="fas fa-calendar-days"></i> Veri dÃ¶nemi: <b id="octoTaskModalPeriod">-</b></span>
+        <span><i class="fas fa-clock"></i> Erteleme: <b id="octoTaskModalSnoozed">-</b></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function getCookie(name){
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if(parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  const modal = document.getElementById('octoTaskModal');
+  const backdrop = document.getElementById('octoTaskModalBackdrop');
+  const closeBtn = document.getElementById('octoTaskModalClose');
+
+  function setText(id, value){
+    const el = document.getElementById(id);
+    if(el) el.textContent = value || '-';
+  }
+
+  function openTaskModal(card){
+    if(!card || !modal || !backdrop) return;
+    const d = card.dataset;
+    setText('octoTaskModalSeverity', d.taskSeverity || 'GÃ¶rev');
+    setText('octoTaskModalTitle', d.taskTitle || 'Octo gÃ¶revi');
+    setText('octoTaskModalMessage', d.taskMessage || '-');
+    setText('octoTaskModalAction', d.taskAction || '-');
+    setText('octoTaskModalCampaign', d.taskCampaign || '-');
+    setText('octoTaskModalPlatform', d.taskPlatform || '-');
+    setText('octoTaskModalModule', d.taskModule || '-');
+    setText('octoTaskModalStatus', d.taskStatus || '-');
+    setText('octoTaskModalPriority', d.taskPriority || '-');
+    setText('octoTaskModalLastDetected', d.taskLastDetected || '-');
+    setText('octoTaskModalDetected', d.taskDetected || '-');
+    setText('octoTaskModalPrevious', d.taskPrevious || '-');
+    setText('octoTaskModalChange', d.taskChange || '-');
+    setText('octoTaskModalPeriod', `${d.taskSourceStart || '-'} / ${d.taskSourceEnd || '-'}`);
+    setText('octoTaskModalSnoozed', d.taskSnoozedUntil || '-');
+
+    modal.classList.add('show');
+    backdrop.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    backdrop.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('octo-modal-open');
+  }
+
+  function closeTaskModal(){
+    if(!modal || !backdrop) return;
+    modal.classList.remove('show');
+    backdrop.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    backdrop.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('octo-modal-open');
+  }
+
+  document.querySelectorAll('.octo-task-card').forEach(function(card){
+    card.addEventListener('click', function(e){
+      if(e.target.closest('.octo-task-actions')) return;
+      openTaskModal(card);
+    });
+  });
+
+  const openTaskId = new URLSearchParams(window.location.search).get('open_task');
+  if(openTaskId){
+    const targetCard = document.querySelector(`.octo-task-card[data-task-id="${CSS.escape(openTaskId)}"]`);
+    if(targetCard){
+      targetCard.scrollIntoView({behavior:'smooth', block:'center'});
+      setTimeout(function(){ openTaskModal(targetCard); }, 180);
+    }
+  }
+
+  if(closeBtn) closeBtn.addEventListener('click', closeTaskModal);
+  if(backdrop) backdrop.addEventListener('click', closeTaskModal);
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeTaskModal();
+  });
+
+  document.querySelectorAll('.octo-task-actions button').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      const card = btn.closest('.octo-task-card');
+      const taskId = card.getAttribute('data-task-id');
+      const action = btn.getAttribute('data-action');
+
+      btn.disabled = true;
+
+      fetch(`/octo-gorev-merkezi/${taskId}/update/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: new URLSearchParams({action: action})
+      })
+      .then(r => r.json())
+      .then(data => {
+        if(data.ok){
+          card.classList.add('updated');
+          setTimeout(function(){ window.location.reload(); }, 450);
+        } else {
+          alert(data.error || 'Ä°ÅŸlem yapÄ±lamadÄ±.');
+          btn.disabled = false;
+        }
+      })
+      .catch(function(){
+        alert('BaÄŸlantÄ± hatasÄ± oluÅŸtu.');
+        btn.disabled = false;
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

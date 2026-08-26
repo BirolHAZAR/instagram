@@ -1,0 +1,446 @@
+{% extends 'base.html' %}
+
+{% block title %}Pazaryeri Ürün Yönetimi{% endblock %}
+
+{% load tr_numbers %}
+
+{% block extra_css %}
+<style>
+  .mp-page {
+    --mp-bg: #08111f;
+    --mp-panel: rgba(16, 26, 45, .94);
+    --mp-panel-2: rgba(12, 20, 36, .98);
+    --mp-line: rgba(148, 163, 184, .22);
+    --mp-line-strong: rgba(125, 211, 252, .26);
+    --mp-text: #f8fafc;
+    --mp-soft: #cbd5e1;
+    --mp-muted: #94a3b8;
+    --mp-cyan: #38bdf8;
+    --mp-green: #22c55e;
+    --mp-amber: #f59e0b;
+    --mp-red: #ef4444;
+    --mp-indigo: #818cf8;
+    padding: 24px;
+    color: var(--mp-text);
+  }
+  .mp-shell { max-width: 1720px; margin: 0 auto; }
+  .mp-top {
+    border: 1px solid var(--mp-line);
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, rgba(56, 189, 248, .12), transparent 38%),
+      linear-gradient(90deg, rgba(34, 197, 94, .08), rgba(129, 140, 248, .10)),
+      var(--mp-panel-2);
+    padding: 22px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: start;
+    box-shadow: 0 18px 48px rgba(0,0,0,.24);
+  }
+  .mp-kicker { display:flex; align-items:center; gap:8px; color:var(--mp-cyan); font-size:.76rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+  .mp-title { margin:0; font-size:1.85rem; font-weight:950; letter-spacing:0; color:var(--mp-text); }
+  .mp-lead { margin:7px 0 0; color:var(--mp-soft); max-width:920px; font-size:.95rem; line-height:1.55; }
+  .mp-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+  .mp-btn {
+    height:42px; border:1px solid var(--mp-line-strong); border-radius:8px; padding:0 14px;
+    background:rgba(56,189,248,.14); color:var(--mp-text); text-decoration:none; font-weight:850;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; white-space:nowrap;
+  }
+  .mp-btn:hover { color:#fff; background:rgba(56,189,248,.22); }
+  .mp-btn.primary { border-color:transparent; background:#2563eb; }
+  .mp-btn.primary:hover { background:#1d4ed8; }
+
+  .mp-kpis { display:grid; grid-template-columns:repeat(7, minmax(120px, 1fr)); gap:10px; margin:16px 0; }
+  .mp-kpi {
+    border:1px solid var(--mp-line);
+    border-radius:8px;
+    background:var(--mp-panel);
+    padding:13px 14px;
+    min-height:82px;
+  }
+  .mp-kpi span { display:block; color:var(--mp-muted); font-size:.76rem; font-weight:800; margin-bottom:6px; }
+  .mp-kpi strong { display:block; color:var(--mp-text); font-size:1.25rem; font-weight:950; line-height:1.15; }
+  .mp-kpi small { color:var(--mp-soft); font-size:.72rem; }
+
+  .mp-filters {
+    border:1px solid var(--mp-line);
+    border-radius:8px;
+    background:var(--mp-panel);
+    padding:14px;
+    display:grid;
+    grid-template-columns:minmax(220px, 1.4fr) minmax(150px, .7fr) minmax(150px, .7fr) auto;
+    gap:10px;
+    align-items:end;
+    margin-bottom:16px;
+  }
+  .mp-field label, .mp-sync label { display:block; color:var(--mp-muted); font-size:.75rem; font-weight:850; margin-bottom:6px; }
+  .mp-field input, .mp-field select, .mp-sync select {
+    width:100%; height:42px; border:1px solid rgba(148,163,184,.32); border-radius:8px;
+    background:#0b1527; color:var(--mp-text); padding:0 12px; outline:none;
+  }
+  .mp-field input::placeholder { color:#64748b; }
+  .mp-field input:focus, .mp-field select:focus, .mp-sync select:focus { border-color:var(--mp-cyan); box-shadow:0 0 0 3px rgba(56,189,248,.12); }
+  .mp-filter-btn {
+    height:42px; border:0; border-radius:8px; padding:0 16px; background:#2563eb; color:#fff; font-weight:900;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  }
+
+  .mp-layout { display:grid; grid-template-columns:320px minmax(0, 1fr); gap:16px; align-items:start; }
+  .mp-side { display:flex; flex-direction:column; gap:16px; }
+  .mp-panel { border:1px solid var(--mp-line); border-radius:8px; background:var(--mp-panel); overflow:hidden; color:var(--mp-text); }
+  .mp-panel-head { padding:13px 15px; border-bottom:1px solid var(--mp-line); display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:950; color:var(--mp-text); }
+  .mp-panel-head small { color:var(--mp-muted); font-weight:750; }
+  .mp-sync { padding:14px; display:flex; flex-direction:column; gap:10px; }
+  .mp-sync p { margin:0; color:var(--mp-soft); font-size:.8rem; line-height:1.45; }
+  .mp-sync button { height:42px; border:0; border-radius:8px; background:#16a34a; color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .mp-breakdown, .mp-runs { padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+  .mp-break-row, .mp-run { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; color:var(--mp-soft); font-size:.86rem; }
+  .mp-break-row strong, .mp-run strong { color:var(--mp-text); }
+  .mp-run small { display:block; color:var(--mp-muted); margin-top:2px; }
+
+  .mp-table-scroll-top {
+    overflow-x:auto;
+    overflow-y:hidden;
+    height:14px;
+    border-bottom:1px solid rgba(148,163,184,.12);
+    background:#0b1527;
+  }
+  .mp-table-scroll-top-inner { height:1px; min-width:1320px; }
+  .mp-table-wrap { overflow:auto; }
+  .mp-pagination {
+    padding:13px 15px;
+    border-top:1px solid var(--mp-line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    color:var(--mp-muted);
+    font-size:.82rem;
+  }
+  .mp-page-links { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .mp-page-link {
+    min-width:34px; height:34px; border:1px solid var(--mp-line); border-radius:8px; padding:0 10px;
+    display:inline-flex; align-items:center; justify-content:center; color:var(--mp-soft); text-decoration:none; font-weight:900;
+    background:#0b1527;
+  }
+  .mp-page-link:hover { color:#fff; border-color:var(--mp-line-strong); background:rgba(56,189,248,.14); }
+  .mp-page-link.active { background:#2563eb; border-color:#2563eb; color:#fff; }
+  .mp-page-link.disabled { opacity:.45; pointer-events:none; }
+  .mp-table { width:100%; min-width:1320px; border-collapse:separate; border-spacing:0; }
+  .mp-table th {
+    position:sticky; top:0; z-index:2;
+    padding:12px 13px; text-align:left; background:#0b1527; color:var(--mp-muted);
+    border-bottom:1px solid var(--mp-line); font-size:.73rem; font-weight:950; white-space:nowrap;
+  }
+  .mp-table td { padding:13px; border-bottom:1px solid rgba(148,163,184,.14); color:var(--mp-soft); vertical-align:middle; font-size:.86rem; }
+  .mp-table tr:hover td { background:rgba(56,189,248,.045); }
+  .mp-product { display:grid; grid-template-columns:56px minmax(0, 1fr); gap:11px; align-items:center; min-width:320px; }
+  .mp-product-img { width:56px; height:56px; border-radius:8px; object-fit:cover; background:#111827; border:1px solid var(--mp-line); }
+  .mp-product-title { color:var(--mp-text); font-weight:950; line-height:1.25; overflow-wrap:anywhere; }
+  .mp-product-meta { color:var(--mp-muted); font-size:.75rem; margin-top:3px; display:flex; gap:7px; flex-wrap:wrap; }
+  .mp-muted { color:var(--mp-muted); }
+  .mp-money { color:var(--mp-text); font-weight:900; white-space:nowrap; }
+  .mp-profit { color:#86efac; font-weight:950; white-space:nowrap; }
+  .mp-stock { color:var(--mp-text); font-weight:950; }
+  .mp-mini { color:var(--mp-muted); font-size:.75rem; margin-top:3px; }
+  .mp-badge { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 8px; background:rgba(129,140,248,.16); color:#c7d2fe; font-size:.74rem; font-weight:900; white-space:nowrap; }
+  .mp-badge.active, .mp-status.active, .mp-status.success { background:rgba(34,197,94,.14); color:#86efac; }
+  .mp-status.passive, .mp-status.skipped { background:rgba(148,163,184,.14); color:#cbd5e1; }
+  .mp-status.pending, .mp-status.queued, .mp-status.running { background:rgba(245,158,11,.14); color:#fcd34d; }
+  .mp-status.rejected, .mp-status.failed { background:rgba(239,68,68,.15); color:#fca5a5; }
+  .mp-rating { color:#fbbf24; font-weight:950; white-space:nowrap; }
+  .mp-empty { padding:36px 20px; text-align:center; color:var(--mp-muted); }
+  .mp-empty strong { display:block; color:var(--mp-text); margin-bottom:6px; }
+
+  @media (max-width: 1320px) {
+    .mp-kpis { grid-template-columns:repeat(4, minmax(0,1fr)); }
+    .mp-layout { grid-template-columns:1fr; }
+  }
+  @media (max-width: 860px) {
+    .mp-page { padding:14px; }
+    .mp-top { grid-template-columns:1fr; }
+    .mp-actions { justify-content:flex-start; }
+    .mp-kpis { grid-template-columns:repeat(2, minmax(0,1fr)); }
+    .mp-filters { grid-template-columns:1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mp-page">
+  <div class="mp-shell">
+    <section class="mp-top">
+      <div>
+        <div class="mp-kicker"><i class="fas fa-store"></i> Pazaryeri Operasyon Merkezi</div>
+        <h1 class="mp-title">Pazaryeri Ürün Yönetimi</h1>
+        <p class="mp-lead">Trendyol, Hepsiburada ve n11 ürünlerini tek tabloda yönetin. Görsel, stok, fiyat, kâr, puan, favori ve platform dağılımını rapor tasarımına hazır bir veri yüzeyiyle izleyin.</p>
+      </div>
+      <div class="mp-actions">
+        <a class="mp-btn" href="{% url 'marketplace_accounts' %}"><i class="fas fa-link"></i> Hesap Bağla</a>
+        <a class="mp-btn primary" href="{% url 'marketplace_accounts' %}"><i class="fas fa-gear"></i> Sync Ayarları</a>
+      </div>
+    </section>
+
+    <section class="mp-kpis" aria-label="Pazaryeri özet metrikleri">
+      <div class="mp-kpi"><span>Pazaryeri</span><strong>{{ summary.marketplace_count|tr_int }}</strong><small>Aktif platform</small></div>
+      <div class="mp-kpi"><span>Bağlı Hesap</span><strong>{{ summary.account_count|tr_int }}</strong><small>Mağaza bağlantısı</small></div>
+      <div class="mp-kpi"><span>Ürün</span><strong>{{ summary.product_count|tr_int }}</strong><small>Tek ürün havuzu</small></div>
+      <div class="mp-kpi"><span>Platform Kaydı</span><strong>{{ summary.listing_count|tr_int }}</strong><small>Listing sayısı</small></div>
+      <div class="mp-kpi"><span>Toplam Stok</span><strong>{{ summary.total_stock|tr_int }}</strong><small>Satılabilir adet</small></div>
+      <div class="mp-kpi"><span>Görüntülenme</span><strong>{{ summary.total_views|tr_int }}</strong><small>Platform toplamı</small></div>
+      <div class="mp-kpi"><span>Ortalama Puan</span><strong>{{ summary.avg_rating|tr_decimal }}</strong><small>Ürün memnuniyeti</small></div>
+    </section>
+
+    <form class="mp-filters" method="get">
+      <div class="mp-field">
+        <label for="q">Arama</label>
+        <input id="q" type="search" name="q" value="{{ query }}" placeholder="Ürün adı, SKU, barkod, kategori...">
+      </div>
+      <div class="mp-field">
+        <label for="marketplace">Pazaryeri</label>
+        <select id="marketplace" name="marketplace">
+          <option value="">Tümü</option>
+          {% for marketplace in marketplaces %}
+          <option value="{{ marketplace.id }}" {% if selected_marketplace == marketplace.id|stringformat:"s" %}selected{% endif %}>{{ marketplace.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mp-field">
+        <label for="status">Durum</label>
+        <select id="status" name="status">
+          <option value="">Tümü</option>
+          {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="mp-filter-btn" type="submit"><i class="fas fa-magnifying-glass"></i> Filtrele</button>
+    </form>
+
+    <div class="mp-layout">
+      <aside class="mp-side">
+        <section class="mp-panel">
+          <div class="mp-panel-head"><span>Senkronizasyon</span><small>Kontrollü çekim</small></div>
+          <form class="mp-sync" method="post">
+            {% csrf_token %}
+            <div>
+              <label for="marketplace_account">Hesap</label>
+              <select id="marketplace_account" name="marketplace_account" required>
+                <option value="">Hesap seçin</option>
+                {% for account in accounts %}
+                <option value="{{ account.id }}">{{ account.marketplace.name }} - {{ account.store_name }} ({{ account.sync_product_limit|tr_int }} ürün)</option>
+                {% endfor %}
+              </select>
+            </div>
+            <p>Varsayılan çekim aktif, stokta olan ve fiyatı bulunan ürünleri önceliklendirir. Stok dışı ve pasif ürün kuralları hesap ayarlarından yönetilir.</p>
+            <button type="submit"><i class="fas fa-rotate"></i> Şimdi Senkronize Et</button>
+          </form>
+        </section>
+
+        <section class="mp-panel">
+          <div class="mp-panel-head"><span>Platform Dağılımı</span><small>Stok ve görünürlük</small></div>
+          <div class="mp-breakdown">
+            {% for row in marketplace_breakdown %}
+            <div class="mp-break-row">
+              <div>
+                <strong>{{ row.marketplace__name }}</strong>
+                <div class="mp-mini">{{ row.listing_count|tr_int }} kayıt · {{ row.total_views|default:0|tr_int }} görüntülenme</div>
+              </div>
+              <span class="mp-badge">{{ row.total_stock|default:0|tr_int }} stok</span>
+            </div>
+            {% empty %}
+            <div class="mp-empty">
+              <strong>0 kayıt</strong>
+              <span>İlk entegrasyon tamamlandığında dağılım burada görünür.</span>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="mp-panel">
+          <div class="mp-panel-head"><span>Son İşlemler</span><small>Sync geçmişi</small></div>
+          <div class="mp-runs">
+            {% for run in recent_sync_runs %}
+            <div class="mp-run">
+              <div>
+                <strong>{{ run.marketplace_account.store_name }}</strong>
+                <small>{{ run.get_sync_type_display }} · {{ run.created_at|date:"d.m.Y H:i" }}</small>
+              </div>
+              <span class="mp-badge mp-status {{ run.status }}">{{ run.get_status_display }}</span>
+            </div>
+            {% empty %}
+            <div class="mp-empty">
+              <strong>İşlem yok</strong>
+              <span>İlk senkronizasyon başlatıldığında burada görünür.</span>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+      </aside>
+
+      <section class="mp-panel">
+        <div class="mp-panel-head"><span>Ürün Listesi</span><small>Sayfa başına son 50 kayıt</small></div>
+        <div class="mp-table-scroll-top" id="mpTableScrollTop" aria-hidden="true">
+          <div class="mp-table-scroll-top-inner" id="mpTableScrollTopInner"></div>
+        </div>
+        <div class="mp-table-wrap">
+          <table class="mp-table">
+            <thead>
+              <tr>
+                <th>Ürün</th>
+                <th>Pazaryeri</th>
+                <th>Varyant</th>
+                <th>Kategori</th>
+                <th>Fiyat</th>
+                <th>Stok</th>
+                <th>Kâr</th>
+                <th>Puan</th>
+                <th>Görünürlük</th>
+                <th>Kargo</th>
+                <th>Durum</th>
+                <th>Son Sync</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for listing in listings %}
+              <tr>
+                <td>
+                  <div class="mp-product">
+                    <img class="mp-product-img" src="{{ listing.platform_image_url|default:listing.product.image_url }}" alt="{{ listing.product.name }}" loading="lazy">
+                    <div>
+                      <div class="mp-product-title">{{ listing.product.name }}</div>
+                      <div class="mp-product-meta">
+                        <span>SKU: {{ listing.product.sku }}</span>
+                        {% if listing.product.barcode %}<span>Barkod: {{ listing.product.barcode }}</span>{% endif %}
+                        {% if listing.product.brand %}<span>{{ listing.product.brand }}</span>{% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="mp-badge">{{ listing.marketplace.name }}</span>
+                  <div class="mp-mini">{{ listing.marketplace_account.store_name }}</div>
+                  {% if listing.platform_url %}<a class="mp-mini" href="{{ listing.platform_url }}" target="_blank" rel="noopener">Platform linki</a>{% endif %}
+                </td>
+                <td>
+                  {% if listing.variant %}
+                    <span class="mp-money">{{ listing.variant.color|default:"-" }} / {{ listing.variant.size|default:"-" }}</span>
+                    <div class="mp-mini">{{ listing.variant.sku }}</div>
+                  {% else %}
+                    <span class="mp-muted">-</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="mp-money">{{ listing.platform_category_name|default:listing.product.category_name|default:"-" }}</span>
+                  {% if listing.campaign_name %}<div class="mp-mini">{{ listing.campaign_name }}</div>{% endif %}
+                </td>
+                <td>
+                  <div class="mp-money">{{ listing.sale_price|tr_money }}</div>
+                  {% if listing.discounted_price %}<div class="mp-mini">İndirimli: {{ listing.discounted_price|tr_money }}</div>{% endif %}
+                  <div class="mp-mini">Alış: {{ listing.purchase_price|tr_money }}</div>
+                </td>
+                <td>
+                  <span class="mp-stock">{{ listing.stock|tr_int }}</span>
+                  <div class="mp-mini">Buybox: {% if listing.buybox_rank %}{{ listing.buybox_rank|tr_int }}{% else %}-{% endif %}</div>
+                </td>
+                <td>
+                  <span class="mp-profit">{{ listing.gross_profit|tr_money }}</span>
+                  <div class="mp-mini">Komisyon: {{ listing.commission_rate|tr_decimal }}%</div>
+                </td>
+                <td>
+                  <span class="mp-rating"><i class="fas fa-star"></i> {{ listing.rating_average|tr_decimal }}</span>
+                  <div class="mp-mini">{{ listing.review_count|tr_int }} yorum · {{ listing.rating_count|tr_int }} puan</div>
+                </td>
+                <td>
+                  <span class="mp-money">{{ listing.view_count|tr_int }}</span>
+                  <div class="mp-mini">{{ listing.favorite_count|tr_int }} favori</div>
+                </td>
+                <td>
+                  <span class="mp-money">{{ listing.cargo_company|default:"-" }}</span>
+                  <div class="mp-mini">{{ listing.estimated_delivery_days|tr_int }} gün{% if listing.free_shipping %} · Ücretsiz{% endif %}</div>
+                </td>
+                <td><span class="mp-badge mp-status {{ listing.status }}">{{ listing.get_status_display }}</span></td>
+                <td>{% if listing.last_synced_at %}<span class="mp-money">{{ listing.last_synced_at|date:"d.m.Y H:i" }}</span>{% else %}<span class="mp-muted">-</span>{% endif %}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="12">
+                  <div class="mp-empty">
+                    <strong>Henüz pazaryeri ürünü yok</strong>
+                    <span>Trendyol, Hepsiburada veya n11 entegrasyonu bağlandığında ürünler burada tek tabloda listelenecek.</span>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if paginator.count %}
+        <div class="mp-pagination">
+          <div>
+            {{ paginator.count|tr_int }} kayıt içinden
+            {{ page_obj.start_index|tr_int }}-{{ page_obj.end_index|tr_int }} arası gösteriliyor.
+          </div>
+          <div class="mp-page-links">
+            {% if page_obj.has_previous %}
+              <a class="mp-page-link" href="?page=1{% if query %}&q={{ query|urlencode }}{% endif %}{% if selected_marketplace %}&marketplace={{ selected_marketplace }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" aria-label="İlk sayfa"><i class="fas fa-angles-left"></i></a>
+              <a class="mp-page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if selected_marketplace %}&marketplace={{ selected_marketplace }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" aria-label="Önceki sayfa"><i class="fas fa-angle-left"></i></a>
+            {% else %}
+              <span class="mp-page-link disabled"><i class="fas fa-angles-left"></i></span>
+              <span class="mp-page-link disabled"><i class="fas fa-angle-left"></i></span>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+              {% if num == page_obj.number %}
+                <span class="mp-page-link active">{{ num }}</span>
+              {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                <a class="mp-page-link" href="?page={{ num }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if selected_marketplace %}&marketplace={{ selected_marketplace }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}">{{ num }}</a>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+              <a class="mp-page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if selected_marketplace %}&marketplace={{ selected_marketplace }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" aria-label="Sonraki sayfa"><i class="fas fa-angle-right"></i></a>
+              <a class="mp-page-link" href="?page={{ paginator.num_pages }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if selected_marketplace %}&marketplace={{ selected_marketplace }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}" aria-label="Son sayfa"><i class="fas fa-angles-right"></i></a>
+            {% else %}
+              <span class="mp-page-link disabled"><i class="fas fa-angle-right"></i></span>
+              <span class="mp-page-link disabled"><i class="fas fa-angles-right"></i></span>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const topScroll = document.getElementById('mpTableScrollTop');
+    const topInner = document.getElementById('mpTableScrollTopInner');
+    const tableWrap = document.querySelector('.mp-table-wrap');
+    const table = document.querySelector('.mp-table');
+    if (!topScroll || !topInner || !tableWrap || !table) return;
+
+    let syncing = false;
+    function syncWidth() {
+      topInner.style.width = table.scrollWidth + 'px';
+      topScroll.style.display = table.scrollWidth > tableWrap.clientWidth ? 'block' : 'none';
+    }
+    function syncScroll(source, target) {
+      if (syncing) return;
+      syncing = true;
+      target.scrollLeft = source.scrollLeft;
+      syncing = false;
+    }
+
+    topScroll.addEventListener('scroll', function () { syncScroll(topScroll, tableWrap); });
+    tableWrap.addEventListener('scroll', function () { syncScroll(tableWrap, topScroll); });
+    window.addEventListener('resize', syncWidth);
+    syncWidth();
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% load tr_numbers %}
+<section class="ct-main ct-main-live-only">
+    <div class="ct-card ct-section">
+      <span class="ct-tip info" data-tip="Seçilen tarih aralığındaki harcama, gelir, tıklama, gösterim ve dönüşüm performansını tek yerde özetler."><i class="fas fa-circle-info"></i> Performans</span>
+      <div class="ct-section-title"><h3>CANLI PERFORMANS</h3></div>
+      <div class="ct-live-grid">
+        <div class="ct-live"><i class="fas fa-wallet"></i><span>Harcama <em class="ct-inline-tip" data-tip="Seçilen tarih aralığında reklamlara yapılan toplam harcamayı gösterir."><i class="fas fa-circle-info"></i></em></span><strong>{{ summary.total_spend|tr_int }} TL</strong><small class="ct-delta {{ summary.spend_delta_class }}">{{ summary.spend_delta_label }}</small></div>
+        <div class="ct-live"><i class="fas fa-money-bill-trend-up"></i><span>Gelir <em class="ct-inline-tip" data-tip="Seçilen tarih aralığında reklamlardan oluşan toplam dönüşüm değerini gösterir."><i class="fas fa-circle-info"></i></em></span><strong>{{ live_performance.revenue|tr_int }} TL</strong><small class="ct-delta {{ summary.roas_delta_class }}">{{ summary.roas_delta_label }}</small></div>
+        <div class="ct-live"><i class="fas fa-bullseye"></i><span>ROAS <em class="ct-inline-tip" data-tip="ROAS, harcanan her 1 TL karşılığında ne kadar dönüşüm değeri oluştuğunu oran olarak gösterir."><i class="fas fa-circle-info"></i></em></span><strong>{{ live_performance.roas|tr_decimal }}</strong><small class="ct-delta {{ summary.roas_delta_class }}">{{ summary.roas_delta_label }}</small></div>
+        <div class="ct-live"><i class="fas fa-bag-shopping"></i><span>Dönüşüm Sayısı <em class="ct-inline-tip" data-tip="Seçilen tarih aralığında oluşan toplam dönüşüm adedidir. Dönüşüm oranından farklıdır; burada adet gösterilir."><i class="fas fa-circle-info"></i></em></span><strong>{{ summary.total_conversions|tr_int }}</strong><small class="ct-delta {{ summary.conversion_count_delta_class }}">{{ summary.conversion_count_delta_label }}</small></div>
+        <div class="ct-live"><i class="fas fa-computer-mouse"></i><span>Tıklama <em class="ct-inline-tip" data-tip="Seçilen tarih aralığında reklamlardan alınan toplam tıklama sayısıdır."><i class="fas fa-circle-info"></i></em></span><strong>{{ summary.total_clicks|tr_int }}</strong><small class="ct-delta {{ summary.click_delta_class }}">{{ summary.click_delta_label }}</small></div>
+        <div class="ct-live"><i class="fas fa-eye"></i><span>Gösterim <em class="ct-inline-tip" data-tip="Seçilen tarih aralığında reklamların toplam kaç kez görüntülendiğini gösterir."><i class="fas fa-circle-info"></i></em></span><strong>{{ summary.total_impressions|tr_int }}</strong><small class="ct-delta {{ summary.impression_delta_class }}">{{ summary.impression_delta_label }}</small></div>
+      </div>
+    </div>
+
+  </section>

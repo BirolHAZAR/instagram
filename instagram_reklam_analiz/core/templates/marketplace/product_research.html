@@ -1,0 +1,579 @@
+{% extends 'base.html' %}
+
+{% block title %}Ürün Pazar Araştırması{% endblock %}
+
+{% block extra_css %}
+<style>
+  .mpr-page {
+    --mpr-panel: rgba(16, 26, 45, .94);
+    --mpr-panel-2: rgba(12, 20, 36, .98);
+    --mpr-line: rgba(148, 163, 184, .22);
+    --mpr-text: #f8fafc;
+    --mpr-soft: #cbd5e1;
+    --mpr-muted: #94a3b8;
+    --mpr-cyan: #38bdf8;
+    --mpr-green: #22c55e;
+    --mpr-amber: #f59e0b;
+    padding:24px;
+    color:var(--mpr-text);
+  }
+  .mpr-shell { max-width:1720px; margin:0 auto; }
+  .mpr-top {
+    border:1px solid var(--mpr-line); border-radius:8px; padding:22px;
+    background:linear-gradient(135deg, rgba(56,189,248,.12), transparent 38%), linear-gradient(90deg, rgba(34,197,94,.08), rgba(129,140,248,.10)), var(--mpr-panel-2);
+    display:grid; grid-template-columns:minmax(0,1fr) auto; gap:18px; align-items:start;
+  }
+  .mpr-kicker { display:flex; align-items:center; gap:8px; color:var(--mpr-cyan); font-size:.76rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+  .mpr-title { margin:0; color:var(--mpr-text); font-size:1.85rem; font-weight:950; letter-spacing:0; }
+  .mpr-lead { margin:7px 0 0; color:var(--mpr-soft); max-width:920px; line-height:1.55; }
+  .mpr-btn {
+    height:42px; border:1px solid rgba(125,211,252,.26); border-radius:8px; padding:0 14px;
+    background:rgba(56,189,248,.14); color:var(--mpr-text); text-decoration:none; font-weight:850;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .mpr-layout { display:grid; grid-template-columns:460px minmax(0,1fr); gap:16px; margin-top:16px; align-items:start; }
+  .mpr-panel { border:1px solid var(--mpr-line); border-radius:8px; background:var(--mpr-panel); overflow:hidden; }
+  .mpr-panel-head { padding:13px 15px; border-bottom:1px solid var(--mpr-line); display:flex; justify-content:space-between; gap:10px; color:var(--mpr-text); font-weight:950; }
+  .mpr-panel-head small { color:var(--mpr-muted); font-weight:750; }
+  .mpr-form { padding:16px; display:flex; flex-direction:column; gap:13px; }
+  .mpr-drop {
+    border:1px dashed rgba(125,211,252,.42); border-radius:8px; background:#0b1527; min-height:220px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:16px; color:var(--mpr-soft);
+  }
+  .mpr-drop i { color:var(--mpr-cyan); font-size:2rem; }
+  .mpr-preview { max-width:100%; max-height:210px; border-radius:8px; display:none; object-fit:contain; border:1px solid var(--mpr-line); background:#020617; }
+  .mpr-file { color:var(--mpr-soft); max-width:100%; }
+  .mpr-field label { display:block; color:var(--mpr-muted); font-size:.75rem; font-weight:850; margin-bottom:6px; }
+  .mpr-input, .mpr-textarea {
+    width:100%; border:1px solid rgba(148,163,184,.32); border-radius:8px; background:#0b1527; color:var(--mpr-text);
+    padding:0 12px; outline:none;
+  }
+  .mpr-input { height:42px; }
+  .mpr-textarea { min-height:150px; padding:12px; line-height:1.5; resize:vertical; }
+  .mpr-input:focus, .mpr-textarea:focus { border-color:var(--mpr-cyan); box-shadow:0 0 0 3px rgba(56,189,248,.12); }
+  .mpr-help { color:var(--mpr-soft); font-size:.78rem; line-height:1.45; }
+  .mpr-track-row { display:grid; grid-template-columns:1fr 150px; gap:10px; align-items:end; }
+  .mpr-check-wrap {
+    min-height:42px; border:1px solid rgba(148,163,184,.32); border-radius:8px; background:#0b1527;
+    display:flex; align-items:center; gap:10px; padding:0 12px; color:var(--mpr-text); font-weight:850;
+  }
+  .mpr-check { width:18px; height:18px; accent-color:var(--mpr-green); }
+  .mpr-submit { height:44px; border:0; border-radius:8px; background:#16a34a; color:#fff; font-weight:950; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .mpr-cost-note { display:flex; gap:8px; align-items:flex-start; border:1px solid rgba(56,189,248,.18); border-radius:8px; background:rgba(56,189,248,.07); padding:9px 10px; color:#94a3b8; font-size:.69rem; line-height:1.45; }
+  .mpr-cost-note i { color:#38bdf8; margin-top:2px; }
+  .mpr-cost-note strong { color:#e0f2fe; }
+  .mpr-errors { border:1px solid rgba(239,68,68,.35); background:rgba(239,68,68,.12); color:#fecaca; border-radius:8px; padding:10px 12px; font-size:.84rem; }
+  .mpr-alert { border:1px solid var(--mpr-line); border-radius:8px; display:flex; gap:10px; margin-top:16px; padding:12px 14px; font-weight:800; }
+  .mpr-alert.success { background:rgba(34,197,94,.12); border-color:rgba(34,197,94,.3); color:#bbf7d0; }
+  .mpr-alert.error { background:rgba(239,68,68,.12); border-color:rgba(239,68,68,.3); color:#fecaca; }
+  .mpr-submit[disabled] { cursor:wait; opacity:.72; }
+  .mpr-mode-list, .mpr-source-list { list-style:none; margin:0; padding:10px 12px; display:grid; gap:8px; border:1px solid rgba(148,163,184,.32); border-radius:8px; background:#0b1527; }
+  .mpr-mode-list label, .mpr-source-list label { display:flex; gap:8px; align-items:center; color:var(--mpr-soft); }
+  .mpr-progress { border:1px solid rgba(56,189,248,.28); border-radius:8px; padding:12px; background:rgba(56,189,248,.08); }
+  .mpr-progress-track { height:9px; border-radius:999px; background:#07101f; overflow:hidden; margin:9px 0 6px; }
+  .mpr-progress-bar { height:100%; background:linear-gradient(90deg,#38bdf8,#22c55e); transition:width .35s ease; }
+  .mpr-generated-prompt { border-left:3px solid #818cf8; background:rgba(129,140,248,.09); padding:12px; color:var(--mpr-soft); line-height:1.5; }
+  .mpr-reference-grid { display:grid; grid-template-columns:210px minmax(0,1fr); gap:12px; align-items:stretch; }
+  .mpr-reference-card {
+    position:relative; min-height:210px; overflow:hidden; border:1px solid rgba(56,189,248,.25);
+    border-radius:9px; background:linear-gradient(145deg,rgba(56,189,248,.07),#050d1a);
+    display:flex; align-items:center; justify-content:center; padding:10px;
+  }
+  .mpr-reference-card img { width:100%; height:190px; object-fit:contain; border-radius:7px; background:#020617; }
+  .mpr-reference-label {
+    position:absolute; left:8px; top:8px; z-index:1; display:inline-flex; align-items:center; gap:5px;
+    padding:5px 8px; border-radius:999px; background:rgba(2,6,23,.84); border:1px solid rgba(125,211,252,.25);
+    color:#bae6fd; font-size:.66rem; font-weight:950; backdrop-filter:blur(8px);
+  }
+  .mpr-reference-grid .mpr-generated-prompt { border:1px solid rgba(129,140,248,.22); border-left:3px solid #818cf8; border-radius:8px; }
+  .mpr-agent-loader {
+    position:relative; overflow:hidden; border:1px solid rgba(56,189,248,.32); border-radius:12px;
+    background:radial-gradient(circle at 16% 25%,rgba(56,189,248,.14),transparent 32%),
+      radial-gradient(circle at 88% 18%,rgba(129,140,248,.13),transparent 30%),#081426;
+    padding:18px; min-height:168px;
+  }
+  .mpr-agent-loader::after {
+    content:""; position:absolute; inset:-80% -30%; pointer-events:none;
+    background:linear-gradient(105deg,transparent 42%,rgba(125,211,252,.09) 50%,transparent 58%);
+    animation:mprSweep 3.4s linear infinite;
+  }
+  .mpr-loader-main { position:relative; z-index:1; display:grid; grid-template-columns:92px minmax(0,1fr); gap:18px; align-items:center; }
+  .mpr-loader-orb { width:82px; height:82px; position:relative; display:grid; place-items:center; }
+  .mpr-loader-orb::before,.mpr-loader-orb::after { content:""; position:absolute; border-radius:50%; inset:7px; border:1px solid rgba(56,189,248,.55); animation:mprRadar 2s ease-out infinite; }
+  .mpr-loader-orb::after { animation-delay:1s; }
+  .mpr-loader-core {
+    width:48px; height:48px; border-radius:15px; display:grid; place-items:center; color:#e0f2fe; font-size:1.25rem;
+    background:linear-gradient(145deg,#0284c7,#4f46e5); box-shadow:0 0 30px rgba(56,189,248,.35);
+    animation:mprFloat 2.2s ease-in-out infinite;
+  }
+  .mpr-loader-kicker { color:#7dd3fc; font-size:.7rem; font-weight:950; letter-spacing:.11em; text-transform:uppercase; }
+  .mpr-loader-title { margin:4px 0 3px; font-size:1.05rem; font-weight:950; color:#f8fafc; }
+  .mpr-loader-copy { color:#a8bad0; font-size:.78rem; }
+  .mpr-loader-pulse { display:inline-flex; gap:4px; margin-left:6px; }
+  .mpr-loader-pulse i { width:4px; height:4px; border-radius:50%; background:#38bdf8; animation:mprDot 1.2s infinite; }
+  .mpr-loader-pulse i:nth-child(2){animation-delay:.15s}.mpr-loader-pulse i:nth-child(3){animation-delay:.3s}
+  .mpr-stage-row { position:relative; z-index:1; display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:15px; }
+  .mpr-stage { border:1px solid rgba(148,163,184,.18); border-radius:7px; padding:7px 8px; color:#64748b; background:rgba(2,6,23,.46); font-size:.67rem; font-weight:850; text-align:center; transition:.25s; }
+  .mpr-stage.active { color:#dbeafe; border-color:rgba(56,189,248,.48); background:rgba(14,116,144,.18); box-shadow:inset 0 -2px #38bdf8; }
+  .mpr-stage.done { color:#bbf7d0; border-color:rgba(34,197,94,.34); background:rgba(22,163,74,.1); }
+  .mpr-submit-overlay { position:fixed; inset:0; z-index:9999; display:none; place-items:center; padding:24px; background:rgba(2,6,23,.82); backdrop-filter:blur(10px); }
+  .mpr-submit-overlay.show { display:grid; }
+  .mpr-submit-dialog { width:min(440px,100%); border:1px solid rgba(56,189,248,.34); border-radius:14px; background:#081426; padding:26px; text-align:center; box-shadow:0 30px 80px rgba(0,0,0,.5); }
+  .mpr-source-panel { border:1px solid rgba(56,189,248,.2); border-radius:8px; background:rgba(8,20,38,.7); padding:10px 11px; }
+  .mpr-source-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; color:#bae6fd; font-size:.71rem; font-weight:950; }
+  .mpr-source-head small { color:#64748b; font-weight:800; }
+  .mpr-source-chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .mpr-source-chip { display:inline-flex; align-items:center; gap:6px; border:1px solid rgba(148,163,184,.2); border-radius:999px; padding:5px 8px; background:#07101f; color:#cbd5e1; font-size:.68rem; font-weight:900; }
+  .mpr-source-chip i { color:#38bdf8; }
+  .mpr-source-chip.browser i { color:#4ade80; }
+  .mpr-submit-dialog .mpr-loader-orb { margin:0 auto 10px; }
+  @keyframes mprRadar{0%{transform:scale(.62);opacity:.8}100%{transform:scale(1.45);opacity:0}}
+  @keyframes mprFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+  @keyframes mprDot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+  @keyframes mprSweep{from{transform:translateX(-35%)}to{transform:translateX(35%)}}
+  .mpr-result { padding:16px; display:grid; gap:14px; }
+  .mpr-empty { padding:48px 20px; text-align:center; color:var(--mpr-muted); }
+  .mpr-empty strong { display:block; color:var(--mpr-text); margin-bottom:6px; }
+  .mpr-price-grid { display:grid; grid-template-columns:repeat(4,minmax(120px,1fr)); gap:10px; }
+  .mpr-price-card { border:1px solid var(--mpr-line); border-radius:8px; background:#0b1527; padding:12px; }
+  .mpr-price-card span { display:block; color:var(--mpr-muted); font-size:.74rem; font-weight:850; margin-bottom:5px; }
+  .mpr-price-card strong { color:var(--mpr-text); font-size:1.2rem; font-weight:950; }
+  .mpr-market-grid { display:grid; grid-template-columns:repeat(4,minmax(120px,1fr)); gap:10px; }
+  .mpr-market-card { border:1px solid var(--mpr-line); border-radius:8px; background:linear-gradient(145deg,rgba(56,189,248,.08),#0b1527); padding:13px; }
+  .mpr-market-card span { color:var(--mpr-muted); display:block; font-size:.71rem; font-weight:850; margin-bottom:6px; }
+  .mpr-market-card strong { color:var(--mpr-text); display:block; font-size:1.22rem; font-weight:950; }
+  .mpr-market-card small { color:var(--mpr-soft); display:block; font-size:.68rem; line-height:1.35; margin-top:4px; }
+  .mpr-market-card.sales strong { color:#86efac; }
+  .mpr-data-note { border-left:3px solid var(--mpr-cyan); background:rgba(56,189,248,.08); color:var(--mpr-soft); font-size:.76rem; line-height:1.5; padding:10px 12px; }
+  .mpr-summary { border:1px solid rgba(56,189,248,.26); border-radius:12px; background:linear-gradient(145deg,rgba(14,165,233,.12),rgba(30,41,59,.42)); padding:15px; color:#e0f2fe; }
+  .mpr-summary-title { display:flex; align-items:center; gap:8px; color:#7dd3fc; font-size:.78rem; font-weight:950; margin-bottom:10px; text-transform:uppercase; letter-spacing:.055em; }
+  .mpr-qa-list { list-style:none; display:grid; gap:6px; padding:0; margin:0; }
+  .mpr-qa-list li { position:relative; padding-left:15px; color:#cbd5e1; font-size:.73rem; line-height:1.42; }
+  .mpr-qa-list li::before { content:""; position:absolute; left:1px; top:.48em; width:6px; height:6px; border-radius:50%; background:#38bdf8; box-shadow:0 0 0 3px rgba(56,189,248,.12); }
+  .mpr-strategy-hero { display:grid; grid-template-columns:minmax(190px,.7fr) minmax(0,1.8fr); gap:14px; align-items:stretch; }
+  .mpr-fast-price { position:relative; overflow:hidden; border:1px solid rgba(74,222,128,.3); border-radius:12px; padding:17px; background:linear-gradient(145deg,rgba(34,197,94,.19),rgba(15,23,42,.92)); }
+  .mpr-fast-price::after { content:""; position:absolute; width:110px; height:110px; right:-42px; top:-42px; border-radius:50%; background:rgba(74,222,128,.12); }
+  .mpr-fast-price span { display:block; color:#bbf7d0; font-size:.69rem; font-weight:950; letter-spacing:.06em; text-transform:uppercase; }
+  .mpr-fast-price strong { display:block; margin:6px 0 4px; color:#f0fdf4; font-size:1.65rem; line-height:1; font-weight:950; }
+  .mpr-fast-price small { color:#94a3b8; font-size:.69rem; line-height:1.4; }
+  .mpr-bands { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+  .mpr-band { --band-color:#fbbf24; border:1px solid color-mix(in srgb,var(--band-color) 28%,var(--mpr-line)); border-radius:11px; background:linear-gradient(155deg,color-mix(in srgb,var(--band-color) 9%,#0b1527),#0b1527 62%); padding:13px; }
+  .mpr-band.strong { --band-color:#fb7185; }
+  .mpr-band.balanced { --band-color:#fbbf24; }
+  .mpr-band.low { --band-color:#4ade80; }
+  .mpr-band-head { display:flex; justify-content:space-between; gap:8px; align-items:flex-start; margin-bottom:7px; }
+  .mpr-band strong { color:var(--mpr-text); display:block; font-size:.9rem; }
+  .mpr-band span { color:var(--band-color); font-weight:950; font-size:.76rem; }
+  .mpr-band-count { color:#94a3b8!important; font-size:.66rem!important; white-space:nowrap; }
+  .mpr-density { height:5px; overflow:hidden; border-radius:99px; background:rgba(148,163,184,.15); margin:9px 0 7px; }
+  .mpr-density i { display:block; height:100%; border-radius:inherit; background:var(--band-color); box-shadow:0 0 12px color-mix(in srgb,var(--band-color) 50%,transparent); }
+  .mpr-band p { color:var(--mpr-soft); font-size:.72rem; line-height:1.45; margin:0; }
+  .mpr-list { border:1px solid var(--mpr-line); border-radius:8px; overflow:hidden; }
+  .mpr-row { display:grid; grid-template-columns:86px minmax(0,1fr) auto auto; gap:12px; align-items:center; padding:12px 13px; border-bottom:1px solid rgba(148,163,184,.14); background:#0b1527; }
+  .mpr-row:last-child { border-bottom:0; }
+  .mpr-result-image {
+    width:86px; height:86px; border-radius:8px; overflow:hidden; border:1px solid rgba(148,163,184,.2);
+    background:linear-gradient(145deg,rgba(56,189,248,.08),#020617); display:grid; place-items:center;
+  }
+  .mpr-result-image img { width:100%; height:100%; object-fit:contain; background:#fff; }
+  .mpr-result-image i { color:#475569; font-size:1.35rem; }
+  .mpr-row-title { color:var(--mpr-text); font-weight:900; }
+  .mpr-row-meta { color:var(--mpr-muted); font-size:.76rem; margin-top:3px; }
+  .mpr-price { color:#86efac; font-weight:950; white-space:nowrap; }
+  .mpr-sim { color:#c7d2fe; font-weight:900; white-space:nowrap; }
+  .mpr-match-badge { display:inline-flex; margin-top:6px; border-radius:999px; padding:3px 7px; font-size:.67rem; font-weight:950; }
+  .mpr-match-badge.same { color:#bbf7d0; background:rgba(34,197,94,.14); }
+  .mpr-match-badge.close { color:#dbeafe; background:rgba(59,130,246,.15); }
+  .mpr-match-badge.similar { color:#fde68a; background:rgba(245,158,11,.14); }
+  .mpr-match-reason { color:#94a3b8; font-size:.69rem; margin-top:5px; line-height:1.35; }
+  .mpr-history { margin-top:16px; }
+  .mpr-history-list { padding:12px; display:grid; gap:8px; }
+  .mpr-history-item { color:var(--mpr-soft); border:1px solid rgba(148,163,184,.14); border-radius:8px; padding:10px 12px; background:#0b1527; }
+  .mpr-history-item strong { color:var(--mpr-text); display:block; }
+  .mpr-track-pill { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 8px; background:rgba(34,197,94,.14); color:#86efac; font-size:.74rem; font-weight:900; margin-top:8px; }
+  .mpr-sale-signal { color:#86efac; font-size:.72rem; font-weight:850; margin-top:5px; }
+  .mpr-sale-unavailable { color:var(--mpr-muted); }
+  @media(max-width:1200px){ .mpr-layout{grid-template-columns:1fr}.mpr-price-grid{grid-template-columns:repeat(2,1fr)}.mpr-market-grid{grid-template-columns:repeat(3,1fr)}.mpr-bands{grid-template-columns:1fr} }
+  @media(max-width:900px){ .mpr-strategy-hero{grid-template-columns:1fr} }
+  @media(max-width:760px){ .mpr-page{padding:14px}.mpr-top{grid-template-columns:1fr}.mpr-price-grid,.mpr-market-grid{grid-template-columns:1fr}.mpr-row{grid-template-columns:72px minmax(0,1fr)}.mpr-result-image{width:72px;height:72px}.mpr-price,.mpr-sim{grid-column:2}.mpr-reference-grid{grid-template-columns:1fr}.mpr-reference-card{min-height:180px}.mpr-reference-card img{height:170px} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mpr-page">
+  <div class="mpr-shell">
+    <section class="mpr-top">
+      <div>
+        <div class="mpr-kicker"><i class="fas fa-magnifying-glass-chart"></i> AI Ürün Pazar Araştırması</div>
+        <h1 class="mpr-title">Ürün Görseliyle Dijital Fiyat Araştırması</h1>
+        <p class="mpr-lead">Ürün görselini yükleyin, özellikleri virgülle ayırarak girin. Sistem görsel ve metin bilgisini birlikte değerlendirip benzer ürünleri, fiyat aralıklarını ve önerilen satış fiyatını kaydeder.</p>
+      </div>
+      <a class="mpr-btn" href="{% url 'marketplace_product_management' %}"><i class="fas fa-boxes-stacked"></i> Ürün Yönetimi</a>
+    </section>
+
+    {% if messages %}
+      {% for message in messages %}
+      <div class="mpr-alert {% if message.tags == 'error' %}error{% else %}success{% endif %}" role="alert">
+        <i class="fas fa-{% if message.tags == 'error' %}triangle-exclamation{% else %}circle-check{% endif %}"></i>
+        <span>{{ message }}</span>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="mpr-layout">
+      <section class="mpr-panel">
+        <div class="mpr-panel-head"><span>Ürün Araştırma Girişi</span><small>Görsel → AI prompt → canlı araştırma</small></div>
+        <form class="mpr-form" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% if form.non_field_errors %}<div class="mpr-errors">{{ form.non_field_errors }}</div>{% endif %}
+          <label class="mpr-drop" id="mprDrop">
+            <img class="mpr-preview" id="mprPreview" alt="Ürün görsel önizleme">
+            <i class="fas fa-cloud-arrow-up"></i>
+            <strong>Ürün görselini sürükle bırak veya dosyadan seç</strong>
+            <span>JPG, PNG veya WebP görsel kullanabilirsiniz.</span>
+            {{ form.product_image }}
+          </label>
+          {% if form.product_image.errors %}<div class="mpr-errors">{{ form.product_image.errors }}</div>{% endif %}
+
+          <div class="mpr-field">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+            {% if form.title.errors %}<div class="mpr-errors">{{ form.title.errors }}</div>{% endif %}
+          </div>
+          <div class="mpr-field">
+            {{ form.prompt.label_tag }}
+            {{ form.prompt }}
+            <div class="mpr-help">{{ form.prompt.help_text }}</div>
+            {% if form.prompt.errors %}<div class="mpr-errors">{{ form.prompt.errors }}</div>{% endif %}
+          </div>
+          <button class="mpr-submit" type="submit" data-idle-label="AI Promptu Oluştur ve Araştır">
+            <i class="fas fa-wand-magic-sparkles"></i><span>AI Promptu Oluştur ve Araştır</span>
+          </button>
+          <div class="mpr-cost-note">
+            <i class="fas fa-coins"></i>
+            <span><strong>İlk araştırma:</strong> en fazla 12 AI kontörü + 1 ürün araştırma hakkı. Aynı görsel ve bilgiler cache’deyse görsel planı için yeniden kontör düşmez; tahmini maliyet 5 kontöre iner.</span>
+          </div>
+        </form>
+      </section>
+
+      <section class="mpr-panel">
+        <div class="mpr-panel-head"><span>Listeleme ve Fiyat Analizi</span><small>Kaydedilen son sonuç</small></div>
+        {% if selected_research %}
+        <div class="mpr-result">
+          {% if selected_research.status != 'completed' and selected_research.status != 'partial' and selected_research.status != 'failed' %}
+          <div class="mpr-agent-loader" id="mprProgress" data-status-url="{% url 'marketplace_product_research_status' selected_research.id %}" data-status="{{ selected_research.status }}">
+            <div class="mpr-loader-main">
+              <div class="mpr-loader-orb"><div class="mpr-loader-core"><i class="fas fa-wand-magic-sparkles"></i></div></div>
+              <div>
+                <div class="mpr-loader-kicker">AI Shopping Intelligence</div>
+                <div class="mpr-loader-title" id="mprProgressLabel">{{ selected_research.current_step|default:selected_research.get_status_display }}</div>
+                <div class="mpr-loader-copy">Görseliniz analiz ediliyor, profesyonel prompt hazırlanıyor ve güvenilir kaynaklar taranıyor.<span class="mpr-loader-pulse"><i></i><i></i><i></i></span></div>
+              </div>
+            </div>
+            <div class="mpr-progress-track"><div class="mpr-progress-bar" id="mprProgressBar" style="width:{{ selected_research.progress_percent }}%"></div></div>
+            <small id="mprProgressValue">%{{ selected_research.progress_percent }} · {{ selected_research.get_status_display }}</small>
+            <div class="mpr-stage-row">
+              <div class="mpr-stage" data-stage="analyzing">Görsel & Prompt</div>
+              <div class="mpr-stage" data-stage="searching">Akıllı Kaynaklar</div>
+              <div class="mpr-stage" data-stage="verifying">Sayfa Doğrulama</div>
+              <div class="mpr-stage" data-stage="matching">AI Eşleştirme</div>
+            </div>
+            <div class="mpr-source-panel" id="mprLiveSources" {% if not selected_research.selected_marketplaces.exists %}hidden{% endif %} style="margin-top:10px">
+              <div class="mpr-source-head"><span><i class="fas fa-globe"></i> AI'ın seçtiği pazaryerleri</span><small id="mprSourceMode">{% if selected_research.search_plan.source_selection == 'manual' %}Kullanıcı seçimi{% else %}Otomatik seçim{% endif %}</small></div>
+              <div class="mpr-source-chips" id="mprSourceChips">
+                {% for marketplace in selected_research.selected_marketplaces.all %}
+                <span class="mpr-source-chip {% if marketplace.browser_verification_enabled %}browser{% endif %}"><i class="fas fa-{% if marketplace.browser_verification_enabled %}circle-check{% else %}magnifying-glass{% endif %}"></i>{{ marketplace.name }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          <div class="mpr-reference-grid">
+            {% if selected_research.product_image %}
+            <div class="mpr-reference-card">
+              <span class="mpr-reference-label"><i class="fas fa-image"></i> Referans ürün</span>
+              <img src="{{ selected_research.product_image.url }}" alt="{{ selected_research.detected_product_name|default:selected_research.title|default:'Yüklenen referans ürün' }}" loading="eager">
+            </div>
+            {% endif %}
+            <div class="mpr-generated-prompt" id="mprGeneratedPrompt" {% if not selected_research.generated_prompt %}hidden{% endif %}>
+              <strong>AI tarafından oluşturulan profesyonel arama talimatı</strong><br>
+              <span id="mprGeneratedPromptText">{{ selected_research.generated_prompt }}</span>
+            </div>
+          </div>
+          {% if selected_research.status == 'failed' %}
+          <div class="mpr-alert error">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span><strong>Bu yeni ürün araştırması tamamlanamadı.</strong><br>{{ selected_research.recommendation_summary|default:"Geçici AI veya kaynak hatası oluştu." }}</span>
+          </div>
+          {% endif %}
+          {% if selected_research.status != 'failed' %}
+          {% if selected_research.selected_marketplaces.exists %}
+          <div class="mpr-source-panel">
+            <div class="mpr-source-head">
+              <span><i class="fas fa-store"></i> Araştırmada kullanılan pazaryerleri</span>
+              <small>{% if selected_research.search_plan.source_selection == 'manual' %}Kullanıcı seçimi{% else %}AI otomatik seçti{% endif %}</small>
+            </div>
+            <div class="mpr-source-chips">
+              {% for marketplace in selected_research.selected_marketplaces.all %}
+              <span class="mpr-source-chip {% if marketplace.browser_verification_enabled %}browser{% endif %}">
+                <i class="fas fa-{% if marketplace.browser_verification_enabled %}circle-check{% else %}magnifying-glass{% endif %}"></i>
+                {{ marketplace.name }}
+              </span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+          <div class="mpr-market-grid" aria-label="Dijital pazar veri kapsamı">
+            <div class="mpr-market-card">
+              <span>Tespit Edilen Aktif Model</span>
+              <strong>{{ selected_research.raw_result.market_stats.active_model_count }}</strong>
+              <small>Tekilleştirilmiş satış ilanı</small>
+            </div>
+            <div class="mpr-market-card">
+              <span>Doğrulanan Kaynak</span>
+              <strong>{{ selected_research.raw_result.market_stats.source_count }}</strong>
+              <small>Farklı dijital alan adı</small>
+            </div>
+            <div class="mpr-market-card">
+              <span>Doğrulanan Ürün Sayfası</span>
+              <strong>{{ selected_research.raw_result.market_stats.verified_result_count|default:0 }}</strong>
+              <small>Doğrudan mağaza sayfası açılan sonuç</small>
+            </div>
+            <div class="mpr-market-card">
+              <span>Veri Güven Skoru</span>
+              <strong>%{{ selected_research.raw_result.market_stats.confidence_score }}</strong>
+              <small>Fiyat tutarlılığı: {{ selected_research.raw_result.market_stats.price_consistency }}</small>
+            </div>
+          </div>
+
+          <div class="mpr-data-note">
+            <i class="fas fa-circle-info"></i>
+            {{ selected_research.raw_result.market_stats.sales_note }} “Aktif model” sayısı tüm internetin toplamı değil, bu araştırmada erişilip doğrulanabilen benzersiz ilan sayısıdır.
+          </div>
+
+          <div class="mpr-price-grid">
+            <div class="mpr-price-card"><span>En Düşük</span><strong>{{ selected_research.min_price }} TL</strong></div>
+            <div class="mpr-price-card"><span>Ortalama</span><strong>{{ selected_research.average_price }} TL</strong></div>
+            <div class="mpr-price-card"><span>En Yüksek</span><strong>{{ selected_research.max_price }} TL</strong></div>
+            <div class="mpr-price-card"><span>Önerilen</span><strong>{{ selected_research.recommended_price }} TL</strong></div>
+          </div>
+
+          <div class="mpr-strategy-hero">
+            <div class="mpr-fast-price">
+              <span><i class="fas fa-bolt"></i> Hızlı satış için önerilen</span>
+              <strong>{{ selected_research.recommended_price }} TL</strong>
+              <small>Bulunan ilanların alt fiyat çeyreğine göre hesaplanan rekabetçi başlangıç fiyatı.</small>
+            </div>
+            <div class="mpr-summary">
+            <div class="mpr-summary-title"><i class="fas fa-chart-line"></i> AI Ürün Araştırma Sonucu</div>
+            {% if selected_research.raw_result.research_insights %}
+            <ul class="mpr-qa-list">
+              {% for point in selected_research.raw_result.research_insights %}
+              <li>{{ point }}</li>
+              {% endfor %}
+            </ul>
+            {% elif selected_research.raw_result.qa_points %}
+            <ul class="mpr-qa-list">
+              {% for point in selected_research.raw_result.qa_points %}
+              <li>{{ point }}</li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <ul class="mpr-qa-list"><li>{{ selected_research.recommendation_summary }}</li></ul>
+            {% endif %}
+            </div>
+          </div>
+          <a class="mpr-track-pill" href="{% url 'marketplace_price_tracking' %}"><i class="fas fa-chart-line"></i> Fiyat takibini ayrı ekrandan yönetin</a>
+
+          <div class="mpr-bands">
+            {% for band in selected_research.price_bands %}
+            <div class="mpr-band {{ band.key }}">
+              <div class="mpr-band-head">
+                <div><strong>{{ band.label }}</strong><span>{{ band.competition }}</span></div>
+                {% if band.listing_count %}<span class="mpr-band-count">{{ band.listing_count }} ilan</span>{% endif %}
+              </div>
+              {% if band.density %}
+              <div class="mpr-density" title="Göreceli ilan yoğunluğu: %{{ band.density }}"><i style="width:{{ band.density }}%"></i></div>
+              {% endif %}
+              <p>{{ band.note }}</p>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="mpr-list">
+            {% for item in selected_research.result_items %}
+            <div class="mpr-row">
+              <a class="mpr-result-image" href="{{ item.url }}" target="_blank" rel="noopener" aria-label="{{ item.title }} ürününü aç">
+                {% if item.image_url %}
+                <img src="{{ item.image_url }}" alt="{{ item.title }}" loading="lazy" referrerpolicy="no-referrer"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                <i class="fas fa-image" style="display:none"></i>
+                {% else %}
+                <i class="fas fa-image"></i>
+                {% endif %}
+              </a>
+              <div>
+                <div class="mpr-row-title">{{ item.title }}</div>
+                <div class="mpr-row-meta">{{ item.platform }} · {{ item.seller }} · {{ item.competition_level }}</div>
+                {% if item.sold_count %}
+                <div class="mpr-sale-signal"><i class="fas fa-bag-shopping"></i> Kaynakta yayınlanan satış: {{ item.sold_count }} adet</div>
+                {% else %}
+                <div class="mpr-sale-signal mpr-sale-unavailable"><i class="fas fa-minus-circle"></i> Kaynak satış adedi yayınlamıyor</div>
+                {% endif %}
+                {% if item.similarity >= 85 %}
+                <span class="mpr-match-badge same"><i class="fas fa-circle-check"></i>&nbsp; Aynı ürün olma ihtimali yüksek</span>
+                {% elif item.similarity >= 70 %}
+                <span class="mpr-match-badge close"><i class="fas fa-clone"></i>&nbsp; Çok benzer ürün</span>
+                {% else %}
+                <span class="mpr-match-badge similar"><i class="fas fa-shapes"></i>&nbsp; Benzer alternatif</span>
+                {% endif %}
+                {% if item.match_explanation %}
+                <div class="mpr-match-reason">{{ item.match_explanation|join:" · " }}</div>
+                {% endif %}
+                <a class="mpr-row-meta" href="{{ item.url }}" target="_blank" rel="noopener">Kaynak link</a>
+              </div>
+              <div class="mpr-sim">%{{ item.similarity }} benzer</div>
+              <div class="mpr-price">{{ item.price }} {{ item.currency }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="mpr-empty">
+          <strong>Henüz araştırma yok</strong>
+          <span>Sol taraftan görsel ve ürün özelliklerini girip ilk araştırmayı başlatabilirsiniz.</span>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+
+    <section class="mpr-panel mpr-history">
+      <div class="mpr-panel-head"><span>Son Araştırmalar</span><small>Veritabanında saklanır</small></div>
+      <div class="mpr-history-list">
+        {% for research in researches %}
+        <div class="mpr-history-item">
+          <strong>{{ research.title|default:research.detected_product_name }}</strong>
+          <span>{{ research.created_at|date:"d.m.Y H:i" }} · Önerilen: {{ research.recommended_price }} TL · {{ research.get_status_display }}</span>
+          {% if research.status == 'failed' %}<div class="mpr-errors">{{ research.recommendation_summary }}</div>{% endif %}
+        </div>
+        {% empty %}
+        <div class="mpr-empty"><strong>Kayıt yok</strong><span>Araştırmalar burada listelenir.</span></div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>
+<div class="mpr-submit-overlay" id="mprSubmitOverlay" aria-live="polite">
+  <div class="mpr-submit-dialog">
+    <div class="mpr-loader-orb"><div class="mpr-loader-core"><i class="fas fa-eye"></i></div></div>
+    <div class="mpr-loader-kicker">AI Görsel Analizi Başlıyor</div>
+    <div class="mpr-loader-title">Profesyonel araştırma promptu hazırlanıyor</div>
+    <div class="mpr-loader-copy">Görsel güvenli biçimde yükleniyor ve ürünün ayırt edici özellikleri çıkarılıyor.<span class="mpr-loader-pulse"><i></i><i></i><i></i></span></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const input = document.querySelector('.mpr-file');
+    const preview = document.getElementById('mprPreview');
+    const drop = document.getElementById('mprDrop');
+    const form = document.querySelector('.mpr-form');
+    const submit = form && form.querySelector('.mpr-submit');
+    const submitOverlay = document.getElementById('mprSubmitOverlay');
+    if (!input || !preview || !drop) return;
+
+    function showPreview(file) {
+      if (!file || !file.type || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        preview.src = event.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    input.addEventListener('change', function () {
+      showPreview(input.files && input.files[0]);
+    });
+    drop.addEventListener('dragover', function (event) {
+      event.preventDefault();
+      drop.style.borderColor = '#38bdf8';
+    });
+    drop.addEventListener('dragleave', function () {
+      drop.style.borderColor = 'rgba(125,211,252,.42)';
+    });
+    drop.addEventListener('drop', function (event) {
+      event.preventDefault();
+      drop.style.borderColor = 'rgba(125,211,252,.42)';
+      if (!event.dataTransfer.files.length) return;
+      input.files = event.dataTransfer.files;
+      showPreview(event.dataTransfer.files[0]);
+    });
+    form.addEventListener('submit', function () {
+      if (!form.checkValidity() || !submit) return;
+      submit.disabled = true;
+      submit.querySelector('i').className = 'fas fa-circle-notch fa-spin';
+      submit.querySelector('span').textContent = 'AI promptu hazırlanıyor…';
+      if (submitOverlay) submitOverlay.classList.add('show');
+    });
+  })();
+  (function () {
+    const box = document.getElementById('mprProgress');
+    if (!box) return;
+    const url = box.dataset.statusUrl;
+    const bar = document.getElementById('mprProgressBar');
+    const label = document.getElementById('mprProgressLabel');
+    const value = document.getElementById('mprProgressValue');
+    const promptBox = document.getElementById('mprGeneratedPrompt');
+    const promptText = document.getElementById('mprGeneratedPromptText');
+    const stages = Array.from(box.querySelectorAll('.mpr-stage'));
+    const liveSources = document.getElementById('mprLiveSources');
+    const sourceChips = document.getElementById('mprSourceChips');
+    const sourceMode = document.getElementById('mprSourceMode');
+    const order = ['analyzing', 'searching', 'verifying', 'matching'];
+    function updateStages(status) {
+      const current = order.indexOf(status);
+      stages.forEach((stage, index) => {
+        stage.classList.toggle('done', current > index || ['completed', 'partial'].includes(status));
+        stage.classList.toggle('active', current === index);
+      });
+    }
+    updateStages(box.dataset.status);
+    async function poll() {
+      try {
+        const response = await fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
+        if (!response.ok) return;
+        const data = await response.json();
+        bar.style.width = `${data.progress || 0}%`;
+        label.textContent = data.current_step || data.status_label;
+        value.textContent = `%${data.progress || 0} · ${data.status_label}`;
+        updateStages(data.status);
+        if (data.generated_prompt && promptBox && promptText) {
+          promptText.textContent = data.generated_prompt;
+          promptBox.hidden = false;
+        }
+        if (data.marketplaces && data.marketplaces.length && liveSources && sourceChips) {
+          sourceChips.innerHTML = data.marketplaces.map(source => {
+            const browserClass = source.browser_verification_enabled ? ' browser' : '';
+            const icon = source.browser_verification_enabled ? 'circle-check' : 'magnifying-glass';
+            return `<span class="mpr-source-chip${browserClass}"><i class="fas fa-${icon}"></i>${source.name}</span>`;
+          }).join('');
+          if (sourceMode) sourceMode.textContent = data.source_selection === 'manual' ? 'Kullanıcı seçimi' : 'AI otomatik seçti';
+          liveSources.hidden = false;
+        }
+        if (data.terminal) {
+          window.setTimeout(() => window.location.reload(), 700);
+          return;
+        }
+      } catch (error) {
+        // Geçici ağ hatasında bir sonraki sorgu devam eder.
+      }
+      window.setTimeout(poll, 2500);
+    }
+    window.setTimeout(poll, 1200);
+  })();
+</script>
+{% endblock %}

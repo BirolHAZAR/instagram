@@ -1,0 +1,1740 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Instagram HesaplarÄ±m - Reklam Analiz{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       INSTAGRAM DASHBOARD STÄ°LLERÄ°
+       ============================================ */
+    
+    .instagram-container {
+        min-height: calc(100vh - 200px);
+        padding: 2rem 1rem;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+    }
+    
+    .instagram-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .instagram-header h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea, #764ba2, #e1306c);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 0.5rem;
+    }
+    
+    .instagram-header p {
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+    
+    /* Hesap KartlarÄ± */
+    .account-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+    
+    .account-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 50px rgba(0, 0, 0, 0.12);
+    }
+    
+    .account-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        padding: 1.5rem;
+        color: white;
+        position: relative;
+    }
+    
+    .account-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1));
+        pointer-events: none;
+    }
+    
+    .account-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .account-avatar {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .account-details h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    
+    .account-details .username {
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+    
+    .account-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+        opacity: 0.8;
+    }
+    
+    .account-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-instagram {
+        background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af, #515bd4);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-instagram:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        color: white;
+    }
+    
+    .btn-outline-instagram {
+        background: transparent;
+        border: 2px solid rgba(255,255,255,0.5);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-outline-instagram:hover {
+        background: rgba(255,255,255,0.2);
+        border-color: white;
+    }
+    
+    /* Reklamlar BÃ¶lÃ¼mÃ¼ */
+    .ads-section {
+        padding: 1.5rem;
+        background: #f8f9ff;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .section-header h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+    }
+    
+    .section-header h3 i {
+        color: #e1306c;
+        margin-right: 0.5rem;
+    }
+    
+    .fetch-ads-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 0.7rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .fetch-ads-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .fetch-ads-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    /* ============ 4 REKLAM YANYANA GRID ============ */
+    .ads-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+    
+    .ad-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .ad-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    .ad-media {
+        position: relative;
+        background: #f3f4f6;
+        min-height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .ad-media img, 
+    .ad-media video {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .ad-type-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        backdrop-filter: blur(5px);
+    }
+    
+    .ad-content {
+        padding: 0.8rem;
+    }
+    
+    .ad-title {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+        line-clamp: 2;
+        word-break: break-word;
+    }
+    
+    .ad-metrics {
+        display: flex;
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+        flex-wrap: wrap;
+    }
+    
+    .metric {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.7rem;
+        color: #6b7280;
+    }
+    
+    .metric i {
+        font-size: 0.75rem;
+    }
+    
+    .metric .value {
+        font-weight: 700;
+        color: #1f2937;
+    }
+    
+    .ad-status {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 50px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+    
+    .status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-paused {
+        background: #fed7aa;
+        color: #92400e;
+    }
+    
+    .status-completed {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    /* ============ KÃœÃ‡ÃœK METRÄ°K KARTLARI ============ */
+    .metric-mini {
+        background: #f8f9ff;
+        border-radius: 8px;
+        padding: 6px 8px;
+        text-align: center;
+        font-size: 0.65rem;
+    }
+    
+    .metric-mini .label {
+        color: #888;
+        font-size: 0.6rem;
+    }
+    
+    .metric-mini .value {
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+    
+    /* ============ DEMOGRAFÄ° ISÄ± HARÄ°TASI ============ */
+    .heatmap-bar {
+        height: 6px;
+        border-radius: 3px;
+        margin-top: 4px;
+        background: #e5e7eb;
+    }
+    
+    .heatmap-fill {
+        height: 100%;
+        border-radius: 3px;
+    }
+    
+    .demographic-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 3px;
+        font-size: 0.65rem;
+    }
+    
+    .demographic-row .label {
+        width: 40px;
+        text-align: right;
+        color: #888;
+    }
+    
+    .demographic-row .bar-container {
+        flex: 1;
+        background: #e5e7eb;
+        border-radius: 3px;
+        height: 14px;
+        position: relative;
+    }
+    
+    .demographic-row .bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+    
+    .demographic-row .bar-value {
+        width: 35px;
+        font-weight: 600;
+        font-size: 0.65rem;
+    }
+    
+    /* YÃ¼kleme Animasyonu */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+    }
+    
+    .loading-content {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        text-align: center;
+        min-width: 300px;
+    }
+    
+    .instagram-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid #e1306c;
+        border-right: 4px solid #f58529;
+        border-bottom: 4px solid #833ab4;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* BoÅŸ Durum */
+    .empty-ads {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 16px;
+    }
+    
+    .empty-ads i {
+        font-size: 3rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-ads h4 {
+        font-size: 1.1rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Modal */
+    .ad-modal .modal-dialog {
+        max-width: 800px;
+    }
+    
+    .ad-modal .modal-content {
+        border-radius: 24px;
+        overflow: hidden;
+    }
+    
+    .ad-modal .modal-body {
+        padding: 0;
+    }
+    
+    .modal-media {
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+    }
+    
+    .modal-media img,
+    .modal-media video {
+        max-width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+    }
+    
+    .modal-details {
+        padding: 1.5rem;
+    }
+    
+    /* ============ ğŸ¤– AI ANALÄ°Z BUTONU ============ */
+    .btn-ai-analyze {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        white-space: nowrap;
+    }
+    .btn-ai-analyze:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+        color: white !important;
+    }
+    
+    /* ============ ETKÄ°LEÅÄ°M SAATLERÄ° GRAFÄ°ÄÄ° ============ */
+    .hourly-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 50px;
+    }
+    
+    .hourly-bar {
+        flex: 1;
+        border-radius: 2px 2px 0 0;
+        min-width: 6px;
+        transition: all 0.2s;
+    }
+    
+    .hourly-bar:hover {
+        opacity: 0.8;
+        transform: scaleY(1.1);
+    }
+    
+    /* ============ CÄ°HAZ DAÄILIMI ============ */
+    .device-dist {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 0.65rem;
+    }
+    
+    .device-bar {
+        height: 8px;
+        border-radius: 4px;
+    }
+    
+    /* ============ GENÄ°ÅLETÄ°LMÄ°Å KART Ä°Ã‡Ä° ============ */
+    .ad-card-expanded {
+        grid-column: span 2;
+    }
+    
+    .collapsible-section {
+        border-top: 1px solid #eee;
+        padding-top: 8px;
+        margin-top: 8px;
+    }
+    
+    .collapsible-section summary {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #667eea;
+        cursor: pointer;
+        padding: 4px 0;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1400px) {
+        .ads-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @media (max-width: 1100px) {
+        .ads-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .account-info {
+            flex-direction: column;
+            text-align: center;
+        }
+        .account-stats {
+            justify-content: center;
+        }
+        .account-actions {
+            justify-content: center;
+        }
+        .ads-grid {
+            grid-template-columns: 1fr;
+        }
+        .section-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .fetch-ads-btn {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="instagram-container">
+    <div class="container-fluid">
+        <div class="instagram-header">
+            <h1><i class="fab fa-instagram"></i> Instagram HesaplarÄ±m</h1>
+            <p>Instagram reklamlarÄ±nÄ±zÄ± yÃ¶netin, analiz edin ve optimize edin</p>
+            
+            <!-- YENÄ° HESAP EKLE BUTONU - HER ZAMAN GÃ–STER -->
+            <div class="mt-3">
+                <a href="{% url 'add_instagram_account' %}" class="btn-instagram" style="display: inline-flex; padding: 0.8rem 2rem;">
+                    <i class="fas fa-plus-circle"></i> Yeni Instagram HesabÄ± Ekle
+                </a>
+            </div>
+        </div>
+
+        {% if accounts %}
+            {% for account in accounts %}
+            <!-- Instagram Dashboard - Hesap KartÄ± -->
+            <div class="account-card" data-account-id="{{ account.id }}" data-account-username="{{ account.username }}">
+                <!-- Hesap Header -->
+                <div class="account-header">
+                    <div class="account-info">
+                        <div class="account-avatar">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <div class="account-details">
+                            <h2>@{{ account.username }}</h2>
+                            <div class="username">{{ account.full_name|default:account.username }}</div>
+                            <div class="account-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number" id="followers-{{ account.id }}">-</span>
+                                    <span class="stat-label">TakipÃ§i</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="following-{{ account.id }}">-</span>
+                                    <span class="stat-label">Takip</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="posts-{{ account.id }}">-</span>
+                                    <span class="stat-label">GÃ¶nderi</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number" id="ads-count-{{ account.id }}">{{ account.ads_count|default:0 }}</span>
+                                    <span class="stat-label">Reklam</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="account-actions">
+                        <a href="{% url 'instagram_account_detail' account.id %}" class="btn-outline-instagram">
+                            <i class="fas fa-chart-line"></i> DetaylÄ± Analiz
+                        </a>
+                        <a href="{% url 'sync_instagram_data' account.id %}" class="btn-outline-instagram">
+                            <i class="fas fa-sync"></i> Profili Senkronize Et
+                        </a>
+                        <a href="{% url 'campaign_create' %}?account={{ account.id }}" class="btn-outline-instagram">
+                            <i class="fas fa-plus-circle"></i> Yeni Kampanya
+                        </a>
+                        <a href="{% url 'instagram_reklam_raporu' %}" class="btn btn-success">
+    <i class="fas fa-chart-bar"></i> Reklam Raporu
+</a>
+                    </div>
+                </div>
+                
+                <!-- Reklamlar BÃ¶lÃ¼mÃ¼ -->
+                <div class="ads-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-ad"></i> Instagram ReklamlarÄ±</h3>
+                        <button class="fetch-ads-btn" data-account-id="{{ account.id }}" data-account-username="{{ account.username|escapejs }}">
+                            <i class="fab fa-instagram"></i> ReklamlarÄ± Ã‡ek
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Reklam Listesi -->
+                    <div id="ads-container-{{ account.id }}">
+                        <div class="empty-ads">
+                            <i class="fab fa-instagram"></i>
+                            <h4>HenÃ¼z reklam Ã§ekilmedi</h4>
+                            <p class="text-muted">"ReklamlarÄ± Ã‡ek" butonuna tÄ±klayarak Instagram'dan reklamlarÄ±nÄ±zÄ± getirin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- HiÃ§ hesap yoksa -->
+            <div class="account-card">
+                <div class="account-header">
+                    <div class="account-info">
+                        <div class="account-avatar">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <div class="account-details">
+                            <h2>HenÃ¼z Instagram HesabÄ± EklenmemiÅŸ</h2>
+                            <p>ReklamlarÄ±nÄ±zÄ± yÃ¶netmek iÃ§in bir Instagram hesabÄ± ekleyin.</p>
+                        </div>
+                    </div>
+                    <div class="account-actions">
+                        <a href="{% url 'add_instagram_account' %}" class="btn-instagram">
+                            <i class="fas fa-plus-circle"></i> Instagram HesabÄ± Ekle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Reklam Detay Modal -->
+<div class="modal fade ad-modal" id="adModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="adModalBody">
+                <!-- Dinamik iÃ§erik -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ğŸ¤– AI ANALÄ°Z POPUP MODAL ==================== -->
+<div class="modal fade" id="aiAnalysisModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius: 20px; overflow: hidden; border: none;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none;">
+                <div>
+                    <h5 class="modal-title" id="aiModalTitle"><i class="bi bi-robot"></i> Yapay Zeka Reklam Analizi</h5>
+                    <small id="aiModalSubtitle" style="opacity: 0.9;">Kapsamlı AI analizi</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="aiModalBody" style="padding: 0; max-height: 70vh; overflow-y: auto;"></div>
+            <div class="modal-footer" style="border-top: 1px solid #e0e0e0; padding: 12px 20px; display: flex; justify-content: space-between;">
+                <button class="btn btn-primary btn-sm" onclick="emailPopupRapor()">
+                    <i class="bi bi-envelope"></i> Email ile GÃ¶nder
+                </button>
+                <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================
+// INSTAGRAM DASHBOARD - TÃœM METRÄ°KLER EKLENDÄ°
+// ============================================
+
+let lastReportData = null;
+const csrftoken = getCookie('csrftoken');
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. TÃ¼m fetch butonlarÄ±nÄ± seÃ§ ve olay ekle
+    const fetchButtons = document.querySelectorAll('.fetch-ads-btn');
+    
+    fetchButtons.forEach(button => {
+        button.removeAttribute('onclick');
+        
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const accountId = this.getAttribute('data-account-id');
+            const username = this.getAttribute('data-account-username');
+            fetchInstagramAds(accountId, username, this);
+        });
+    });
+    
+    // 2. Her hesap iÃ§in profil istatistiklerini Ã§ek
+    const accountCards = document.querySelectorAll('.account-card');
+    accountCards.forEach(card => {
+        const accountId = card.getAttribute('data-account-id');
+        if (accountId) {
+            fetchAccountStats(accountId);
+        }
+    });
+});
+
+// ============================================
+// REKLAMLARI Ã‡EKME FONKSÄ°YONU
+// ============================================
+
+async function fetchInstagramAds(accountId, username, buttonElement) {
+    const container = document.getElementById(`ads-container-${accountId}`);
+    
+    if (!container) {
+        console.error('Container bulunamadÄ±:', accountId);
+        return;
+    }
+    
+    if (buttonElement) {
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = '<span class="spinner"></span> Reklamlar Ã‡ekiliyor...';
+    }
+    
+    container.innerHTML = `
+        <div style="text-align: center; padding: 3rem;">
+            <div class="instagram-spinner"></div>
+            <p class="mt-3">Instagram'dan reklamlar Ã§ekiliyor...</p>
+            <small class="text-muted">Bu iÅŸlem birkaÃ§ saniye sÃ¼rebilir</small>
+        </div>
+    `;
+    
+    try {
+        let ads = [];
+        try {
+            const response = await fetch(`/instagram/${accountId}/fetch-ads/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ account_id: accountId })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.ads && data.ads.length > 0) {
+                ads = data.ads;
+            } else {
+                console.log('API reklam dondurmedi:', data.error || 'Bos sonuc');
+                ads = [];
+            }
+        } catch (apiError) {
+            console.log('API baglantisi kurulamadi:', apiError.message);
+            ads = [];
+        }
+        
+        displayAds(container, ads, accountId);
+        
+        const adsCountSpan = document.getElementById(`ads-count-${accountId}`);
+        if (adsCountSpan) {
+            adsCountSpan.textContent = ads.length;
+        }
+        
+        showToast('success', `${ads.length} reklam basariyla getirildi!`);
+        
+    } catch (error) {
+        console.error('Hata:', error);
+        container.innerHTML = `
+            <div class="empty-ads">
+                <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                <h4 class="mt-3">BaÄŸlantÄ± HatasÄ±</h4>
+                <p class="text-muted">Sunucuya baglanilamadi. Lutfen platform baglantisini ve token yetkilerini kontrol edin.</p>
+            </div>
+        `;
+        const adsCountSpan = document.getElementById(`ads-count-${accountId}`);
+        if (adsCountSpan) adsCountSpan.textContent = '0';
+        showToast('error', 'Reklamlar getirilemedi. Gercek platform baglantisi gerekli.');
+        
+    } finally {
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = '<i class="fab fa-instagram"></i> ReklamlarÄ± Ã‡ek <i class="fas fa-download"></i>';
+        }
+    }
+}
+
+// ============================================
+// REKLAMLARI EKRANA BASMA
+// ============================================
+
+function displayAds(container, ads, accountId) {
+    if (!ads || ads.length === 0) {
+        container.innerHTML = `
+            <div class="empty-ads">
+                <i class="fas fa-info-circle" style="font-size: 3rem;"></i>
+                <h4 class="mt-3">HenÃ¼z reklam bulunamadÄ±</h4>
+                <p class="text-muted">Bu Instagram hesabÄ±nda aktif reklam bulunmuyor.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const adsHtml = `
+        <div class="ads-grid">
+            ${ads.map(ad => createAdCard(ad, accountId)).join('')}
+        </div>
+    `;
+    
+    container.innerHTML = adsHtml;
+}
+
+// ============================================
+// REKLAM KARTI OLUÅTUR - TÃœM METRÄ°KLER EKLENDÄ°
+// ============================================
+
+// ============================================
+// REKLAM KARTI OLUÅTUR - VÄ°DEO & GÃ–RSEL DÃœZELTÄ°LMÄ°Å
+// ============================================
+
+function createAdCard(ad, accountId) {
+    let mediaHtml = '';
+    const mediaUrl = ad.media_url || '';
+    const thumbnailUrl = ad.thumbnail_url || '';
+    const adType = ad.media_type || 'image';
+    
+    // Video & Reels iÃ§in Ã¶zel medya HTML'i
+    if (adType === 'video' || adType === 'reels') {
+        const videoId = 'vid_' + Math.random().toString(36).substr(2, 9);
+        const posterUrl = thumbnailUrl || `https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80`;
+        
+        mediaHtml = `
+            <div class="video-container" style="position:relative;width:100%;height:200px;background:#000;overflow:hidden;">
+                <video id="${videoId}" 
+                       src="${mediaUrl}" 
+                       poster="${posterUrl}"
+                       muted 
+                       loop 
+                       playsinline 
+                       preload="metadata"
+                       style="width:100%;height:100%;object-fit:cover;"
+                       onloadedmetadata="this.currentTime=0;"
+                       onerror="handleVideoError(this, '${posterUrl}')">
+                    <source src="${mediaUrl}" type="video/mp4">
+                    TarayÄ±cÄ±nÄ±z video etiketini desteklemiyor.
+                </video>
+                
+                <!-- Play butonu overlay -->
+                <div class="video-play-overlay" 
+                     onclick="toggleVideo('${videoId}', this)"
+                     style="position:absolute;top:0;left:0;width:100%;height:100%;
+                            display:flex;align-items:center;justify-content:center;
+                            cursor:pointer;background:rgba(0,0,0,0.2);z-index:2;">
+                    <i class="fas fa-play-circle" style="font-size:3rem;color:white;
+                       text-shadow:0 2px 15px rgba(0,0,0,0.5);opacity:0.9;
+                       transition:all 0.3s ease;"></i>
+                </div>
+                
+                <!-- Video hata durumunda gÃ¶sterilecek gÃ¶rsel (gizli) -->
+                <img id="${videoId}_fallback" 
+                     src="${posterUrl}" 
+                     alt="Video Ã¶nizleme" 
+                     style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:1;"
+                     loading="lazy">
+            </div>`;
+        
+    } else if (adType === 'carousel') {
+        // Carousel iÃ§in ilk gÃ¶rseli gÃ¶ster
+        const imgUrl = mediaUrl || '';
+        mediaHtml = `
+            <div style="position:relative;width:100%;height:200px;background:#f3f4f6;">
+                <img src="${imgUrl}" 
+                     alt="${ad.name || 'Reklam'}" 
+                     loading="lazy"
+                     onerror="this.style.display='none'"
+                     style="width:100%;height:100%;object-fit:cover;">
+                <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.6);color:white;
+                            padding:2px 8px;border-radius:10px;font-size:0.6rem;">
+                    <i class="fas fa-images"></i> Carousel
+                </div>
+            </div>`;
+            
+    } else {
+        // Normal gÃ¶rsel (image)
+        const imgUrl = mediaUrl || '';
+        mediaHtml = `
+            <img src="${imgUrl}" 
+                 alt="${ad.name || 'Reklam'}" 
+                 loading="lazy"
+                 onerror="this.style.display='none'"
+                 style="width:100%;height:200px;object-fit:cover;">`;
+    }
+    
+    // ... (METRÄ°K HESAPLAMALARI - mevcut kod aynen kalacak)
+    const metrics = ad.insights || {};
+    const impressions = metrics.impressions || 0;
+    const clicks = metrics.clicks || 0;
+    const ctr = metrics.ctr || 0;
+    const spend = metrics.spend || 0;
+    const budget = ad.budget || spend || 0;
+    const conversions = metrics.conversions || 0;
+    const cpc = metrics.cpc || (spend > 0 && clicks > 0 ? parseFloat((spend / clicks).toFixed(2)) : 0);
+    const cpm = metrics.cpm || (spend > 0 && impressions > 0 ? parseFloat(((spend / impressions) * 1000).toFixed(2)) : 0);
+    const conversionRate = metrics.conversion_rate || (clicks > 0 && conversions > 0 ? parseFloat(((conversions / clicks) * 100).toFixed(2)) : 0);
+    const roi = metrics.roi || (spend > 0 && conversions > 0 ? parseFloat((((conversions * 15) / spend) * 100).toFixed(1)) : 0);
+    const budgetUsage = ad.budgetUsage || (budget > 0 ? parseFloat(((spend / budget) * 100).toFixed(1)) : 0);
+    const reach = metrics.reach || 0;
+    const frequency = metrics.frequency || parseFloat((impressions / Math.max(1, reach)).toFixed(1));
+    const engagement = metrics.engagement || 0;
+    const engagementRate = metrics.engagement_rate || 0;
+    const saves = metrics.saves || 0;
+    const shares = metrics.shares || 0;
+    const comments = metrics.comments || 0;
+    const likes = metrics.likes || 0;
+    const profileVisits = metrics.profile_visits || 0;
+    const websiteVisits = metrics.website_visits || 0;
+    const videoViews = metrics.video_views || 0;
+    const videoCompletionRate = metrics.video_completion_rate || 0;
+    
+    let statusClass = 'status-completed';
+    let statusText = 'TamamlandÄ±';
+    if (ad.status === 'ACTIVE') {
+        statusClass = 'status-active';
+        statusText = 'Aktif';
+    } else if (ad.status === 'PAUSED') {
+        statusClass = 'status-paused';
+        statusText = 'DuraklatÄ±ldÄ±';
+    }
+    
+    let mediaTypeText = 'ğŸ“¸ GÃ¶rsel';
+    if (adType === 'video') mediaTypeText = 'ğŸ¥ Video';
+    else if (adType === 'carousel') mediaTypeText = 'ğŸ–¼ï¸ Carousel';
+    else if (adType === 'reels') mediaTypeText = 'ğŸ“± Reels';
+    
+    let budgetColor = '';
+    let budgetText = '';
+    if (budgetUsage >= 90) { budgetColor = 'text-danger'; budgetText = 'âš ï¸ Kritik'; }
+    else if (budgetUsage >= 70) { budgetColor = 'text-warning'; budgetText = 'ğŸŸ¡ YÃ¼ksek'; }
+    else if (budgetUsage >= 30) { budgetColor = 'text-info'; budgetText = 'ğŸ”µ Orta'; }
+    else { budgetColor = 'text-success'; budgetText = 'âœ… DÃ¼ÅŸÃ¼k'; }
+    
+    let performanceScore = 0;
+    let performanceColor = '';
+    if (ctr > 5) { performanceScore = 85; performanceColor = '#10b981'; }
+    else if (ctr > 2.5) { performanceScore = 65; performanceColor = '#f59e0b'; }
+    else if (impressions > 10000 && clicks < 100) { performanceScore = 35; performanceColor = '#ef4444'; }
+    else { performanceScore = 45; performanceColor = '#8b5cf6'; }
+    
+    const adId = ad.id || ad.ad_id || `ad_${accountId}_${Math.random().toString(36).substr(2, 9)}`;
+    const adName = escapeHtml(ad.name || 'Reklam');
+    
+    // EtkileÅŸim saatleri grafiÄŸi
+    const hourlyData = ad.hourlyEngagement || [];
+    const maxHourly = ad.maxHourly || Math.max(...hourlyData, 1);
+    const peakHours = ad.peakHours || [];
+    
+    const hourlyChartHtml = hourlyData.map((val, hour) => {
+        const isPeak = peakHours.includes(hour);
+        const heightPercent = maxHourly > 0 ? (val / maxHourly) * 100 : 0;
+        return `<div class="hourly-bar" 
+                     style="height:${heightPercent}%;background:${isPeak ? 'linear-gradient(180deg,#f58529,#dd2a7b)' : '#cbd5e1'};"
+                     title="${hour}:00 - ${val} etkileÅŸim${isPeak ? ' (Pik saat!)' : ''}">
+                </div>`;
+    }).join('');
+    
+    // Demografi verileri
+    const ageData = ad.ageDistribution || {
+        '13-17': 5, '18-24': 22, '25-34': 35, '35-44': 18, '45-54': 12, '55-64': 6, '65+': 2
+    };
+    const genderData = ad.genderSplit || { male: 48, female: 46, unknown: 6 };
+    const cityData = ad.cityDistribution || {
+        'Ä°stanbul': 32, 'Ankara': 18, 'Ä°zmir': 15, 'Bursa': 10, 'Antalya': 8, 'Adana': 7, 'Konya': 5, 'Gaziantep': 5
+    };
+    const deviceData = ad.deviceSplit || { mobile: 65, desktop: 25, tablet: 10 };
+    
+    const ageDistributionHtml = Object.entries(ageData).map(([age, val]) => {
+        const color = age === '25-34' ? '#f58529' : age === '18-24' ? '#dd2a7b' : '#cbd5e1';
+        return `<div class="demographic-row">
+                    <div class="label">${age}</div>
+                    <div class="bar-container"><div class="bar-fill" style="width:${val}%;background:${color};"></div></div>
+                    <div class="bar-value">${val}%</div>
+                </div>`;
+    }).join('');
+    
+    const genderDistributionHtml = `
+        <div class="demographic-row">
+            <div class="label">ğŸ‘¨ Erkek</div>
+            <div class="bar-container"><div class="bar-fill" style="width:${genderData.male}%;background:#4e79a7;"></div></div>
+            <div class="bar-value">${genderData.male}%</div>
+        </div>
+        <div class="demographic-row">
+            <div class="label">ğŸ‘© KadÄ±n</div>
+            <div class="bar-container"><div class="bar-fill" style="width:${genderData.female}%;background:#e15759;"></div></div>
+            <div class="bar-value">${genderData.female}%</div>
+        </div>
+        <div class="demographic-row">
+            <div class="label">â“ DiÄŸer</div>
+            <div class="bar-container"><div class="bar-fill" style="width:${genderData.unknown}%;background:#bab0ac;"></div></div>
+            <div class="bar-value">${Math.round(genderData.unknown)}%</div>
+        </div>`;
+    
+    const cityDistributionHtml = Object.entries(cityData).slice(0, 5).map(([city, val]) => `
+        <div class="demographic-row">
+            <div class="label" style="width:50px;">${city.substring(0, 6)}</div>
+            <div class="bar-container"><div class="bar-fill" style="width:${Math.min(100, val)}%;background:linear-gradient(90deg,#667eea,#764ba2);"></div></div>
+            <div class="bar-value">${val}%</div>
+        </div>`).join('');
+    
+    const deviceDistributionHtml = `
+        <div class="device-dist">
+            <span>ğŸ“± Mobil</span>
+            <div class="device-bar" style="width:${deviceData.mobile}%;background:#4CAF50;"></div>
+            <strong>${deviceData.mobile}%</strong>
+        </div>
+        <div class="device-dist">
+            <span>ğŸ’» MasaÃ¼stÃ¼</span>
+            <div class="device-bar" style="width:${deviceData.desktop}%;background:#2196F3;"></div>
+            <strong>${deviceData.desktop}%</strong>
+        </div>
+        <div class="device-dist">
+            <span>ğŸ“‹ Tablet</span>
+            <div class="device-bar" style="width:${deviceData.tablet}%;background:#FF9800;"></div>
+            <strong>${Math.round(deviceData.tablet)}%</strong>
+        </div>`;
+    
+    return `
+        <div class="ad-card">
+            <div class="ad-media">
+                ${mediaHtml}
+                <span class="ad-type-badge">${mediaTypeText}</span>
+            </div>
+            <div class="ad-content">
+                <div class="ad-title fw-bold">${adName}</div>
+                
+                <details class="collapsible-section">
+                    <summary>ğŸ“Š Performans Metrikleri</summary>
+                    
+                    <div class="row g-1 mt-2">
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ‘ï¸ GÃ¶sterim</div>
+                                <div class="value">${formatNumber(impressions)}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ–±ï¸ TÄ±klama</div>
+                                <div class="value">${formatNumber(clicks)}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ“Š CTR</div>
+                                <div class="value ${ctr > 3 ? 'text-success' : (ctr > 1.5 ? 'text-warning' : 'text-danger')}">${parseFloat(ctr).toFixed(2)}%</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ’° Harcama</div>
+                                <div class="value">â‚º${formatNumber(spend)}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ‘¥ EriÅŸim</div>
+                                <div class="value">${formatNumber(reach)}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ”„ Frekans</div>
+                                <div class="value">${parseFloat(frequency).toFixed(1)}x</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ’¬ EtkileÅŸim</div>
+                                <div class="value">${formatNumber(engagement)}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ“ˆ Etk. OranÄ±</div>
+                                <div class="value">${parseFloat(engagementRate).toFixed(2)}%</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="metric-mini">
+                                <div class="label">â¤ï¸ BeÄŸeni</div>
+                                <div class="value">${formatNumber(likes)}</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ’¬ Yorum</div>
+                                <div class="value">${formatNumber(comments)}</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ”– Kaydetme</div>
+                                <div class="value">${formatNumber(saves)}</div>
+                            </div>
+                        </div>
+                        ${(adType === 'video' || adType === 'reels') ? `
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">ğŸ¬ Video Ä°zlenme</div>
+                                <div class="value">${formatNumber(videoViews)}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini">
+                                <div class="label">â±ï¸ Tamamlanma</div>
+                                <div class="value">${parseFloat(videoCompletionRate).toFixed(1)}%</div>
+                            </div>
+                        </div>` : ''}
+                    </div>
+                    
+                    <!-- BÃ¼tÃ§e KullanÄ±mÄ± -->
+                    <div class="mt-2">
+                        <div class="metric-mini" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe);">
+                            <div class="label">ğŸ’° BÃ¼tÃ§e / Limit</div>
+                            <div class="value">â‚º${formatNumber(budget)}</div>
+                            <div class="small ${budgetColor} mt-1" style="font-size:0.6rem;">KullanÄ±m: ${parseFloat(budgetUsage).toFixed(1)}% ${budgetText}</div>
+                            <div class="heatmap-bar mt-1">
+                                <div class="heatmap-fill" style="width:${Math.min(100, budgetUsage)}%;background:${budgetUsage >= 90 ? '#ef4444' : (budgetUsage >= 70 ? '#f59e0b' : '#10b981')};"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- DÃ¶nÃ¼ÅŸÃ¼m & Maliyet -->
+                    <div class="row g-1 mt-1">
+                        <div class="col-6">
+                            <div class="metric-mini" style="background: #f0fdf4;">
+                                <div class="label">ğŸ’° YG (ROI)</div>
+                                <div class="value text-success">${parseFloat(roi).toFixed(1)}%</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini" style="background: #eff6ff;">
+                                <div class="label">ğŸ’¸ TBM (CPC)</div>
+                                <div class="value text-primary">â‚º${parseFloat(cpc).toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini" style="background: #fff7ed;">
+                                <div class="label">ğŸ¯ DÃ¶nÃ¼ÅŸÃ¼m OranÄ±</div>
+                                <div class="value text-warning">${parseFloat(conversionRate).toFixed(1)}%</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini" style="background: #fef2f2;">
+                                <div class="label">ğŸ“º BGBM (CPM)</div>
+                                <div class="value text-danger">â‚º${parseFloat(cpm).toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+                
+                <details class="collapsible-section">
+                    <summary>â° EtkileÅŸim Saatleri (IsÄ± HaritasÄ±)</summary>
+                    <div style="font-size:0.6rem;color:#888;margin-bottom:4px;">
+                        Pik saatler: ${peakHours.map(h => `${h}:00`).join(', ')}
+                        <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#dd2a7b;margin:0 2px;"></span>
+                    </div>
+                    <div class="hourly-chart">
+                        ${hourlyChartHtml}
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.55rem;color:#999;margin-top:2px;">
+                        <span>00</span><span>06</span><span>12</span><span>18</span><span>23</span>
+                    </div>
+                </details>
+                
+                <details class="collapsible-section">
+                    <summary>ğŸ‘¥ Demografi - YaÅŸ & Cinsiyet</summary>
+                    <div style="margin-top:4px;">
+                        <div style="font-size:0.6rem;font-weight:600;color:#333;margin-bottom:4px;">YaÅŸ DaÄŸÄ±lÄ±mÄ±</div>
+                        ${ageDistributionHtml}
+                        <div style="font-size:0.6rem;font-weight:600;color:#333;margin:8px 0 4px;">Cinsiyet DaÄŸÄ±lÄ±mÄ±</div>
+                        ${genderDistributionHtml}
+                    </div>
+                </details>
+                
+                <details class="collapsible-section">
+                    <summary>ğŸ™ï¸ Åehir & Cihaz DaÄŸÄ±lÄ±mÄ±</summary>
+                    <div style="margin-top:4px;">
+                        <div style="font-size:0.6rem;font-weight:600;color:#333;margin-bottom:4px;">ğŸŒ En Ã‡ok EtkileÅŸim Alan Åehirler</div>
+                        ${cityDistributionHtml}
+                        <div style="font-size:0.6rem;font-weight:600;color:#333;margin:8px 0 4px;">ğŸ“± Cihaz DaÄŸÄ±lÄ±mÄ±</div>
+                        ${deviceDistributionHtml}
+                    </div>
+                </details>
+                
+                <!-- Performans Skoru -->
+                <div class="mt-2">
+                    <div class="d-flex justify-content-between small mb-1" style="font-size:0.65rem;">
+                        <span>Performans Skoru</span>
+                        <span class="fw-bold">${performanceScore}/100</span>
+                    </div>
+                    <div style="height: 4px;background:#e5e7eb;border-radius:2px;">
+                        <div style="width: ${performanceScore}%; height: 100%; background: ${performanceColor}; border-radius: 2px;"></div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-2" style="font-size:0.65rem;">
+                    <span class="ad-status ${statusClass}">${statusText}</span>
+                    <small class="text-muted"><i class="fas fa-calendar"></i> ${ad.created_time ? new Date(ad.created_time).toLocaleDateString('tr-TR') : 'Yeni'}</small>
+                </div>
+                
+                <div class="mt-2 pt-2 border-top d-flex justify-content-end">
+                    <button class="btn btn-ai-analyze btn-sm" onclick="openAIPopup('${adId}', '${adName.replace(/'/g, "\\'")}')">
+                        <i class="bi bi-robot"></i> AI Analiz Et
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+}
+
+// ============================================
+// VIDEO OYNATMA & HATA YÃ–NETÄ°MÄ°
+// ============================================
+
+function toggleVideo(videoId, overlayElement) {
+    const video = document.getElementById(videoId);
+    const fallback = document.getElementById(videoId + '_fallback');
+    
+    if (!video) return;
+    
+    if (video.paused) {
+        video.play().then(() => {
+            if (overlayElement) {
+                overlayElement.style.opacity = '0';
+                setTimeout(() => { overlayElement.style.display = 'none'; }, 300);
+            }
+        }).catch(err => {
+            console.log('Video oynatÄ±lamadÄ±:', err.message);
+            // Otomatik oynatma engellenirse fallback gÃ¶ster
+            showVideoFallback(video, fallback, overlayElement);
+        });
+    } else {
+        video.pause();
+        if (overlayElement) {
+            overlayElement.style.display = 'flex';
+            overlayElement.style.opacity = '1';
+        }
+    }
+}
+
+function handleVideoError(videoElement, posterUrl) {
+    console.warn('Video yÃ¼klenemedi, gÃ¶rsel gÃ¶steriliyor:', videoElement.src);
+    const container = videoElement.parentElement;
+    const fallback = container.querySelector('img[id$="_fallback"]');
+    const overlay = container.querySelector('.video-play-overlay');
+    
+    if (fallback) {
+        fallback.style.display = 'block';
+        if (posterUrl) {
+            fallback.src = posterUrl;
+        }
+    }
+    
+    // Video ve overlay'i gizle
+    videoElement.style.display = 'none';
+    if (overlay) overlay.style.display = 'none';
+    
+    // Varsa type badge'i gÃ¼ncelle
+    const badge = container.closest('.ad-media')?.querySelector('.ad-type-badge');
+    if (badge) {
+        badge.textContent = 'ğŸ“¸ GÃ¶rsel';
+    }
+}
+
+function showVideoFallback(video, fallback, overlay) {
+    if (fallback) {
+        fallback.style.display = 'block';
+        video.style.display = 'none';
+    }
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+}
+
+
+// ============================================
+// GERÃ‡EK AI ANALÄ°ZÄ° - DÃœZELTÄ°LMÄ°Å VERSÄ°YON
+// ============================================
+
+async function openAIPopup(adId, adTitle) {
+    const modal = new bootstrap.Modal(document.getElementById('aiAnalysisModal'));
+    modal.show();
+    
+    document.getElementById('aiModalTitle').innerHTML = '<i class="bi bi-robot"></i> AI Reklam Analizi';
+    document.getElementById('aiModalSubtitle').textContent = (adTitle || 'Reklam').substring(0, 80) + '...';
+    
+    const agents = [
+        { name: 'GÃ¶rsel/Video Analizi', icon: 'ğŸ¨', key: 'visual_analysis' },
+        { name: 'Duygu Analizi', icon: 'ğŸ˜Š', key: 'sentiment' },
+        { name: 'Ä°Ã§erik Kalitesi', icon: 'ğŸ“', key: 'content_quality' },
+        { name: 'Hashtag Stratejisi', icon: '#ï¸âƒ£', key: 'hashtag' },
+        { name: 'Rakip KarÅŸÄ±laÅŸtÄ±rma', icon: 'âš”ï¸', key: 'competitor' },
+        { name: 'Performans Tahmini', icon: 'ğŸ“ˆ', key: 'performance_prediction' },
+        { name: 'BÃ¼tÃ§e Optimizasyonu', icon: 'ğŸ’°', key: 'budget' },
+        { name: 'Lead Potansiyeli', icon: 'ğŸ¯', key: 'leads' },
+        { name: 'Pazar Uyumu', icon: 'ğŸŒ', key: 'market' },
+        { name: 'EtkileÅŸim Stratejisi', icon: 'ğŸ’¡', key: 'engagement' },
+        { name: 'Ã–neri Motoru', icon: 'ğŸš€', key: 'recommendations' },
+        { name: 'Genel SaÄŸlÄ±k Skoru', icon: 'âœ…', key: 'overall_score' }
+    ];
+    
+    const body = document.getElementById('aiModalBody');
+    
+    // YÃ¼kleme animasyonu
+    body.innerHTML = `
+        <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:white;padding:40px 30px;min-height:500px;text-align:center;">
+            <div class="spinner-border text-light mb-3" style="width:3rem;height:3rem;"></div>
+            <h5 class="text-white">ğŸ”„ AI Analizi Devam Ediyor</h5>
+            <p class="text-white-50">Reklam verileri analiz ediliyor...</p>
+            <div class="progress mb-4" style="height:30px;border-radius:15px;background:rgba(255,255,255,0.1);">
+                <div id="popup-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                     style="width:0%;border-radius:15px;background:linear-gradient(90deg,#4CAF50,#8BC34A);">0%</div>
+            </div>
+            <div id="popup-agents" style="text-align:left;max-width:500px;margin:0 auto;">
+                ${agents.map((a, i) => `
+                    <div id="pa-${i}" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;margin-bottom:5px;font-size:14px;background:rgba(255,255,255,0.08);opacity:0.5;">
+                        <span style="font-size:18px;">●</span><span>Analiz hazırlanıyor...</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    
+    try {
+        // BACKEND'E GERÃ‡EK AI ANALÄ°Z Ä°STEÄÄ° GÃ–NDER
+        const response = await fetch(`/api/ai/analyze-ad/${adId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            }
+        });
+        
+        if (!response.ok) throw new Error('API hatasÄ±');
+        
+        const data = await response.json();
+        const taskId = data.task_id;
+        
+        // Celery task'Ä±n bitmesini poll et
+        let analysisResult = null;
+        let attempts = 0;
+        const maxAttempts = 60; // 60 saniye timeout
+        
+        while (attempts < maxAttempts) {
+            await sleep(1000);
+            
+            const statusResponse = await fetch(`/api/ai/task-status/${taskId}/`);
+            const statusData = await statusResponse.json();
+            
+            if (statusData.status === 'completed') {
+                analysisResult = statusData.result;
+                break;
+            } else if (statusData.status === 'failed') {
+                throw new Error(statusData.error || 'Analiz baÅŸarÄ±sÄ±z oldu');
+            }
+            
+            // Progress bar'Ä± gÃ¼ncelle
+            const progress = statusData.progress || 0;
+            updateProgressBar(progress, agents);
+            
+            attempts++;
+        }
+        
+        if (!analysisResult) {
+            throw new Error('Analiz zaman aÅŸÄ±mÄ±na uÄŸradÄ±');
+        }
+        
+        // GERÃ‡EK SONUÃ‡LARI GÃ–STER
+        displayRealAIResults(body, analysisResult, adTitle);
+        saveAIAnalysisToDatabase(adId, adTitle, analysisResult);
+        
+    } catch (error) {
+        console.error('AI Analiz hatasÄ±:', error);
+        
+        body.innerHTML = `
+            <div style="padding:30px;text-align:center;">
+                <i class="bi bi-exclamation-triangle" style="font-size:48px;color:#dc3545;"></i>
+                <h5 style="margin-top:16px;">AI analiz tamamlanamadi</h5>
+                <p style="color:#6c757d;">${escapeHtml(error.message || 'Gercek AI servisine ulasilamadi.')}</p>
+            </div>
+        `;
+        document.getElementById('aiModalSubtitle').textContent = 'Analiz basarisiz';
+    }
+}
+
+function updateProgressBar(progress, agents) {
+    const bar = document.getElementById('popup-bar');
+    if (bar) {
+        bar.style.width = progress + '%';
+        bar.textContent = progress + '%';
+    }
+    
+    // Tamamlanan ajanlarÄ± iÅŸaretle
+    const completedCount = Math.floor((progress / 100) * agents.length);
+    for (let i = 0; i < completedCount; i++) {
+        const agentEl = document.getElementById('pa-' + i);
+        if (agentEl) {
+            agentEl.style.background = 'rgba(76,175,80,0.25)';
+            agentEl.style.opacity = '1';
+            agentEl.querySelector('span:first-child').textContent = '●';
+        }
+    }
+}
+
+function displayRealAIResults(body, results, adTitle) {
+    // GerÃ§ek analiz sonuÃ§larÄ±nÄ± gÃ¶ster
+    const oscore = results.overall_score || results.overallScore || 75;
+    
+    let analysisCardsHtml = '';
+    
+    if (results.agents && Array.isArray(results.agents)) {
+        analysisCardsHtml = results.agents.map((agent, i) => `
+            <div style="background:white;border-radius:16px;padding:20px;margin-bottom:15px;border:1px solid #e8e8ff;">
+                <div style="display:flex;align-items:center;gap:15px;margin-bottom:12px;padding-bottom:12px;border-bottom:2px solid #f0f0ff;">
+                    <div style="width:50px;height:50px;border-radius:50%;background:${agent.color || '#667eea'}20;display:flex;align-items:center;justify-content:center;font-size:24px;color:${agent.color || '#667eea'};">●</div>
+                    <div style="flex:1;">
+                        <div style="font-size:16px;font-weight:700;"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#667eea;margin-right:9px;"></span>Analiz sonucu</div>
+                        <div style="font-size:12px;color:#888;">${agent.summary || ''}</div>
+                    </div>
+                    <div style="font-size:28px;font-weight:800;color:${agent.color || '#667eea'};">${agent.score || 0}%</div>
+                </div>
+                <div style="background:#f0f0f0;border-radius:10px;height:10px;margin-bottom:12px;">
+                    <div style="width:${agent.score || 0}%;height:100%;border-radius:10px;background:linear-gradient(90deg,${agent.color || '#667eea'},${agent.color || '#667eea'}88);"></div>
+                </div>
+                <div style="color:#555;line-height:1.8;font-size:14px;">
+                    <strong>ğŸ“‹ Bulgular:</strong> ${agent.details || 'Analiz tamamlandÄ±.'}
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    body.innerHTML = `
+        <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:white;padding:30px;">
+            <h5 class="mb-3"><i class="bi bi-star-fill"></i> YÃ–NETÄ°CÄ° Ã–ZETÄ°</h5>
+            <p style="opacity:0.9;line-height:1.8;">
+                <strong>"${adTitle || 'Reklam'}"</strong> iÃ§in AI analizi tamamlandÄ±. 
+                Genel performans skoru <strong>${oscore}/100</strong>.
+            </p>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px;">
+                <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:15px;text-align:center;">
+                    <div style="font-size:22px;font-weight:800;color:#4CAF50;">${oscore}</div>
+                    <div style="font-size:10px;opacity:0.7;">Genel Skor</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:15px;text-align:center;">
+                    <div style="font-size:22px;font-weight:800;color:#a29bfe;">Tamamlandı</div>
+                    <div style="font-size:10px;opacity:0.7;">Analiz Tamam</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:15px;text-align:center;">
+                    <div style="font-size:22px;font-weight:800;color:#f9ca24;">${results.analysis_time || '~'}s</div>
+                    <div style="font-size:10px;opacity:0.7;">Ä°ÅŸlem SÃ¼resi</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:15px;text-align:center;">
+                    <div style="font-size:22px;font-weight:800;color:#4ecdc4;">${new Date().toLocaleString('tr-TR')}</div>
+                    <div style="font-size:10px;opacity:0.7;">Tarih</div>
+                </div>
+            </div>
+        </div>
+        <div style="padding:30px;background:#f8f9fa;">
+            
+            ${analysisCardsHtml}
+        </div>
+    `;
+    
+    // Son rapor verisini sakla (email iÃ§in)
+    lastReportData = {
+        adTitle: adTitle,
+        overallScore: oscore,
+        generatedAt: new Date().toLocaleString('tr-TR'),
+        agents: results.agents || [],
+        raw: results
+    };
+    
+}
+
+// ============================================
+// EMAIL GÃ–NDERME
+// ============================================
+
+function emailPopupRapor() {
+    var email = prompt('ğŸ“§ Email adresi:', '');
+    if (!email) return;
+    
+    var popupHTML = document.getElementById('aiModalBody').innerHTML;
+    
+    fetch('/send-analysis-email/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({
+            email: email,
+            html: popupHTML,
+            ad_title: lastReportData?.adTitle || 'Reklam',
+            ad_name: lastReportData?.adTitle || 'Reklam',
+            overall_score: lastReportData?.overallScore || 0,
+            generated_at: lastReportData?.generatedAt || '',
+            competitor_username: '',
+            competitor_full_name: ''
+        })
+    })
+    .then(r => r.json())
+    .then(d => alert(d.message || 'âœ… Email gÃ¶nderildi!'))
+    .catch(() => alert('Hata!'));
+}
+
+// ============================================
+// YARDIMCI FONKSÄ°YONLAR
+// ============================================
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function formatNumber(num) {
+    return window.raFormatNumber(num);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function showToast(type, message) {
+    if (type === 'success') {
+        console.log('âœ…', message);
+    } else if (type === 'warning') {
+        console.warn('âš ï¸', message);
+    } else {
+        console.error('âŒ', message);
+    }
+}
+
+async function fetchAccountStats(accountId) {
+    try {
+        const response = await fetch(`/instagram/${accountId}/stats/`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const followersSpan = document.getElementById(`followers-${accountId}`);
+            const followingSpan = document.getElementById(`following-${accountId}`);
+            const postsSpan = document.getElementById(`posts-${accountId}`);
+            
+            if (followersSpan) followersSpan.textContent = formatNumber(data.followers || 0);
+            if (followingSpan) followingSpan.textContent = formatNumber(data.following || 0);
+            if (postsSpan) postsSpan.textContent = formatNumber(data.posts || 0);
+        }
+    } catch (error) {
+        console.error('Ä°statistik Ã§ekme hatasÄ±:', error);
+    }
+}
+
+function showAdDetail(ad) {
+    const modalElement = document.getElementById('adModal');
+    const modalBody = document.getElementById('adModalBody');
+    
+    if (modalElement && modalBody) {
+        modalBody.innerHTML = `
+            <div class="modal-media">
+                ${ad.media_type === 'video' || ad.media_type === 'reels' ? 
+                    `<video src="${ad.media_url}" controls autoplay style="max-width:100%;max-height:500px;"></video>` :
+                    `<img src="${ad.media_url}" alt="${ad.name}" style="max-width:100%;max-height:500px;">`
+                }
+            </div>
+            <div class="modal-details">
+                <h4>${escapeHtml(ad.name || 'Reklam DetaylarÄ±')}</h4>
+            </div>
+        `;
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+
+function exportAdReport(adId) {
+    alert(`Rapor indirme Ã¶zelliÄŸi yakÄ±nda eklenecektir.\nReklam ID: ${adId}`);
+}
+// ============================================
+// AI ANALÄ°Z SONUCUNU VERÄ°TABANINA KAYDET
+// ============================================
+
+async function saveAIAnalysisToDatabase(adId, adTitle, results) {
+    try {
+        // Agent'lardan skorlarÄ± Ã§Ä±kar
+        var agents = results.agents || [];
+        
+        // Her skoru agent listesinden bul
+        var sentimentScore = 0, contentScore = 0, hashtagScore = 0;
+        var competitorScore = 0, performanceScore = 0, budgetScore = 0;
+        var leadScore = 0, marketScore = 0;
+        
+        for (var i = 0; i < agents.length; i++) {
+            var agent = agents[i];
+            var name = (agent.name || '').toLowerCase();
+            var score = agent.score || 0;
+            
+            if (name.includes('duygu')) sentimentScore = score;
+            else if (name.includes('iÃ§erik') || name.includes('icerik')) contentScore = score;
+            else if (name.includes('hashtag')) hashtagScore = score;
+            else if (name.includes('rakip')) competitorScore = score;
+            else if (name.includes('performans')) performanceScore = score;
+            else if (name.includes('bÃ¼tÃ§e') || name.includes('butce')) budgetScore = score;
+            else if (name.includes('lead')) leadScore = score;
+            else if (name.includes('pazar')) marketScore = score;
+        }
+        
+        var response = await fetch('/api/save-ai-analysis/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+                ad_id: adId,
+                ad_title: adTitle,
+                overall_score: results.overall_score || results.overallScore || 0,
+                agents_results: agents,
+                sentiment_score: sentimentScore,
+                content_quality_score: contentScore,
+                hashtag_score: hashtagScore,
+                competitor_score: competitorScore,
+                performance_score: performanceScore,
+                budget_score: budgetScore,
+                lead_score: leadScore,
+                market_score: marketScore,
+                processing_time: parseFloat(results.analysis_time) || 0
+            })
+        });
+        
+        var data = await response.json();
+        console.log('âœ… AI Analiz kaydedildi! ID:', data.analysis_id);
+    } catch (e) {
+        console.error('KayÄ±t hatasÄ±:', e);
+    }
+}
+</script>
+
+{% endblock %}
+

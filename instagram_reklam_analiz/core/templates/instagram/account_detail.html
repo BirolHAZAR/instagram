@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ account.username }} - Hesap Detayi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/instagram_account_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'instagram_dashboard' %}">Instagram Hesaplari</a></li>
+            <li class="breadcrumb-item active">{{ account.username }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fab fa-instagram"></i> Hesap Bilgileri
+                        <span class="real-badge">Bagli Hesap</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fab fa-instagram fa-4x" style="color:#6366f1;"></i>
+                        <h3 class="mt-2">@{{ account.username }}</h3>
+                        <span class="badge bg-success">Gercek Hesap - Bagli</span>
+                    </div>
+
+                    <table class="table table-sm">
+                        <tr><td><strong>Hesap ID:</strong></td><td>{{ account.instagram_id|default:"-" }}</td></tr>
+                        <tr><td><strong>Hesap Tipi:</strong></td><td>{{ account.get_account_type_display|default:account.account_type }}</td></tr>
+                        <tr><td><strong>Gonderi Sayisi:</strong></td><td>{{ account.media_count|default:"0" }}</td></tr>
+                        <tr><td><strong>Takipci Sayisi:</strong></td><td>{{ account.followers_count|default:"0" }}</td></tr>
+                        <tr><td><strong>Son Senkronizasyon:</strong></td><td>{{ account.last_sync|date:"d.m.Y H:i"|default:"-" }}</td></tr>
+                        <tr><td><strong>Eklenme Tarihi:</strong></td><td>{{ account.created_at|date:"d.m.Y H:i" }}</td></tr>
+                    </table>
+
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-instagram-login" id="instagramLoginBtn" data-username="{{ account.username }}">
+                            <i class="fab fa-instagram me-2"></i> Instagram'a Gir
+                        </button>
+                        <button type="button" class="btn btn-gradient" id="aiAnalyzeBtn" data-account-id="{{ account.id }}">
+                            <i class="fas fa-robot me-2"></i> AI ile Analiz Et
+                        </button>
+                        <a href="{% url 'delete_instagram_account' account.id %}" class="btn btn-danger" onclick="return confirm('Hesabi silmek istediginize emin misiniz?')">
+                            <i class="fas fa-trash me-2"></i> Hesabi Sil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line"></i> AI Destekli Hesap Analizi
+                        <span id="dataTypeBadge" style="display:none;" class="real-badge"></span>
+                    </h5>
+                </div>
+                <div class="card-body" id="analysisContent">
+                    <div id="initialState" class="text-center py-5">
+                        <i class="fas fa-robot fa-4x text-muted mb-3"></i>
+                        <h5>AI Demografik Analiz</h5>
+                        <p class="text-muted">
+                            Instagram hesabinizin <span class="badge bg-success">gercek verilerle</span>
+                            detayli demografik analizini goruntuleyin.
+                        </p>
+                        <div class="mt-3">
+                            <span class="insight-badge"><i class="fas fa-chart-pie"></i> Cinsiyet Dagilimi</span>
+                            <span class="insight-badge ms-2"><i class="fas fa-calendar-alt"></i> Yas Araligi</span>
+                            <span class="insight-badge ms-2"><i class="fas fa-map-marker-alt"></i> Cografi Konum</span>
+                        </div>
+                    </div>
+                    <div id="loadingState" style="display:none;" class="text-center py-5">
+                        <div class="loading-spinner" style="width:2rem;height:2rem;"></div>
+                        <p class="mt-3 text-muted">AI analiz yapiyor, lutfen bekleyin...</p>
+                        <small class="text-muted">Instagram verileriniz analiz ediliyor</small>
+                    </div>
+                    <div id="analysisResult" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openInstagramLogin(username) {
+    const targetUrl = username ? `https://www.instagram.com/${username}/` : 'https://www.instagram.com/';
+    const width = 400;
+    const height = 620;
+    const left = (screen.width - width) / 2;
+    const top = (screen.height - height) / 2;
+    const popup = window.open(targetUrl, 'InstagramLogin', `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=yes,status=no,menubar=no,scrollbars=yes`);
+    if (popup) popup.focus();
+    else window.open(targetUrl, '_blank');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const instagramLoginBtn = document.getElementById('instagramLoginBtn');
+    if (instagramLoginBtn) {
+        instagramLoginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            openInstagramLogin(this.getAttribute('data-username'));
+        });
+    }
+
+    const analyzeBtn = document.getElementById('aiAnalyzeBtn');
+    if (analyzeBtn) {
+        analyzeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            analyzeAccount(this.getAttribute('data-account-id'));
+        });
+    }
+});
+
+async function analyzeAccount(accountId) {
+    const initialState = document.getElementById('initialState');
+    const loadingState = document.getElementById('loadingState');
+    const analysisResult = document.getElementById('analysisResult');
+    const analyzeBtn = document.getElementById('aiAnalyzeBtn');
+    const dataTypeBadge = document.getElementById('dataTypeBadge');
+
+    if (initialState) initialState.style.display = 'none';
+    if (analysisResult) {
+        analysisResult.style.display = 'none';
+        analysisResult.innerHTML = '';
+    }
+    if (loadingState) loadingState.style.display = 'block';
+    if (dataTypeBadge) dataTypeBadge.style.display = 'none';
+
+    if (analyzeBtn) {
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = '<span class="loading-spinner"></span> Analiz Yapiliyor...';
+    }
+
+    try {
+        const response = await fetch(`/instagram/${accountId}/ai-analyze/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ account_id: parseInt(accountId) })
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Gercek veri analizi tamamlanamadi.');
+        }
+
+        if (dataTypeBadge) {
+            dataTypeBadge.style.display = 'inline-block';
+            dataTypeBadge.className = 'real-badge';
+            dataTypeBadge.innerHTML = '<i class="fas fa-check-circle"></i> Gercek Veri';
+        }
+        displayAnalysisResult(analysisResult, data);
+    } catch (error) {
+        displayAnalysisError(analysisResult, error.message || 'Analiz sirasinda hata olustu.');
+    } finally {
+        if (loadingState) loadingState.style.display = 'none';
+        if (analysisResult) analysisResult.style.display = 'block';
+        if (analyzeBtn) {
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = '<i class="fas fa-robot me-2"></i> AI ile Analiz Et';
+        }
+    }
+}
+
+function displayAnalysisError(container, message) {
+    if (!container) return;
+    container.innerHTML = `
+        <div class="alert alert-danger text-center mb-0">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Analiz tamamlanamadi.</strong>
+            <div class="mt-2">${escapeHtml(message)}</div>
+        </div>
+    `;
+}
+
+function displayAnalysisResult(container, data) {
+    const demographics = data.demographics || {};
+    const aiSuggestions = data.ai_suggestions || {};
+    const female = Number(demographics.gender_female || 0);
+    const male = Number(demographics.gender_male || 0);
+
+    container.innerHTML = `
+        <div class="demographic-card mb-4">
+            <div class="demographic-title"><i class="fas fa-robot"></i> Yapay Zeka Destekli Analizler</div>
+            <div class="row g-2">
+                ${renderSuggestion('fas fa-coins text-warning', 'Budget Optimizer', aiSuggestions.budget)}
+                ${renderSuggestion('fab fa-instagram text-danger', 'Hashtag Recommender', renderHashtags(aiSuggestions.hashtags))}
+                ${renderSuggestion('fas fa-smile text-success', 'Sentiment Analyzer', aiSuggestions.sentiment)}
+                ${renderSuggestion('fas fa-flag-checkered text-info', 'Competitor Analyzer', aiSuggestions.competitor)}
+                ${renderSuggestion('fas fa-trophy text-warning', 'Lead Scorer', aiSuggestions.lead_score)}
+                ${renderSuggestion('fas fa-comment-dots text-primary', 'Auto Responder', aiSuggestions.auto_reply)}
+                ${renderSuggestion('fas fa-star text-warning', 'Influencer Connector', aiSuggestions.influencer)}
+                ${renderSuggestion('fas fa-shield-alt text-success', 'Error Manager', aiSuggestions.error_manager)}
+            </div>
+        </div>
+        <div class="demographic-card">
+            <div class="demographic-title"><i class="fas fa-venus-mars"></i> Cinsiyet Dagilimi</div>
+            ${renderProgress('Kadin', female, 'linear-gradient(90deg,#ec489a,#f43f5e)')}
+            ${renderProgress('Erkek', male, 'linear-gradient(90deg,#3b82f6,#06b6d4)')}
+            ${female || male ? '' : '<p class="text-muted text-center">Cinsiyet verisi bulunmuyor</p>'}
+        </div>
+        <div class="demographic-card">
+            <div class="demographic-title"><i class="fas fa-calendar-alt"></i> Yas Dagilimi</div>
+            ${renderAgeGroups(demographics.age_groups)}
+        </div>
+        <div class="demographic-card">
+            <div class="demographic-title"><i class="fas fa-globe"></i> Ulke Dagilimi</div>
+            ${renderLocations(demographics.countries)}
+        </div>
+        <div class="demographic-card">
+            <div class="demographic-title"><i class="fas fa-city"></i> Sehir Dagilimi</div>
+            ${renderLocations(demographics.cities)}
+        </div>
+        <div class="demographic-card">
+            <div class="demographic-title"><i class="fas fa-clock"></i> En Aktif Saatler</div>
+            <div class="row">${renderActiveHours(demographics.active_hours)}</div>
+        </div>
+    `;
+}
+
+function renderSuggestion(icon, title, value) {
+    return `
+        <div class="col-md-6">
+            <div class="card border-0 bg-light p-2 mb-2">
+                <i class="${icon}"></i>
+                <strong>${escapeHtml(title)}</strong>
+                <p class="small mb-0">${value || '<span class="text-muted">Veri bulunmuyor</span>'}</p>
+            </div>
+        </div>
+    `;
+}
+
+function renderHashtags(hashtags) {
+    if (!Array.isArray(hashtags) || !hashtags.length) return '';
+    return hashtags.slice(0, 5).map(h => `<span class="badge bg-secondary me-1">#${escapeHtml(String(h).replace(/^#/, ''))}</span>`).join('');
+}
+
+function renderProgress(label, value, color) {
+    if (!value) return '';
+    return `
+        <div class="mb-2">
+            <div class="d-flex justify-content-between mb-1"><span>${label}</span><span>${value}%</span></div>
+            <div class="progress"><div class="progress-bar" style="width:${value}%;background:${color};"></div></div>
+        </div>
+    `;
+}
+
+function renderAgeGroups(ageGroups) {
+    if (!Array.isArray(ageGroups) || !ageGroups.length) return '<p class="text-muted text-center">Yas verisi bulunmuyor</p>';
+    return ageGroups.map(group => renderProgress(`${escapeHtml(group.range)} Yas`, Number(group.percentage || 0), '#6366f1')).join('');
+}
+
+function renderLocations(locations) {
+    if (!Array.isArray(locations) || !locations.length) return '<p class="text-muted text-center">Veri bulunmuyor</p>';
+    return locations.slice(0, 5).map(loc => `
+        <div class="location-item">
+            <span class="location-name">${escapeHtml(loc.name)}</span>
+            <div class="d-flex align-items-center">
+                <div class="progress" style="width:120px;margin-right:10px;">
+                    <div class="progress-bar" style="width:${Number(loc.percentage || 0)}%"></div>
+                </div>
+                <span class="location-percentage">${Number(loc.percentage || 0)}%</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderActiveHours(hours) {
+    if (!hours) return '<p class="text-muted text-center">Saat verisi bulunmuyor</p>';
+    const hourData = [
+        { label: 'Sabah', icon: 'sun', value: hours.morning || 0, time: '06:00-12:00' },
+        { label: 'Ogle', icon: 'sun', value: hours.afternoon || 0, time: '12:00-17:00' },
+        { label: 'Aksam', icon: 'moon', value: hours.evening || 0, time: '17:00-22:00' },
+        { label: 'Gece', icon: 'moon', value: hours.night || 0, time: '22:00-06:00' }
+    ].filter(item => item.value);
+    if (!hourData.length) return '<p class="text-muted text-center">Saat verisi bulunmuyor</p>';
+    return hourData.map(hour => `
+        <div class="col-6 col-md-3 text-center mb-2">
+            <div class="p-2 border rounded">
+                <i class="fas fa-${hour.icon}"></i>
+                <div class="fw-bold mt-1">${hour.label}</div>
+                <div class="small text-muted">${hour.time}</div>
+                <div class="fw-bold text-primary">${hour.value}%</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function escapeHtml(text) {
+    if (text === undefined || text === null) return '';
+    const div = document.createElement('div');
+    div.textContent = String(text);
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

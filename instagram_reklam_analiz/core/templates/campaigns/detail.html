@@ -1,0 +1,932 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ campaign.campaign_name }} - Kampanya DetayÄ±{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       PROFESYONEL KAMPANYA DETAY SAYFASI
+       ============================================ */
+    
+    :root {
+        --primary: #4361ee;
+        --primary-dark: #3a56d4;
+        --secondary: #7209b7;
+        --success: #06ffa5;
+        --warning: #ffb703;
+        --danger: #fb8500;
+        --dark: #1a1a2e;
+        --light: #f8f9fa;
+        --gray: #6c757d;
+        --white: #ffffff;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 15px rgba(0,0,0,0.08);
+        --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+        --radius: 16px;
+        --radius-lg: 24px;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #f5f7ff 0%, #eef2ff 100%);
+    }
+    
+    .campaign-detail {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    /* BaÅŸlÄ±k BÃ¶lÃ¼mÃ¼ */
+    .campaign-header {
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .campaign-title h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 0.5rem;
+    }
+    
+    .campaign-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        color: var(--gray);
+        font-size: 0.85rem;
+    }
+    
+    .campaign-meta i {
+        margin-right: 0.3rem;
+        color: var(--primary);
+    }
+    
+    /* Durum Rozeti */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+    }
+    
+    .status-draft { background: rgba(108,117,125,0.15); color: #6c757d; border: 1px solid rgba(108,117,125,0.3); }
+    .status-sent_to_instagram { background: rgba(6,255,165,0.15); color: #06a56a; border: 1px solid rgba(6,255,165,0.3); }
+    .status-active { background: rgba(67,97,238,0.15); color: var(--primary); border: 1px solid rgba(67,97,238,0.3); }
+    .status-paused { background: rgba(255,183,3,0.15); color: #d48a00; border: 1px solid rgba(255,183,3,0.3); }
+    
+    /* Ä°statistik KartlarÄ± - Ãœstte tam geniÅŸlik */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 1rem;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+    }
+    
+    .stat-icon i { font-size: 1.3rem; color: white; }
+    .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--dark); margin: 0.3rem 0 0.2rem; }
+    .stat-label { font-size: 0.7rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    /* Ä°KÄ° SÃœTUNLU ANA Ä°Ã‡ERÄ°K */
+    .two-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Sol SÃ¼tun - Temel Bilgiler ve Hedef Kitle */
+    .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    /* SaÄŸ SÃ¼tun - Medya AlanÄ± */
+    .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    /* Ä°KÄ°LÄ° KARTLAR (Ä°Ã§erik ve AI Analiz) */
+    .double-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Ana Kartlar */
+    .info-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.05);
+        height: 100%;
+    }
+    
+    .info-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+    
+    .info-card-header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        padding: 0.8rem 1.2rem;
+        color: white;
+    }
+    
+    .info-card-header h5 {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .info-card-header h5 i { margin-right: 0.5rem; }
+    .info-card-body { padding: 1.2rem; }
+    
+    /* Bilgi SatÄ±rlarÄ± */
+    .info-row {
+        display: flex;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid #eef2ff;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label {
+        width: 130px;
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 0.8rem;
+    }
+    .info-value { flex: 1; color: var(--gray); font-size: 0.8rem; }
+    
+    /* ============================================
+       MEDYA BÃ–LÃœMÃœ - SAÄ TARAF
+       ============================================ */
+    .media-card {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .media-header {
+        padding: 0.8rem 1.2rem;
+        background: rgba(255,255,255,0.05);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .media-header h5 {
+        margin: 0;
+        color: white;
+        font-size: 0.9rem;
+    }
+    
+    .media-container {
+        padding: 3rem;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 550px;
+    }
+    
+    /* GÃ¶rsel Stilleri */
+    .media-image {
+        max-width: 100%;
+        max-height: 600px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        transition: transform 0.3s ease;
+    }
+    
+    .media-image:hover { transform: scale(1.02); }
+    
+    /* Video Stilleri */
+    .media-video {
+        max-width: 100%;
+        max-height: 800px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* Karusel Stilleri - GÃœNCELLENDÄ° */
+    .carousel-container {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .carousel-custom {
+        position: relative;
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: rgba(0,0,0,0.3);
+    }
+    
+    .carousel-custom-inner {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .carousel-custom-item {
+        display: none;
+        text-align: center;
+        padding: 0.5rem;
+        animation: fadeIn 0.4s ease;
+    }
+    
+    .carousel-custom-item.active { 
+        display: block; 
+    }
+    
+    .carousel-custom-item img {
+        width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+        border-radius: 12px;
+    }
+    
+    .carousel-controls {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        transform: translateY(-50%);
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+        padding: 0 10px;
+    }
+    
+    .carousel-btn {
+        width: 36px;
+        height: 36px;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(5px);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        pointer-events: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .carousel-btn:hover {
+        background: var(--primary);
+        transform: scale(1.1);
+    }
+    
+    .carousel-indicators-custom {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.8rem;
+        padding-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .carousel-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.4);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .carousel-dot.active {
+        width: 24px;
+        border-radius: 10px;
+        background: var(--primary);
+    }
+    
+    .carousel-counter {
+        text-align: center;
+        margin-top: 0.5rem;
+        color: rgba(255,255,255,0.6);
+        font-size: 0.7rem;
+    }
+    
+    /* Carousel KÃ¼Ã§Ã¼k Resim Galerisi - YENÄ° EKLENDÄ° */
+    .carousel-thumbnails {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 1rem;
+        padding: 0.5rem;
+        overflow-x: auto;
+        flex-wrap: wrap;
+    }
+    
+    .carousel-thumbnail {
+        width: 150px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        opacity: 0.6;
+    }
+    
+    .carousel-thumbnail:hover {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+    
+    .carousel-thumbnail.active {
+        border-color: var(--primary);
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    
+    /* AI Analiz KartÄ± */
+    .ai-card {
+        background: linear-gradient(135deg, #f8f9ff, #eef2ff);
+        border-left: 3px solid var(--primary);
+    }
+    
+    .ai-score {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.2rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .ai-high { background: #d1fae5; color: #065f46; }
+    .ai-medium { background: #fed7aa; color: #92400e; }
+    .ai-low { background: #fee2e2; color: #991b1b; }
+    
+    /* Progress Bar */
+    .progress-custom {
+        background: #eef2ff;
+        border-radius: 10px;
+        height: 6px;
+        overflow: hidden;
+    }
+    .progress-fill {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        height: 100%;
+        width: 0%;
+        border-radius: 10px;
+        transition: width 0.5s ease;
+    }
+    
+    /* Etiketler */
+    .target-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: #f0f4ff;
+        padding: 0.2rem 0.7rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        color: var(--primary);
+        margin: 0.15rem;
+    }
+    
+    /* Butonlar */
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eef2ff;
+    }
+    
+    .btn-custom {
+        padding: 0.5rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary-custom { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; }
+    .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(67,97,238,0.4); }
+    .btn-warning-custom { background: var(--warning); color: #1a1a2e; }
+    .btn-warning-custom:hover { transform: translateY(-2px); }
+    .btn-danger-custom { background: #ef4444; color: white; }
+    .btn-danger-custom:hover { transform: translateY(-2px); background: #dc2626; }
+    .btn-success-custom { background: linear-gradient(135deg, #06ffa5, #06a56a); color: #1a1a2e; }
+    .btn-success-custom:hover { transform: translateY(-2px); }
+    .btn-secondary-custom { background: #e5e7eb; color: #374151; }
+    .btn-secondary-custom:hover { transform: translateY(-2px); background: #d1d5db; }
+    
+    /* Animasyonlar */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+        .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .two-columns { grid-template-columns: 1fr; gap: 1rem; }
+        .double-cards { grid-template-columns: 1fr; gap: 1rem; }
+        .info-label { width: 110px; }
+    }
+    
+    @media (max-width: 768px) {
+        .campaign-detail { padding: 1rem; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .info-row { flex-direction: column; }
+        .info-label { width: 100%; margin-bottom: 0.3rem; }
+        .action-buttons { justify-content: center; flex-wrap: wrap; }
+        .media-container { min-height: 280px; }
+    }
+    
+    @media (max-width: 576px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        .campaign-title h1 { font-size: 1.5rem; }
+        .carousel-btn { width: 28px; height: 28px; font-size: 0.8rem; }
+        .carousel-thumbnail { width: 40px; height: 40px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="campaign-detail">
+    
+    <!-- BAÅLIK BÃ–LÃœMÃœ -->
+    <div class="campaign-header">
+        <div class="campaign-title">
+            <h1><i class="fas fa-bullhorn"></i> {{ campaign.campaign_name }}</h1>
+            <div class="campaign-meta">
+                <span><i class="fas fa-calendar-alt"></i> OluÅŸturulma: {{ campaign.created_at|date:"d.m.Y H:i" }}</span>
+                <span><i class="fas fa-sync-alt"></i> Son GÃ¼ncelleme: {{ campaign.updated_at|date:"d.m.Y H:i" }}</span>
+            </div>
+        </div>
+        <div class="status-badge status-{{ campaign.status }}">
+            <i class="fas {% if campaign.status == 'draft' %}fa-pen-fancy{% elif campaign.status == 'sent_to_instagram' %}fa-check-circle{% elif campaign.status == 'active' %}fa-play-circle{% else %}fa-pause-circle{% endif %}"></i>
+            {% if campaign.status == 'draft' %}Taslak (Pasif)
+            {% elif campaign.status == 'sent_to_instagram' %}Instagram'a GÃ¶nderildi
+            {% elif campaign.status == 'active' %}Aktif
+            {% else %}DuraklatÄ±ldÄ±{% endif %}
+        </div>
+    </div>
+
+    <!-- Ä°STATÄ°STÄ°K KARTLARI - ÃœSTTE TAM GENÄ°ÅLÄ°K -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-value">{{ campaign.ai_score|default:0 }}/100</div>
+            <div class="stat-label">AI Performans PuanÄ±</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-coins"></i></div>
+            <div class="stat-value">{{ campaign.budget|tr_decimal }} â‚º</div>
+            <div class="stat-label">Toplam BÃ¼tÃ§e</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
+            <div class="stat-value">{{ campaign.spent_amount|tr_decimal }} â‚º</div>
+            <div class="stat-label">Harcanan</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-percent"></i></div>
+            <div class="stat-value" id="budgetPercent">0%</div>
+            <div class="stat-label">BÃ¼tÃ§e KullanÄ±mÄ±</div>
+        </div>
+    </div>
+
+    <!-- Ä°KÄ° SÃœTUNLU ANA Ä°Ã‡ERÄ°K (Temel Bilgiler + Hedef Kitle | Medya) -->
+    <div class="two-columns">
+        
+        <!-- SOL SÃœTUN - Temel Bilgiler ve Hedef Kitle -->
+        <div class="left-column">
+            
+            <!-- Temel Bilgiler KartÄ± -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <h5><i class="fas fa-info-circle"></i> Temel Bilgiler</h5>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-tag"></i> Kampanya AdÄ±</div>
+                        <div class="info-value">{{ campaign.campaign_name }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label"><i class="fab fa-instagram"></i> Instagram HesabÄ±</div>
+                        <div class="info-value">@{{ campaign.instagram_account.username }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-ad"></i> Reklam TÃ¼rÃ¼</div>
+                        <div class="info-value">
+                            {% if campaign.ad_type == 'image' %}ğŸ“¸ GÃ¶rsel Reklam
+                            {% elif campaign.ad_type == 'video' %}ğŸ¥ Video Reklam
+                            {% elif campaign.ad_type == 'carousel' %}ğŸ–¼ï¸ Karousel Reklam
+                            {% elif campaign.ad_type == 'story' %}ğŸ“± Hikaye Reklam
+                            {% elif campaign.ad_type == 'reels' %}ğŸ¬ Reels Reklam
+                            {% else %}{{ campaign.ad_type }}{% endif %}
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-calendar"></i> BaÅŸlangÄ±Ã§</div>
+                        <div class="info-value">{{ campaign.start_date|date:"d.m.Y H:i" }}</div>
+                    </div>
+                    {% if campaign.end_date %}
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-calendar-alt"></i> BitiÅŸ</div>
+                        <div class="info-value">{{ campaign.end_date|date:"d.m.Y H:i" }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-chart-line"></i> BÃ¼tÃ§e Durumu</div>
+                        <div class="info-value">
+                            <div class="progress-custom mb-1">
+                                <div class="progress-fill" id="budgetProgressFill"></div>
+                            </div>
+                            <small id="budgetInfo"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hedef Kitle KartÄ± -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <h5><i class="fas fa-users"></i> Hedef Kitle</h5>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-calendar-alt"></i> YaÅŸ AralÄ±ÄŸÄ±</div>
+                        <div class="info-value">
+                            {% if campaign.target_audience.age_range %}
+                                {{ campaign.target_audience.age_range.min|default:"18" }} - {{ campaign.target_audience.age_range.max|default:"65" }} yaÅŸ
+                            {% else %}TÃ¼m yaÅŸ gruplarÄ±{% endif %}
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-venus-mars"></i> Cinsiyet</div>
+                        <div class="info-value">
+                            {% if campaign.target_audience.gender == 'all' %}ğŸ‘¥ TÃ¼mÃ¼
+                            {% elif campaign.target_audience.gender == 'female' %}ğŸ‘© KadÄ±n
+                            {% elif campaign.target_audience.gender == 'male' %}ğŸ‘¨ Erkek
+                            {% else %}BelirtilmemiÅŸ{% endif %}
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-language"></i> Dil</div>
+                        <div class="info-value">{{ campaign.target_audience.language|default:"TÃ¼m diller" }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-globe"></i> BÃ¶lgeler</div>
+                        <div class="info-value">
+                            {% if campaign.target_audience.regions %}
+                                {% for region in campaign.target_audience.regions %}
+                                    <span class="target-tag"><i class="fas fa-map-marker-alt"></i> {{ region|title }}</span>
+                                {% endfor %}
+                            {% else %}TÃ¼m bÃ¶lgeler{% endif %}
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label"><i class="fas fa-heart"></i> Ä°lgi AlanlarÄ±</div>
+                        <div class="info-value">
+                            {% if campaign.target_audience.interests %}
+                                {% for interest in campaign.target_audience.interests %}
+                                    <span class="target-tag"><i class="fas fa-tag"></i> {{ interest|title }}</span>
+                                {% endfor %}
+                            {% else %}TÃ¼m ilgi alanlarÄ±{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SAÄ SÃœTUN - Reklam MedyasÄ± -->
+        <div class="right-column">
+            <div class="media-card">
+                <div class="media-header">
+                    <h5><i class="fas fa-image"></i> Reklam MedyasÄ±</h5>
+                </div>
+                
+                <!-- MEDYA GÃ–STERÄ°M BÃ–LÃœMÃœ - GÃœNCELLENDÄ° -->
+                <div class="media-container">
+                    {% if campaign.ad_type == 'reels' or campaign.ad_type == 'video' %}
+                        {% if campaign.media_file %}
+                            <video controls class="media-video">
+                                <source src="{{ campaign.media_file.url }}" type="video/mp4">
+                                TarayÄ±cÄ±nÄ±z video oynatmayÄ± desteklemiyor.
+                            </video>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-video fa-4x text-muted mb-3"></i>
+                                <p class="text-muted">Video yÃ¼klenmemiÅŸ</p>
+                            </div>
+                        {% endif %}
+                        
+                    {% elif campaign.ad_type == 'image' %}
+                        {% if campaign.media_file %}
+                            <img src="{{ campaign.media_file.url }}" alt="{{ campaign.campaign_name }}" class="media-image">
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-image fa-4x text-muted mb-3"></i>
+                                <p class="text-muted">GÃ¶rsel yÃ¼klenmemiÅŸ</p>
+                            </div>
+                        {% endif %}
+                        
+                    {% elif campaign.ad_type == 'carousel' %}
+                        <!-- KARUSEL GÃ–STERÄ°MÄ° - TAM GÃœNCELLENDÄ° -->
+                        {% if campaign.carousel_items and campaign.carousel_items|length > 0 %}
+                            <div class="carousel-container">
+                                <div class="carousel-custom">
+                                    <div class="carousel-custom-inner">
+                                        {% for item in campaign.carousel_items %}
+                                        <div class="carousel-custom-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                                            <img src="{{ item.url }}" alt="Carousel gÃ¶rsel {{ forloop.counter }}">
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    {% if campaign.carousel_items|length > 1 %}
+                                    <div class="carousel-controls">
+                                        <button class="carousel-btn" id="carouselPrev">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button class="carousel-btn" id="carouselNext">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- GÃ¶sterge noktalarÄ± -->
+                                <div class="carousel-indicators-custom" id="carouselDots">
+                                    {% for item in campaign.carousel_items %}
+                                    <span class="carousel-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></span>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- SayÄ± gÃ¶sterge -->
+                                <div class="carousel-counter">
+                                    <span id="currentSlide">1</span> / <span id="totalSlides">{{ campaign.carousel_items|length }}</span>
+                                </div>
+                                
+                                <!-- KÃ¼Ã§Ã¼k resim galerisi - YENÄ° -->
+                                <div class="carousel-thumbnails">
+                                    {% for item in campaign.carousel_items %}
+                                    <img src="{{ item.url }}" class="carousel-thumbnail {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" alt="Thumbnail {{ forloop.counter }}">
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-images fa-4x text-muted mb-3"></i>
+                                <p class="text-muted">Carousel gÃ¶rseli yÃ¼klenmemiÅŸ</p>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-file fa-4x text-muted mb-3"></i>
+                            <p class="text-muted">Medya yÃ¼klenmemiÅŸ</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ä°KÄ°LÄ° KARTLAR (Ä°Ã§erik Bilgileri - Sol | AI Analiz - SaÄŸ) -->
+    <div class="double-cards">
+        
+        <!-- Ä°Ã§erik Bilgileri KartÄ± - Sol -->
+        <div class="info-card">
+            <div class="info-card-header">
+                <h5><i class="fas fa-edit"></i> Ä°Ã§erik Bilgileri</h5>
+            </div>
+            <div class="info-card-body">
+                <div class="info-row">
+                    <div class="info-label"><i class="fas fa-heading"></i> BaÅŸlÄ±k</div>
+                    <div class="info-value">{{ campaign.target_audience.ad_title|default:"BelirtilmemiÅŸ" }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label"><i class="fas fa-align-left"></i> Metin</div>
+                    <div class="info-value">{{ campaign.target_audience.ad_description|default:"BelirtilmemiÅŸ"|linebreaks }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label"><i class="fas fa-hashtag"></i> Hashtag'ler</div>
+                    <div class="info-value">{{ campaign.target_audience.hashtags|default:"BelirtilmemiÅŸ" }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label"><i class="fas fa-link"></i> Hedef URL</div>
+                    <div class="info-value">
+                        {% if campaign.target_audience.target_url %}
+                            <a href="{{ campaign.target_audience.target_url }}" target="_blank" rel="noopener noreferrer">{{ campaign.target_audience.target_url }}</a>
+                        {% else %}BelirtilmemiÅŸ{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI Analiz KartÄ± - SaÄŸ -->
+        <div class="info-card ai-card">
+            <div class="info-card-header">
+                <h5><i class="fas fa-robot"></i> Yapay Zeka Analizi</h5>
+            </div>
+            <div class="info-card-body">
+                <div class="info-row">
+                    <div class="info-label"><i class="fas fa-star"></i> Performans PuanÄ±</div>
+                    <div class="info-value">
+                        <div class="ai-score {% if campaign.ai_score >= 70 %}ai-high{% elif campaign.ai_score >= 50 %}ai-medium{% else %}ai-low{% endif %}">
+                            <i class="fas fa-chart-line"></i> {{ campaign.ai_score|default:0 }}/100
+                        </div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label"><i class="fas fa-star"></i> DeÄŸerlendirme</div>
+                    <div class="info-value">
+                        {% if campaign.ai_score >= 80 %}ğŸ† MÃ¼kemmel! KampanyanÄ±z Ã§ok yÃ¼ksek potansiyele sahip.
+                        {% elif campaign.ai_score >= 60 %}ğŸ‘ Ä°yi! KampanyanÄ±z baÅŸarÄ±lÄ± olma potansiyeline sahip.
+                        {% elif campaign.ai_score >= 40 %}ğŸ“ˆ Orta! BazÄ± iyileÅŸtirmeler Ã¶nerilir.
+                        {% else %}âš ï¸ GeliÅŸtirilmeli! Hedef kitle revizyonu Ã¶nerilir.{% endif %}
+                    </div>
+                </div>
+                {% if campaign.ai_recommendations %}
+                <div class="info-row">
+                    <div class="info-label"><i class="fas fa-lightbulb"></i> AI Ã–nerileri</div>
+                    <div class="info-value">
+                        <ul class="mb-0 ps-3">
+                            {% for rec in campaign.ai_recommendations|slice:":5" %}
+                                <li>{{ rec }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- BUTONLAR -->
+    <div class="action-buttons">
+        <a href="{% url 'campaign_list' %}" class="btn-custom btn-secondary-custom">
+            <i class="fas fa-arrow-left"></i> Geri
+        </a>
+        <a href="{% url 'campaign_edit' campaign.id %}" class="btn-custom btn-warning-custom">
+            <i class="fas fa-edit"></i> DÃ¼zenle
+        </a>
+        
+        {% if campaign.status == 'draft' %}
+        <a href="{% url 'send_to_instagram' campaign.id %}" class="btn-custom btn-success-custom" onclick="return confirm('KampanyayÄ± Instagram\'a gÃ¶ndermek istediÄŸinize emin misiniz?')">
+            <i class="fab fa-instagram"></i> Instagram'a GÃ¶nder
+        </a>
+        {% endif %}
+        
+        <a href="{% url 'campaign_delete' campaign.id %}" class="btn-custom btn-danger-custom" onclick="return confirm('KampanyayÄ± silmek istediÄŸinize emin misiniz?')">
+            <i class="fas fa-trash"></i> Sil
+        </a>
+    </div>
+</div>
+
+<script>
+    // BÃ¼tÃ§e yÃ¼zdesi hesaplama
+    document.addEventListener('DOMContentLoaded', function() {
+        const spent = parseFloat("{{ campaign.spent_amount|default:'0' }}");
+        const budget = parseFloat("{{ campaign.budget|default:'0' }}");
+        const percent = (budget > 0) ? (spent / budget) * 100 : 0;
+        
+        const progressFill = document.getElementById('budgetProgressFill');
+        const percentSpan = document.getElementById('budgetPercent');
+        const budgetInfo = document.getElementById('budgetInfo');
+        
+        if (progressFill) progressFill.style.width = percent + '%';
+        if (percentSpan) percentSpan.textContent = Math.round(percent) + '%';
+        if (budgetInfo) budgetInfo.innerHTML = spent.toFixed(0) + ' / ' + budget.toFixed(0) + ' â‚º (%' + Math.round(percent) + ')';
+    });
+    
+    // KARUSEL JAVASCRIPT - TAMAMEN YENÄ°LENDÄ°
+    (function() {
+        const items = document.querySelectorAll('.carousel-custom-item');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const thumbnails = document.querySelectorAll('.carousel-thumbnail');
+        const prevBtn = document.getElementById('carouselPrev');
+        const nextBtn = document.getElementById('carouselNext');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalItems = items.length;
+        
+        if (totalItems === 0) return;
+        
+        let currentIndex = 0;
+        
+        // Toplam slayt sayÄ±sÄ±nÄ± gÃ¶ster
+        const totalSlidesSpan = document.getElementById('totalSlides');
+        if (totalSlidesSpan) totalSlidesSpan.textContent = totalItems;
+        
+        function showSlide(index) {
+            // SlaytlarÄ± gÃ¼ncelle
+            items.forEach(item => item.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            thumbnails.forEach(thumb => thumb.classList.remove('active'));
+            
+            let newIndex = index;
+            if (newIndex < 0) newIndex = totalItems - 1;
+            if (newIndex >= totalItems) newIndex = 0;
+            
+            items[newIndex].classList.add('active');
+            if (dots[newIndex]) dots[newIndex].classList.add('active');
+            if (thumbnails[newIndex]) thumbnails[newIndex].classList.add('active');
+            if (currentSlideSpan) currentSlideSpan.textContent = newIndex + 1;
+            currentIndex = newIndex;
+        }
+        
+        // Ã–nceki buton
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSlide(currentIndex - 1);
+            });
+        }
+        
+        // Sonraki buton
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showSlide(currentIndex + 1);
+            });
+        }
+        
+        // GÃ¶sterge noktalarÄ±
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                showSlide(index);
+            });
+        });
+        
+        // KÃ¼Ã§Ã¼k resimler
+        thumbnails.forEach((thumb, index) => {
+            thumb.addEventListener('click', function() {
+                showSlide(index);
+            });
+        });
+        
+        // Klavye kontrolleri (sol/saÄŸ ok tuÅŸlarÄ±)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                showSlide(currentIndex - 1);
+            } else if (e.key === 'ArrowRight') {
+                showSlide(currentIndex + 1);
+            }
+        });
+    })();
+</script>
+{% endblock %}

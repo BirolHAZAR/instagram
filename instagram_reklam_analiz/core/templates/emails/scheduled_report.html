@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: A4; margin: 14mm; }
+    body{margin:0;background:#f4f7fb;font-family:Arial,sans-serif;color:#111827}
+    .scheduled-report-document{max-width:760px;margin:0 auto;padding:24px}
+    .sr-panel{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:22px;margin-bottom:14px;break-inside:avoid}
+    .sr-panel h1{font-size:24px;margin:0 0 8px;color:#0f172a}
+    .sr-panel h2{font-size:17px;margin:0 0 12px;color:#111827}
+    .sr-muted{color:#64748b;font-size:13px;line-height:1.5}
+    .sr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .sr-metric{border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center}
+    .sr-metric span{display:block;color:#64748b;font-size:12px}
+    .sr-metric strong{display:block;font-size:18px;margin-top:4px}
+    .sr-table{width:100%;border-collapse:collapse}
+    .sr-table th,.sr-table td{padding:9px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px}
+    .sr-table th{color:#475569;background:#f8fafc}
+    .sr-table-scroll{width:100%;overflow-x:auto}
+    .sr-campaign-table{min-width:980px;table-layout:auto}
+    .sr-campaign-table th,.sr-campaign-table td{white-space:nowrap;padding:9px 10px;font-size:12px}
+    .sr-campaign-table th:first-child,.sr-campaign-table td:first-child{min-width:230px}
+    .sr-campaign-table .sr-nowrap{white-space:nowrap}
+    .sr-list{padding-left:20px}
+    .sr-list li{margin-bottom:8px}
+    @media(max-width:700px){.sr-grid{grid-template-columns:1fr}.scheduled-report-document{padding:14px}}
+  </style>
+</head>
+<body>
+  {% include "reports/partials/scheduled_report_body.html" %}
+</body>
+</html>

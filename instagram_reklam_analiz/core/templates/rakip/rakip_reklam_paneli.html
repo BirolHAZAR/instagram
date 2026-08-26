@@ -1,0 +1,1003 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rakip Reklam Paneli | ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ads_ai_popup.css' %}?v=20260727-1">
+<style>
+    :root{
+        --bg-primary:#050816;
+        --bg-secondary:#0A1028;
+        --panel:#0F1633;
+        --panel-soft:#121B42;
+        --accent:#6C63FF;
+        --accent-light:#8B84FF;
+        --cyan:#35D5FF;
+        --green:#22C55E;
+        --warning:#F59E0B;
+        --danger:#EF4444;
+        --text:#FFFFFF;
+        --text-soft:#B8BED0;
+        --muted:#8791B2;
+        --line:rgba(139,132,255,.18);
+        --glass:rgba(255,255,255,.065);
+        --shadow:0 28px 70px rgba(0,0,0,.38);
+        --radius:26px;
+    }
+
+    body{
+        background:
+            radial-gradient(circle at 8% 0%,rgba(108,99,255,.30),transparent 34%),
+            radial-gradient(circle at 92% 8%,rgba(53,213,255,.14),transparent 28%),
+            linear-gradient(180deg,var(--bg-primary),#070B1D 58%,#050816);
+        font-family:'Inter',sans-serif;
+        color:var(--text);
+    }
+
+    main{padding-top:1.4rem!important;}
+    .container-fluid.py-4{max-width:1440px;margin:auto;padding-top:0!important;}
+    .text-muted,.small.text-muted{color:var(--text-soft)!important;}
+
+    /* HERO */
+    .ra-competitor-hero{
+        position:relative;
+        overflow:hidden;
+        background:linear-gradient(135deg,rgba(15,22,51,.96),rgba(10,16,40,.94));
+        border:1px solid var(--line);
+        border-radius:32px;
+        padding:1.35rem 1.55rem;
+        margin-bottom:1.45rem;
+        box-shadow:var(--shadow);
+    }
+    .ra-competitor-hero:before{
+        content:"";
+        position:absolute;
+        inset:-45%;
+        background:radial-gradient(circle,rgba(108,99,255,.18),transparent 35%);
+        pointer-events:none;
+    }
+    .ra-competitor-hero-inner{
+        position:relative;
+        z-index:2;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:1.25rem;
+    }
+    .ra-kicker{
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        padding:.36rem .75rem;
+        border:1px solid rgba(139,132,255,.35);
+        border-radius:999px;
+        background:rgba(108,99,255,.12);
+        color:#DAD8FF;
+        font-size:.76rem;
+        font-weight:850;
+        letter-spacing:.35px;
+        text-transform:uppercase;
+    }
+    .ra-competitor-hero h1{
+        font-size:clamp(1.55rem,2.2vw,2.35rem);
+        font-weight:950;
+        letter-spacing:-.045em;
+        margin:.7rem 0 .35rem;
+        color:#fff;
+    }
+    .ra-competitor-hero p{
+        color:var(--text-soft);
+        font-size:.98rem;
+        max-width:840px;
+        margin:0;
+        line-height:1.65;
+    }
+    .ra-chip-row{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.95rem;}
+    .ra-chip{
+        display:inline-flex;
+        align-items:center;
+        gap:.42rem;
+        padding:.48rem .72rem;
+        border-radius:999px;
+        background:rgba(255,255,255,.07);
+        border:1px solid rgba(255,255,255,.10);
+        color:#E9ECFF;
+        font-size:.78rem;
+        font-weight:750;
+    }
+    .ra-octo-visual{
+        width:138px;
+        min-width:138px;
+        height:138px;
+        border-radius:30px;
+        background:linear-gradient(145deg,rgba(108,99,255,.18),rgba(53,213,255,.1));
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border:1px solid rgba(139,132,255,.25);
+        box-shadow:inset 0 0 35px rgba(108,99,255,.18);
+    }
+    .ra-octo-visual img{
+        max-width:155px;
+        max-height:155px;
+        object-fit:contain;
+        filter:drop-shadow(0 24px 34px rgba(0,0,0,.45));
+    }
+
+    /* Hide old header but keep markup */
+    .page-header{display:none!important;}
+
+    /* MAIN CARDS */
+    .competitor-selector{
+        background:rgba(15,22,51,.82)!important;
+        border:1px solid var(--line)!important;
+        border-radius:24px!important;
+        padding:1.08rem!important;
+        box-shadow:0 18px 46px rgba(0,0,0,.24)!important;
+        backdrop-filter:blur(18px);
+        color:var(--text)!important;
+    }
+    .competitor-selector h4,
+    .competitor-selector h5{
+        color:#fff!important;
+        letter-spacing:-.015em;
+    }
+    .competitor-selector h5{
+        font-size:1.03rem!important;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:.5rem;
+        padding:.2rem 0 .7rem;
+        border-bottom:1px solid rgba(139,132,255,.14);
+        margin-bottom:.85rem!important;
+    }
+    .competitor-selector h4{font-size:1.08rem!important;font-weight:900!important;}
+
+    .left-competitor-card{max-width:315px;margin:0 auto;}
+    .right-ads-card{min-width:0;}
+
+    /* OCTO ADVISOR */
+    .octo-side-advisor{
+        display:flex;
+        align-items:center;
+        gap:.75rem;
+        padding:.82rem;
+        margin-top:1rem;
+        border-radius:18px;
+        background:linear-gradient(135deg,rgba(108,99,255,.16),rgba(53,213,255,.08));
+        border:1px solid rgba(139,132,255,.20);
+    }
+    .octo-side-advisor img{
+        width:58px;
+        height:58px;
+        object-fit:contain;
+        filter:drop-shadow(0 12px 18px rgba(0,0,0,.35));
+        flex-shrink:0;
+    }
+    .octo-side-advisor strong{display:block;font-size:.76rem;color:#fff;line-height:1.25;}
+    .octo-side-advisor span{display:block;font-size:.64rem;color:var(--text-soft);line-height:1.35;margin-top:.14rem;}
+
+    /* ACCORDION */
+    .platform-accordion{
+        margin-bottom:.62rem;
+        border-radius:16px;
+        overflow:hidden;
+        background:rgba(255,255,255,.055);
+        border:1px solid rgba(255,255,255,.08);
+    }
+    .platform-header{
+        min-height:48px;
+        padding:.72rem .72rem;
+        background:rgba(255,255,255,.065);
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:.55rem;
+        transition:all .2s ease;
+        font-weight:850;
+        color:#EEF2FF;
+        width:100%;
+    }
+    .platform-header:hover,
+    .platform-accordion.open .platform-header{
+        background:linear-gradient(135deg,rgba(108,99,255,.95),rgba(139,132,255,.82));
+    }
+    .platform-header i:first-child{
+        margin-right:0;
+        font-size:1rem;
+        width:22px;
+        text-align:center;
+        flex-shrink:0;
+    }
+    .platform-header .platform-name{
+        flex:1;
+        min-width:0;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        font-size:.83rem;
+    }
+    .platform-header .competitor-count{
+        font-size:.62rem;
+        background:linear-gradient(135deg,#fff,#DDE3FF);
+        color:#050816;
+        padding:.18rem .45rem;
+        border-radius:999px;
+        margin-right:.1rem;
+        font-weight:900;
+        flex-shrink:0;
+    }
+    .platform-header .toggle-icon{font-size:.72rem;color:#E9ECFF;transition:transform .22s ease;}
+    .platform-accordion.open .platform-header .toggle-icon{transform:rotate(180deg);}
+    .competitors-list{
+        max-height:0;
+        overflow:hidden;
+        transition:max-height .3s ease;
+        background:rgba(5,8,22,.36);
+    }
+    .platform-accordion.open .competitors-list{max-height:520px;}
+    .competitor-item{
+        padding:.68rem .75rem .68rem .95rem;
+        cursor:pointer;
+        transition:all .2s ease;
+        border-left:3px solid transparent;
+        font-size:.78rem;
+        color:#F4F6FF;
+        font-weight:750;
+        display:flex;
+        align-items:center;
+        gap:.45rem;
+    }
+    .competitor-item:hover{
+        background:rgba(108,99,255,.16);
+        transform:translateX(3px);
+    }
+    .competitor-item.active{
+        background:rgba(108,99,255,.24);
+        border-left-color:var(--accent-light);
+        color:#fff;
+    }
+
+    /* BUTTONS */
+    .btn-sync{
+        background:linear-gradient(135deg,var(--accent),var(--accent-light))!important;
+        border:none!important;
+        border-radius:999px!important;
+        padding:.72rem 1rem!important;
+        font-weight:850!important;
+        color:#fff!important;
+        box-shadow:0 14px 28px rgba(108,99,255,.28);
+        transition:.2s;
+    }
+    .btn-sync:hover{transform:translateY(-2px);box-shadow:0 18px 34px rgba(108,99,255,.36);}
+    .btn-sync:disabled{opacity:.55;transform:none;box-shadow:none;}
+    .btn-outline-light{
+        border:1px solid rgba(255,255,255,.22)!important;
+        color:#fff!important;
+        background:rgba(255,255,255,.06)!important;
+        font-weight:800!important;
+    }
+    .btn-outline-light:hover{background:#fff!important;color:#050816!important;}
+    .btn-light{background:#fff!important;color:#111827!important;border:none!important;font-weight:850!important;}
+
+    /* AD GRID */
+    .ads-grid{
+        display:grid!important;
+        grid-template-columns:repeat(4,minmax(0,1fr))!important;
+        gap:.9rem!important;
+        margin-top:1rem;
+        align-items:start;
+    }
+    .ad-card{
+        width:100%;
+        min-width:0;
+        background:#fff!important;
+        border-radius:22px!important;
+        overflow:hidden;
+        box-shadow:0 18px 44px rgba(0,0,0,.22)!important;
+        border:1px solid rgba(15,23,42,.08)!important;
+        transition:all .28s ease;
+        cursor:pointer;
+    }
+    .ad-card:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(0,0,0,.28)!important;}
+    .ad-media{position:relative;background:#F2F5FA;min-height:178px;display:flex;align-items:center;justify-content:center;}
+    .ad-media img,.ad-media video,.video-container{width:100%;height:180px!important;object-fit:cover;}
+    .ad-type-badge{
+        position:absolute;
+        top:10px;
+        right:10px;
+        background:rgba(5,8,22,.82);
+        color:white;
+        padding:.28rem .7rem;
+        border-radius:999px;
+        font-size:.64rem;
+        font-weight:850;
+        backdrop-filter:blur(8px);
+        border:1px solid rgba(255,255,255,.14);
+    }
+    .ad-content{padding:.76rem!important;}
+    .ad-title{
+        display:-webkit-box;
+        -webkit-line-clamp:2;
+        -webkit-box-orient:vertical;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        font-weight:950!important;
+        font-size:.82rem!important;
+        line-height:1.35!important;
+        margin-bottom:.55rem;
+        color:#111827!important;
+        letter-spacing:-.015em;
+    }
+
+    /* COLLAPSIBLE SECTIONS */
+    .collapsible-section{
+        border-top:1px solid #E9EDF5;
+        padding-top:.48rem;
+        margin-top:.48rem;
+    }
+    .collapsible-section summary{
+        list-style:none;
+        font-size:.72rem!important;
+        font-weight:900!important;
+        color:#4F46E5!important;
+        cursor:pointer;
+        padding:.34rem 0;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+    }
+    .collapsible-section summary::-webkit-details-marker{display:none;}
+    .collapsible-section summary:after{
+        content:"⌄";
+        font-size:.85rem;
+        color:#7C3AED;
+        transition:.2s;
+    }
+    .collapsible-section[open] summary:after{transform:rotate(180deg);}
+
+    /* METRICS */
+    .metric-mini{
+        background:linear-gradient(180deg,#F8FAFF,#F1F4FF)!important;
+        border:1px solid #E3E8FF!important;
+        border-radius:12px!important;
+        padding:.48rem .42rem!important;
+        text-align:center;
+        min-height:52px;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+    }
+    .metric-mini .label{
+        color:#667085!important;
+        font-size:.58rem!important;
+        font-weight:800!important;
+        line-height:1.15;
+        margin-bottom:.16rem;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .metric-mini .value{
+        font-weight:950!important;
+        font-size:.76rem!important;
+        color:#101828!important;
+        line-height:1.15;
+    }
+    .metric-mini .small{font-size:.58rem!important;font-weight:800!important;}
+
+    /* HEATMAP AND DEMOGRAPHICS */
+    .heatmap-bar{
+        height:8px;
+        border-radius:999px;
+        margin-top:.32rem;
+        background:#E5E7EB;
+        overflow:hidden;
+    }
+    .heatmap-fill{height:100%;border-radius:999px;}
+    .hourly-chart{
+        display:flex;
+        align-items:flex-end;
+        gap:3px;
+        height:72px;
+        padding:.45rem .35rem .2rem;
+        background:#F8FAFF;
+        border:1px solid #E3E8FF;
+        border-radius:12px;
+        overflow:hidden;
+    }
+    .hourly-bar{
+        flex:1;
+        border-radius:5px 5px 2px 2px;
+        min-width:4px;
+        transition:all .2s ease;
+        box-shadow:0 3px 8px rgba(79,70,229,.12);
+    }
+    .hourly-bar:hover{opacity:.88;transform:scaleY(1.06);}
+    .demographic-row{
+        display:flex;
+        align-items:center;
+        gap:.42rem;
+        margin-bottom:.42rem;
+        font-size:.66rem;
+        color:#111827;
+    }
+    .demographic-row .label{
+        width:48px!important;
+        min-width:48px!important;
+        text-align:left!important;
+        color:#344054!important;
+        font-size:.62rem!important;
+        font-weight:850!important;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .demographic-row .bar-container{
+        flex:1;
+        background:#E9EEF8;
+        border-radius:999px;
+        height:13px;
+        position:relative;
+        overflow:hidden;
+        min-width:58px;
+    }
+    .demographic-row .bar-fill{
+        height:100%;
+        border-radius:999px;
+        position:absolute;
+        left:0;
+        top:0;
+        box-shadow:0 2px 8px rgba(0,0,0,.12);
+    }
+    .demographic-row .bar-value{
+        width:34px;
+        min-width:34px;
+        font-weight:950;
+        font-size:.62rem;
+        color:#111827;
+        text-align:right;
+    }
+    .device-dist{
+        display:grid;
+        grid-template-columns:68px 1fr 34px;
+        gap:.4rem;
+        align-items:center;
+        font-size:.64rem!important;
+        color:#111827!important;
+        margin-bottom:.38rem;
+    }
+    .device-dist span{font-weight:850;color:#344054!important;white-space:nowrap;}
+    .device-dist strong{font-size:.62rem;color:#111827!important;text-align:right;}
+    .device-bar{height:10px;border-radius:999px;min-width:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+
+    .ad-card .small,
+    .ad-card small{font-size:.62rem!important;color:#667085!important;font-weight:700;}
+    .ad-status{
+        display:inline-flex;
+        align-items:center;
+        padding:.24rem .62rem;
+        border-radius:999px;
+        font-size:.62rem;
+        font-weight:850;
+        margin-top:.5rem;
+    }
+    .status-active{background:#D1FAE5;color:#065F46;}
+    .status-paused{background:#FED7AA;color:#92400E;}
+    .status-completed{background:#FEE2E2;color:#991B1B;}
+    .btn-ai-analyze{
+        background:linear-gradient(135deg,var(--accent),var(--accent-light))!important;
+        color:white!important;
+        border:none!important;
+        padding:.38rem .72rem!important;
+        border-radius:999px!important;
+        font-size:.62rem!important;
+        font-weight:900!important;
+        transition:.22s ease;
+        box-shadow:0 8px 18px rgba(108,99,255,.24);
+        white-space:nowrap;
+    }
+    .btn-ai-analyze:hover{transform:translateY(-2px);box-shadow:0 12px 22px rgba(108,99,255,.34);}
+
+    .empty-selection{
+        text-align:center;
+        padding:3rem 1.5rem;
+        color:var(--text-soft);
+        border:1px dashed rgba(139,132,255,.22);
+        border-radius:24px;
+        background:rgba(255,255,255,.035);
+    }
+    .empty-selection i{color:var(--accent-light);filter:drop-shadow(0 10px 22px rgba(108,99,255,.35));}
+    .empty-selection h5{color:#fff!important;font-weight:900;}
+    .empty-selection p{font-size:.9rem;line-height:1.5;}
+
+    .loading-spinner{
+        width:2rem;
+        height:2rem;
+        border:3px solid rgba(255,255,255,.18);
+        border-top-color:var(--accent-light);
+        border-radius:50%;
+        animation:spin .8s linear infinite;
+        margin:1rem auto;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .sync-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:center;z-index:1050;flex-direction:column;visibility:hidden;opacity:0;transition:.2s;}
+    .sync-overlay.active{visibility:visible;opacity:1;}
+    .sync-spinner{width:60px;height:60px;border:5px solid rgba(99,102,241,.3);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:1rem;}
+    .sync-text{color:#fff;font-weight:800;}
+
+    .badge{font-weight:900;}
+    @media(max-width:1399px){.ads-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}.left-competitor-card{max-width:305px;}}
+    @media(max-width:1100px){.ads-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}.left-competitor-card{max-width:100%;}}
+    @media(max-width:991px){.left-competitor-card{max-width:100%;}.ads-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}.ra-competitor-hero-inner{flex-direction:column;text-align:center}.ra-chip-row{justify-content:center}.ra-octo-visual{width:118px;height:118px;min-width:118px}}
+    @media(max-width:640px){.ads-grid{grid-template-columns:1fr!important;}.ad-media img,.ad-media video,.video-container{height:210px!important;}}
+.competitor-panel-agency-filter{display:flex;align-items:center;gap:14px;margin:0 0 20px;padding:15px 18px;border:1px solid rgba(139,132,255,.28);border-radius:18px;background:rgba(15,20,41,.88)}.competitor-panel-agency-filter label{font-weight:900;color:#fff;white-space:nowrap}.competitor-panel-agency-filter select{margin-left:auto;width:min(450px,100%);background:rgba(255,255,255,.08);border:1px solid rgba(139,132,255,.35);color:#fff;border-radius:13px;padding:10px 12px}.competitor-panel-agency-filter option{color:#111}@media(max-width:650px){.competitor-panel-agency-filter{align-items:stretch;flex-direction:column}.competitor-panel-agency-filter select{margin-left:0;width:100%}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <section class="ra-competitor-hero">
+        <div class="ra-competitor-hero-inner">
+            <div>
+                <span class="ra-kicker"><i class="fas fa-eye"></i> Octo Rakip Reklam İstihbaratı</span>
+                <h1>Rakiplerinizin reklam hamlelerini tek ekranda görün.</h1>
+                <p>Octo, platform bazında eklediğiniz rakipleri düzenli takip etmeniz, reklam kreatiflerini incelemeniz ve hangi mesajların öne çıktığını daha hızlı anlamanız için bu panelde çalışır.</p>
+                <div class="ra-chip-row">
+                    <span class="ra-chip"><i class="fab fa-instagram"></i> Instagram</span>
+                    <span class="ra-chip"><i class="fab fa-facebook"></i> Facebook</span>
+                    <span class="ra-chip"><i class="fab fa-tiktok"></i> TikTok</span>
+                    <span class="ra-chip"><i class="fab fa-google"></i> Google Ads</span>
+                </div>
+            </div>
+            <div class="ra-octo-visual"><img src="{% static 'images/octo-commander.webp' %}" alt="Octo Rakip Analiz"></div>
+        </div>
+    </section>
+    {% if agency_scope.is_agency %}
+    <form class="competitor-panel-agency-filter" method="get" action="{{ request.path }}">
+        <label for="competitorPanelAgencyClient"><i class="fas fa-building-user me-2"></i>Müşteri / Firma</label>
+        <select id="competitorPanelAgencyClient" name="agency_client" onchange="this.form.submit()">
+            <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+            {% for agency_client in agency_scope.clients %}<option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>{% endfor %}
+        </select>
+    </form>
+    {% endif %}
+    <div class="page-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold"><i class="fas fa-eye me-2"></i> Rakip Reklam Paneli</h1>
+                <p class="opacity-75 mb-0">Rakiplerinizin reklamlarını analiz edin, stratejilerini keşfedin.</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <a href="{% url 'rakip_ekle' %}" class="btn btn-light rounded-pill px-4">
+                    <i class="fas fa-arrow-left me-2"></i> Rakip Analiz
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <div class="competitor-selector left-competitor-card">
+                <h5 class="fw-bold mb-3"><i class="fas fa-building me-2"></i> Platformlar & Rakipler</h5>
+                <div id="competitorList"><div class="loading-spinner"></div></div>
+                <button id="refreshBtn" class="btn btn-sync w-100 mt-3" disabled><i class="fas fa-sync-alt me-2"></i> Reklamları Yenile</button>
+                <a href="{% url 'rakip_ekle' %}" class="btn btn-outline-light w-100 mt-3 rounded-pill"><i class="fas fa-plus-circle me-2"></i> Yeni Rakip Ekle</a>
+                <div class="octo-side-advisor">
+                    <img src="{% static 'images/octo-one.webp' %}" alt="Octo AI">
+                    <div>
+                        <strong>Octo rakipleri platformlara ayırır.</strong>
+                        <span>Rakip seçin, reklamlarını inceleyin ve kreatif fırsatları yakalayın.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 right-ads-card">
+            <div class="competitor-selector">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold mb-0"><i class="fas fa-ad me-2"></i> Reklamlar</h4>
+                    <span id="adCount" class="badge bg-primary rounded-pill px-3 py-2">0 reklam</span>
+                </div>
+                <div id="adsContainer">
+                    <div class="empty-selection">
+                        <i class="fas fa-hand-pointer fa-3x mb-3 opacity-50"></i>
+                        <h5>Rakip Seçilmedi</h5>
+                        <p>Sol menüden bir rakibe tıklayarak reklamlarını görüntüleyin.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="syncOverlay" class="sync-overlay"><div class="sync-spinner"></div><div class="sync-text">Reklamlar senkronize ediliyor...</div></div>
+
+<script>
+    let currentCompetitorId = null;
+    const csrftoken = getCookie('csrftoken');
+
+    async function loadCompetitors() {
+        const container = document.getElementById('competitorList');
+        container.innerHTML = '<div class="loading-spinner"></div>';
+        try {
+            const resp = await fetch('/api/rakipler/');
+            const data = await resp.json();
+            if (!data.success || !data.rakipler.length) {
+                container.innerHTML = '<div class="text-center py-3">Hiç rakip yok.<br><a href="{% url "rakip_ekle" %}" class="btn btn-sm btn-outline-light mt-2">Rakip Ekle</a></div>';
+                return;
+            }
+            
+            // Rakipleri platforma göre grupla
+            const grouped = {};
+            data.rakipler.forEach(comp => {
+                const platformCode = comp.platform_code || 'other';
+                const platformName = comp.platform_name || platformCode;
+                if (!grouped[platformCode]) {
+                    grouped[platformCode] = {
+                        name: platformName,
+                        code: platformCode,
+                        competitors: []
+                    };
+                }
+                grouped[platformCode].competitors.push(comp);
+            });
+            
+            // Akordeon HTML'i oluştur
+            let html = '';
+            for (const [code, group] of Object.entries(grouped)) {
+                const icon = getPlatformIcon(code);
+                const competitorCount = group.competitors.length;
+                html += `
+                    <div class="platform-accordion" data-platform="${code}">
+                        <div class="platform-header" onclick="togglePlatform(this.parentElement)">
+                            <i class="${icon}"></i>
+                            <span class="platform-name">${escapeHtml(group.name)}</span>
+                            <span class="competitor-count">${competitorCount} rakip</span>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="competitors-list">
+                `;
+                group.competitors.forEach(comp => {
+                    html += `
+                        <div class="competitor-item" data-competitor-id="${comp.id}" data-competitor-name="${escapeHtml(comp.name)}">
+                            <i class="fas fa-user-circle me-2"></i> ${escapeHtml(comp.name)}
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+            container.innerHTML = html;
+            
+            // Rakip tıklama olaylarını bağla
+            document.querySelectorAll('.competitor-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    currentCompetitorId = item.dataset.competitorId;
+                    document.getElementById('refreshBtn').disabled = false;
+                    loadAds(currentCompetitorId);
+                });
+            });
+            
+            // URL'den competitor_id parametresi varsa otomatik seç
+            const urlParams = new URLSearchParams(window.location.search);
+            const competitorId = urlParams.get('competitor_id');
+            if (competitorId) {
+                const targetItem = document.querySelector(`.competitor-item[data-competitor-id="${competitorId}"]`);
+                if (targetItem) targetItem.click();
+            }
+            // *** DEĞİŞİKLİK BURADA: İlk rakibi otomatik seçme kodu KALDIRILDI ***
+            
+        } catch(e) {
+            container.innerHTML = '<div class="text-center py-3 text-danger">Rakipler yüklenirken hata oluştu.</div>';
+        }
+    }
+    
+    function togglePlatform(accordion) {
+        const wasOpen = accordion.classList.contains('open');
+        accordion.classList.toggle('open');
+        if (wasOpen && currentCompetitorId) {
+            currentCompetitorId = null;
+            document.querySelectorAll('.competitor-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('refreshBtn').disabled = true;
+            const container = document.getElementById('adsContainer');
+            container.innerHTML = `
+                <div class="empty-selection">
+                    <i class="fas fa-hand-pointer fa-3x mb-3 opacity-50"></i>
+                    <h5>Rakip Seçilmedi</h5>
+                    <p>Sol menüden bir rakibe tıklayarak reklamlarını görüntüleyin.</p>
+                </div>`;
+            document.getElementById('adCount').innerText = '0 reklam';
+        }
+    }
+
+    async function loadAds(competitorId) {
+        const container = document.getElementById('adsContainer');
+        container.innerHTML = '<div class="loading-spinner"></div>';
+        try {
+            const resp = await fetch(`/api/rakip-reklamlar/${competitorId}/`);
+            const data = await resp.json();
+            if (!data.success || !data.ads.length) {
+                container.innerHTML = '<div class="text-center py-5"><i class="fas fa-ad fa-2x mb-2 opacity-50"></i><br>Bu rakibe ait reklam bulunamadı.</div>';
+                document.getElementById('adCount').innerText = '0 reklam';
+                return;
+            }
+            document.getElementById('adCount').innerText = `${data.ads.length} reklam`;
+            let html = '<div class="ads-grid">';
+            data.ads.forEach(ad => {
+                html += createLiveAdCard(ad);
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        } catch(e) {
+            container.innerHTML = '<div class="text-center py-5 text-danger">Reklamlar yüklenirken hata oluştu.</div>';
+        }
+    }
+
+    function createLiveAdCard(ad) {
+        const mediaUrl = ad.media_url || ad.thumbnail_url || '';
+        const title = escapeHtml(ad.name || ad.title || 'Rakip reklamı');
+        const description = escapeHtml(ad.primary_text || ad.description || '');
+        const statusActive = String(ad.status || '').toLowerCase() === 'active';
+        const statusText = statusActive ? 'Aktif' : 'Yayını sona erdi';
+        const media = ad.media_type === 'video' && mediaUrl
+            ? `<video src="${escapeHtml(mediaUrl)}" poster="${escapeHtml(ad.thumbnail_url || '')}" controls playsinline preload="metadata"></video>`
+            : mediaUrl
+                ? `<img src="${escapeHtml(mediaUrl)}" alt="${title}" loading="lazy">`
+                : `<div class="d-flex h-100 align-items-center justify-content-center flex-column text-center p-4"><i class="fas fa-photo-film fa-3x mb-3 opacity-50"></i><span class="small text-muted">Kaynak görsel sağlamadı</span></div>`;
+        const metricBlock = ad.has_live_metrics
+            ? `<details class="collapsible-section"><summary><i class="fas fa-chart-column me-1"></i> Kaynağın sağladığı aralık verileri</summary>
+                 <div class="row g-1 mt-2">
+                   ${Number(ad.impressions || 0) ? `<div class="col-6"><div class="metric-mini"><div class="label">Gösterim tahmini</div><div class="value">${formatNumber(ad.impressions)}</div></div></div>` : ''}
+                   ${Number(ad.spend || 0) ? `<div class="col-6"><div class="metric-mini"><div class="label">Harcama tahmini</div><div class="value">${formatNumber(ad.spend)} TL</div></div></div>` : ''}
+                 </div><small class="text-muted d-block mt-2">Meta Reklam Kütüphanesi aralığının orta noktasıdır; kesin performans metriği değildir.</small>
+               </details>`
+            : '';
+        return `
+          <article class="ad-card" data-ad-id="${ad.id}" role="button" tabindex="0"
+            onclick="if(!event.target.closest('a,button,video,details')) openAIPopup('${ad.id}')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openAIPopup('${ad.id}')}">
+            <div class="ad-media">${media}<span class="ad-type-badge">${escapeHtml(ad.media_type || 'görsel')}</span></div>
+            <div class="ad-content">
+              <div class="ad-title fw-bold">${title}</div>
+              ${description ? `<p class="small text-muted mt-2 mb-2" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${description}</p>` : ''}
+              ${metricBlock}
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="ad-status ${statusActive ? 'status-active' : 'status-completed'}">${statusText}</span>
+                <small class="text-muted"><i class="fas fa-calendar me-1"></i>${ad.first_seen_at ? new Date(ad.first_seen_at).toLocaleDateString('tr-TR') : 'Tarih yok'}</small>
+              </div>
+              <div class="small text-muted mt-2"><i class="fas fa-up-right-from-square me-1"></i>Detayları açmak için karta tıklayın</div>
+            </div>
+          </article>`;
+    }
+
+    function createAdCard(ad) {
+        let mediaHtml = '';
+        const mediaUrl = ad.media_url || '';
+        const adType = ad.media_type || 'image';
+        
+        if (adType === 'video' || adType === 'reels') {
+            mediaHtml = `
+                <div class="video-container" style="position:relative;width:100%;height:200px;background:#000;overflow:hidden;">
+                    <video src="${mediaUrl}" muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <source src="${mediaUrl}" type="video/mp4">
+                    </video>
+                    <img src="${ad.thumbnail_url || 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'}" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
+                    <div class="video-play-overlay" onclick="toggleVideo(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(0,0,0,0.2);z-index:2;">
+                        <i class="fas fa-play-circle" style="font-size:3rem;color:white;text-shadow:0 2px 15px rgba(0,0,0,0.5);"></i>
+                    </div>
+                </div>`;
+        } else {
+            const imgUrl = mediaUrl || `https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80`;
+            mediaHtml = `<img src="${imgUrl}" alt="${ad.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'" style="width:100%;height:200px;object-fit:cover;">`;
+        }
+        
+        const impressions = ad.impressions || 0;
+        const clicks = ad.clicks || 0;
+        const ctr = ad.ctr || 0;
+        const spend = ad.spend || 0;
+        const budget = ad.budget || 0;
+        const budgetUsage = ad.budget_usage_percent || 0;
+        const conversions = ad.conversions || 0;
+        const cpc = ad.cpc || 0;
+        const cpm = ad.cpm || 0;
+        const conversionRate = ad.conversion_rate || 0;
+        const roi = ad.roi || 0;
+        const reach = ad.reach || 0;
+        const frequency = ad.frequency || 1;
+        const engagement = ad.engagement || 0;
+        const engagementRate = ad.engagement_rate || 0;
+        const likes = ad.likes || 0;
+        const comments = ad.comments || 0;
+        const shares = ad.shares || 0;
+        const saves = ad.saves || 0;
+        const videoViews = ad.video_views || 0;
+        const videoCompletionRate = ad.video_completion_rate || 0;
+        
+        let statusClass = 'status-completed';
+        let statusText = 'Tamamlandı';
+        const rawStatus = (ad.status || '').toLowerCase();
+        if (rawStatus === 'active') { statusClass = 'status-active'; statusText = 'Aktif'; }
+        else if (rawStatus === 'paused') { statusClass = 'status-paused'; statusText = 'Duraklatıldı'; }
+        else if (rawStatus === 'completed') { statusClass = 'status-completed'; statusText = 'Tamamlandı'; }
+        else if (rawStatus === 'pending_review') { statusClass = 'status-paused'; statusText = 'İncelemede'; }
+        
+        let mediaTypeText = '📸 Görsel';
+        if (adType === 'video') mediaTypeText = '🎥 Video';
+        else if (adType === 'carousel') mediaTypeText = '🖼️ Carousel';
+        else if (adType === 'reels') mediaTypeText = '📱 Reels';
+        
+        let budgetColor = '', budgetText = '';
+        if (budgetUsage >= 90) { budgetColor = 'text-danger'; budgetText = '⚠️ Kritik'; }
+        else if (budgetUsage >= 70) { budgetColor = 'text-warning'; budgetText = '🟡 Yüksek'; }
+        else if (budgetUsage >= 30) { budgetColor = 'text-info'; budgetText = '🔵 Orta'; }
+        else { budgetColor = 'text-success'; budgetText = '✅ Düşük'; }
+        
+        let performanceScore = ad.performance_score || 0;
+        if (performanceScore === 0 && (impressions > 0 || clicks > 0)) {
+            let ctrScore = Math.min(100, (ctr / 10) * 100);
+            let engagementScore = Math.min(100, (engagementRate / 10) * 100);
+            let conversionScore = Math.min(100, (conversionRate / 20) * 100);
+            performanceScore = Math.round((ctrScore + engagementScore + conversionScore) / 3);
+            if (isNaN(performanceScore)) performanceScore = 0;
+        }
+        let performanceColor = '';
+        if (performanceScore >= 80) performanceColor = '#10b981';
+        else if (performanceScore >= 60) performanceColor = '#f59e0b';
+        else if (performanceScore >= 40) performanceColor = '#ef4444';
+        else performanceColor = '#8b5cf6';
+        
+        const hourlyData = ad.hourly_engagement || [];
+        const maxHourly = Math.max(...hourlyData, 1);
+        const peakHours = ad.peak_hours || [];
+        const hourlyChartHtml = hourlyData.map((val, hour) => {
+            const isPeak = peakHours.includes(hour);
+            const heightPercent = maxHourly > 0 ? (val / maxHourly) * 100 : 0;
+            return `<div class="hourly-bar" style="height:${heightPercent}%;background:${isPeak ? 'linear-gradient(180deg,#f58529,#dd2a7b)' : '#cbd5e1'};" title="${hour}:00 - ${val} etkileşim${isPeak ? ' (Pik saat!)' : ''}"></div>`;
+        }).join('');
+        
+        const ageData = ad.age_distribution || {};
+        let ageDistributionHtml = '';
+        if (Object.keys(ageData).length === 0) {
+            ageDistributionHtml = '<div class="text-muted small">0</div>';
+        } else {
+            ageDistributionHtml = Object.entries(ageData).map(([age, val]) => {
+                const color = age === '25-34' ? '#f58529' : age === '18-24' ? '#dd2a7b' : '#cbd5e1';
+                return `<div class="demographic-row"><div class="label">${age}</div><div class="bar-container"><div class="bar-fill" style="width:${val}%;background:${color};"></div></div><div class="bar-value">${val}%</div></div>`;
+            }).join('');
+        }
+        
+        const genderData = ad.gender_split || {};
+        let genderDistributionHtml = '';
+        if (Object.keys(genderData).length === 0) {
+            genderDistributionHtml = '<div class="text-muted small">0</div>';
+        } else {
+            genderDistributionHtml = `
+                <div class="demographic-row"><div class="label">👨 Erkek</div><div class="bar-container"><div class="bar-fill" style="width:${genderData.male||0}%;background:#4e79a7;"></div></div><div class="bar-value">${genderData.male||0}%</div></div>
+                <div class="demographic-row"><div class="label">👩 Kadın</div><div class="bar-container"><div class="bar-fill" style="width:${genderData.female||0}%;background:#e15759;"></div></div><div class="bar-value">${genderData.female||0}%</div></div>
+                <div class="demographic-row"><div class="label">❓ Diğer</div><div class="bar-container"><div class="bar-fill" style="width:${genderData.unknown||0}%;background:#bab0ac;"></div></div><div class="bar-value">${Math.round(genderData.unknown||0)}%</div></div>`;
+        }
+        
+        const cityData = ad.city_distribution || {};
+        let cityDistributionHtml = '';
+        if (Object.keys(cityData).length === 0) {
+            cityDistributionHtml = '<div class="text-muted small">0</div>';
+        } else {
+            cityDistributionHtml = Object.entries(cityData).slice(0,5).map(([city, val]) => `
+                <div class="demographic-row"><div class="label" style="width:50px;">${city.substring(0,6)}</div><div class="bar-container"><div class="bar-fill" style="width:${Math.min(100,val)}%;background:linear-gradient(90deg,#667eea,#764ba2);"></div></div><div class="bar-value">${val}%</div></div>`).join('');
+        }
+        
+        const deviceData = ad.device_split || {};
+        let deviceDistributionHtml = '';
+        if (Object.keys(deviceData).length === 0) {
+            deviceDistributionHtml = '<div class="text-muted small">0</div>';
+        } else {
+            deviceDistributionHtml = `
+                <div class="device-dist"><span>📱 Mobil</span><div class="device-bar" style="width:${deviceData.mobile||0}%;background:#4CAF50;"></div><strong>${deviceData.mobile||0}%</strong></div>
+                <div class="device-dist"><span>💻 Masaüstü</span><div class="device-bar" style="width:${deviceData.desktop||0}%;background:#2196F3;"></div><strong>${deviceData.desktop||0}%</strong></div>
+                <div class="device-dist"><span>📋 Tablet</span><div class="device-bar" style="width:${deviceData.tablet||0}%;background:#FF9800;"></div><strong>${Math.round(deviceData.tablet||0)}%</strong></div>`;
+        }
+        
+        const adName = escapeHtml(ad.name || 'Reklam');
+        
+        return `
+            <div class="ad-card">
+                <div class="ad-media">
+                    ${mediaHtml}
+                    <span class="ad-type-badge">${mediaTypeText}</span>
+                </div>
+                <div class="ad-content">
+                    <div class="ad-title fw-bold">${adName}</div>
+                    
+                    <details class="collapsible-section"><summary>📊 Performans Metrikleri</summary>
+                        <div class="row g-1 mt-2">
+                            <div class="col-6"><div class="metric-mini"><div class="label">👁️ Gösterim</div><div class="value">${formatNumber(impressions)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">🖱️ Tıklama</div><div class="value">${formatNumber(clicks)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">📊 CTR</div><div class="value ${ctr>3?'text-success':(ctr>1.5?'text-warning':'text-danger')}">${parseFloat(ctr).toFixed(2)}%</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">💰 Harcama</div><div class="value">₺${formatNumber(spend)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">👥 Erişim</div><div class="value">${formatNumber(reach)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">🔄 Frekans</div><div class="value">${parseFloat(frequency).toFixed(1)}x</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">💬 Etkileşim</div><div class="value">${formatNumber(engagement)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">📈 Etk. Oranı</div><div class="value">${parseFloat(engagementRate).toFixed(2)}%</div></div></div>
+                            <div class="col-4"><div class="metric-mini"><div class="label">❤️ Beğeni</div><div class="value">${formatNumber(likes)}</div></div></div>
+                            <div class="col-4"><div class="metric-mini"><div class="label">💬 Yorum</div><div class="value">${formatNumber(comments)}</div></div></div>
+                            <div class="col-4"><div class="metric-mini"><div class="label">🔖 Kaydetme</div><div class="value">${formatNumber(saves)}</div></div></div>
+                            ${(adType==='video'||adType==='reels')?`<div class="col-6"><div class="metric-mini"><div class="label">🎬 Video İzlenme</div><div class="value">${formatNumber(videoViews)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">⏱️ Tamamlanma</div><div class="value">${parseFloat(videoCompletionRate).toFixed(1)}%</div></div></div>`:''}
+                        </div>
+                        <div class="mt-2">
+                            <div class="metric-mini" style="background: linear-gradient(135deg,#e0e7ff,#c7d2fe);">
+                                <div class="label">💰 Bütçe</div><div class="value">₺${formatNumber(budget)}</div>
+                                <div class="small ${budgetColor} mt-1">Kullanım: ${parseFloat(budgetUsage).toFixed(1)}% ${budgetText}</div>
+                                <div class="heatmap-bar mt-1"><div class="heatmap-fill" style="width:${Math.min(100,budgetUsage)}%;background:${budgetUsage>=90?'#ef4444':(budgetUsage>=70?'#f59e0b':'#10b981')};"></div></div>
+                            </div>
+                        </div>
+                        <div class="row g-1 mt-1">
+                            <div class="col-6"><div class="metric-mini" style="background:#f0fdf4;"><div class="label">💰 ROI</div><div class="value text-success">${parseFloat(roi).toFixed(1)}%</div></div></div>
+                            <div class="col-6"><div class="metric-mini" style="background:#eff6ff;"><div class="label">💸 CPC</div><div class="value text-primary">₺${parseFloat(cpc).toFixed(2)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini" style="background:#fff7ed;"><div class="label">🎯 Dönüşüm Oranı</div><div class="value text-warning">${parseFloat(conversionRate).toFixed(1)}%</div></div></div>
+                            <div class="col-6"><div class="metric-mini" style="background:#fef2f2;"><div class="label">📺 CPM</div><div class="value text-danger">₺${parseFloat(cpm).toFixed(2)}</div></div></div>
+                        </div>
+                    </details>
+                    
+                    <details class="collapsible-section"><summary>⏰ Etkileşim Saatleri</summary>
+                        <div style="font-size:0.6rem;color:#888;margin-bottom:4px;">Pik saatler: ${peakHours.map(h=>`${h}:00`).join(', ')}</div>
+                        <div class="hourly-chart">${hourlyChartHtml}</div>
+                    </details>
+                    
+                    <details class="collapsible-section"><summary>👥 Demografi</summary>
+                        <div style="margin-top:4px;"><div style="font-size:0.6rem;font-weight:600;">Yaş Dağılımı</div>${ageDistributionHtml}
+                        <div style="font-size:0.6rem;font-weight:600;margin:8px 0 4px;">Cinsiyet Dağılımı</div>${genderDistributionHtml}</div>
+                    </details>
+                    
+                    <details class="collapsible-section"><summary>🏙️ Şehir & Cihaz</summary>
+                        <div style="margin-top:4px;"><div style="font-size:0.6rem;font-weight:600;">🌍 En Çok Etkileşim Alan Şehirler</div>${cityDistributionHtml}
+                        <div style="font-size:0.6rem;font-weight:600;margin:8px 0 4px;">📱 Cihaz Dağılımı</div>${deviceDistributionHtml}</div>
+                    </details>
+                    
+                    <div class="mt-2">
+                        <div class="d-flex justify-content-between small mb-1"><span>Performans Skoru</span><span class="fw-bold">${performanceScore}/100</span></div>
+                        <div style="height:4px;background:#e5e7eb;border-radius:2px;"><div style="width:${performanceScore}%; height:100%; background:${performanceColor}; border-radius:2px;"></div></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="ad-status ${statusClass}">${statusText}</span>
+                        <small class="text-muted"><i class="fas fa-calendar"></i> ${ad.created_time ? new Date(ad.created_time).toLocaleDateString('tr-TR') : 'Yeni'}</small>
+                    </div>
+                    
+                </div>
+            </div>
+        `;
+    }
+
+    function toggleVideo(element) { }
+    
+    document.getElementById('refreshBtn').onclick = async () => {
+        if (!currentCompetitorId) return;
+        const overlay = document.getElementById('syncOverlay');
+        overlay.classList.add('active');
+        await fetch(`/api/rakip-reklam-sync/${currentCompetitorId}/`, { method: 'POST', headers: {'X-CSRFToken': csrftoken} });
+        setTimeout(() => { overlay.classList.remove('active'); loadAds(currentCompetitorId); }, 2000);
+    };
+    
+    function formatNumber(n) { return window.raFormatNumber(n); }
+    function getPlatformIcon(code) {
+        const icons = { 'instagram':'fab fa-instagram','facebook':'fab fa-facebook','google_ads':'fab fa-google','youtube':'fab fa-youtube','tiktok':'fab fa-tiktok','linkedin':'fab fa-linkedin','twitter':'fab fa-twitter','other':'fas fa-globe' };
+        return icons[code] || 'fas fa-building';
+    }
+    function getCookie(name) { let v = `; ${document.cookie}`; let parts = v.split(`; ${name}=`); if (parts.length===2) return parts.pop().split(';').shift(); }
+    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    
+    loadCompetitors();
+</script>
+<script>
+window.adsPopupConfig = {
+    mode: 'competitor',
+    detailUrl: id => `/competitor-intelligence/api/ad/${id}/`
+};
+window.adsPanelAgencyClientScope = '{{ agency_scope.selected_client.id|default:"" }}';
+</script>
+<script src="{% static 'js/ads_ai_popup.js' %}?v=20260727-1"></script>
+{% endblock %}

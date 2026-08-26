@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% load static tr_numbers %}
+
+{% block title %}Kontrol Kulesi Arşivi | ReklamAnaliz.net{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/control_tower.css' %}?v=ct-archive-20260618">
+
+<div class="ct-wrap ct-archive-wrap">
+  <div class="ct-archive-topbar">
+    <div>
+      <a class="ct-archive-back" href="{% url 'control_tower' %}"><i class="fas fa-arrow-left"></i> Kontrol Kulesi</a>
+      <h1>OCTO AI ARŞİVİ</h1>
+      <p>Dashboard'da görünen analizlerin geçmiş kayıtları &middot; En güncelden eskiye</p>
+    </div>
+    <div class="ct-archive-top-actions">
+      <a class="ct-btn ct-archive-refresh-btn" href="{% url 'control_tower' %}?ai_refresh=1" data-octo-loading="Octo AI analiz ediyor..." data-octo-loading-subtitle="Yeni Executive Summary ve kart analizleri oluşturuluyor."><i class="fas fa-wand-magic-sparkles"></i> Analizi Güncelle</a>
+      <div class="ct-archive-total">
+        <span>Toplam kayıt</span>
+        <strong>{{ total_count }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="ct-archive-tabs" aria-label="Arşiv kategorileri">
+    {% for tab in tabs %}
+      <a class="ct-archive-tab {% if tab.active %}active{% endif %}" href="?type={{ tab.key }}&per_page={{ per_page }}">
+        <i class="{{ tab.icon }}"></i>
+        <span>{{ tab.label }}</span>
+        <b>{{ tab.count }}</b>
+      </a>
+    {% endfor %}
+  </div>
+
+  <div class="ct-archive-layout">
+    <aside class="ct-archive-list ct-card">
+      <div class="ct-archive-list-head">
+        <div>
+          <strong>Rapor Kayıtları</strong>
+          <span>Sayfa {{ page_obj.number }}/{{ paginator.num_pages }} &middot; {{ filtered_count }} kayıt</span>
+        </div>
+        <form class="ct-archive-page-size" method="get" aria-label="Sayfa başına kayıt seçimi">
+          <input type="hidden" name="type" value="{{ active_type }}">
+          {% if selected %}<input type="hidden" name="id" value="{{ selected.id }}">{% endif %}
+          <label for="ctArchivePerPage">Göster</label>
+          <select id="ctArchivePerPage" name="per_page" onchange="this.form.submit()">
+            {% for option in page_size_options %}
+              <option value="{{ option }}" {% if option == per_page %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+      {% if records %}
+        {% for row in records %}
+          <a class="ct-archive-row {% if selected and selected.id == row.id %}active{% endif %}" href="?type={{ active_type }}&per_page={{ per_page }}&id={{ row.id }}">
+            <div class="ct-archive-row-main">
+              <strong>{{ row.title_tr }}</strong>
+              <span>{{ row.created_label }}</span>
+            </div>
+            <div class="ct-archive-row-meta">
+              <em class="{{ row.state }}">{{ row.severity|upper }}</em>
+              <b>%{{ row.confidence }}</b>
+            </div>
+          </a>
+        {% endfor %}
+      {% else %}
+        <div class="ct-archive-empty">
+          <i class="fas fa-folder-open"></i>
+          <strong>Henüz kayıt yok</strong>
+          <span>Octo AI Analiz Et çalıştırıldığında kayıtlar burada görünecek.</span>
+        </div>
+      {% endif %}
+      {% if page_obj and paginator.num_pages > 1 %}
+        <nav class="ct-archive-pagination" aria-label="Arşiv sayfaları">
+          {% if page_obj.has_previous %}
+            <a href="?type={{ active_type }}&per_page={{ per_page }}&page={{ page_obj.previous_page_number }}"><i class="fas fa-chevron-left"></i></a>
+          {% endif %}
+          {% for num in paginator.page_range %}
+            {% if num == page_obj.number %}
+              <span class="active">{{ num }}</span>
+            {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+              <a href="?type={{ active_type }}&per_page={{ per_page }}&page={{ num }}">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
+          {% if page_obj.has_next %}
+            <a href="?type={{ active_type }}&per_page={{ per_page }}&page={{ page_obj.next_page_number }}"><i class="fas fa-chevron-right"></i></a>
+          {% endif %}
+        </nav>
+      {% endif %}
+
+    </aside>
+
+    <main class="ct-archive-report ct-card">
+      {% if selected %}
+        <div class="ct-archive-report-head">
+          <div>
+            <span class="ct-archive-kicker">{{ selected.created_label }}</span>
+            <h2>{{ selected.title_tr }}</h2>
+            <p>Bu rapor dashboard'da üretilen aynı AI analiz kaydından okunur. Arşiv yeni içerik yazmaz; geçmiş kayıtları raporlar.</p>
+          </div>
+          <div class="ct-archive-actions">
+            <div class="ct-archive-confidence">
+              <span>AI Güven</span>
+              <strong>%{{ selected.confidence }}</strong>
+            </div>
+            <a class="ct-pdf-action-btn" href="?type={{ active_type }}&per_page={{ per_page }}&id={{ selected.id }}&export=pdf" data-octo-pdf-download="1" data-pdf-name="octo-ai-arsiv-raporu.pdf" data-octo-loading="Arşiv PDF hazırlanıyor..." data-octo-loading-subtitle="Seçilen AI analiz kaydı PDF raporuna dönüştürülüyor.">
+              <i class="fas fa-file-pdf"></i> PDF Al
+            </a>
+          </div>
+        </div>
+
+        <div class="ct-archive-impact-grid">
+          <div class="ct-archive-impact {{ selected.state }}">
+            <span>Durum</span>
+            <strong>{{ selected.severity|upper }}</strong>
+          </div>
+          <div class="ct-archive-impact good">
+            <span>Beklenen Kazanç</span>
+            <strong>{{ selected.expected_gain|tr_int }} TL</strong>
+          </div>
+          <div class="ct-archive-impact bad">
+            <span>Risk Altındaki Gelir</span>
+            <strong>{{ selected.expected_loss|tr_int }} TL</strong>
+          </div>
+          <div class="ct-archive-impact info">
+            <span>Öncelik</span>
+            <strong>{{ selected.priority|upper }}</strong>
+          </div>
+        </div>
+
+        <section class="ct-archive-report-block">
+          <h3><i class="fas fa-circle-info"></i> Ne oldu?</h3>
+          <ol>
+            {% for item in selected.what_happened_items %}<li>{{ item }}</li>{% empty %}<li>{{ selected.what_happened }}</li>{% endfor %}
+          </ol>
+        </section>
+        <section class="ct-archive-report-block">
+          <h3><i class="fas fa-magnifying-glass-chart"></i> Neden oldu?</h3>
+          <ol>
+            {% for item in selected.root_cause_items %}<li>{{ item }}</li>{% empty %}<li>{{ selected.root_cause }}</li>{% endfor %}
+          </ol>
+        </section>
+        <section class="ct-archive-report-block">
+          <h3><i class="fas fa-chart-line"></i> Ne olacak?</h3>
+          <ol>
+            {% for item in selected.forecast_items %}<li>{{ item }}</li>{% empty %}<li>{{ selected.forecast }}</li>{% endfor %}
+          </ol>
+        </section>
+        <section class="ct-archive-report-block">
+          <h3><i class="fas fa-list-check"></i> Ne yapmalıyım?</h3>
+          <ol>
+            {% for item in selected.recommended_action_items %}<li>{{ item }}</li>{% empty %}<li>{{ selected.action_plan }}</li>{% endfor %}
+          </ol>
+        </section>
+        <section class="ct-archive-report-block">
+          <h3><i class="fas fa-sack-dollar"></i> Beklenen etki</h3>
+          <ol>
+            {% for item in selected.expected_impact_items %}<li>{{ item }}</li>{% empty %}<li>{{ selected.expected_impact }}</li>{% endfor %}
+          </ol>
+        </section>
+      {% else %}
+        <div class="ct-archive-empty big">
+          <i class="fas fa-box-archive"></i>
+          <strong>Arşiv raporu için kayıt bulunamadı</strong>
+          <span>Kontrol Kulesi'nde Octo AI Analiz Et çalıştırdıktan sonra geçmiş kayıtlar burada listelenir.</span>
+        </div>
+      {% endif %}
+    </main>
+  </div>
+</div>
+
+
+<div class="ct-octo-loading-overlay" id="ctOctoGlobalLoader" aria-hidden="true">
+  <div class="ct-octo-loading-card">
+    <div class="ct-octo-loading-orbit"><span></span><span></span><span></span></div>
+    <div class="ct-octo-loading-avatar">
+      <img src="{% static 'images/octo-analyst.webp' %}" alt="Octo AI" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+      <div class="ct-octo-fallback"><i class="fas fa-brain"></i></div>
+    </div>
+    <div class="ct-octo-loading-copy">
+      <h3 id="ctOctoLoaderTitle">Octo hazırlanıyor...</h3>
+      <p id="ctOctoLoaderSubtitle">Arşiv raporu hazırlanıyor.</p>
+    </div>
+    <div class="ct-octo-progress"><div class="ct-octo-progress-bar" id="ctOctoLoaderBar"></div></div>
+    <div class="ct-octo-progress-meta"><span id="ctOctoProgressLabel">0%</span><em>İşlem sürüyor</em></div>
+    <div class="ct-octo-loading-steps">
+      <span><i class="fas fa-database"></i> Kayıt</span>
+      <span><i class="fas fa-file-lines"></i> Rapor</span>
+      <span><i class="fas fa-file-pdf"></i> PDF</span>
+      <span><i class="fas fa-circle-check"></i> Hazır</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const loader = document.getElementById('ctOctoGlobalLoader');
+  if(!loader){ return; }
+  const title = document.getElementById('ctOctoLoaderTitle');
+  const subtitle = document.getElementById('ctOctoLoaderSubtitle');
+  const bar = document.getElementById('ctOctoLoaderBar');
+  const label = document.getElementById('ctOctoProgressLabel');
+  const steps = Array.from(loader.querySelectorAll('.ct-octo-loading-steps span'));
+  let timer = null;
+  function setProgress(value){
+    const pct = Math.max(0, Math.min(100, value));
+    if(bar){ bar.style.width = pct + '%'; }
+    if(label){ label.textContent = Math.round(pct) + '%'; }
+    steps.forEach(function(step, idx){
+      const threshold = (idx + 1) * (100 / Math.max(steps.length, 1));
+      step.classList.toggle('done', pct >= threshold);
+      step.classList.toggle('active', pct < threshold && pct >= threshold - 22);
+    });
+  }
+  function stopLoader(){
+    clearInterval(timer); timer = null;
+    loader.classList.remove('show');
+    loader.setAttribute('aria-hidden', 'true');
+    setProgress(0);
+    document.querySelectorAll('.is-loading').forEach(function(item){ item.classList.remove('is-loading'); });
+  }
+  function finishLoader(message){
+    clearInterval(timer); timer = null;
+    setProgress(100);
+    if(message && title){ title.textContent = message; }
+    if(subtitle){ subtitle.textContent = 'İşlem tamamlandı.'; }
+    window.setTimeout(stopLoader, 650);
+  }
+  function showToast(message, type){
+    let toast = document.getElementById('ctOctoToast');
+    if(!toast){ toast = document.createElement('div'); toast.id = 'ctOctoToast'; document.body.appendChild(toast); }
+    toast.className = 'ct-octo-toast ' + (type || 'success') + ' show';
+    toast.textContent = message;
+    window.setTimeout(function(){ toast.classList.remove('show'); }, 3300);
+  }
+  function fileNameFromDisposition(disposition, fallback){
+    if(!disposition){ return fallback; }
+    const utf = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+    if(utf){ try { return decodeURIComponent(utf[1].replace(/"/g,'')); } catch(e){} }
+    const normal = disposition.match(/filename="?([^";]+)"?/i);
+    return normal ? normal[1] : fallback;
+  }
+  window.showOctoLoader = function(message, detail){
+    if(title){ title.textContent = message || 'Octo hazırlanıyor...'; }
+    if(subtitle){ subtitle.textContent = detail || 'Veriler işleniyor.'; }
+    loader.classList.add('show'); loader.setAttribute('aria-hidden', 'false');
+    setProgress(10); let pct = 10; clearInterval(timer);
+    timer = setInterval(function(){ pct += Math.max(1.4, (94 - pct) * 0.09); setProgress(pct); }, 220);
+  };
+  window.hideOctoLoader = stopLoader;
+  document.querySelectorAll('[data-octo-pdf-download]').forEach(function(link){
+    link.addEventListener('click', async function(event){
+      event.preventDefault();
+      const href = link.getAttribute('href'); if(!href){ return; }
+      window.showOctoLoader(link.getAttribute('data-octo-loading') || 'PDF hazırlanıyor...', link.getAttribute('data-octo-loading-subtitle') || 'Seçilen arşiv kaydı rapor dosyasına dönüştürülüyor.');
+      link.classList.add('is-loading');
+      try{
+        const response = await fetch(href, {method:'GET', credentials:'same-origin', headers:{'X-Requested-With':'XMLHttpRequest'}});
+        if(!response.ok){ throw new Error('PDF oluşturulamadı. HTTP ' + response.status); }
+        const contentType = (response.headers.get('Content-Type') || '').toLowerCase();
+        if(!contentType.includes('pdf')){ const text = await response.text(); throw new Error(text.slice(0, 180) || 'PDF yerine beklenmeyen cevap döndü.'); }
+        const blob = await response.blob();
+        const fileName = fileNameFromDisposition(response.headers.get('Content-Disposition'), link.getAttribute('data-pdf-name') || 'octo-ai-arsiv-raporu.pdf');
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
+        window.setTimeout(function(){ window.URL.revokeObjectURL(url); }, 1000);
+        finishLoader('PDF hazırlandı'); showToast('PDF hazırlandı ve indirme başlatıldı.', 'success');
+      }catch(error){ stopLoader(); showToast(error.message || 'PDF oluşturulurken hata oluştu.', 'error'); console.error(error); }
+      finally{ link.classList.remove('is-loading'); }
+    });
+  });
+  document.querySelectorAll('[data-octo-loading]:not([data-octo-pdf-download])').forEach(function(el){
+    el.addEventListener('click', function(){ el.classList.add('is-loading'); window.showOctoLoader(el.getAttribute('data-octo-loading'), el.getAttribute('data-octo-loading-subtitle')); });
+  });
+})();
+</script>
+
+{% endblock %}

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="tr">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ announcement.title }}</title></head>
+<body style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#172033">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">ReklamAnaliz.net ürün ve platform duyurusu.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#eef2f7"><tr><td align="center" style="padding:36px 14px">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:640px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 14px 45px rgba(15,23,42,.10)">
+      <tr><td style="padding:25px 34px;background:#081225"><img src="cid:brand-logo" width="420" alt="ReklamAnaliz.net" style="display:block;width:420px;max-width:100%;height:auto;border:0"></td></tr>
+      <tr><td style="height:5px;background:linear-gradient(90deg,#4f46e5,#22d3ee)"></td></tr>
+      <tr><td style="padding:40px 38px 15px"><div style="color:#4f46e5;font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:13px">Ürün ve platform güncellemesi</div><h1 style="margin:0;color:#0f172a;font-size:29px;line-height:1.25;letter-spacing:-.7px">{{ announcement.title }}</h1></td></tr>
+      <tr><td style="padding:12px 38px 26px"><table role="presentation" width="100%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px"><tr><td style="padding:24px 25px;font-size:16px;line-height:1.75;color:#475569">{{ announcement.message|linebreaks }}</td></tr></table></td></tr>
+      {% if announcement.link %}<tr><td align="center" style="padding:2px 38px 38px"><table role="presentation" cellspacing="0" cellpadding="0"><tr><td bgcolor="#4f46e5" style="border-radius:10px"><a href="{{ announcement.link }}" style="display:inline-block;padding:15px 28px;color:#fff;text-decoration:none;font-size:15px;font-weight:800">Detayları Gör &nbsp;→</a></td></tr></table><p style="margin:17px 0 0;color:#94a3b8;font-size:12px">Güncellemeler hesabınıza otomatik olarak yansıtılır.</p></td></tr>{% endif %}
+      <tr><td style="padding:23px 34px;background:#081225;color:#8092ad;font-size:11px;line-height:1.6;text-align:center"><strong style="color:#dbe5f3">ReklamAnaliz.net</strong> · Yapay zekâ destekli reklam karar merkezi<br>Bu mesaj kayıtlı hesabınıza yönelik bir ürün duyurusudur.</td></tr>
+    </table>
+  </td></tr></table>
+</body></html>

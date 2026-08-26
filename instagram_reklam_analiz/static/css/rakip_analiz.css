@@ -1,0 +1,100 @@
+/* Styles extracted from core/templates/rakip/rakip_analiz.html. */
+
+/* Extracted from core/templates/rakip/rakip_analiz.html: rakip_analiz.html */
+.ad-type-badge {
+        position: absolute; top: 10px; right: 10px;
+        background: rgba(0,0,0,0.7); color: white;
+        padding: 0.25rem 0.75rem; border-radius: 50px;
+        font-size: 0.7rem; font-weight: 600; z-index: 10;
+    }
+    .metric-mini {
+        background: #f8f9ff; border-radius: 8px;
+        padding: 5px 6px; text-align: center; font-size: 0.6rem;
+    }
+    .metric-mini .label { color: #888; font-size: 0.55rem; }
+    .metric-mini .value { font-weight: 700; font-size: 0.7rem; }
+    .collapsible-section {
+        border-top: 1px solid #eee; padding-top: 6px; margin-top: 6px;
+    }
+    .hourly-chart {
+        display: flex; align-items: flex-end; gap: 1px; height: 40px;
+    }
+    .hourly-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 5px; }
+    .demographic-row {
+        display: flex; align-items: center; gap: 6px; margin-bottom: 2px; font-size: 0.55rem;
+    }
+    .demographic-row .label { width: 35px; text-align: right; color: #888; }
+    .demographic-row .bar-container { flex: 1; background: #e5e7eb; border-radius: 3px; height: 12px; position: relative; }
+    .demographic-row .bar-fill { height: 100%; border-radius: 3px; position: absolute; left: 0; top: 0; }
+    .demographic-row .bar-value { width: 30px; font-weight: 600; font-size: 0.55rem; }
+    .device-dist { display: flex; gap: 4px; align-items: center; font-size: 0.55rem; }
+    .device-bar { height: 6px; border-radius: 3px; }
+    .btn-ai-analyze {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important; border: none !important;
+        padding: 5px 12px; border-radius: 20px;
+        font-size: 11px; font-weight: 600;
+        box-shadow: 0 2px 10px rgba(102,126,234,0.3);
+        white-space: nowrap; cursor: pointer;
+    }
+    .card { transition: transform 0.2s; }
+    .card:hover { transform: translateY(-3px); }
+    
+    /* Kartların sabit genişlikte olması için */
+    .ad-card {
+        min-width: 250px;
+        max-width: 100%;
+        transition: transform 0.2s;
+    }
+    
+    .ad-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    /* Responsive düzenlemeler */
+    @media (min-width: 1400px) {
+        .row-cols-xl-4 > * {
+            flex: 0 0 auto;
+            width: 25%;
+        }
+    }
+
+/* Extracted from core/templates/rakip/rakip_analiz.html: rakip_analiz.html */
+.ad-type-badge {
+        position: absolute; top: 10px; right: 10px;
+        background: rgba(0,0,0,0.7); color: white;
+        padding: 0.25rem 0.75rem; border-radius: 50px;
+        font-size: 0.7rem; font-weight: 600; z-index: 10;
+    }
+    .metric-mini {
+        background: #f8f9ff; border-radius: 8px;
+        padding: 5px 6px; text-align: center; font-size: 0.6rem;
+    }
+    .metric-mini .label { color: #888; font-size: 0.55rem; }
+    .metric-mini .value { font-weight: 700; font-size: 0.7rem; }
+    .collapsible-section {
+        border-top: 1px solid #eee; padding-top: 6px; margin-top: 6px;
+    }
+    .hourly-chart {
+        display: flex; align-items: flex-end; gap: 1px; height: 40px;
+    }
+    .hourly-bar { flex: 1; border-radius: 2px 2px 0 0; min-width: 5px; }
+    .demographic-row {
+        display: flex; align-items: center; gap: 6px; margin-bottom: 2px; font-size: 0.55rem;
+    }
+    .demographic-row .label { width: 35px; text-align: right; color: #888; }
+    .demographic-row .bar-container { flex: 1; background: #e5e7eb; border-radius: 3px; height: 12px; position: relative; }
+    .demographic-row .bar-fill { height: 100%; border-radius: 3px; position: absolute; left: 0; top: 0; }
+    .demographic-row .bar-value { width: 30px; font-weight: 600; font-size: 0.55rem; }
+    .device-dist { display: flex; gap: 4px; align-items: center; font-size: 0.55rem; }
+    .device-bar { height: 6px; border-radius: 3px; }
+    .btn-ai-analyze {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important; border: none !important;
+        padding: 5px 12px; border-radius: 20px;
+        font-size: 11px; font-weight: 600;
+        box-shadow: 0 2px 10px rgba(102,126,234,0.3);
+        white-space: nowrap; cursor: pointer;
+    }
+    .card { transition: transform 0.2s; }
+    .card:hover { transform: translateY(-3px); }

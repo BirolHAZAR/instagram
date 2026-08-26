@@ -1,0 +1,15 @@
+Yeni demo talebi
+
+Firma / Marka: {{ demo.company }}
+Yetkili: {{ demo.name }}
+E-posta: {{ demo.email }}
+Telefon: {{ demo.phone }}
+Rol: {{ demo.role|default:"-" }}
+Aylik reklam butcesi: {{ demo.ad_spend|default:"-" }}
+Oncelikli hedef: {{ demo.goal }}
+Ilgilendigi alanlar: {{ demo.platforms|join:", "|default:"-" }}
+
+Ek not:
+{{ demo.message|default:"-" }}
+
+Kayit zamani: {{ demo.created_at|date:"d.m.Y H:i" }}

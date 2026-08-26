@@ -1,0 +1,61 @@
+{% load tr_numbers %}
+<div class="ct-card ct-section ct-campaign-health-card ct-health-ops-card ct-equal-card">
+  <span class="ct-tip good" data-tip="Aktif kampanyaları gelir, maliyet, ilgi, dönüşüm, trend ve uyarı sinyallerine göre sınıflandırır. Riskli, izlenmeli ve sağlıklı kampanyaları ayrı gösterir."><i class="fas fa-circle-info"></i> Sağlık</span>
+
+  <div class="ct-section-title ct-health-title-v5 ct-health-ops-title">
+    <div>
+      <h3>KAMPANYA SAĞLIK MERKEZİ</h3>
+      <small>{{ campaign_health_count|default:0|tr_int }} aktif kampanya · risk, izleme ve sağlıklı segmentleri ayrı listelenir</small>
+    </div>
+    <a class="ct-mini-link" href="{% url 'health_center' %}">Tümü →</a>
+  </div>
+
+  <div class="ct-health-segment-cards" aria-label="Kampanya sağlık özeti">
+    {% for segment in campaign_health_segment_cards %}
+      <div class="ct-health-segment-card {{ segment.state }}">
+        <i class="fas {{ segment.icon }}"></i>
+        <span>{{ segment.short_label }}</span>
+        <strong>{{ segment.count|default:0|tr_int }}</strong>
+        <em>{{ segment.subtitle }}</em>
+      </div>
+    {% empty %}
+      <div class="ct-health-segment-card mid">
+        <i class="fas fa-circle-info"></i>
+        <span>Kampanya</span>
+        <strong>0</strong>
+        <em>0</em>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="ct-health-segment-board">
+    {% for segment in campaign_health_segment_cards %}
+      <div class="ct-health-segment-column {{ segment.state }}">
+        <div class="ct-health-segment-head">
+          <i class="fas {{ segment.icon }}"></i>
+          <strong>{{ segment.title }}</strong>
+          <span>{{ segment.note }}</span>
+        </div>
+        <div class="ct-health-segment-list ct-health-segment-list-limited">
+          {% for row in segment.rows %}
+            <div class="ct-health-mini-row {{ segment.state }}" title="{{ row.detail }}">
+              <div class="ct-health-mini-main">
+                <strong>{{ row.name|default:"Kampanya" }}</strong>
+                <span>{{ row.reason|default:"Sağlık sinyali değerlendiriliyor." }}</span>
+                <em>ROAS {{ row.roas_label|default:"0,0" }} · CTR {{ row.ctr_label|default:"0%" }} · Veri {{ row.data_confidence_label|default:"0%" }}</em>
+              </div>
+              <div class="ct-health-mini-score">
+                <b>{{ row.score|default:0 }}</b>
+                <small>{{ row.label|default:segment.short_label }}</small>
+              </div>
+            </div>
+          {% empty %}
+            <div class="ct-empty">{{ segment.short_label }} kampanya bulunamadı.</div>
+          {% endfor %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="ct-empty">Kampanya sağlık verisi henüz oluşmadı.</div>
+    {% endfor %}
+  </div>
+</div>

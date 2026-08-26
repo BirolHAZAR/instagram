@@ -1,0 +1,317 @@
+/* Styles extracted from core/templates/admin/error_dashboard.html. */
+
+/* Extracted from core/templates/admin/error_dashboard.html: error_dashboard.html */
+/* ========================================
+       ANA DEĞİŞKENLER VE RESET
+    ======================================== */
+    :root {
+        --primary: #3b82f6;
+        --primary-dark: #2563eb;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --info: #8b5cf6;
+        --dark: #1e293b;
+        --gray: #64748b;
+        --light: #f8fafc;
+        --border: #e2e8f0;
+        --card-bg: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+    }
+    
+    /* Dashboard Container */
+    .dashboard-container {
+        padding: 24px;
+        background: #f1f5f9;
+        min-height: calc(100vh - 100px);
+    }
+    
+    /* ========================================
+       HEADER BÖLÜMÜ
+    ======================================== */
+    .dashboard-header {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 32px;
+        color: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    
+    .dashboard-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.5px;
+    }
+    
+    .dashboard-header p {
+        font-size: 14px;
+        opacity: 0.8;
+        margin: 0 0 24px 0;
+    }
+    
+    .header-stats {
+        display: flex;
+        gap: 32px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+    }
+    
+    .header-stat {
+        background: rgba(255,255,255,0.1);
+        border-radius: 16px;
+        padding: 12px 24px;
+        min-width: 120px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+    }
+    
+    .header-stat-value {
+        font-size: 28px;
+        font-weight: 700;
+    }
+    
+    .header-stat-label {
+        font-size: 12px;
+        opacity: 0.7;
+        margin-top: 4px;
+    }
+    
+    /* ========================================
+       HIZLI AKSİYONLAR
+    ======================================== */
+    .quick-actions {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--info) 100%);
+        border-radius: 20px;
+        padding: 20px 28px;
+        margin-bottom: 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+    }
+    
+    .quick-actions h3 {
+        color: white;
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .quick-buttons {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .quick-btn {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .quick-btn:hover {
+        background: rgba(255,255,255,0.3);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* ========================================
+       STAT KARTLARI - BEYAZ ZEMİN SORUNU ÇÖZÜLDÜ
+    ======================================== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    
+    .stat-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+        border: 1px solid var(--border);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }
+    
+    /* Kart renkli üst çizgileri */
+    .stat-card.critical { border-top: 4px solid var(--danger); }
+    .stat-card.warning { border-top: 4px solid var(--warning); }
+    .stat-card.success { border-top: 4px solid var(--success); }
+    .stat-card.info { border-top: 4px solid var(--info); }
+    .stat-card.primary { border-top: 4px solid var(--primary); }
+    .stat-card.dark { border-top: 4px solid var(--dark); }
+    
+    .stat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .stat-card-title {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+    }
+    
+    .stat-card-icon {
+        font-size: 28px;
+    }
+    
+    .stat-card-value {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        line-height: 1.2;
+    }
+    
+    .stat-card-change {
+        font-size: 12px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .stat-card-change.up { color: var(--success); }
+    .stat-card-change.down { color: var(--danger); }
+    
+    /* ========================================
+       İKİLİ KOLONLAR
+    ======================================== */
+    .two-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    
+    /* ========================================
+       VERİ TABLOLARI
+    ======================================== */
+    .data-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+    }
+    
+    .data-card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fafbfc;
+    }
+    
+    .data-card-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .data-card-header a {
+        font-size: 12px;
+        color: var(--primary);
+        text-decoration: none;
+    }
+    
+    .data-card-header a:hover {
+        text-decoration: underline;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table th {
+        text-align: left;
+        padding: 14px 16px;
+        background: #fafbfc;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .data-table td {
+        padding: 14px 16px;
+        font-size: 13px;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .data-table tr:hover td {
+        background: #f8fafc;
+    }
+    
+    /* Badge etiketleri */
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    
+    .badge-critical { background: #fef2f2; color: #dc2626; }
+    .badge-high { background: #fffbeb; color: #d97706; }
+    .badge-medium { background: #fefce8; color: #ca8a04; }
+    .badge-low { background: #eff6ff; color: #2563eb; }
+    .badge-success { background: #ecfdf5; color: #059669; }
+    .badge-info { background: #f3e8ff; color: #7c3aed; }
+    
+    /* İlerleme çubuğu */
+    .progress-bar {
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s;
+    }
+    
+    .progress-fill.critical { background: var(--danger); }
+    .progress-fill.warning { background: var(--warning); }
+    .progress-fill.success { background: var(--success); }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-container { padding: 16px; }
+        .dashboard-header { padding: 20px; }
+        .two-columns { grid-template-columns: 1fr; }
+        .stats-grid { grid-template-columns: 1fr; }
+        .quick-actions { flex-direction: column; text-align: center; }
+    }

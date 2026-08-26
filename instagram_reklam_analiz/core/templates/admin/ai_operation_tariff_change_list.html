@@ -1,0 +1,110 @@
+{% extends "admin/change_list.html" %}
+
+{% block result_list %}
+<style>
+  .tariff-save-bar {
+    display: flex; justify-content: flex-end; position: sticky; top: 0; z-index: 20;
+    padding: 10px 12px; margin-bottom: 10px; background: #111827; border-radius: 8px;
+  }
+  .tariff-save-button,
+  #changelist-form .paginator input[type="submit"] {
+    display: inline-flex !important; align-items: center; justify-content: center;
+    min-width: 190px; min-height: 42px; padding: 10px 18px !important;
+    color: #111827 !important; -webkit-text-fill-color: #111827 !important;
+    background: #ffffff !important; border: 2px solid #93c5fd !important;
+    border-radius: 8px !important; font-size: 14px !important; line-height: 20px !important;
+    font-weight: 800 !important; text-shadow: none !important; cursor: pointer !important;
+    opacity: 1 !important; visibility: visible !important;
+  }
+  .tariff-save-button:hover,
+  #changelist-form .paginator input[type="submit"]:hover {
+    color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+    background: #1d4ed8 !important; border-color: #1d4ed8 !important;
+  }
+  .tariff-top-scroll {
+    width: 100%; height: 18px; margin: 0 0 8px; overflow-x: scroll; overflow-y: hidden;
+    border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc;
+  }
+  .tariff-top-scroll-inner { height: 1px; }
+  #changelist .results {
+    overflow-x: scroll !important;
+    overflow-y: visible !important;
+    width: 100% !important;
+  }
+  #changelist #result_list {
+    table-layout: fixed !important;
+    width: 1680px !important;
+    min-width: 1680px !important;
+    font-size: 11px !important;
+  }
+  #result_list th, #result_list td {
+    box-sizing: border-box !important;
+    padding: 6px 4px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    vertical-align: middle !important;
+  }
+  #result_list input[type="number"] {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 5px 3px !important;
+    font-size: 10px !important;
+  }
+  #result_list th.action-checkbox-column,
+  #result_list th.column-action_checkbox,
+  #result_list td.action-checkbox,
+  #result_list th:first-child,
+  #result_list td:first-child {
+    box-sizing: border-box !important;
+    width: 30px !important; min-width: 30px !important; max-width: 30px !important;
+    padding-left: 5px !important; padding-right: 3px !important; text-align: center !important;
+  }
+  #result_list th.column-display_name { width: 185px !important; }
+  #result_list th.column-creative_studio_stage { width: 155px !important; }
+  #result_list th.column-key { width: 175px !important; }
+  #result_list th.column-category { width: 135px !important; }
+  #result_list th.column-credit_cost { width: 100px !important; }
+  #result_list th.column-model_name { width: 135px !important; }
+  #result_list td.field-model_name input { width: 100% !important; min-width: 118px !important; }
+  #result_list th.column-max_input_tokens,
+  #result_list th.column-max_output_tokens { width: 135px !important; }
+  #result_list th.column-max_cost_usd { width: 145px !important; }
+  #result_list th.column-safety_margin_percent { width: 125px !important; }
+  #result_list th.column-uses_openai,
+  #result_list th.column-is_active { width: 75px !important; }
+  #result_list th.column-updated_at,
+  #result_list td.field-updated_at { display: none !important; }
+</style>
+<div class="tariff-save-bar">
+  <button class="tariff-save-button" type="submit" name="_save" form="changelist-form">De&#287;i&#351;iklikleri Kaydet</button>
+</div>
+<div class="tariff-top-scroll" id="tariff-top-scroll" aria-label="Tablo ust yatay kaydirma cubugu">
+  <div class="tariff-top-scroll-inner" id="tariff-top-scroll-inner"></div>
+</div>
+{{ block.super }}
+<script>
+  (function () {
+    function setupTariffScrollbars() {
+      const top = document.getElementById('tariff-top-scroll');
+      const inner = document.getElementById('tariff-top-scroll-inner');
+      const bottom = document.querySelector('#changelist .results');
+      const table = document.getElementById('result_list');
+      if (!top || !inner || !bottom || !table) return;
+      const resize = () => { inner.style.width = table.scrollWidth + 'px'; };
+      let syncing = false;
+      top.addEventListener('scroll', function () {
+        if (syncing) return; syncing = true; bottom.scrollLeft = top.scrollLeft; syncing = false;
+      });
+      bottom.addEventListener('scroll', function () {
+        if (syncing) return; syncing = true; top.scrollLeft = bottom.scrollLeft; syncing = false;
+      });
+      resize();
+      if (window.ResizeObserver) new ResizeObserver(resize).observe(table);
+      window.addEventListener('resize', resize);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupTariffScrollbars);
+    else setupTariffScrollbars();
+  })();
+</script>
+{% endblock %}

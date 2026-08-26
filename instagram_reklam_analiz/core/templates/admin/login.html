@@ -1,0 +1,579 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    body.login,
+    body:has(.admin-login-intel) {
+        background: #eef3f8 !important;
+        color: #111827 !important;
+        min-height: 100vh;
+    }
+
+    body.login #header,
+    body.login .dashboard-navbar,
+    body.login div.breadcrumbs,
+    body.login #nav-sidebar,
+    body.login .toggle-nav-sidebar,
+    body.login #content > h1,
+    body:has(.admin-login-intel) #header,
+    body:has(.admin-login-intel) .dashboard-navbar,
+    body:has(.admin-login-intel) div.breadcrumbs,
+    body:has(.admin-login-intel) #nav-sidebar,
+    body:has(.admin-login-intel) .toggle-nav-sidebar,
+    body:has(.admin-login-intel) #content > h1 {
+        display: none !important;
+    }
+
+    body.login #container,
+    body:has(.admin-login-intel) #container {
+        align-items: center;
+        background:
+            linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+            #eef3f8 !important;
+        background-size: 28px 28px;
+        border: 0 !important;
+        box-shadow: none !important;
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 28px;
+        width: 100%;
+    }
+
+    body.login #content,
+    body:has(.admin-login-intel) #content {
+        background: transparent !important;
+        display: grid;
+        margin: auto !important;
+        max-width: 960px;
+        padding: 0 !important;
+        width: 100%;
+    }
+
+    body.login #content-main,
+    body:has(.admin-login-intel) #content-main {
+        background: #ffffff !important;
+        border: 1px solid #d8e2ee;
+        border-radius: 8px;
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.18);
+        color: #111827 !important;
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 520px;
+        overflow: hidden;
+        padding: 0 !important;
+        width: 100%;
+    }
+
+    .admin-login-intel {
+        background: #0f172a;
+        color: #e5edf6;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        min-height: 520px;
+        padding: 34px;
+        position: relative;
+    }
+
+    .admin-login-intel::before {
+        background:
+            linear-gradient(90deg, rgba(148, 163, 184, 0.13) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+        background-size: 34px 34px;
+        content: "";
+        inset: 0;
+        opacity: 0.55;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    .admin-login-intel > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .admin-login-logo {
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 8px;
+        display: flex;
+        height: 104px;
+        justify-content: center;
+        padding: 8px 12px;
+        width: min(100%, 370px);
+    }
+
+    .admin-login-logo img {
+        display: block;
+        height: 100%;
+        max-height: 88px;
+        max-width: 340px;
+        object-fit: contain;
+        width: 100%;
+    }
+
+    .admin-login-copy {
+        align-content: center;
+        display: grid;
+        gap: 22px;
+        max-width: 520px;
+        padding: 26px 0;
+    }
+
+    .admin-login-kicker {
+        align-items: center;
+        color: #93c5fd;
+        display: flex;
+        font-size: 12px;
+        font-weight: 900;
+        gap: 8px;
+        letter-spacing: 0;
+        margin: 0;
+        text-transform: uppercase;
+    }
+
+    .admin-login-kicker::before {
+        background: #22c55e;
+        border-radius: 999px;
+        content: "";
+        height: 9px;
+        width: 9px;
+    }
+
+    .admin-login-copy h1 {
+        color: #ffffff !important;
+        font-size: 34px;
+        font-weight: 950;
+        line-height: 1.04;
+        margin: 0;
+        max-width: 520px;
+        overflow-wrap: break-word;
+    }
+
+    .admin-login-copy p {
+        color: #cbd5e1;
+        font-size: 15px;
+        font-weight: 650;
+        line-height: 1.65;
+        margin: 0;
+        max-width: 480px;
+    }
+
+    .admin-login-signal-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-top: 6px;
+    }
+
+    .admin-login-signal {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(226, 232, 240, 0.16);
+        border-radius: 8px;
+        min-height: 76px;
+        padding: 13px;
+    }
+
+    .admin-login-signal strong {
+        color: #ffffff;
+        display: block;
+        font-size: 17px;
+        font-weight: 950;
+        line-height: 1.1;
+        margin-bottom: 7px;
+    }
+
+    .admin-login-signal span {
+        color: #b8c7d9;
+        display: block;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .admin-login-visual {
+        align-items: end;
+        display: grid;
+        gap: 18px;
+        grid-template-columns: minmax(0, 1fr) 132px;
+    }
+
+    .admin-login-status {
+        background: rgba(255, 255, 255, 0.09);
+        border: 1px solid rgba(226, 232, 240, 0.18);
+        border-radius: 8px;
+        color: #dbeafe;
+        display: grid;
+        gap: 6px;
+        padding: 14px;
+    }
+
+    .admin-login-status strong {
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 950;
+    }
+
+    .admin-login-status span {
+        color: #b8c7d9;
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.45;
+    }
+
+    .admin-login-octo {
+        align-self: end;
+        display: block;
+        filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.32));
+        max-height: 132px;
+        max-width: 132px;
+        object-fit: contain;
+        width: 100%;
+    }
+
+    .admin-login-panel {
+        align-content: center;
+        background: #ffffff;
+        display: grid;
+        padding: 38px;
+    }
+
+    .admin-login-panel-head {
+        margin-bottom: 26px;
+    }
+
+    .admin-login-panel-head span {
+        color: #2563eb;
+        display: block;
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    .admin-login-panel-head h2 {
+        color: #0f172a !important;
+        font-size: 30px;
+        font-weight: 950;
+        line-height: 1.1;
+        margin: 0 0 10px;
+    }
+
+    .admin-login-panel-head p {
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 650;
+        line-height: 1.55;
+        margin: 0;
+    }
+
+    body.login .messagelist {
+        margin: 0 0 16px !important;
+        padding: 0 !important;
+    }
+
+    body.login .messagelist li {
+        border: 0 !important;
+        border-radius: 8px;
+        color: #ffffff !important;
+        font-size: 13px;
+        font-weight: 850;
+        line-height: 1.45;
+        list-style: none;
+        margin: 0 0 10px !important;
+        padding: 12px 14px !important;
+    }
+
+    body.login .messagelist li.success {
+        background: #047857 !important;
+    }
+
+    body.login .messagelist li.error,
+    body.login .errornote {
+        background: #fff1f2 !important;
+        border: 1px solid #fecdd3 !important;
+        border-radius: 8px;
+        color: #be123c !important;
+        font-size: 13px;
+        font-weight: 850;
+        line-height: 1.45;
+        margin: 0 0 18px !important;
+        padding: 13px 14px !important;
+    }
+
+    body.login .form-row {
+        border: 0 !important;
+        margin: 0 0 17px !important;
+        padding: 0 !important;
+    }
+
+    body.login .form-row ul.errorlist {
+        margin: 0 0 8px !important;
+        padding: 0 !important;
+    }
+
+    body.login .form-row ul.errorlist li {
+        color: #be123c;
+        font-size: 12px;
+        font-weight: 850;
+        list-style: none;
+    }
+
+    body.login label {
+        color: #334155 !important;
+        display: block;
+        font-size: 13px;
+        font-weight: 900;
+        margin: 0 0 7px;
+    }
+
+    body.login input[type="text"],
+    body.login input[type="password"] {
+        background: #f8fafc !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+        color: #0f172a !important;
+        font-size: 15px !important;
+        font-weight: 750;
+        min-height: 48px;
+        padding: 11px 13px !important;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        width: 100% !important;
+    }
+
+    body.login input[type="text"]:focus,
+    body.login input[type="password"]:focus {
+        background: #ffffff !important;
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16) !important;
+        outline: none !important;
+    }
+
+    body.login .password-reset-link {
+        margin: -2px 0 18px;
+        text-align: right;
+    }
+
+    body.login .password-reset-link a {
+        color: #2563eb !important;
+        font-size: 13px;
+        font-weight: 850;
+        text-decoration: none;
+    }
+
+    body.login .password-reset-link a:hover {
+        color: #0f172a !important;
+        text-decoration: underline;
+    }
+
+    body.login .submit-row {
+        background: transparent !important;
+        border: 0 !important;
+        margin: 8px 0 0 !important;
+        padding: 0 !important;
+        text-align: left;
+    }
+
+    body.login .submit-row input[type="submit"] {
+        background: #0f172a !important;
+        border: 1px solid #0f172a !important;
+        border-radius: 8px !important;
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);
+        color: #ffffff !important;
+        cursor: pointer;
+        font-size: 14px !important;
+        font-weight: 950 !important;
+        min-height: 48px;
+        padding: 12px 22px !important;
+        transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+        width: 100%;
+    }
+
+    body.login .submit-row input[type="submit"]:hover,
+    body.login .submit-row input[type="submit"]:focus {
+        background: #ea580c !important;
+        border-color: #ea580c !important;
+        box-shadow: 0 16px 30px rgba(234, 88, 12, 0.24);
+        transform: translateY(-1px);
+    }
+
+    .admin-login-footnote {
+        border-top: 1px solid #e2e8f0;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.45;
+        margin-top: 24px;
+        padding-top: 16px;
+    }
+
+    @media (min-width: 1180px) {
+        body.login #content {
+            max-width: 1040px;
+        }
+
+        body.login #content-main,
+        body:has(.admin-login-intel) #content-main {
+            grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+        }
+    }
+
+    @media (max-width: 1179px) {
+        body.login #container {
+            padding: 20px;
+        }
+
+        .admin-login-intel {
+            min-height: auto;
+            padding: 28px;
+        }
+
+        .admin-login-copy {
+            padding: 34px 0 20px;
+        }
+
+        .admin-login-copy h1 {
+            font-size: 34px;
+            max-width: 680px;
+        }
+
+        .admin-login-panel {
+            padding: 32px 28px;
+        }
+    }
+
+    @media (max-width: 560px) {
+        body.login #container {
+            padding: 14px;
+        }
+
+        body.login #content-main {
+            min-height: auto;
+        }
+
+        .admin-login-intel {
+            padding: 22px;
+        }
+
+        .admin-login-logo {
+            height: 88px;
+        }
+
+        .admin-login-copy {
+            gap: 16px;
+            padding: 26px 0 16px;
+        }
+
+        .admin-login-copy h1 {
+            font-size: 28px;
+        }
+
+        .admin-login-copy p {
+            font-size: 14px;
+        }
+
+        .admin-login-signal-grid,
+        .admin-login-visual {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-login-octo {
+            display: none;
+        }
+
+        .admin-login-panel {
+            padding: 26px 20px 22px;
+        }
+
+        .admin-login-panel-head h2 {
+            font-size: 25px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block branding %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <aside class="admin-login-intel" aria-label="reklamanaliz.net yonetim merkezi">
+        <div class="admin-login-logo">
+            <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+        </div>
+
+        <div class="admin-login-copy">
+            <p class="admin-login-kicker">SaaS yönetim merkezi</p>
+            <h1>Reklam verisi, üyelik ve AI operasyonu tek güvenli panelde.</h1>
+            <p>Platform bağlantıları, üyelik hareketleri, Octo AI kullanım sinyalleri ve sistem sağlığı için yetkili yönetici girişi.</p>
+
+            <div class="admin-login-signal-grid" aria-label="Panel kapsamı">
+                <div class="admin-login-signal"><strong>Kontrol</strong><span>Üyelik ve ödeme yönetimi</span></div>
+                <div class="admin-login-signal"><strong>AI</strong><span>OpenAI kullanım takibi</span></div>
+                <div class="admin-login-signal"><strong>Sync</strong><span>Platform iş akışları</span></div>
+            </div>
+        </div>
+
+        <div class="admin-login-visual">
+            <div class="admin-login-status">
+                <strong>Operasyon paneli hazır</strong>
+                <span>Giriş sonrası SaaS metrikleri, görevler ve sistem uyarıları yönetici ekranında görünür.</span>
+            </div>
+            <img class="admin-login-octo" src="{% static 'images/octo-analyst.webp' %}" alt="Octo AI">
+        </div>
+    </aside>
+
+    <section class="admin-login-panel" aria-label="Admin giris formu">
+        <div class="admin-login-panel-head">
+            <span>Yetkili erişim</span>
+            <h2>Admin paneline giriş</h2>
+            <p>Hesabınıza atanmış yönetici bilgileriyle oturum açın.</p>
+        </div>
+
+        {% if form.errors and not form.non_field_errors %}
+            <p class="errornote">
+                {% blocktranslate count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}
+            </p>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <p class="errornote">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <form action="{{ app_path }}" method="post" id="login-form">
+            {% csrf_token %}
+            <div class="form-row">
+                {{ form.username.errors }}
+                {{ form.username.label_tag }} {{ form.username }}
+            </div>
+            <div class="form-row">
+                {{ form.password.errors }}
+                {{ form.password.label_tag }} {{ form.password }}
+                <input type="hidden" name="next" value="{{ next }}">
+            </div>
+            {% url 'admin_password_reset' as password_reset_url %}
+            {% if password_reset_url %}
+                <div class="password-reset-link">
+                    <a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a>
+                </div>
+            {% endif %}
+            <div class="submit-row">
+                <input type="submit" value="Giriş yap">
+            </div>
+        </form>
+
+        <div class="admin-login-footnote">
+            Bu alan yalnızca yetkili ekip üyeleri içindir. Oturum hareketleri ve kritik yönetim işlemleri sistem güvenliği kapsamında izlenir.
+        </div>
+    </section>
+</div>
+{% endblock %}

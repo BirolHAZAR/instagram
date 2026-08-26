@@ -1,0 +1,124 @@
+{% extends "admin/base_site.html" %}
+{% load admin_dashboard %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .trial-shell { display: grid; gap: 18px; }
+    .trial-hero {
+        background: #ffffff;
+        border: 1px solid #dbe3ef;
+        border-top: 5px solid #2563eb;
+        border-radius: 8px;
+        padding: 20px 22px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+    }
+    .trial-hero h1 { color: #111827; margin: 0 0 8px; }
+    .trial-hero p { color: #475569; margin: 0; font-weight: 650; }
+    .metric-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    }
+    .metric-card {
+        background: #fff;
+        border: 1px solid #dbe3ef;
+        border-top: 5px solid #2563eb;
+        border-radius: 8px;
+        min-height: 112px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+    .metric-card[data-tone="green"] { border-top-color: #16a34a; }
+    .metric-card[data-tone="amber"] { border-top-color: #d97706; }
+    .metric-card[data-tone="indigo"] { border-top-color: #4f46e5; }
+    .metric-card span { color: #334155; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .metric-card strong { color: #111827; display: block; font-size: 30px; margin-top: 6px; }
+    .metric-card small { color: #64748b; display: block; font-weight: 700; margin-top: 6px; }
+    .report-panel {
+        background: #fff;
+        border: 1px solid #dbe3ef;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+        overflow-x: auto;
+    }
+    .report-panel h2 { color: #111827; font-size: 17px; margin: 0 0 12px; }
+    .report-table { border-collapse: collapse; width: 100%; min-width: 980px; font-size: 13px; table-layout: fixed; }
+    .report-table th,
+    .report-table td {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border-bottom: 1px solid #eef2f7;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+    .report-table th {
+        background: #f8fafc !important;
+        color: #334155 !important;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+    .report-table td.num,
+    .report-table th.num { text-align: right; }
+    .report-table a { color: #1d4ed8 !important; font-weight: 800; text-decoration: none; }
+    .report-table a:hover { text-decoration: underline; }
+    .status-pill {
+        border-radius: 999px;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 4px 9px;
+    }
+    .status-pill.yes { background: #dcfce7; color: #166534; }
+    .status-pill.no { background: #f1f5f9; color: #475569; }
+    .muted { color: #64748b !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="trial-shell">
+    <p><a class="button" href="{% url 'admin:index' %}">Admin ana sayfaya dön</a></p>
+    <section class="trial-hero">
+        <h1>Ücretsiz Deneme Raporu</h1>
+        <p>Yeni üyelere verilen {{ trial_days }} günlük ücretsiz süre ve {{ trial_credits }} token hakkı; haftalık ve aylık bazda aboneliğe dönüşleriyle birlikte izlenir.</p>
+    </section>
+
+    <section class="metric-grid" aria-label="Ücretsiz deneme özeti">
+        <article class="metric-card" data-tone="indigo">
+            <span>Bu hafta ücretsiz verilen</span>
+            <strong>{{ weekly_total|tr_int }}</strong>
+            <small>{{ week_start|date:"d.m.Y" }} - {{ week_end|date:"d.m.Y" }}</small>
+        </article>
+        <article class="metric-card" data-tone="green">
+            <span>Bu hafta abonelik alan</span>
+            <strong>{{ weekly_converted_total|tr_int }}</strong>
+            <small>{% if weekly_total %}%{% widthratio weekly_converted_total weekly_total 100 %} dönüşüm{% else %}%0 dönüşüm{% endif %}</small>
+        </article>
+        <article class="metric-card" data-tone="indigo">
+            <span>Bu ay ücretsiz verilen</span>
+            <strong>{{ monthly_total|tr_int }}</strong>
+            <small>{{ month_start|date:"d.m.Y" }} - {{ month_end|date:"d.m.Y" }}</small>
+        </article>
+        <article class="metric-card" data-tone="green">
+            <span>Bu ay abonelik alan</span>
+            <strong>{{ monthly_converted_total|tr_int }}</strong>
+            <small>{% if monthly_total %}%{% widthratio monthly_converted_total monthly_total 100 %} dönüşüm{% else %}%0 dönüşüm{% endif %}</small>
+        </article>
+    </section>
+
+    {% include "admin/partials/free_trial_table.html" with title="Bu Hafta Ücretsiz Hak Verilen Üyeler" rows=weekly_rows empty_text="Bu hafta ücretsiz deneme verilen üye yok." %}
+    {% include "admin/partials/free_trial_table.html" with title="Bu Hafta Abonelik Alan Deneme Üyeleri" rows=weekly_converted_rows empty_text="Bu hafta ücretsiz denemeden aboneliğe dönen üye yok." %}
+    {% include "admin/partials/free_trial_table.html" with title="Bu Ay Ücretsiz Hak Verilen Üyeler" rows=monthly_rows empty_text="Bu ay ücretsiz deneme verilen üye yok." %}
+    {% include "admin/partials/free_trial_table.html" with title="Bu Ay Abonelik Alan Deneme Üyeleri" rows=monthly_converted_rows empty_text="Bu ay ücretsiz denemeden aboneliğe dönen üye yok." %}
+</div>
+{% endblock %}

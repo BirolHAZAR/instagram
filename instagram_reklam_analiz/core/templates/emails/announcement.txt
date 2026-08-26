@@ -1,0 +1,7 @@
+{{ announcement.title }}
+
+{{ announcement.message }}
+{% if announcement.link %}
+Detay: {{ announcement.link }}
+{% endif %}
+ReklamAnaliz.net

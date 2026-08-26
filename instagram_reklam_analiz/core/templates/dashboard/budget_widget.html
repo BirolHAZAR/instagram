@@ -1,0 +1,28 @@
+﻿<div class="bo-panel mb-3">
+    <div class="panel-head">
+        <div>
+            <h3 class="panel-title">ğŸ¤– Son BÃ¼tÃ§e OptimizasyonlarÄ±</h3>
+            <div class="panel-sub">Octo AI tarafÄ±ndan oluÅŸturulan son bÃ¼tÃ§e kararlarÄ±.</div>
+        </div>
+        <a href="{% url 'optimization_history' %}" class="mini-btn">Detaylar</a>
+    </div>
+    <div class="panel-body">
+        {% if recent_budget_logs %}
+            <div class="log-list">
+                {% for log in recent_budget_logs %}
+                <div class="log-item">
+                    <div class="log-title">
+                        <span>{{ log.reklam.name|default:log.reklam|truncatechars:60 }}</span>
+                        <span class="log-budget {% if log.new_budget > log.old_budget %}kpi-green{% elif log.new_budget < log.old_budget %}kpi-red{% endif %}">
+                            â‚º{{ log.old_budget|tr_decimal }} â†’ â‚º{{ log.new_budget|tr_decimal }}
+                        </span>
+                    </div>
+                    <div class="log-reason">{{ log.created_at|timesince }} Ã¶nce</div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-box"><p>HenÃ¼z deÄŸiÅŸiklik yok.</p></div>
+        {% endif %}
+    </div>
+</div>

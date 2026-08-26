@@ -1,0 +1,17 @@
+{% load tr_numbers %}
+<section class="ct-live-summary-combo" aria-label="Canlı performans ve hesap özeti">
+  <div class="ct-live-summary-left">
+    {% include "dashboard/control_tower/main_grid.html" %}
+  </div>
+  <aside class="ct-live-summary-right ct-card" aria-label="Hesap varlık özeti">
+    <span class="ct-tip info" data-tip="Hesabınızda takip edilen kampanya, reklam grubu, reklam, uyarı ve görev sayılarını özetler."><i class="fas fa-circle-info"></i> Özet</span>
+    <div class="ct-live-summary-head">
+      <div>
+        <span>HESAP VARLIK ÖZETİ</span>
+        <strong>Kampanya · Reklam Grubu · Reklam</strong>
+      </div>
+      <i class="fas fa-layer-group"></i>
+    </div>
+    {% include "dashboard/control_tower/exec_summary.html" %}
+  </aside>
+</section>

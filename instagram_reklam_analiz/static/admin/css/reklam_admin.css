@@ -1,0 +1,30 @@
+/* Reklam Admin Panel Stilleri */
+.field-get_media_preview img {
+    border: 2px solid #e0e0e0;
+    transition: transform 0.2s;
+}
+
+.field-get_media_preview img:hover {
+    transform: scale(2.5);
+    z-index: 9999;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.field-performance_score_badge span,
+.field-status_badge span,
+.field-media_type_badge span,
+.field-data_source_badge span {
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Sütun genişlikleri */
+.column-get_media_preview {
+    width: 80px;
+}
+
+.column-id {
+    width: 60px;
+}

@@ -1,0 +1,281 @@
+{% load tr_numbers %}
+<section class="ct-creative-bottom">
+  <div class="ct-card ct-section ct-creative-card-final ct-creative-wall-segment-card">
+    <span class="ct-tip info" data-tip="Kreatiflerin ilgi, dönüşüm ve yorgunluk sinyallerini karşılaştırır. Hangi görsel veya videonun ölçeklenebilir, izlenmeli ya da yenilenmeli olduğunu gösterir."><i class="fas fa-circle-info"></i> Creative</span>
+
+    <div class="ct-section-title ct-creative-wall-head">
+      <div>
+        <h3>CREATIVE PERFORMANS DUVARI</h3>
+        <small class="ct-creative-subtitle">Tüm kreatifler &middot; 5 durum bloğu &middot; CTR / ROAS / Yorgunluk</small>
+      </div>
+      <div class="ct-creative-wall-actions">
+        <div class="ct-creative-wall-stats">
+          <span><b>{{ creative_wall_stats.total|default:0 }}</b> Kreatif</span>
+          <span class="good"><b>{{ creative_wall_stats.scale|default:0 }}</b> Ölçek</span>
+          <span class="good"><b>{{ creative_wall_stats.convert|default:0 }}</b> Dönüştüren</span>
+          <span class="mid"><b>{{ creative_wall_stats.watch|default:0 }}</b> İzle</span>
+          <span class="bad"><b>{{ creative_wall_stats.fatigue|default:0 }}</b> Yorgun</span>
+          <span class="bad"><b>{{ creative_wall_stats.weak|default:0 }}</b> Zayıf</span>
+        </div>
+        <a class="ct-mini-link" href="{% url 'creative_center' %}">Tümü &rarr;</a>
+      </div>
+    </div>
+
+    <div class="ct-creative-segment-grid">
+      {% for segment in creative_wall_segment_cards %}
+        <article class="ct-creative-segment {{ segment.state }}">
+          <div class="ct-creative-segment-head">
+            <div class="ct-creative-segment-title">
+              <i class="fas {{ segment.icon }}"></i>
+              <div>
+                <strong>{{ segment.title }}</strong>
+                <span>{{ segment.subtitle }}</span>
+              </div>
+            </div>
+            <div class="ct-creative-segment-count">
+              <b>{{ segment.count }}</b>
+              <small>{{ segment.short_label }}</small>
+            </div>
+          </div>
+
+          <div class="ct-creative-segment-note">{{ segment.note }}</div>
+
+          <div class="ct-creative-segment-list">
+            {% for creative in segment.rows %}
+              <button type="button"
+                class="ct-creative-mini-card ct-creative-clickable {{ creative.status_state }}"
+                title="{{ creative.name }} · {{ creative.source }}"
+                data-creative-name="{{ creative.name }}"
+                data-creative-status="{{ creative.status_label }}"
+                data-creative-action="{{ creative.recommended_action }}"
+                data-creative-score="{{ creative.score|tr_decimal }}"
+                data-creative-ctr="{{ creative.ctr|tr_decimal }}%"
+                data-creative-roas="{{ creative.roas|tr_decimal }}"
+                data-creative-fatigue="{{ creative.fatigue|tr_decimal }}%"
+                data-creative-impressions="{{ creative.impressions|tr_int }}"
+                data-creative-clicks="{{ creative.clicks|tr_int }}"
+                data-creative-conversions="{{ creative.conversions|tr_int }}"
+                data-creative-spend="{{ creative.spend|tr_decimal }} TL"
+                data-creative-revenue="{{ creative.revenue|tr_decimal }} TL"
+                data-creative-source="{{ creative.source }}"
+                data-campaign-name="{{ creative.campaign_name }}"
+                data-campaign-id="{{ creative.campaign_id }}"
+                data-campaign-status="{{ creative.campaign_status }}"
+                data-adgroup-name="{{ creative.adgroup_name }}"
+                data-ad-id="{{ creative.ad_id }}"
+                data-ad-name="{{ creative.ad_name }}"
+                data-creative-image="{{ creative.image_url }}"
+                data-platform="{{ creative.platform }}">
+                <div class="ct-creative-mini-thumb">
+                  {% if creative.image_url %}
+                    <img src="{{ creative.image_url }}" alt="{{ creative.name }}" loading="lazy" referrerpolicy="no-referrer" onerror="this.closest('.ct-creative-mini-thumb').classList.add('is-image-broken'); this.remove();">
+                  {% else %}
+                    <i class="fas fa-photo-film"></i>
+                  {% endif %}
+                  <span>{{ creative.score|tr_decimal }}</span>
+                </div>
+                <div class="ct-creative-mini-body">
+                  <strong>{{ creative.name }}</strong>
+                  <em>{{ creative.campaign_name }}</em>
+                  <div class="ct-creative-mini-metrics">
+                    <span>CTR <b>{{ creative.ctr|tr_decimal }}%</b></span>
+                    <span>ROAS <b>{{ creative.roas|tr_decimal }}</b></span>
+                    <span>Yorg. <b>{{ creative.fatigue|tr_decimal }}%</b></span>
+                  </div>
+                </div>
+              </button>
+            {% empty %}
+              <div class="ct-creative-segment-empty">
+                <i class="fas fa-circle-info"></i>
+                <span>Bu kategoride kreatif yok.</span>
+              </div>
+            {% endfor %}
+          </div>
+        </article>
+      {% empty %}
+        <div class="ct-empty ct-creative-empty">
+          Kreatif performans verisi bulunamadı. Gösterim, tıklama veya harcama sinyali geldikçe bu alan otomatik dolacaktır.
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="ct-creative-modal" id="ctCreativeModal" aria-hidden="true">
+    <div class="ct-creative-modal-backdrop" data-creative-close></div>
+    <div class="ct-creative-modal-card" role="dialog" aria-modal="true" aria-label="Kreatif kampanya detayı">
+      <button type="button" class="ct-creative-modal-close" data-creative-close><i class="fas fa-xmark"></i></button>
+      <div class="ct-creative-modal-head">
+        <div>
+          <span id="ctCreativeModalStatus">Kreatif</span>
+          <h3 id="ctCreativeModalTitle">Kreatif detayı</h3>
+          <p id="ctCreativeModalAction">Aksiyon önerisi</p>
+        </div>
+        <strong id="ctCreativeModalScore">0</strong>
+      </div>
+      <div class="ct-creative-modal-visual" id="ctCreativeModalVisual">
+        <img id="ctCreativeModalImage" src="" alt="Kreatif görseli" loading="lazy" referrerpolicy="no-referrer">
+        <div class="ct-creative-modal-visual-empty" id="ctCreativeModalImageEmpty">
+          <i class="fas fa-photo-film"></i>
+          <span>Görsel bulunamadı</span>
+        </div>
+      </div>
+
+      <div class="ct-creative-modal-campaign">
+        <label>Bağlı Kampanya</label>
+        <strong id="ctCreativeModalCampaign">-</strong>
+        <div class="ct-creative-modal-meta">
+          <span>Platform: <b id="ctCreativeModalPlatform">-</b></span>
+          <span>Durum: <b id="ctCreativeModalCampaignStatus">-</b></span>
+          <span>Reklam Grubu: <b id="ctCreativeModalAdGroup">-</b></span>
+          <span>Reklam: <b id="ctCreativeModalAd">-</b></span>
+        </div>
+      </div>
+      <div class="ct-creative-modal-metrics">
+        <div><span>CTR</span><strong id="ctCreativeModalCtr">-</strong></div>
+        <div><span>ROAS</span><strong id="ctCreativeModalRoas">-</strong></div>
+        <div><span>Yorgunluk</span><strong id="ctCreativeModalFatigue">-</strong></div>
+        <div><span>Gösterim</span><strong id="ctCreativeModalImpressions">-</strong></div>
+        <div><span>Tıklama</span><strong id="ctCreativeModalClicks">-</strong></div>
+        <div><span>Dönüşüm</span><strong id="ctCreativeModalConversions">-</strong></div>
+        <div><span>Harcama</span><strong id="ctCreativeModalSpend">-</strong></div>
+        <div><span>Gelir</span><strong id="ctCreativeModalRevenue">-</strong></div>
+      </div>
+      <div class="ct-creative-modal-footer">
+        <span>Kaynak: <b id="ctCreativeModalSource">-</b></span>
+        <div class="ct-creative-modal-links">
+          <a id="ctCreativeModalAdLink" href="#" class="ct-creative-modal-link secondary">Reklamı Aç</a>
+          <a id="ctCreativeModalCampaignLink" href="#" class="ct-creative-modal-link">Kampanyayı Aç</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const modal = document.getElementById('ctCreativeModal');
+  if(!modal){ return; }
+
+  const fields = {
+    title: document.getElementById('ctCreativeModalTitle'),
+    status: document.getElementById('ctCreativeModalStatus'),
+    action: document.getElementById('ctCreativeModalAction'),
+    score: document.getElementById('ctCreativeModalScore'),
+    campaign: document.getElementById('ctCreativeModalCampaign'),
+    platform: document.getElementById('ctCreativeModalPlatform'),
+    campaignStatus: document.getElementById('ctCreativeModalCampaignStatus'),
+    adgroup: document.getElementById('ctCreativeModalAdGroup'),
+    ad: document.getElementById('ctCreativeModalAd'),
+    ctr: document.getElementById('ctCreativeModalCtr'),
+    roas: document.getElementById('ctCreativeModalRoas'),
+    fatigue: document.getElementById('ctCreativeModalFatigue'),
+    impressions: document.getElementById('ctCreativeModalImpressions'),
+    clicks: document.getElementById('ctCreativeModalClicks'),
+    conversions: document.getElementById('ctCreativeModalConversions'),
+    spend: document.getElementById('ctCreativeModalSpend'),
+    revenue: document.getElementById('ctCreativeModalRevenue'),
+    source: document.getElementById('ctCreativeModalSource'),
+    image: document.getElementById('ctCreativeModalImage'),
+    imageEmpty: document.getElementById('ctCreativeModalImageEmpty'),
+    visual: document.getElementById('ctCreativeModalVisual'),
+    link: document.getElementById('ctCreativeModalCampaignLink'),
+    adLink: document.getElementById('ctCreativeModalAdLink')
+  };
+
+  function setText(key, value){
+    if(fields[key]){ fields[key].textContent = value || '-'; }
+  }
+
+  function openModal(card){
+    // Keep the overlay outside <main>'s stacking context. Otherwise the fixed
+    // modal remains below the sticky header/sidebar regardless of its z-index.
+    if(modal.parentElement !== document.body){
+      document.body.appendChild(modal);
+    }
+    setText('title', card.dataset.creativeName);
+    setText('status', card.dataset.creativeStatus);
+    setText('action', card.dataset.creativeAction);
+    setText('score', card.dataset.creativeScore);
+    setText('campaign', card.dataset.campaignName);
+    setText('platform', card.dataset.platform);
+    setText('campaignStatus', card.dataset.campaignStatus);
+    setText('adgroup', card.dataset.adgroupName);
+    setText('ad', card.dataset.adName);
+    setText('ctr', card.dataset.creativeCtr);
+    setText('roas', card.dataset.creativeRoas);
+    setText('fatigue', card.dataset.creativeFatigue);
+    setText('impressions', card.dataset.creativeImpressions);
+    setText('clicks', card.dataset.creativeClicks);
+    setText('conversions', card.dataset.creativeConversions);
+    setText('spend', card.dataset.creativeSpend);
+    setText('revenue', card.dataset.creativeRevenue);
+    setText('source', card.dataset.creativeSource);
+
+    const imageUrl = card.dataset.creativeImage || '';
+    if(fields.image && fields.imageEmpty){
+      fields.image.onload = function(){
+        fields.image.style.display = '';
+        fields.imageEmpty.style.display = 'none';
+      };
+      fields.image.onerror = function(){
+        fields.image.removeAttribute('src');
+        fields.image.style.display = 'none';
+        fields.imageEmpty.style.display = 'flex';
+      };
+      if(imageUrl){
+        fields.imageEmpty.style.display = 'none';
+        fields.image.style.display = '';
+        fields.image.src = imageUrl;
+      }else{
+        fields.image.removeAttribute('src');
+        fields.image.style.display = 'none';
+        fields.imageEmpty.style.display = 'flex';
+      }
+    }
+
+    if(fields.link){
+      const campaignId = card.dataset.campaignId;
+      if(campaignId){
+        fields.link.href = '/campaign-center/?campaign_id=' + encodeURIComponent(campaignId);
+        fields.link.style.display = '';
+      }else{
+        fields.link.href = '#';
+        fields.link.style.display = 'none';
+      }
+    }
+
+    if(fields.adLink){
+      const adId = card.dataset.adId;
+      if(adId){
+        fields.adLink.href = '/ads-center/?reklam_id=' + encodeURIComponent(adId);
+        fields.adLink.style.display = '';
+      }else{
+        fields.adLink.href = '#';
+        fields.adLink.style.display = 'none';
+      }
+    }
+
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('ct-creative-modal-lock');
+    document.body.classList.add('ct-creative-modal-lock');
+  }
+
+  function closeModal(){
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('ct-creative-modal-lock');
+    document.body.classList.remove('ct-creative-modal-lock');
+  }
+
+  document.querySelectorAll('.ct-creative-clickable').forEach(function(card){
+    card.addEventListener('click', function(){ openModal(card); });
+  });
+  modal.querySelectorAll('[data-creative-close]').forEach(function(item){
+    item.addEventListener('click', closeModal);
+  });
+  document.addEventListener('keydown', function(event){
+    if(event.key === 'Escape'){ closeModal(); }
+  });
+})();
+</script>

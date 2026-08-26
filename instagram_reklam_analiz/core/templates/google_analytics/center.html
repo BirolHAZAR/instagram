@@ -1,0 +1,92 @@
+﻿{% extends 'base.html' %}
+{% load static tr_numbers %}
+
+{% block title %}Google Analytics | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/google_analytics.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ga-shell">
+  <section class="ga-hero">
+    <div>
+      <span class="ga-kicker"><i class="fas fa-chart-pie"></i> Google Analytics 4</span>
+      <h1>Web davranışı, reklam kararlarına bağlansın.</h1>
+      <p>GA4 property verilerini bağlı platform hesabına göre takip edin; oturum, kullanıcı, etkileşim, dönüşüm ve gelir sinyallerini reklam performansıyla birlikte okuyun.</p>
+      <div class="ga-actions">
+        <a href="{% url 'hesap_ekle' %}" class="ga-btn primary"><i class="fas fa-plug"></i> GA4 Hesabı Bağla</a>
+        <a href="{% url 'platform_connections' %}" class="ga-btn"><i class="fas fa-link"></i> Platform Bağlantıları</a>
+      </div>
+    </div>
+    <div class="ga-hero-mark">
+      <i class="fas fa-chart-simple"></i>
+      <strong>{{ totals.properties|tr_int }}</strong>
+      <span>Property</span>
+    </div>
+  </section>
+
+  <section class="ga-kpi-grid">
+    <div class="ga-kpi"><span>GA Hesabı</span><strong>{{ totals.accounts|tr_int }}</strong><small>Bağlı hesap</small></div>
+    <div class="ga-kpi"><span>Oturum</span><strong>{{ totals.sessions|tr_int }}</strong><small>Toplam trafik</small></div>
+    <div class="ga-kpi"><span>Kullanıcı</span><strong>{{ totals.users|tr_int }}</strong><small>Tekil ziyaretçi</small></div>
+    <div class="ga-kpi"><span>Etkileşim</span><strong>%{{ totals.engagement_rate|tr_decimal }}</strong><small>Engaged session</small></div>
+    <div class="ga-kpi"><span>Gelir</span><strong>{{ totals.revenue|tr_int }} TL</strong><small>GA4 revenue</small></div>
+  </section>
+
+  <section class="ga-layout">
+    <div class="ga-panel">
+      <div class="ga-panel-head">
+        <div>
+          <span>Property Listesi</span>
+          <h2>Hesaba bağlı GA4 veri kaynakları</h2>
+        </div>
+      </div>
+      {% if property_rows %}
+      <div class="ga-property-list">
+        {% for row in property_rows %}
+        <a class="ga-property-row" href="{% url 'google_analytics_property_detail' row.property.id %}">
+          <div>
+            <strong>{{ row.property.property_name|default:row.property.property_id }}</strong>
+            <span>{{ row.account.account_name|default:row.account.account_id }} · Property ID {{ row.property.property_id }}</span>
+          </div>
+          <div class="ga-row-metrics">
+            <div class="ga-row-metric"><b>{{ row.sessions|tr_int }}</b><small>Oturum</small></div>
+            <div class="ga-row-metric"><b>{{ row.users|tr_int }}</b><small>Kullanıcı</small></div>
+            <div class="ga-row-metric"><b>{{ row.revenue|tr_int }} TL</b><small>Gelir</small></div>
+          </div>
+          <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="ga-empty">
+        <i class="fas fa-chart-pie"></i>
+        <strong>Henüz GA4 property yok.</strong>
+        <span>Hesap Ekle ekranından Google Analytics 4 hesabı bağlayarak bu merkezi aktif hale getirin.</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <aside class="ga-panel">
+      <div class="ga-panel-head">
+        <div>
+          <span>Son Metrikler</span>
+          <h2>Güncel veri akışı</h2>
+        </div>
+      </div>
+      <div class="ga-recent-list">
+        {% for metric in recent_metrics %}
+        <div class="ga-recent-row">
+          <div><strong>{{ metric.property.property_name|default:metric.property.property_id }}</strong><span>{{ metric.date }}</span></div>
+          <b>{{ metric.sessions|tr_int }}</b>
+          <em>oturum</em>
+        </div>
+        {% empty %}
+        <div class="ga-empty compact"><span>Veri geldiğinde son GA4 metrikleri burada görünecek.</span></div>
+        {% endfor %}
+      </div>
+    </aside>
+  </section>
+</div>
+{% endblock %}

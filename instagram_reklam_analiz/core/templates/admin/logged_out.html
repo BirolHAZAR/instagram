@@ -1,0 +1,323 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    body {
+        background: #eef3f8 !important;
+    }
+
+    #header,
+    .dashboard-navbar,
+    div.breadcrumbs,
+    #nav-sidebar,
+    .toggle-nav-sidebar,
+    #content > h1 {
+        display: none !important;
+    }
+
+    #container {
+        align-items: center;
+        background:
+            linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+            #eef3f8 !important;
+        background-size: 28px 28px;
+        border: 0 !important;
+        box-shadow: none !important;
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 28px;
+        width: 100%;
+    }
+
+    #content {
+        background: transparent !important;
+        margin: 0 !important;
+        max-width: 960px;
+        padding: 0 !important;
+        width: 100%;
+    }
+
+    .admin-logout-shell {
+        background: #ffffff;
+        border: 1px solid #d8e2ee;
+        border-radius: 8px;
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.18);
+        display: grid;
+        grid-template-columns: 1fr;
+        min-height: 460px;
+        overflow: hidden;
+    }
+
+    .admin-logout-brand {
+        background: #0f172a;
+        color: #e5edf6;
+        display: grid;
+        gap: 24px;
+        padding: 34px;
+        position: relative;
+    }
+
+    .admin-logout-brand::before {
+        background:
+            linear-gradient(90deg, rgba(148, 163, 184, 0.13) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+        background-size: 34px 34px;
+        content: "";
+        inset: 0;
+        opacity: 0.55;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    .admin-logout-brand > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .admin-logout-logo {
+        align-items: center;
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 8px;
+        display: flex;
+        height: 104px;
+        justify-content: center;
+        padding: 8px 12px;
+        width: min(100%, 360px);
+    }
+
+    .admin-logout-logo img {
+        height: 100%;
+        max-height: 88px;
+        max-width: 330px;
+        object-fit: contain;
+        width: 100%;
+    }
+
+    .admin-logout-brand h1 {
+        color: #ffffff !important;
+        font-size: 34px;
+        font-weight: 950;
+        line-height: 1.08;
+        margin: 0;
+        max-width: 360px;
+        overflow-wrap: break-word;
+    }
+
+    .admin-logout-brand p {
+        color: #cbd5e1;
+        font-size: 15px;
+        font-weight: 650;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .admin-logout-status {
+        align-self: end;
+        background: rgba(255, 255, 255, 0.09);
+        border: 1px solid rgba(226, 232, 240, 0.18);
+        border-radius: 8px;
+        color: #dbeafe;
+        display: grid;
+        gap: 6px;
+        padding: 14px;
+    }
+
+    .admin-logout-status strong {
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 950;
+    }
+
+    .admin-logout-status span {
+        color: #b8c7d9;
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.45;
+    }
+
+    .admin-logout-panel {
+        align-content: center;
+        display: grid;
+        padding: 42px;
+    }
+
+    .admin-logout-icon {
+        align-items: center;
+        background: #dcfce7;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        color: #166534;
+        display: flex;
+        font-size: 28px;
+        font-weight: 950;
+        height: 58px;
+        justify-content: center;
+        margin-bottom: 22px;
+        width: 58px;
+    }
+
+    .admin-logout-panel span {
+        color: #2563eb;
+        display: block;
+        font-size: 12px;
+        font-weight: 950;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+
+    .admin-logout-panel h2 {
+        color: #0f172a !important;
+        font-size: 30px;
+        font-weight: 950;
+        line-height: 1.12;
+        margin: 0 0 12px;
+    }
+
+    .admin-logout-panel p {
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 650;
+        line-height: 1.6;
+        margin: 0 0 24px;
+    }
+
+    .admin-logout-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        max-width: 100%;
+    }
+
+    .admin-logout-btn {
+        align-items: center;
+        border-radius: 8px;
+        display: inline-flex;
+        font-size: 14px;
+        font-weight: 950;
+        justify-content: center;
+        min-height: 46px;
+        padding: 11px 18px;
+        text-decoration: none;
+        white-space: normal;
+    }
+
+    .admin-logout-btn.primary {
+        background: #0f172a;
+        border: 1px solid #0f172a;
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);
+        color: #ffffff !important;
+    }
+
+    .admin-logout-btn.secondary {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #334155 !important;
+    }
+
+    .admin-logout-btn.primary:hover {
+        background: #ea580c;
+        border-color: #ea580c;
+        color: #ffffff !important;
+    }
+
+    .admin-logout-btn.secondary:hover {
+        border-color: #2563eb;
+        color: #2563eb !important;
+    }
+
+    @media (min-width: 1180px) {
+        #content {
+            max-width: 1040px;
+        }
+
+        .admin-logout-shell {
+            grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
+        }
+    }
+
+    @media (max-width: 1179px) {
+        #container {
+            padding: 20px;
+        }
+
+        .admin-logout-brand,
+        .admin-logout-panel {
+            padding: 26px 22px;
+        }
+
+        .admin-logout-brand h1 {
+            font-size: 31px;
+            max-width: 620px;
+        }
+
+        .admin-logout-panel h2 {
+            font-size: 25px;
+        }
+
+        .admin-logout-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .admin-logout-btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 560px) {
+        #container {
+            padding: 12px;
+        }
+
+        .admin-logout-brand,
+        .admin-logout-panel {
+            padding: 22px 18px;
+        }
+
+        .admin-logout-logo {
+            height: 88px;
+        }
+
+        .admin-logout-brand h1 {
+            font-size: 26px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block branding %}{% endblock %}
+{% block nav-global %}{% endblock %}
+
+{% block content %}
+<section class="admin-logout-shell" aria-label="Admin oturum kapandi">
+    <aside class="admin-logout-brand">
+        <div class="admin-logout-logo">
+            <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+        </div>
+        <div>
+            <h1>Yönetim oturumu güvenli şekilde kapatıldı.</h1>
+            <p>Paylaşımlı cihazlarda bu ekranı gördükten sonra tarayıcı sekmesini kapatmanız önerilir.</p>
+        </div>
+        <div class="admin-logout-status">
+            <strong>Admin erişimi sonlandırıldı</strong>
+            <span>Tekrar işlem yapmak için yönetici bilgileriyle yeniden giriş yapmanız gerekir.</span>
+        </div>
+    </aside>
+
+    <div class="admin-logout-panel">
+        <div class="admin-logout-icon">✓</div>
+        <span>Oturum işlemi</span>
+        <h2>Çıkış tamamlandı</h2>
+        <p>reklamanaliz.net SaaS admin panelindeki aktif oturumunuz kapatıldı.</p>
+        <div class="admin-logout-actions">
+            <a class="admin-logout-btn primary" href="{% url 'admin:login' %}">Tekrar giriş yap</a>
+            <a class="admin-logout-btn secondary" href="/">Ana sayfaya dön</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

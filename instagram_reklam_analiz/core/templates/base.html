@@ -1,0 +1,463 @@
+﻿{% load humanize %}
+{% load notification_icons %}
+<!DOCTYPE html>
+<html lang="{{ current_language|default:'tr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>{% block title %}{{ labels.site_title }}{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+{% load static %}
+{% load agency_permissions %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base_layout.css' %}?v=agency-identity-20260724-1">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- GLOBAL TOAST -->
+    <div id="globalToastContainer" class="toast-global-container"></div>
+
+    <!-- Sabit navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{% static 'images/logo2.png' %}" alt="ReklamAnaliz.net Logo" class="ra-navbar-logo">
+            </a>
+
+            <div class="ra-topbar-value" aria-label="Entegre reklam platformları">
+                <div class="ra-topbar-brandline">
+                    <span class="ra-topbar-brandline-icon"><i class="fas fa-bolt"></i></span>
+                    <span class="ra-topbar-brandline-text">
+                        <strong>{{ labels.topbar_headline }}</strong>
+                        <span>{{ labels.topbar_subtitle }}</span>
+                    </span>
+                </div>
+
+                <div class="ra-platform-strip" aria-label="Desteklenen platformlar">
+                    <span class="ra-platform-chip meta connected" title="Meta"><i class="fab fa-facebook"></i><span>Meta</span></span>
+                    <span class="ra-platform-chip instagram connected" title="Instagram"><i class="fab fa-instagram"></i><span>Instagram</span></span>
+                    <span class="ra-platform-chip tiktok connected" title="TikTok"><i class="fab fa-tiktok"></i><span>TikTok</span></span>
+                    <span class="ra-platform-chip google connected" title="Google Ads"><i class="fab fa-google"></i><span>Google Ads</span></span>
+                    <span class="ra-platform-chip linkedin connected" title="LinkedIn"><i class="fab fa-linkedin-in"></i><span>LinkedIn</span></span>
+                    <span class="ra-platform-chip x connected" title="X"><i class="fab fa-x-twitter"></i><span>X</span></span>
+                    <span class="ra-platform-chip analytics connected" title="Google Analytics"><span class="ra-platform-mark">▰</span><span>Analytics</span></span>
+                </div>
+            </div>
+
+            <div class="topbar-spacer"></div>
+
+            <div class="nav-buttons">
+                {% if user.is_authenticated %}
+                {% if agency_scope and agency_scope.is_agency %}
+                <form class="agency-client-scope-form" method="get" action="{{ request.path }}">
+                    <label for="agencyClientScope"><i class="fas fa-building"></i> Firma</label>
+                    <select id="agencyClientScope" name="agency_client" onchange="this.form.submit()" aria-label="Raporlanacak ajans firmasını seçin">
+                        <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+                        {% for agency_client in agency_scope.clients %}
+                        <option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                {% endif %}
+                <a class="fihrist-topbar-btn" href="{% url 'fihrist' %}" title="Fihrist" aria-label="Fihrist">
+                    <i class="fas fa-book-open"></i>
+                </a>
+                <div class="alert-dropdown-wrap">
+                    <button class="alert-bell-btn" onclick="toggleAlertPanel(event)" title="Bildirimler" aria-label="Bildirimler">
+                        <i class="fas fa-bell"></i>
+                        {% if unread_count.total > 0 %}
+                        <span class="alert-count-badge" id="alertCountBadge">{{ unread_count.total }}</span>
+                        {% endif %}
+                    </button>
+                    <div class="alert-dropdown-panel" id="alertDropdownPanel">
+                        <div class="alert-dropdown-head">
+                            <strong><i class="fas fa-bell"></i> Bildirimler</strong>
+                            <div class="alert-dropdown-head-actions">
+                        {% can_agency_menu user 'notification_center' as can_link %}{% if can_link %}<a href="{% url 'notification_center' %}">Tümünü Gör</a>{% endif %}
+                                <button onclick="closeAlertPanel()" aria-label="Kapat"><i class="fas fa-xmark"></i></button>
+                            </div>
+                        </div>
+                        <div class="alert-list-container" id="alertListContainer">
+                            {% if global_alerts %}
+                                {% for alert in global_alerts %}
+                                <div class="alert-item{% if alert.icon == 'bullhorn' %} announcement{% endif %}" id="alert-{{ alert.id }}">
+                                    <a href="{% if alert.type == 'notification' %}{% url 'open_notification' alert.db_id %}{% else %}{{ alert.link }}{% endif %}" class="alert-item-link" onclick="closeAlertPanel()">
+                                        <span class="alert-item-icon">{{ alert.icon|notification_icon }}</span>
+                                        <div class="alert-item-content">
+                                            <div class="alert-item-title {{ alert.level }}">{{ alert.title }}</div>
+                                            <div class="alert-item-msg">{{ alert.message|truncatechars:75 }}</div>
+                                            <div class="alert-item-time">{{ alert.time|timesince }} önce</div>
+                                        </div>
+                                    </a>
+                                    {% if alert.type == "notification" %}
+                                    <button class="alert-dismiss-btn" onclick="dismissSingleAlert('{{ alert.db_id }}', '{{ alert.id }}')" aria-label="Bildirimi kapat"><i class="fas fa-xmark"></i></button>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert-empty-state">
+                                    <div><i class="fas fa-circle-check"></i></div>
+                                    <strong>Bildirim yok!</strong>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="alert-dropdown-footer">
+                        {% can_agency_menu user 'notification_center' as can_link %}{% if can_link %}<a class="alert-dropdown-link-primary" href="{% url 'notification_center' %}">Bildirim Merkezi</a>{% endif %}
+                        {% can_agency_menu user 'activity_log' as can_link %}{% if can_link %}<a class="alert-dropdown-link-secondary" href="{% url 'activity_log' %}">Aktiviteler</a>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="user-menu">
+                    <div class="user-avatar">{{ user.username|first|upper }}</div>
+                    <span class="user-identity">
+                        <span class="user-name">{{ user.username }}</span>
+                        {% if agency_member_identity %}
+                        <span class="agency-identity-badge" title="{{ agency_member_identity.organization.name }} · {{ agency_member_identity.role_group.name|default:agency_member_identity.get_role_display }}">
+                            <i class="fas fa-building agency-identity-icon"></i>
+                            <span class="agency-identity-name">{{ agency_member_identity.organization.name }}</span>
+                            <span class="agency-role-pill">{{ agency_member_identity.role_group.name|default:agency_member_identity.get_role_display }}</span>
+                        </span>
+                        {% endif %}
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="dropdown-menu-custom">
+                        {% can_agency_menu user 'hesap_ekle' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'hesap_ekle' %}"><i class="fas fa-plus-circle"></i>Hesap Ekle</a>{% endif %}
+                        <a class="dropdown-item-nav" href="{% url 'profile' %}"><i class="fas fa-user-circle"></i> Profilim</a>
+                        {% can_agency_menu user 'my_account' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'my_account' %}"><i class="fas fa-user"></i> {{ labels.my_account }}</a>{% endif %}
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item-nav" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt"></i> {{ labels.logout }}</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'account_login' %}" class="btn-nav btn-login"><i class="fas fa-sign-in-alt"></i> {{ labels.login }}</a>
+                <a href="{% url 'demo_request' %}" class="btn-nav btn-demo"><i class="fas fa-calendar-check"></i> Demo Talep Et</a>
+                <a href="{% url 'account_signup' %}" class="btn-nav btn-register"><i class="fas fa-user-plus"></i> {{ labels.signup }}</a>
+                {% endif %}
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- ENTERPRISE SOL SIDEBAR NAVIGATION -->
+    <aside class="ra-sidebar" id="navbarMenu" aria-label="{{ labels.main_menu }}">
+        <div class="ra-sidebar-head">
+            <span class="ra-sidebar-kicker">REKLAM KARAR DESTEK</span>
+            <strong>{{ labels.operation_center }}</strong>
+        </div>
+        <div class="ra-sidebar-scroll">
+            <ul class="navbar-menu ra-sidebar-menu">
+                <li class="nav-item dropdown {% if not user.is_authenticated %}open public-corporate{% endif %}">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-layer-group"></i><span>{{ labels.corporate }}</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        <a class="dropdown-item-nav" href="{% url 'index' %}"><i class="fas fa-home"></i> {{ labels.home }}</a>
+                        <a class="dropdown-item-nav" href="{% url 'about' %}"><i class="fas fa-circle-info"></i> {{ labels.about }}</a>
+                        <a class="dropdown-item-nav" href="{% url 'pricing' %}"><i class="fas fa-tags"></i> {{ labels.pricing }}</a>
+                        <a class="dropdown-item-nav" href="{% url 'demo_request' %}"><i class="fas fa-calendar-check"></i> Demo Talep Et</a>
+                        <a class="dropdown-item-nav" href="{% url 'contact' %}"><i class="fas fa-envelope"></i> {{ labels.contact }}</a>
+                        {% if whatsapp_url %}<a class="dropdown-item-nav" href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> WhatsApp</a>{% endif %}
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown {% if not user.is_authenticated %}open public-corporate{% endif %}">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-users-viewfinder"></i><span>{{ labels.influencer_discovery }}</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        <a class="dropdown-item-nav" href="{% url 'influencer_discovery' %}"><i class="fas fa-table-list"></i> {{ labels.influencer_pool }}</a>
+                    </div>
+                </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-tower-observation"></i><span>{{ labels.command_center }}</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        {% can_agency_menu user 'control_tower' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'control_tower' %}"><i class="fas fa-gauge-high"></i> {{ labels.control_tower }}</a>{% endif %}
+                        {% can_agency_menu user 'octo_task_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'octo_task_center' %}"><i class="fas fa-list-check"></i> {{ labels.octo_task_center }}</a>{% endif %}
+                        {% can_agency_menu user 'campaign_octo_recommendations' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'campaign_octo_recommendations' %}"><i class="fas fa-list-check"></i> {{ labels.octo_advice_center }}</a>{% endif %}
+                        {% can_agency_menu user 'executive_dashboard' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'executive_dashboard' %}"><i class="fas fa-chart-pie"></i> Yönetici Paneli</a>{% endif %}
+                        {% can_agency_menu user 'notification_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'notification_center' %}"><i class="fas fa-bell"></i> {{ labels.notification_center }}</a>{% endif %}
+                        {% can_agency_menu user 'activity_log' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'activity_log' %}"><i class="fas fa-clock-rotate-left"></i> {{ labels.activity_history }}</a>{% endif %}
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-bolt"></i><span>{{ labels.operations }}</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        {% can_agency_menu user 'campaign_panel' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'campaign_panel' %}"><i class="fas fa-layer-group"></i> {{ labels.campaign_panel }}</a>{% endif %}
+                        {% can_agency_menu user 'campaign_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'campaign_center' %}"><i class="fas fa-bullhorn"></i> {{ labels.campaign_center }}</a>{% endif %}
+                        {% can_agency_menu user 'adgroup_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'adgroup_center' %}"><i class="fas fa-object-group"></i> {{ labels.adgroup_center }}</a>{% endif %}
+                        {% can_agency_menu user 'reklam_panel' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'reklam_panel' %}"><i class="fas fa-rectangle-ad"></i> {{ labels.ads_panel }}</a>{% endif %}
+                        {% can_agency_menu user 'reklam_hareketleri' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'reklam_hareketleri' %}"><i class="fas fa-chart-line"></i> {{ labels.ad_movements }}</a>{% endif %}
+                        {% can_agency_menu user 'reklam_raporu' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'reklam_raporu' %}"><i class="fas fa-chart-bar" aria-hidden="true"></i> {{ labels.ad_report }}</a>{% endif %}
+                        {% can_agency_menu user 'reklam_karsilastirma' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'reklam_karsilastirma' %}"><i class="fas fa-scale-balanced" aria-hidden="true"></i> {{ labels.ad_compare }}</a>{% endif %}
+                        {% can_agency_menu user 'health_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'ad_health_report_card' %}"><i class="fas fa-clipboard-check"></i> Reklam Sağlık Karnesi</a>{% endif %}
+                        {% can_agency_menu user 'health_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'health_center' %}"><i class="fas fa-heart-pulse"></i> {{ labels.health_center }}</a>{% endif %}
+                        <div class="dropdown-divider"></div>
+                        {% can_agency_menu user 'creative_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'creative_center' %}"><i class="fas fa-wand-magic-sparkles"></i> {{ labels.creative_center }}</a>{% endif %}
+                        {% can_agency_menu user 'apply_rules_to_campaigns' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'budget_optimization' %}"><i class="fas fa-coins"></i> {{ labels.budget_optimization }}</a>{% endif %}
+                        {% can_agency_menu user 'optimizasyon_kurallari' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'optimizasyon_kurallari' %}"><i class="fas fa-sliders"></i> Optimizasyon Kuralları</a>{% endif %}
+                        {% can_agency_menu user 'optimization_history' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'optimization_history' %}"><i class="fas fa-timeline"></i> {{ labels.optimization_history }}</a>{% endif %}
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-chart-simple"></i><span>{{ labels.analytics_center }}</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        {% can_agency_menu user 'performance_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'performance_center' %}"><i class="fas fa-chart-line"></i> {{ labels.performance_center }}</a>{% endif %}
+                        {% can_agency_menu user 'reports_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'reports_center' %}"><i class="fas fa-folder-open"></i> {{ labels.reports_center }}</a>{% endif %}
+                        {% can_agency_menu user 'scheduled_reports' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'report_list' %}"><i class="fas fa-envelope-open-text"></i> {{ labels.scheduled_reports }}</a>{% endif %}
+                        {% can_agency_menu user 'reklam_tarihcesi' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'reklam_tarihcesi' %}"><i class="fas fa-clock"></i> {{ labels.ad_history }}</a>{% endif %}
+                        {% can_agency_menu user 'daily_budget_report' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'daily_budget_report' %}"><i class="fas fa-wallet"></i> {{ labels.daily_budget_report }}</a>{% endif %}
+                    </div>
+                </li>
+
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-store"></i><span>{{ labels.marketplace }}</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        {% can_agency_menu user 'marketplace_accounts' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'marketplace_accounts' %}"><i class="fas fa-link"></i> {{ labels.connect_account }}</a>{% endif %}
+                        {% can_agency_menu user 'marketplace_product_management' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'marketplace_product_management' %}"><i class="fas fa-boxes-stacked"></i> {{ labels.product_management }}</a>{% endif %}
+                        {% can_agency_menu user 'marketplace_product_research' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'marketplace_product_research' %}"><i class="fas fa-magnifying-glass-chart"></i> {{ labels.product_research }}</a>{% endif %}
+                        {% can_agency_menu user 'marketplace_price_tracking' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'marketplace_price_tracking' %}"><i class="fas fa-chart-line"></i> {{ labels.price_tracking }}</a>{% endif %}
+                        {% can_agency_menu user 'marketplace_price_history_report' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'marketplace_price_history_report' %}"><i class="fas fa-clock-rotate-left"></i> {{ labels.price_history }}</a>{% endif %}
+                        <div class="dropdown-divider"></div>
+                        {% can_agency_menu user 'google_analytics_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'google_analytics_center' %}"><i class="fas fa-chart-simple"></i> {{ labels.ga4_overview }}</a>{% endif %}
+                        {% can_agency_menu user 'hesap_ekle' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'hesap_ekle' %}"><i class="fas fa-plug"></i> {{ labels.ga4_connect }}</a>{% endif %}
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown {% if not user.is_authenticated %}open public-corporate{% endif %}">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-share-nodes"></i><span>{{ labels.organic_content }}</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        {% can_agency_menu user 'organic_connections' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'organic_connections' %}"><i class="fas fa-link"></i> {{ labels.organic_connections }}</a>{% endif %}
+                        {% can_agency_menu user 'organic_content_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'organic_content_center' %}"><i class="fas fa-calendar-days"></i> {{ labels.content_center }}</a>{% endif %}
+                        {% can_agency_menu user 'creative_studio' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'creative_studio' %}"><i class="fas fa-palette" aria-hidden="true"></i> {{ labels.creative_studio }}</a>{% endif %}
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-crosshairs"></i><span>{{ labels.competition_center }}</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        {% can_agency_menu user 'rakip_ekle' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'rakip_ekle' %}"><i class="fas fa-plus-circle"></i> {{ labels.add_competitor }}</a>{% endif %}
+                        {% can_agency_menu user 'competitor_intelligence' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'competitor_intelligence' %}"><i class="fas fa-brain"></i> {{ labels.competitor_intelligence }}</a>{% endif %}
+                        {% can_agency_menu user 'rakip_reklam_paneli' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'rakip_reklam_paneli' %}"><i class="fas fa-rectangle-ad"></i> {{ labels.competitor_ads }}</a>{% endif %}
+                        {% can_agency_menu user 'rakip_reklam_hareketleri' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'rakip_reklam_hareketleri' %}"><i class="fas fa-wave-square"></i> {{ labels.competitor_movements }}</a>{% endif %}
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-robot"></i><span>Octo AI</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        {% can_agency_menu user 'ai_dashboard' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'ai_dashboard' %}"><i class="fas fa-robot"></i> AI Paneli</a>{% endif %}
+                        {% can_agency_menu user 'anomaly_dashboard' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'anomaly_dashboard' %}"><i class="fas fa-triangle-exclamation"></i> Anomali Merkezi</a>{% endif %}
+                        {% can_agency_menu user 'creative_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'creative_center' %}"><i class="fas fa-palette"></i> Kreatif Analiz</a>{% endif %}
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-gear"></i><span>{{ labels.system_center }}</span><i class="fas fa-chevron-down ms-1"></i></a>
+                    <div class="dropdown-menu-nav">
+                        {% can_agency_menu user 'platform_connections' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'platform_connections' %}"><i class="fas fa-plug"></i> {{ labels.platform_connections }}</a>{% endif %}
+                        {% can_agency_menu user 'hesap_ekle' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'hesap_ekle' %}"><i class="fas fa-circle-plus"></i> {{ labels.connect_account }}</a>{% endif %}
+                        {% can_agency_menu user 'agency_dashboard' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'agency_dashboard' %}"><i class="fas fa-users-cog"></i> {{ labels.agency_management }}</a>{% endif %}
+                        {% can_agency_menu user 'notification_center' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'notification_center' %}"><i class="fas fa-bell"></i> {{ labels.notifications }}</a>{% endif %}
+                        {% can_agency_menu user 'update_notification_preferences' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'update_notification_preferences' %}"><i class="fas fa-bell-slash"></i> {{ labels.notification_preferences }}</a>{% endif %}
+                        <a class="dropdown-item-nav" href="{% url 'fihrist' %}"><i class="fas fa-book-open"></i> Reklam Fihristi</a>
+                        {% can_agency_menu user 'my_account' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'my_account' %}"><i class="fas fa-user-gear"></i> {{ labels.my_account }}</a>{% endif %}
+                        {% can_agency_menu user 'my_subscriptions' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'my_subscriptions' %}"><i class="fas fa-crown"></i> {{ labels.subscription }}</a>{% endif %}
+                        {% can_agency_menu user 'my_invoices' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'my_invoices' %}"><i class="fas fa-file-invoice"></i> {{ labels.invoices }}</a>{% endif %}
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+
+        </div>
+        <div class="ra-sidebar-footer">
+            <span class="ra-status-dot"></span>
+            <div>
+                <strong>Octo AI aktif</strong>
+                <small>{{ labels.live_monitoring }}</small>
+            </div>
+        </div>
+    </aside>
+    <div class="ra-sidebar-backdrop" id="sidebarBackdrop"></div>
+    <script>
+        window.raFormatNumber = window.raFormatNumber || function(value, fractionDigits = 2) {
+            const number = Number.parseFloat(value);
+            const safeNumber = Number.isFinite(number) ? number : 0;
+            return new Intl.NumberFormat('tr-TR', {
+                minimumFractionDigits: fractionDigits,
+                maximumFractionDigits: fractionDigits
+            }).format(safeNumber);
+        };
+        window.raFormatMoney = window.raFormatMoney || function(value) {
+            return `${window.raFormatNumber(value, 2)} TL`;
+        };
+        window.raFormatPercent = window.raFormatPercent || function(value) {
+            return `%${window.raFormatNumber(value, 2)}`;
+        };
+    </script>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container-fluid px-4 px-lg-5">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-brand">
+                        <img src="{% static 'images/logo2.png' %}" alt="ReklamAnaliz.net Logo">
+                        <div>
+                            <strong>ReklamAnaliz.net</strong>
+                            <span>{{ labels.footer_tagline }}</span>
+                        </div>
+                    </div>
+                    <p>{{ labels.footer_description }}</p>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h5>{{ labels.corporate }}</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'index' %}">{{ labels.home }}</a></li>
+                        <li><a href="{% url 'about' %}">{{ labels.about }}</a></li>
+                        <li><a href="{% url 'pricing' %}">{{ labels.pricing }}</a></li>
+                        <li><a href="{% url 'contact' %}">{{ labels.contact }}</a></li>
+                        <li><a href="{% url 'legal_document_index' %}">Hukuk ve Politikalar</a></li>
+                        {% if whatsapp_url %}<li><a href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>{% endif %}
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h5>{{ labels.operations }}</h5>
+                    <ul class="list-unstyled">
+                        {% can_agency_menu user 'campaign_panel' as can_link %}{% if can_link %}<li><a href="{% url 'campaign_panel' %}">{{ labels.campaign_panel }}</a></li>{% endif %}
+                        {% can_agency_menu user 'campaign_center' as can_link %}{% if can_link %}<li><a href="{% url 'campaign_center' %}">{{ labels.campaign_center }}</a></li>{% endif %}
+                        {% can_agency_menu user 'reklam_panel' as can_link %}{% if can_link %}<li><a href="{% url 'reklam_panel' %}">{{ labels.ads_panel }}</a></li>{% endif %}
+                        {% can_agency_menu user 'organic_content_center' as can_link %}{% if can_link %}<li><a href="{% url 'organic_content_center' %}">{{ labels.organic_content }}</a></li>{% endif %}
+                        {% can_agency_menu user 'apply_rules_to_campaigns' as can_link %}{% if can_link %}<li><a href="{% url 'budget_optimization' %}">{{ labels.budget_optimization }}</a></li>{% endif %}
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h5>{{ labels.intelligence }}</h5>
+                    <ul class="list-unstyled">
+                        {% can_agency_menu user 'competitor_intelligence' as can_link %}{% if can_link %}<li><a href="{% url 'competitor_intelligence' %}">{{ labels.competitor_intelligence }}</a></li>{% endif %}
+                        {% can_agency_menu user 'rakip_ekle' as can_link %}{% if can_link %}<li><a href="{% url 'rakip_ekle' %}">{{ labels.add_competitor }}</a></li>{% endif %}
+                        {% can_agency_menu user 'performance_center' as can_link %}{% if can_link %}<li><a href="{% url 'performance_center' %}">{{ labels.performance_center }}</a></li>{% endif %}
+                        {% can_agency_menu user 'ai_dashboard' as can_link %}{% if can_link %}<li><a href="{% url 'ai_dashboard' %}">Octo AI</a></li>{% endif %}
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h5>Sistem</h5>
+                    <ul class="list-unstyled">
+                        {% can_agency_menu user 'platform_connections' as can_link %}{% if can_link %}<li><a href="{% url 'platform_connections' %}">{{ labels.platform_connections }}</a></li>{% endif %}
+                        {% can_agency_menu user 'notification_center' as can_link %}{% if can_link %}<li><a href="{% url 'notification_center' %}">{{ labels.notification_center }}</a></li>{% endif %}
+                        {% can_agency_menu user 'my_account' as can_link %}{% if can_link %}<li><a href="{% url 'my_account' %}">{{ labels.my_account }}</a></li>{% endif %}
+                        <li><a href="mailto:info@reklamanaliz.net">info@reklamanaliz.net</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <p class="mb-0">&copy; {% now "Y" %} ReklamAnaliz.net. {{ labels.all_rights_reserved }}</p>
+                <p class="mb-0 footer-muted-note"><a href="{% url 'legal_document_index' %}">Sözleşmeler ve Politikalar</a> · {{ labels.tr_en_ready }} · {{ labels.ai_supported_ad_platform }}</p>
+            </div>
+        </div>
+    </footer>
+
+    {% if whatsapp_url %}
+    <a class="ra-whatsapp-float" href="{{ whatsapp_url }}" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp ile iletişime geç">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    {% endif %}
+
+    <style>
+      .ra-usage-modal-backdrop{position:fixed;inset:0;z-index:2147483647;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(1,4,16,.72);backdrop-filter:blur(22px) saturate(.65)}.ra-usage-modal-backdrop.show{display:flex}.ra-usage-modal{position:relative;width:min(520px,calc(100vw - 32px));border:1px solid rgba(165,171,255,.3);border-radius:28px;background:linear-gradient(180deg,#151f43,#080d20);box-shadow:0 42px 140px rgba(0,0,0,.78);padding:36px;text-align:center;color:#fff}.ra-usage-modal-close{position:absolute;right:16px;top:14px;width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:22px}.ra-usage-modal-icon{width:72px;height:72px;margin:0 auto 16px;display:grid;place-items:center;border-radius:24px;background:linear-gradient(135deg,#7c3aed,#22d3ee);font-size:30px;box-shadow:0 18px 44px rgba(124,58,237,.35)}.ra-usage-modal-eyebrow{color:#a5b4fc;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}.ra-usage-modal h3{margin:10px 0;font-size:28px;font-weight:950}.ra-usage-modal p{margin:0 auto;color:#cbd5e1;line-height:1.65;max-width:430px}.ra-usage-modal-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}.ra-usage-modal-actions a,.ra-usage-modal-actions button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border-radius:999px;padding:0 16px;font-weight:900;text-decoration:none}.ra-usage-modal-primary{border:0;background:linear-gradient(135deg,#7c3aed,#22d3ee);color:#fff}.ra-usage-modal-secondary{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff}@media(max-width:590px){.ra-usage-modal{padding:30px 20px}.ra-usage-modal h3{font-size:23px}}
+    </style>
+    <div class="ra-usage-modal-backdrop" id="globalUsageLimitModal" aria-hidden="true">
+      <section class="ra-usage-modal" role="dialog" aria-modal="true" aria-labelledby="globalUsageLimitTitle">
+        <button type="button" class="ra-usage-modal-close" data-usage-modal-close aria-label="Kapat">×</button>
+        <div class="ra-usage-modal-icon"><i id="globalUsageLimitIcon" class="fas fa-coins"></i></div>
+        <span class="ra-usage-modal-eyebrow" id="globalUsageLimitEyebrow">Kullanım limiti</span>
+        <h3 id="globalUsageLimitTitle">Kullanım limitiniz dolmuştur</h3>
+        <p id="globalUsageLimitMessage">Devam etmek için uygun bir paket satın almanız gerekir.</p>
+        <div class="ra-usage-modal-actions">
+          <a class="ra-usage-modal-primary" id="globalUsageLimitPurchase" href="{% url 'pricing' %}"><i class="fas fa-box-open"></i> Paketleri İncele</a>
+          <button type="button" class="ra-usage-modal-secondary" data-usage-modal-close>Daha Sonra</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.__reklamAnalizUserAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+        (function installUsageLimitModal() {
+            const modal = document.getElementById('globalUsageLimitModal');
+            const pricingUrl = "{% url 'pricing' %}";
+            function classify(payload) {
+                const explicitType = String(payload?.usage_type || payload?.operation || '').toLowerCase();
+                const code = String(payload?.code || payload?.error || '').toLowerCase();
+                const message = String(payload?.message || payload?.reason || '').toLowerCase();
+                const combined = explicitType + ' ' + code + ' ' + message;
+                if (combined.includes('product') || combined.includes('ürün') || combined.includes('urun')) return {type:'product', eyebrow:'Ürün araştırma hakkı', title:'Ürün araştırma limitiniz dolmuştur', message:'Yeni bir ürün araştırması başlatmak için ek araştırma paketi veya uygun bir üyelik paketi satın almanız gerekir.', icon:'fa-magnifying-glass-chart', url:pricingUrl};
+                if (combined.includes('price') || combined.includes('fiyat')) return {type:'price', eyebrow:'Fiyat kontrol hakkı', title:'Fiyat kontrol limitiniz dolmuştur', message:'Fiyatları kontrol etmeye devam etmek için kullanım hakkı içeren uygun bir paket satın almanız gerekir.', icon:'fa-chart-line', url:pricingUrl};
+                if (explicitType.includes('ai')) return {type:'ai', eyebrow:'AI kredi limiti', title:'Kredi limitiniz dolmuştur', message:'AI özelliklerini kullanmaya devam etmek için ek kredi veya aktif bir paket satın almanız gerekir.', icon:'fa-coins', url:(payload?.purchase_url || payload?.redirect_url || pricingUrl + '#ai-kredi-paketleri')};
+                if (combined.includes('subscription') || combined.includes('aktif paket')) return {type:'subscription', eyebrow:'Paket erişimi gerekli', title:'Aktif paketiniz bulunmuyor', message:'Bu özelliği kullanmaya devam etmek için aktif bir paket satın almanız gerekir.', icon:'fa-box-open', url:pricingUrl};
+                return {type:'ai', eyebrow:'AI kredi limiti', title:'Kredi limitiniz dolmuştur', message:'AI özelliklerini kullanmaya devam etmek için ek kredi veya aktif bir paket satın almanız gerekir.', icon:'fa-coins', url:(payload?.purchase_url || payload?.redirect_url || pricingUrl + '#ai-kredi-paketleri')};
+            }
+            window.showUsageLimitModal = function(payload) {
+                if (!modal) return;
+                const copy = classify(payload || {});
+                document.getElementById('globalUsageLimitEyebrow').textContent = copy.eyebrow;
+                document.getElementById('globalUsageLimitTitle').textContent = copy.title;
+                document.getElementById('globalUsageLimitMessage').textContent = copy.message;
+                document.getElementById('globalUsageLimitIcon').className = 'fas ' + copy.icon;
+                document.getElementById('globalUsageLimitPurchase').href = copy.url;
+                if (modal.parentElement !== document.body) document.body.appendChild(modal);
+                modal.classList.add('show');
+                modal.setAttribute('aria-hidden', 'false');
+            };
+            window.closeUsageLimitModal = function() { if(modal){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); } };
+            modal?.addEventListener('click', function(event){ if(event.target === modal || event.target.closest('[data-usage-modal-close]')) window.closeUsageLimitModal(); });
+            document.addEventListener('keydown', function(event){ if(event.key === 'Escape' && modal?.classList.contains('show')) window.closeUsageLimitModal(); });
+            document.addEventListener('DOMContentLoaded', function(){
+                const alerts = [...document.querySelectorAll('[role="alert"]')];
+                const quotaAlert = alerts.find(function(el){
+                    const text = (el.textContent || '').toLowerCase();
+                    return text.includes('limit doldu') || text.includes('hakkı yetersiz') || text.includes('hakki yetersiz') || text.includes('aktif paket gerekli');
+                });
+                if(quotaAlert) window.showUsageLimitModal({message: quotaAlert.textContent.trim()});
+            });
+            if (!window.__reklamAnalizUserAuthenticated || !window.fetch || window.__aiCreditFetchInstalled) return;
+            window.__aiCreditFetchInstalled = true;
+            const originalFetch = window.fetch.bind(window);
+            window.fetch = async function(...args) {
+                const response = await originalFetch(...args);
+                if (response.status === 402 || response.status === 429) {
+                    try {
+                        const payload = await response.clone().json();
+                        const requestUrl = String(args[0]?.url || args[0] || '').toLowerCase();
+                        if (!payload.usage_type) {
+                            if (requestUrl.includes('product-research') || requestUrl.includes('urun-arastirma')) payload.usage_type = 'marketplace_product_research';
+                            else if (requestUrl.includes('price') || requestUrl.includes('fiyat')) payload.usage_type = 'marketplace_price_check';
+                            else if (requestUrl.includes('ai') || requestUrl.includes('octo') || requestUrl.includes('analysis') || requestUrl.includes('recommendation')) payload.usage_type = 'ai';
+                        }
+                        const code = String(payload.error || payload.code || '').toLowerCase();
+                        const message = String(payload.message || payload.reason || '').toLowerCase();
+                        if (response.status === 402 || code.includes('limit') || code.includes('quota') || message.includes('limit') || message.includes('hak')) window.showUsageLimitModal(payload);
+                    } catch (error) {
+                        if (response.status === 402) window.showUsageLimitModal({});
+                    }
+                }
+                return response;
+            };
+        })();
+    </script>
+    <script src="{% static 'js/base_layout.js' %}?v=announcement-20260716-2"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

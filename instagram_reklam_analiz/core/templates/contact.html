@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if current_language == "en" %}Contact - ReklamAnaliz.net | Support and Demo Request{% else %}İletişim - ReklamAnaliz.net | Destek ve Demo Talebi{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/contact.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="contact-ultra">
+    <div class="cu-container">
+        <section class="cu-hero">
+            <div>
+                <div class="cu-eyebrow"><i class="fas fa-headset"></i> {% if current_language == "en" %}ReklamAnaliz.net contact{% else %}ReklamAnaliz.net iletişim{% endif %}</div>
+                <h1>{% if current_language == "en" %}Start from the right place to <span class="cu-gradient">grow your ad account.</span>{% else %}Reklam hesabınızı büyütmek için <span class="cu-gradient">doğru yerden başlayın.</span>{% endif %}</h1>
+                <p>{% if current_language == "en" %}Write to us about platform connections, Google Analytics integration, AI recommendations, competitor ad tracking, or ad creation workflows. Our team will respond for a demo, technical support, or partnership conversation based on your need.{% else %}Platformları bağlama, Google Analytics entegrasyonu, AI önerileri, rakip reklam takibi veya reklam oluşturma süreçleri hakkında bilgi almak için bize yazın. Ekibimiz, ihtiyacınıza göre demo, teknik destek veya iş ortaklığı görüşmesi için dönüş yapar.{% endif %}</p>
+                <div class="cu-actions">
+                    <a href="#contactForm" class="cu-btn cu-btn-primary"><i class="fas fa-paper-plane"></i> {% if current_language == "en" %}Send Message{% else %}Mesaj Gönder{% endif %}</a>
+                    {% if whatsapp_url %}
+                    <a href="{{ whatsapp_url }}" class="cu-btn cu-btn-whatsapp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="cu-btn cu-btn-ghost"><i class="fas fa-chart-simple"></i> {% if current_language == "en" %}Go to Dashboard{% else %}Panele Git{% endif %}</a>
+                    {% else %}
+                    <a href="{% url 'pricing' %}" class="cu-btn cu-btn-ghost"><i class="fas fa-tags"></i> {% if current_language == "en" %}View Plans{% else %}Paketleri İncele{% endif %}</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="cu-visual">
+                <img src="{% static 'images/octo-nexus.webp' %}" class="cu-octo" alt="Octo support assistant" onerror="this.style.display='none';">
+                <div class="cu-note n1"><i class="fas fa-plug"></i> {% if current_language == "en" %}Integration{% else %}Entegrasyon{% endif %}</div>
+                <div class="cu-note n2"><i class="fas fa-brain"></i> {% if current_language == "en" %}AI Advice{% else %}AI Öneri{% endif %}</div>
+                <div class="cu-note n3"><i class="fas fa-shield-halved"></i> {% if current_language == "en" %}Secure Support{% else %}Güvenli Destek{% endif %}</div>
+            </div>
+        </section>
+
+        <section class="cu-section">
+            <div class="cu-grid-3">
+                <div class="cu-card"><div class="cu-icon"><i class="fas fa-envelope"></i></div><h3>{% if current_language == "en" %}Email{% else %}E-posta{% endif %}</h3><p>{% if current_language == "en" %}You can write to us for general information, demos, and support requests.{% else %}Genel bilgi, demo ve destek talepleriniz için bize yazabilirsiniz.{% endif %}</p><strong>info@reklamanaliz.net</strong><br><strong>destek@reklamanaliz.net</strong><span class="cu-small">{% if current_language == "en" %}The relevant team will respond based on your request.{% else %}Talebinize göre ilgili ekip dönüş yapar.{% endif %}</span></div>
+                <div class="cu-card cu-whatsapp-card"><div class="cu-icon"><i class="fab fa-whatsapp"></i></div><h3>WhatsApp</h3><p>{% if current_language == "en" %}Reach us quickly on WhatsApp for demo, support, and integration questions.{% else %}Demo, destek ve entegrasyon sorularınız için bize WhatsApp üzerinden hızlıca ulaşabilirsiniz.{% endif %}</p>{% if whatsapp_url %}<a href="{{ whatsapp_url }}" class="cu-btn cu-btn-whatsapp cu-btn-card" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> {% if current_language == "en" %}Open WhatsApp{% else %}WhatsApp'tan Yaz{% endif %}</a>{% else %}<span class="cu-small">{% if current_language == "en" %}WhatsApp line will appear here when configured.{% else %}WhatsApp hattı ayarlandığında burada görünür.{% endif %}</span>{% endif %}</div>
+                <div class="cu-card"><div class="cu-icon"><i class="fas fa-screwdriver-wrench"></i></div><h3>{% if current_language == "en" %}Technical support{% else %}Teknik destek{% endif %}</h3><p>{% if current_language == "en" %}Get support for account connection, Analytics integration, data visibility, and dashboard usage.{% else %}Hesap bağlama, Analytics entegrasyonu, veri görüntüleme ve panel kullanımı için destek alabilirsiniz.{% endif %}</p><span class="cu-small">Meta, Google Ads, TikTok, LinkedIn, X, Google Analytics.</span></div>
+            </div>
+        </section>
+
+        <section class="cu-section">
+            <div class="cu-grid-main">
+                <div class="cu-card">
+                    <div class="cu-icon"><i class="fas fa-route"></i></div>
+                    <h3>{% if current_language == "en" %}How can we help?{% else %}Hangi konuda yardımcı olabiliriz?{% endif %}</h3>
+                    <ul>
+                        <li>{% if current_language == "en" %}Connect all advertising platforms in one dashboard{% else %}Tüm reklam platformlarını tek panelde bağlama{% endif %}</li>
+                        <li>{% if current_language == "en" %}Interpret ad performance with Google Analytics data{% else %}Google Analytics verisiyle reklam performansını yorumlama{% endif %}</li>
+                        <li>{% if current_language == "en" %}Create AI recommendations and ad copy{% else %}AI önerileri ve reklam metni oluşturma{% endif %}</li>
+                        <li>{% if current_language == "en" %}Track competitor ads{% else %}Rakip reklamlarını takip etme{% endif %}</li>
+                        <li>{% if current_language == "en" %}Choose the right agency or enterprise package{% else %}Ajans veya kurumsal kullanım için paket seçimi{% endif %}</li>
+                    </ul>
+                    <hr class="cu-divider">
+                    <h4>{% if current_language == "en" %}Octo suggestion{% else %}Octo önerisi{% endif %}</h4>
+                    <p>{% if current_language == "en" %}If you mention which platforms you use, we can guide you more clearly: Meta, Google Ads, TikTok, LinkedIn, X, or Google Analytics.{% else %}Mesajınızda hangi platformları kullandığınızı yazarsanız size daha net yönlendirme yapabiliriz: Meta, Google Ads, TikTok, LinkedIn, X veya Google Analytics.{% endif %}</p>
+                </div>
+
+                <div class="cu-card cu-form-card">
+                    <div class="cu-form-head">
+                        <h3><i class="fas fa-paper-plane"></i> {% if current_language == "en" %}Write to Us{% else %}Bize Yazın{% endif %}</h3>
+                        <p>{% if current_language == "en" %}Send your request; the product, support, or sales team will route it correctly.{% else %}Talebinizi gönderin; ürün, destek veya satış ekibi doğru yönlendirmeyi yapsın.{% endif %}</p>
+                    </div>
+                    <div class="cu-form-body">
+                        <form method="POST" id="contactForm">
+                            {% csrf_token %}
+                            <div class="cu-form-grid">
+                                <div class="cu-field"><label class="cu-label"><i class="fas fa-user"></i> {% if current_language == "en" %}Full Name{% else %}Adınız Soyadınız{% endif %}</label><input type="text" name="name" class="cu-input" placeholder="{% if current_language == "en" %}Full name{% else %}Adınız Soyadınız{% endif %}" required></div>
+                                <div class="cu-field"><label class="cu-label"><i class="fas fa-envelope"></i> {% if current_language == "en" %}Email{% else %}E-posta{% endif %}</label><input type="email" name="email" class="cu-input" placeholder="example@email.com" required></div>
+                                <div class="cu-field full"><label class="cu-label"><i class="fas fa-tag"></i> {% if current_language == "en" %}Subject{% else %}Konu{% endif %}</label><input type="text" name="subject" class="cu-input" placeholder="{% if current_language == "en" %}Demo request, support, integration, pricing...{% else %}Demo talebi, destek, entegrasyon, fiyatlandırma...{% endif %}" required></div>
+                                <div class="cu-field full"><label class="cu-label"><i class="fas fa-comment-dots"></i> {% if current_language == "en" %}Message{% else %}Mesajınız{% endif %}</label><textarea name="message" class="cu-textarea" placeholder="{% if current_language == "en" %}Which platforms do you want to connect? What do you need help with?{% else %}Hangi platformları bağlamak istiyorsunuz? Hangi konuda destek almak istiyorsunuz?{% endif %}" required></textarea></div>
+                            </div>
+                            <button type="submit" class="cu-btn cu-btn-primary cu-submit"><i class="fas fa-paper-plane"></i> {% if current_language == "en" %}Send Message{% else %}Mesajı Gönder{% endif %}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cu-section">
+            <div class="cu-head"><h2>{% if current_language == "en" %}Frequently Asked Questions{% else %}Sık sorulan sorular{% endif %}</h2><p>{% if current_language == "en" %}Common questions when evaluating ReklamAnaliz.net.{% else %}ReklamAnaliz.net'i değerlendirirken en çok merak edilen konular.{% endif %}</p></div>
+            <div class="cu-faq">
+                <div class="cu-card"><div class="cu-icon"><i class="fas fa-plug"></i></div><h4>{% if current_language == "en" %}Which platforms can be connected?{% else %}Hangi platformlar bağlanabilir?{% endif %}</h4><p>{% if current_language == "en" %}Instagram, Facebook, Meta Ads, Google Ads, TikTok, LinkedIn, X, and Google Analytics can be tracked in a multi-channel performance view.{% else %}Instagram, Facebook, Meta Ads, Google Ads, TikTok, LinkedIn, X ve Google Analytics verileriyle çoklu kanal performansını tek merkezde takip etmeyi hedefliyoruz.{% endif %}</p></div>
+                <div class="cu-card"><div class="cu-icon"><i class="fas fa-brain"></i></div><h4>{% if current_language == "en" %}Does AI only create reports?{% else %}AI sadece rapor mu çıkarır?{% endif %}</h4><p>{% if current_language == "en" %}No. AI interprets performance, shows risks, and suggests new ad copy and campaign improvements.{% else %}Hayır. AI; performansı yorumlar, riskleri gösterir, yeni reklam metinleri ve kampanya geliştirme önerileri sunar.{% endif %}</p></div>
+                <div class="cu-card"><div class="cu-icon"><i class="fas fa-user-secret"></i></div><h4>{% if current_language == "en" %}How does competitor tracking help?{% else %}Rakip reklamları nasıl işe yarar?{% endif %}</h4><p>{% if current_language == "en" %}It helps you update your strategy faster by following competitor messages, campaign angles, and creative trends.{% else %}Rakiplerin mesajlarını, kampanya açılarını ve kreatif trendlerini takip ederek kendi reklam stratejinizi daha hızlı güncelleyebilirsiniz.{% endif %}</p></div>
+                <div class="cu-card"><div class="cu-icon"><i class="fas fa-shield-halved"></i></div><h4>{% if current_language == "en" %}Is my data secure?{% else %}Verilerim güvende mi?{% endif %}</h4><p>{% if current_language == "en" %}Connections and access are controlled. User data security is a core priority of the product architecture.{% else %}Bağlantılar ve erişimler kontrollü yürütülür. Kullanıcı verilerinin güvenliği, ürün mimarisinin temel önceliklerinden biridir.{% endif %}</p></div>
+            </div>
+        </section>
+
+        <section class="cu-cta">
+            <div><h2>{% if current_language == "en" %}Do not only watch performance; understand the reasons and plan the next move.{% else %}Reklam performansınızı sadece izlemeyin; nedenlerini anlayın ve bir sonraki hamleyi planlayın.{% endif %}</h2><p>{% if current_language == "en" %}ReklamAnaliz.net is an AI-powered ad decision center for multi-platform advertisers.{% else %}ReklamAnaliz.net, çoklu platform reklam veren işletmeler için AI destekli reklam karar merkezidir.{% endif %}</p></div>
+            <a href="#contactForm" class="cu-btn cu-btn-primary"><i class="fas fa-paper-plane"></i> {% if current_language == "en" %}Get in Touch{% else %}İletişime Geç{% endif %}</a>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/contact.js' %}"></script>
+{% endblock %}

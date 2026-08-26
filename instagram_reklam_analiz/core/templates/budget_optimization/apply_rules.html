@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}🎯 Bütçe Optimizasyonu – Reklamlara Kural Uygula{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 0; border-radius: 0 0 30px 30px; margin-bottom: 2rem; }
+    .feature-card { border: none; border-radius: 20px; transition: 0.2s; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .feature-card:hover { transform: translateY(-5px); }
+    .platform-filter-wrapper { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #e9ecef; }
+    .account-filter-wrapper { margin-bottom: 1.5rem; }
+    .platform-btn { padding: 6px 16px; border-radius: 30px; background: #f1f3f5; color: #495057; font-size: 0.85rem; cursor: pointer; border: none; transition: 0.2s; }
+    .platform-btn.active { background: #4361ee; color: white; }
+    .reklam-card { border-radius: 16px; border: 1px solid #e9ecef; transition: 0.2s; background: white; margin-bottom: 1rem; transition: all 0.3s ease; position: relative; }
+    .reklam-card.optimized-card { background: linear-gradient(135deg, #e0f2fe 0%, #d9f99d 100%); border-left: 5px solid #10b981; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+    .reklam-card.selected-card { background-color: #e8f0fe; border-left: 5px solid #0d6efd; }
+    .budget-amount { transition: color 0.3s; }
+    .budget-updated { color: #10b981 !important; font-weight: bold; }
+    .trend-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; }
+    .sticky-rule-card { position: sticky; top: 70px; z-index: 100; background: white; border-radius: 20px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+    .rule-select-sm { font-size: 0.85rem; padding: 0.3rem 0.5rem; }
+    .btn-sm-optimize { font-size: 0.8rem; padding: 0.3rem 0.5rem; white-space: nowrap; }
+    .row.g-2 { margin-right: 0; margin-left: 0; }
+    .col-md-9, .col-md-3 { padding-left: 0.25rem; padding-right: 0.25rem; }
+
+    /* === SADECE GORSEL FIX: ozet kartlari ortalama + ust bildirim gizleme === */
+
+    body > .alert,
+    body > .messages,
+    main > .alert:first-child,
+    main > .messages:first-child,
+    .sidebar + .alert,
+    .sidebar + .messages {
+        display: none !important;
+    }
+
+    .summary-card,
+    .metric-card,
+    .budget-card,
+    .optimization-card,
+    .stat-card,
+    .feature-card {
+        text-align: center !important;
+    }
+
+    .summary-card,
+    .metric-card,
+    .budget-card,
+    .optimization-card,
+    .stat-card {
+        min-height: 118px;
+        display: flex !important;
+        flex-direction: column;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .summary-card *,
+    .metric-card *,
+    .budget-card *,
+    .optimization-card *,
+    .stat-card * {
+        text-align: center !important;
+    }
+
+    .summary-card .value,
+    .summary-card .stat-value,
+    .metric-card .value,
+    .metric-card .stat-value,
+    .budget-card .value,
+    .budget-card .stat-value,
+    .optimization-card .value,
+    .optimization-card .stat-value,
+    .stat-card .value,
+    .stat-card .stat-value {
+        width: 100%;
+        display: block;
+        text-align: center !important;
+        font-size: 1.65rem !important;
+        font-weight: 900 !important;
+        line-height: 1.1;
+        margin-bottom: .35rem;
+    }
+
+    .summary-card .label,
+    .summary-card .stat-label,
+    .metric-card .label,
+    .metric-card .stat-label,
+    .budget-card .label,
+    .budget-card .stat-label,
+    .optimization-card .label,
+    .optimization-card .stat-label,
+    .stat-card .label,
+    .stat-card .stat-label {
+        width: 100%;
+        display: block;
+        text-align: center !important;
+        font-size: .72rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="display-5 fw-bold mb-3">🎯 Akıllı Bütçe Optimizasyonu</h1>
+                <p class="lead mb-4">AI destekli kurallarla reklam bütçelerini otomatik yönet. Hedeflediğin ROAS'a ulaş, harcamalarını optimize et.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <span class="badge bg-light text-dark p-2"><i class="fas fa-chart-line"></i> Gerçek Zamanlı</span>
+                    <span class="badge bg-light text-dark p-2"><i class="fas fa-robot"></i> Yapay Zeka Destekli</span>
+                    <span class="badge bg-light text-dark p-2"><i class="fas fa-shield-alt"></i> Güvenli & Geri Alınabilir</span>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <i class="fas fa-chart-simple" style="font-size: 8rem; opacity: 0.8;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Özellik Kartları -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4"><div class="feature-card p-4"><div class="mb-3 text-primary"><i class="fas fa-sliders-h fa-2x"></i></div><h5>Esnek Kurallar</h5><p class="text-muted">Min/max bütçe, adım, hedef ROAS ve geriye dönük saatleri kendin belirle.</p></div></div>
+        <div class="col-md-4"><div class="feature-card p-4"><div class="mb-3 text-success"><i class="fas fa-chart-line fa-2x"></i></div><h5>Otomatik Karar</h5><p class="text-muted">Sistem saatlik olarak performansı değerlendirir ve bütçeleri akıllıca ayarlar.</p></div></div>
+        <div class="col-md-4"><div class="feature-card p-4"><div class="mb-3 text-warning"><i class="fas fa-history fa-2x"></i></div><h5>Tam Geçmiş & Geri Alma</h5><p class="text-muted">Her değişiklik loglanır, istersen tek tıkla eski bütçene dönebilirsin.</p></div></div>
+    </div>
+
+    <!-- YATAY PLATFORM FİLTRELERİ -->
+    <div class="platform-filter-wrapper">
+        <button class="platform-btn active" data-platform="">Tümü</button>
+        {% for platform in platforms %}
+        <button class="platform-btn" data-platform="{{ platform.code }}">{{ platform.name }}</button>
+        {% endfor %}
+        <button type="button" class="btn btn-sm btn-outline-info ms-auto rounded-pill" data-bs-toggle="modal" data-bs-target="#howItWorksModal">
+            <i class="fas fa-question-circle me-1"></i> Nasıl Çalışır?
+        </button>
+    </div>
+
+    <!-- HESAP FİLTRE (Dinamik) -->
+    <div class="account-filter-wrapper">
+        <label class="form-label fw-semibold mb-1" id="accountLabel" style="display: none;">🏢 Hesap Seçin</label>
+        <select id="accountSelect" class="form-select" style="display: none; width: auto; min-width: 250px;">
+            <option value="">Tüm hesaplar</option>
+        </select>
+    </div>
+
+    <!-- Sabit Kural Seçim Kartı -->
+    <div class="sticky-rule-card">
+        <div class="bg-white p-3 rounded-4 shadow-sm">
+            <form id="bulkOptimizeForm" class="row g-2 align-items-center">
+                {% csrf_token %}
+                <div class="col-md-9">
+                    <label class="form-label fw-semibold mb-1 small">📋 Seçili Reklamlara Uygulanacak Kural</label>
+                    <select id="ruleSelect" class="form-select form-select-sm rule-select-sm" required>
+                        <option value="">-- Bir kural seçin --</option>
+                        {% for rule in rules %}
+                        <option value="{{ rule.id }}">
+                            {{ rule.name }} ({{ rule.platform.name }}) | {{ rule.min_budget }}-{{ rule.max_budget }} TL | Adım: {{ rule.adjustment_step }} TL | ROAS: {{ rule.roas_target }}x
+                        </option>
+                        {% empty %}
+                        <option disabled>Hiç aktif kuralınız yok.</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="button" id="bulkOptimizeBtn" class="btn btn-primary w-100 btn-sm-optimize" {% if not rules %}disabled{% endif %}>
+                        <i class="fas fa-magic me-1"></i> Optimize Et
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reklam Kartları -->
+    <div id="reklamlarContainer">
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Reklamlar yükleniyor...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Nasıl Çalışır? Modal -->
+<div class="modal fade" id="howItWorksModal" tabindex="-1" aria-labelledby="howItWorksModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5 class="modal-title fw-bold text-white">🤖 Bütçe Optimizasyonu Nasıl Çalışır?</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="lead fw-semibold">🎯 AI destekli kurallarla reklam bütçelerinizi otomatik yönetin.</p>
+                <p>Sistem, belirlediğiniz kurallara göre her <strong>X saatte bir</strong> (varsayılan: 24 saat) reklamlarınızın performansını değerlendirir ve bütçelerini artırır veya azaltır. Tüm değişiklikler <strong>loglanır</strong> ve istediğiniz zaman geri alınabilir.</p>
+                <hr>
+                <h5><i class="fas fa-cog text-primary me-2"></i> Kural Parametreleri</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6"><div class="bg-light p-3 rounded-3"><i class="fas fa-chart-line text-primary"></i> <strong>Min / Max Bütçe</strong><p class="small text-muted">Bütçenin asla altına düşmeyeceği veya üstüne çıkamayacağı sınırlar.</p></div></div>
+                    <div class="col-md-6"><div class="bg-light p-3 rounded-3"><i class="fas fa-step-forward text-primary"></i> <strong>Adım Miktarı (TL)</strong><p class="small text-muted">Her optimizasyonda bütçeye eklenecek veya çıkarılacak miktar.</p></div></div>
+                    <div class="col-md-6"><div class="bg-light p-3 rounded-3"><i class="fas fa-bullseye text-primary"></i> <strong>Hedef ROAS</strong><p class="small text-muted">Örn: 2.0 = 200% getiri. ROAS hedefin üzerindeyse bütçe artırılır, altındaysa azaltılır.</p></div></div>
+                    <div class="col-md-6"><div class="bg-light p-3 rounded-3"><i class="fas fa-history text-primary"></i> <strong>Geriye Dönük Süre (saat)</strong><p class="small text-muted">Performans verilerinin kaç saat geriye bakılarak değerlendirileceği.</p></div></div>
+                </div>
+                <hr>
+                <h5><i class="fas fa-chart-simple text-success me-2"></i> Örnek Senaryo</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light"><tr><th>Kampanya</th><th>Bütçe</th><th>Harcama</th><th>Gelir</th><th>ROAS</th><th>Hedef</th><th>Karar</th><th>Yeni Bütçe</th> </thead>
+                        <tbody><tr><th>Yaz İndirimi</th><td>100 TL</th><td>50 TL</th><td>150 TL</th><td class="text-success">3.0</th><td>2.0</th><td class="text-success">Arttır (+10 TL)</th><td>110 TL</th></tr>
+                        <tr><th>Kış Kampanyası</th><td>200 TL</th><td>80 TL</th><td>120 TL</th><td class="text-danger">1.5</th><td>2.0</th><td class="text-danger">Azalt (-10 TL)</th><td>190 TL</th></tr>
+                        <tr><th>VIP Teklif</th><td>500 TL</th><td>200 TL</th><td>450 TL</th><td class="text-warning">2.25</th><td>2.0</th><td class="text-secondary">Değişiklik yok</th><td>500 TL</th></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <h5><i class="fas fa-lightbulb text-warning me-2"></i> İpuçları</h5>
+                <ul><li><i class="fas fa-check-circle text-success me-2"></i> Küçük adımlarla başlayın (örn. 5 TL), sonra artırın.</li><li><i class="fas fa-chart-line me-2"></i> ROAS hedefinizi sektör ortalamasına göre belirleyin (genelde 2.0-4.0 arası).</li><li><i class="fas fa-eye me-2"></i> Değişiklikleri <strong>Optimizasyon Geçmişi</strong> sayfasından takip edin.</li></ul>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-4"><button type="button" class="btn btn-primary rounded-pill px-4" data-bs-dismiss="modal">Anladım</button></div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // Sayfa ici bilgilendirme mesajlarini 4.5 saniye sonra otomatik kapatir.
+    // Calisan optimizasyon/AJAX kodlarina dokunmaz.
+    document.addEventListener("DOMContentLoaded", function () {
+        const alerts = document.querySelectorAll(
+            ".container .alert, .hero-section + .container .alert, .page-alert, .budget-alert, .django-message"
+        );
+
+        alerts.forEach(function (alert) {
+            if (!alert || alert.dataset.autoDismissBound === "1") return;
+            alert.dataset.autoDismissBound = "1";
+
+            setTimeout(function () {
+                alert.style.transition = "opacity .35s ease, transform .35s ease";
+                alert.style.opacity = "0";
+                alert.style.transform = "translateY(-8px)";
+
+                setTimeout(function () {
+                    if (alert && alert.parentNode) alert.parentNode.removeChild(alert);
+                }, 400);
+            }, 4500);
+        });
+    });
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    let currentPlatform = '';
+    let currentAccount = '';
+
+    function formatNumber(num) { return window.raFormatNumber(num); }
+
+    function getTrendIcon(trend) {
+        if (trend === 'up') return { badgeClass: 'bg-success', title: 'Bütçe arttı', iconClass: 'fas fa-arrow-up' };
+        if (trend === 'down') return { badgeClass: 'bg-danger', title: 'Bütçe azaldı', iconClass: 'fas fa-arrow-down' };
+        if (trend === 'same') return { badgeClass: 'bg-secondary', title: 'Bütçe değişmedi', iconClass: 'fas fa-minus' };
+        return { badgeClass: 'bg-light text-dark', title: 'Henüz optimizasyon yok', iconClass: 'fas fa-clock' };
+    }
+
+    function showToast(title, message, type) {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.position = 'fixed';
+            container.style.bottom = '20px';
+            container.style.right = '20px';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+        }
+        const toastHtml = `<div class="toast align-items-center text-white bg-${type} border-0 mb-2" data-bs-autohide="true" data-bs-delay="3000"><div class="d-flex"><div class="toast-body">${title}: ${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
+        container.insertAdjacentHTML('beforeend', toastHtml);
+        const toastEl = container.lastElementChild;
+        const bsToast = new bootstrap.Toast(toastEl);
+        bsToast.show();
+        toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+    }
+
+    function updateSelection(reklamId, isSelected) {
+        fetch('/ajax/update-selection/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify({ reklam_id: reklamId, selected: isSelected })
+        }).catch(err => console.error('Seçim güncelleme hatası:', err));
+    }
+
+    function optimizeReklam(reklamId, ruleId) {
+        fetch('/ajax/optimize/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify({ reklam_id: reklamId, rule_id: ruleId })
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                loadReklamlar(currentPlatform, currentAccount);
+                showToast('Başarılı', `Bütçe güncellendi: ${formatNumber(data.new_budget)} TL`, 'success');
+            } else {
+                showToast('Hata', data.error || 'İşlem başarısız', 'danger');
+            }
+        }).catch(err => {
+            console.error('Optimize hatası:', err);
+            showToast('Hata', 'Sunucu ile bağlantı hatası', 'danger');
+        });
+    }
+
+    function removeFromSelection(reklamId) {
+        if (confirm('Bu reklamı optimizasyon listenizden çıkarmak ve bütçeyi eski haline döndürmek istediğinize emin misiniz?')) {
+            fetch('/ajax/remove/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                body: JSON.stringify({ reklam_id: reklamId, revert: true })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    loadReklamlar(currentPlatform, currentAccount);
+                    showToast('Bilgi', 'Reklam optimizasyon listesinden çıkarıldı ve bütçe eski değerine döndürüldü.', 'info');
+                } else {
+                    showToast('Hata', data.error || 'İptal başarısız', 'danger');
+                }
+            }).catch(err => {
+                console.error('İptal hatası:', err);
+                showToast('Hata', 'Sunucu hatası', 'danger');
+            });
+        }
+    }
+
+    function renderReklamlar(reklams) {
+        const container = document.getElementById('reklamlarContainer');
+        if (!reklams.length) {
+            container.innerHTML = '<div class="alert alert-info text-center">Bu platform ve hesap için aktif reklam bulunamadı.</div>';
+            return;
+        }
+        const sorted = [...reklams].sort((a,b) => {
+            if (a.optimized && !b.optimized) return -1;
+            if (!a.optimized && b.optimized) return 1;
+            if (a.selected && !b.selected) return -1;
+            if (!a.selected && b.selected) return 1;
+            return 0;
+        });
+        let html = '<div class="row g-3">';
+        sorted.forEach(reklam => {
+            const selectedClass = reklam.selected ? 'selected-card' : '';
+            const optimizedClass = reklam.optimized ? 'optimized-card' : '';
+            const trendIcon = getTrendIcon(reklam.trend);
+            html += `<div class="col-md-6 col-lg-4" data-reklam-id="${reklam.id}">
+                        <div class="reklam-card p-3 ${selectedClass} ${optimizedClass}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="form-check">
+                                    <input class="form-check-input reklam-checkbox" type="checkbox" value="${reklam.id}" id="chk_${reklam.id}" ${reklam.selected ? 'checked' : ''}>
+                                    <label class="form-check-label fw-bold" for="chk_${reklam.id}">${reklam.name.substring(0, 50)}</label>
+                                </div>
+                                <div><div class="trend-icon ${trendIcon.badgeClass}" title="${trendIcon.title}"><i class="${trendIcon.iconClass}" style="font-size:0.8rem;"></i></div></div>
+                            </div>
+                            <div class="ms-4 mt-2">
+                                <div class="small text-muted mb-1"><i class="fab fa-${reklam.platform}"></i> ${reklam.platform_display}</div>
+                                <div class="d-flex justify-content-between mb-1"><span>💰 Bütçe:</span><strong class="budget-amount">${formatNumber(reklam.budget)} TL</strong></div>
+                                <div class="d-flex justify-content-between mb-1"><span>📊 Harcama:</span><span>${formatNumber(reklam.spend)} TL</span></div>
+                                <div class="d-flex justify-content-between mb-2"><span>📈 Durum:</span><span class="badge ${reklam.status === 'active' ? 'bg-success' : 'bg-secondary'}">${reklam.status_display}</span></div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-primary optimize-single" data-id="${reklam.id}" ${!reklam.selected ? 'disabled' : ''}>🚀 Optimize Et</button>
+                                    <button class="btn btn-sm btn-outline-danger remove-single" data-id="${reklam.id}">❌ İptal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+        attachEvents();
+    }
+
+    function attachEvents() {
+        document.querySelectorAll('.reklam-checkbox').forEach(cb => {
+            cb.removeEventListener('change', handleCheckboxChange);
+            cb.addEventListener('change', handleCheckboxChange);
+        });
+        document.querySelectorAll('.optimize-single').forEach(btn => {
+            btn.removeEventListener('click', handleOptimizeClick);
+            btn.addEventListener('click', handleOptimizeClick);
+        });
+        document.querySelectorAll('.remove-single').forEach(btn => {
+            btn.removeEventListener('click', handleRemoveClick);
+            btn.addEventListener('click', handleRemoveClick);
+        });
+    }
+
+    function handleCheckboxChange(e) {
+        e.stopPropagation();
+        const reklamId = parseInt(e.target.value);
+        const isChecked = e.target.checked;
+        updateSelection(reklamId, isChecked);
+        const cardDiv = document.querySelector(`div[data-reklam-id="${reklamId}"]`);
+        if (cardDiv) {
+            const card = cardDiv.querySelector('.reklam-card');
+            if (isChecked) card.classList.add('selected-card');
+            else card.classList.remove('selected-card');
+        }
+        const optBtn = cardDiv?.querySelector('.optimize-single');
+        if (optBtn) optBtn.disabled = !isChecked;
+    }
+
+    function handleOptimizeClick(e) {
+        const reklamId = parseInt(e.currentTarget.dataset.id);
+        const ruleId = document.getElementById('ruleSelect').value;
+        if (!ruleId) {
+            alert('Lütfen bir kural seçin.');
+            return;
+        }
+        optimizeReklam(reklamId, ruleId);
+    }
+
+    function handleRemoveClick(e) {
+        const reklamId = parseInt(e.currentTarget.dataset.id);
+        removeFromSelection(reklamId);
+    }
+
+    function loadAccounts(platformCode) {
+        const accountSelect = document.getElementById('accountSelect');
+        const accountLabel = document.getElementById('accountLabel');
+        if (!platformCode) {
+            accountSelect.style.display = 'none';
+            accountLabel.style.display = 'none';
+            accountSelect.innerHTML = '<option value="">Tüm hesaplar</option>';
+            return;
+        }
+        fetch(`/ajax/get-accounts/?platform=${platformCode}`)
+            .then(response => response.json())
+            .then(data => {
+                accountSelect.innerHTML = '<option value="">Tüm hesaplar</option>';
+                if (data.accounts && data.accounts.length > 0) {
+                    data.accounts.forEach(acc => {
+                        const option = document.createElement('option');
+                        option.value = acc.id;
+                        option.textContent = acc.name;
+                        accountSelect.appendChild(option);
+                    });
+                    accountSelect.style.display = 'block';
+                    accountLabel.style.display = 'block';
+                } else {
+                    accountSelect.style.display = 'none';
+                    accountLabel.style.display = 'none';
+                }
+                // Hesap seçimini sıfırla
+                accountSelect.value = '';
+                currentAccount = '';
+                loadReklamlar(platformCode, '');
+            })
+            .catch(err => console.error('Hesaplar yüklenemedi:', err));
+    }
+
+    document.getElementById('bulkOptimizeBtn')?.addEventListener('click', () => {
+        const ruleId = document.getElementById('ruleSelect').value;
+        if (!ruleId) { alert('Lütfen bir kural seçin.'); return; }
+        const selected = document.querySelectorAll('.reklam-checkbox:checked');
+        if (selected.length === 0) { alert('Lütfen en az bir reklam seçin.'); return; }
+        selected.forEach(cb => optimizeReklam(parseInt(cb.value), ruleId));
+    });
+
+    document.querySelectorAll('.platform-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentPlatform = this.dataset.platform;
+            loadAccounts(currentPlatform);
+        });
+    });
+
+    document.getElementById('accountSelect')?.addEventListener('change', function() {
+        currentAccount = this.value;
+        loadReklamlar(currentPlatform, currentAccount);
+    });
+
+    function loadReklamlar(platform = '', accountId = '') {
+        let url = `/ajax/reklams/?platform=${platform}`;
+        if (accountId) url += `&account_id=${accountId}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Reklamlar yüklendi:', data);
+                renderReklamlar(data.reklams);
+            })
+            .catch(error => {
+                console.error('AJAX hatası:', error);
+                document.getElementById('reklamlarContainer').innerHTML = '<div class="alert alert-danger">Reklamlar yüklenemedi. Konsolu kontrol edin.</div>';
+            });
+    }
+
+    // Sayfa yüklendiğinde ilk yükleme
+    loadReklamlar('', '');
+</script>
+{% endblock %}

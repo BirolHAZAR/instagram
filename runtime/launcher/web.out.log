@@ -1,0 +1,8 @@
+PostgreSQL baglantisi hazir: postgres@127.0.0.1:5432/reklam_analiz
+Performing system checks...
+
+System check identified no issues (0 silenced).
+August 20, 2026 - 11:42:10
+Django version 5.2.14, using settings 'config.settings'
+Starting ASGI/Daphne version 4.2.2 development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.

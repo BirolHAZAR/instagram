@@ -1,0 +1,5 @@
+
+from core.tasks.v2_platform_sync import sync_v2_platform_account_ads
+
+sync_instagram_account = sync_v2_platform_account_ads
+sync_ads_and_analyze_task = sync_v2_platform_account_ads

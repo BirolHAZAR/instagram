@@ -1,0 +1,1367 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rakip Yönetimi | ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root{
+        --bg-primary:#050816;
+        --bg-secondary:#0A1028;
+        --panel:#0F1633;
+        --panel-soft:#111A3D;
+        --accent:#6C63FF;
+        --accent-light:#8B84FF;
+        --cyan:#35D5FF;
+        --green:#22C55E;
+        --warning:#F59E0B;
+        --danger:#EF4444;
+        --text:#FFFFFF;
+        --text-soft:#B8BED0;
+        --muted:#8791B2;
+        --line:rgba(139,132,255,.18);
+        --glass:rgba(255,255,255,.065);
+        --shadow:0 28px 70px rgba(0,0,0,.38);
+        --radius:26px;
+    }
+
+    body{
+        background:
+            radial-gradient(circle at 12% 0%,rgba(108,99,255,.26),transparent 32%),
+            radial-gradient(circle at 88% 12%,rgba(53,213,255,.14),transparent 30%),
+            linear-gradient(180deg,var(--bg-primary),#070B1D 58%,#050816);
+        color:var(--text);
+        font-family:'Inter',sans-serif;
+    }
+
+    main{padding-top:2rem!important;}
+
+    .competitor-container{
+        max-width:1440px;
+        margin:0 auto;
+        padding:0 1.4rem 2rem;
+    }
+
+    .page-header{
+        position:relative;
+        overflow:hidden;
+        border:1px solid var(--line);
+        border-radius:32px;
+        background:linear-gradient(135deg,rgba(15,22,51,.96),rgba(10,16,40,.94));
+        box-shadow:var(--shadow);
+        padding:1.35rem 1.55rem;
+        margin-bottom:1.45rem;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:1.2rem;
+    }
+
+    .page-header:before{
+        content:"";
+        position:absolute;
+        inset:-45%;
+        background:radial-gradient(circle,rgba(108,99,255,.18),transparent 35%);
+        pointer-events:none;
+    }
+
+    .header-content{position:relative;z-index:2;}
+
+    .page-kicker{
+        display:inline-flex;
+        align-items:center;
+        gap:.45rem;
+        padding:.36rem .75rem;
+        border:1px solid rgba(139,132,255,.35);
+        border-radius:999px;
+        background:rgba(108,99,255,.12);
+        color:#DAD8FF;
+        font-size:.76rem;
+        font-weight:800;
+        letter-spacing:.35px;
+        text-transform:uppercase;
+        margin-bottom:.7rem;
+    }
+
+    .page-header h1{
+        font-size:clamp(1.55rem,2.25vw,2.45rem);
+        font-weight:900;
+        letter-spacing:-.04em;
+        color:#fff;
+        margin:0 0 .35rem;
+    }
+
+    .page-header p{
+        color:var(--text-soft);
+        font-size:.98rem;
+        max-width:820px;
+        margin:0;
+        line-height:1.65;
+    }
+
+    .octo-hero-visual{
+        position:relative;
+        z-index:2;
+        width:132px;
+        min-width:132px;
+        height:132px;
+        border-radius:30px;
+        background:linear-gradient(145deg,rgba(108,99,255,.20),rgba(53,213,255,.10));
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border:1px solid rgba(139,132,255,.25);
+        box-shadow:inset 0 0 35px rgba(108,99,255,.18);
+    }
+
+    .octo-hero-visual img{
+        max-width:150px;
+        max-height:150px;
+        object-fit:contain;
+        filter:drop-shadow(0 24px 34px rgba(0,0,0,.45));
+    }
+
+    .two-columns{
+        display:grid;
+        grid-template-columns:minmax(330px,420px) minmax(0,1fr);
+        gap:1.35rem;
+        align-items:start;
+    }
+
+    .card-glass{
+        position:relative;
+        overflow:hidden;
+        background:rgba(15,22,51,.82);
+        border:1px solid var(--line);
+        border-radius:26px;
+        box-shadow:0 18px 46px rgba(0,0,0,.24);
+        color:var(--text);
+        backdrop-filter:blur(18px);
+        transition:.25s ease;
+    }
+
+    .card-glass:hover{
+        border-color:rgba(139,132,255,.38);
+        box-shadow:0 24px 58px rgba(0,0,0,.32);
+    }
+
+    .card-header{
+        padding:1.05rem 1.25rem;
+        border-bottom:1px solid var(--line);
+        background:linear-gradient(135deg,rgba(10,16,40,.92),rgba(17,26,61,.78));
+    }
+
+    .card-header h2{
+        font-size:1rem;
+        font-weight:900;
+        letter-spacing:-.02em;
+        color:#fff;
+        margin:0;
+        display:flex;
+        align-items:center;
+        gap:.55rem;
+    }
+
+    .card-header h2 i{color:var(--accent-light);}
+
+    .card-subtitle{
+        color:var(--text-soft);
+        font-size:.72rem;
+        margin:.25rem 0 0;
+        line-height:1.45;
+    }
+
+    .card-body{padding:1.25rem;}
+
+    .form-group{margin-bottom:1.05rem;}
+
+    .form-label{
+        display:flex;
+        align-items:center;
+        gap:.38rem;
+        font-size:.68rem;
+        font-weight:850;
+        text-transform:uppercase;
+        letter-spacing:.55px;
+        color:#DDE3FF;
+        margin-bottom:.48rem;
+    }
+
+    .form-label i{color:var(--accent-light);}
+
+    .form-control,.form-select{
+        width:100%;
+        min-height:44px;
+        padding:.68rem .86rem;
+        background:rgba(5,8,22,.78)!important;
+        border:1px solid rgba(139,132,255,.22)!important;
+        border-radius:14px!important;
+        color:#fff!important;
+        font-size:.84rem;
+        transition:.2s ease;
+        box-shadow:none!important;
+    }
+
+    .form-control::placeholder,textarea.form-control::placeholder{color:#7E88A8;}
+
+    .form-control:focus,.form-select:focus{
+        outline:none;
+        border-color:rgba(139,132,255,.70)!important;
+        box-shadow:0 0 0 4px rgba(108,99,255,.12)!important;
+        background:rgba(5,8,22,.92)!important;
+    }
+
+    textarea.form-control{resize:vertical;min-height:92px;}
+
+    .checkbox-wrapper{
+        display:flex;
+        align-items:center;
+        gap:.65rem;
+        cursor:pointer;
+        padding:.66rem .78rem;
+        border:1px solid rgba(139,132,255,.18);
+        border-radius:14px;
+        background:rgba(255,255,255,.04);
+    }
+
+    .checkbox-wrapper input{
+        width:1.05rem;
+        height:1.05rem;
+        cursor:pointer;
+        accent-color:var(--accent);
+    }
+
+    .checkbox-wrapper span{font-size:.8rem;color:var(--text-soft);font-weight:700;}
+
+    .btn-primary-custom{
+        width:100%;
+        padding:.78rem 1rem;
+        background:linear-gradient(135deg,var(--accent),var(--accent-light));
+        border:none;
+        border-radius:999px;
+        color:#fff;
+        font-weight:850;
+        font-size:.86rem;
+        cursor:pointer;
+        transition:.25s ease;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:.5rem;
+        margin-top:.45rem;
+        box-shadow:0 14px 28px rgba(108,99,255,.28);
+    }
+
+    .btn-primary-custom:hover{
+        transform:translateY(-2px);
+        box-shadow:0 18px 36px rgba(108,99,255,.38);
+    }
+
+    .form-octo-note{
+        display:flex;
+        align-items:center;
+        gap:.75rem;
+        padding:.82rem;
+        margin-bottom:1.05rem;
+        border-radius:18px;
+        background:linear-gradient(135deg,rgba(108,99,255,.16),rgba(53,213,255,.08));
+        border:1px solid rgba(139,132,255,.18);
+    }
+
+    .form-octo-note img{
+        width:52px;
+        height:52px;
+        object-fit:contain;
+        filter:drop-shadow(0 12px 16px rgba(0,0,0,.35));
+        flex-shrink:0;
+    }
+
+    .form-octo-note strong{display:block;color:#fff;font-size:.8rem;margin-bottom:.12rem;}
+    .form-octo-note span{display:block;color:var(--text-soft);font-size:.67rem;line-height:1.4;}
+
+    .platform-group{
+        margin-bottom:.72rem;
+        border-radius:18px;
+        overflow:hidden;
+        background:rgba(5,8,22,.28);
+        border:1px solid rgba(139,132,255,.13);
+    }
+
+    .platform-header{
+        min-height:58px;
+        padding:.78rem .95rem;
+        background:rgba(255,255,255,.045);
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:.85rem;
+        transition:.2s ease;
+    }
+
+    .platform-header:hover{
+        background:rgba(108,99,255,.13);
+    }
+
+    .platform-header-left{
+        display:grid;
+        grid-template-columns:36px minmax(112px, 1fr) 168px;
+        align-items:center;
+        gap:.72rem;
+        min-width:0;
+        flex:1 1 auto;
+    }
+
+    .platform-header-left i{
+        width:36px;
+        height:36px;
+        border-radius:12px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:1rem;
+        color:#fff;
+        background:linear-gradient(135deg,rgba(108,99,255,.96),rgba(139,132,255,.74));
+        box-shadow:0 10px 20px rgba(108,99,255,.18);
+        flex-shrink:0;
+    }
+
+    .platform-header-left h3{
+        font-size:.9rem;
+        font-weight:850;
+        color:#fff;
+        margin:0;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+
+    .platform-counts{
+        display:flex;
+        align-items:center;
+        gap:.42rem;
+        justify-content:flex-start;
+        flex-shrink:0;
+    }
+
+    .platform-badge{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:.25rem;
+        min-width:78px;
+        min-height:24px;
+        background:linear-gradient(135deg,rgba(139,132,255,.28),rgba(53,213,255,.14));
+        color:#E8ECFF!important;
+        padding:.2rem .62rem;
+        border-radius:999px;
+        font-size:.66rem;
+        font-weight:900;
+        line-height:1;
+        flex-shrink:0;
+        box-shadow:0 8px 18px rgba(0,0,0,.16);
+        border:1px solid rgba(139,132,255,.28);
+    }
+
+    .platform-badge.ads-count{
+        width:82px;
+        background:linear-gradient(135deg,#22D3EE,#6C63FF);
+        color:#fff!important;
+        border:1px solid rgba(255,255,255,.18);
+    }
+
+    .platform-badge .count-label{
+        font-size:.56rem;
+        font-weight:850;
+        opacity:.82;
+    }
+
+    .platform-chevron{
+        color:#DAD8FF;
+        transition:transform .2s ease;
+        font-size:.8rem;
+        flex-shrink:0;
+    }
+
+    .platform-group.open .platform-chevron{transform:rotate(180deg);}
+
+    .competitors-table-container{display:none;overflow-x:auto;}
+    .platform-group.open .competitors-table-container{display:block;animation:openList .18s ease-out;}
+    @keyframes openList{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+    .competitors-table{
+        width:100%;
+        border-collapse:collapse;
+        min-width:660px;
+    }
+
+    .competitors-table th{
+        text-align:left;
+        padding:.75rem .9rem;
+        background:rgba(10,16,40,.92);
+        font-size:.66rem;
+        font-weight:900;
+        text-transform:uppercase;
+        letter-spacing:.5px;
+        color:#DDE3FF;
+        border-bottom:1px solid rgba(139,132,255,.14);
+        white-space:nowrap;
+    }
+
+    .competitors-table td{
+        padding:.78rem .9rem;
+        border-bottom:1px solid rgba(139,132,255,.10);
+        font-size:.78rem;
+        color:#E8ECFF;
+        vertical-align:middle;
+    }
+
+    .competitors-table tr:last-child td{border-bottom:none;}
+    .competitors-table tr:hover{background:rgba(108,99,255,.07);}
+
+    .badge-status{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:.3rem;
+        min-width:74px;
+        padding:.25rem .55rem;
+        border-radius:999px;
+        font-size:.64rem;
+        font-weight:850;
+        white-space:nowrap;
+    }
+
+    .badge-active{background:rgba(34,197,94,.14);color:#4ADE80;border:1px solid rgba(34,197,94,.22);}
+    .badge-inactive{background:rgba(135,145,178,.12);color:#B8BED0;border:1px solid rgba(184,190,208,.15);}
+    .badge-direct{background:rgba(108,99,255,.16);color:#DAD8FF;border:1px solid rgba(139,132,255,.26);}
+    .badge-indirect{background:rgba(245,158,11,.14);color:#FBBF24;border:1px solid rgba(245,158,11,.22);}
+    .badge-potential{background:rgba(53,213,255,.13);color:#67E8F9;border:1px solid rgba(53,213,255,.22);}
+    .ads-pill{min-width:52px;font-weight:950;color:#fff!important;background:rgba(34,211,238,.16);border-color:rgba(34,211,238,.3);}
+
+    .action-buttons{display:flex;gap:.42rem;justify-content:flex-end;}
+
+    .btn-icon-sm{
+        width:32px;
+        height:32px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        background:rgba(255,255,255,.055);
+        border:1px solid rgba(255,255,255,.08);
+        cursor:pointer;
+        border-radius:10px;
+        transition:.18s ease;
+        font-size:.78rem;
+    }
+
+    .btn-edit-sm{color:var(--warning);}
+    .btn-delete-sm{color:var(--danger);}
+    .btn-edit-sm:hover{background:rgba(245,158,11,.15);transform:translateY(-1px);}
+    .btn-delete-sm:hover{background:rgba(239,68,68,.15);transform:translateY(-1px);}
+
+    .empty-state,.loading-state{text-align:center;padding:2rem;color:var(--text-soft);}
+    .empty-state i{font-size:2.45rem;color:var(--muted);margin-bottom:.75rem;opacity:.75;}
+    .empty-state p,.loading-state p{font-size:.82rem;margin:0;color:var(--text-soft);}
+
+    .spinner{
+        width:34px;
+        height:34px;
+        border:3px solid rgba(139,132,255,.20);
+        border-top-color:var(--accent-light);
+        border-radius:50%;
+        animation:spin .8s linear infinite;
+        margin:0 auto .75rem;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .toast-container{
+        position:fixed;
+        top:90px;
+        right:20px;
+        z-index:99999;
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+    }
+
+    .toast-custom{
+        min-width:300px;
+        max-width:390px;
+        background:rgba(15,22,51,.96);
+        border-radius:16px;
+        box-shadow:0 18px 46px rgba(0,0,0,.35);
+        overflow:hidden;
+        animation:slideIn .3s ease;
+        border:1px solid rgba(255,255,255,.10);
+        backdrop-filter:blur(14px);
+    }
+
+    @keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    .toast-content{display:flex;align-items:center;gap:12px;padding:14px 18px;}
+    .toast-icon{font-size:1.3rem;flex-shrink:0;}
+    .toast-message{flex:1;}
+    .toast-message strong{display:block;font-size:.84rem;font-weight:800;margin-bottom:3px;color:#fff;}
+    .toast-message div{font-size:.73rem;color:var(--text-soft);line-height:1.4;}
+    .toast-progress{height:3px;width:100%;animation:progress 3s linear forwards;}
+    .toast-success{border-left:3px solid var(--green);}.toast-success .toast-progress{background:var(--green);}
+    .toast-error{border-left:3px solid var(--danger);}.toast-error .toast-progress{background:var(--danger);}
+    .toast-warning{border-left:3px solid var(--warning);}.toast-warning .toast-progress{background:var(--warning);}
+    @keyframes progress{from{width:100%}to{width:0%}}
+
+    .modal-content{
+        background:rgba(15,22,51,.98)!important;
+        border:1px solid var(--line)!important;
+        border-radius:22px!important;
+        color:#fff;
+        box-shadow:0 30px 80px rgba(0,0,0,.55)!important;
+    }
+    .modal-header,.modal-footer{border-color:var(--line)!important;background:rgba(10,16,40,.72)!important;}
+    .modal-title{font-weight:900!important;color:#fff!important;}
+
+    @media(max-width:1100px){
+        .two-columns{grid-template-columns:1fr;}
+        .col-form{max-width:620px;width:100%;}
+    }
+    @media(max-width:768px){
+        .competitor-container{padding:0 1rem 1.5rem;}
+        .page-header{flex-direction:column;text-align:center;padding:1.2rem;}
+        .octo-hero-visual{width:112px;height:112px;min-width:112px;}
+        .octo-hero-visual img{max-width:126px;max-height:126px;}
+        .toast-container{top:76px;right:10px;left:10px;}
+        .toast-custom{min-width:auto;width:100%;}
+        .card-body{padding:1rem;}
+    }
+
+
+    /* ===== FINAL READABILITY FIX - SADECE RAKIP EKLE SAYFASI ===== */
+    .competitor-container,
+    .competitor-container p,
+    .competitor-container span,
+    .competitor-container div,
+    .competitor-container label,
+    .competitor-container small,
+    .competitor-container td,
+    .competitor-container th,
+    .competitor-container strong,
+    .modal-content,
+    .modal-content p,
+    .modal-content span,
+    .modal-content div,
+    .modal-content label {
+        color: #F4F7FF !important;
+    }
+
+    .competitor-container .card-subtitle,
+    .competitor-container .page-header p,
+    .competitor-container .form-octo-note span,
+    .competitor-container .empty-state p,
+    .competitor-container .loading-state p,
+    .modal-content .text-muted {
+        color: #C8D0EA !important;
+    }
+
+    .competitor-container input,
+    .competitor-container textarea,
+    .competitor-container select,
+    .modal-content input,
+    .modal-content textarea,
+    .modal-content select {
+        background: rgba(5, 8, 22, .94) !important;
+        border: 1px solid rgba(139, 132, 255, .38) !important;
+        color: #FFFFFF !important;
+        caret-color: #35D5FF !important;
+        box-shadow: none !important;
+    }
+
+    .competitor-container input::placeholder,
+    .competitor-container textarea::placeholder,
+    .modal-content input::placeholder,
+    .modal-content textarea::placeholder {
+        color: #AAB5D6 !important;
+        opacity: 1 !important;
+    }
+
+    .competitor-container select option,
+    .modal-content select option {
+        background-color: #0A1028 !important;
+        color: #FFFFFF !important;
+    }
+
+    .competitor-container .form-select,
+    .modal-content .form-select {
+        color: #FFFFFF !important;
+        background-color: rgba(5, 8, 22, .94) !important;
+    }
+
+    .competitor-container .checkbox-wrapper {
+        background: rgba(5, 8, 22, .62) !important;
+        border-color: rgba(139,132,255,.30) !important;
+    }
+
+    .competitor-container .checkbox-wrapper span {
+        color: #E8ECFF !important;
+    }
+
+    .competitors-table {
+        background: rgba(5, 8, 22, .30) !important;
+    }
+
+    .competitors-table th {
+        background: rgba(10, 16, 40, .98) !important;
+        color: #FFFFFF !important;
+    }
+
+    .competitors-table td {
+        color: #F4F7FF !important;
+    }
+
+    .competitors-table tr:hover td {
+        color: #FFFFFF !important;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #6C63FF, #35D5FF) !important;
+        color: #FFFFFF !important;
+        border: 0 !important;
+        box-shadow: 0 16px 34px rgba(108,99,255,.34) !important;
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 24px 48px rgba(53,213,255,.22) !important;
+    }
+
+    .btn-outline-custom,
+    .modal-footer .btn-outline-custom {
+        background: rgba(255,255,255,.06) !important;
+        border: 1px solid rgba(139,132,255,.38) !important;
+        color: #E8ECFF !important;
+        border-radius: 999px !important;
+        font-weight: 800 !important;
+    }
+
+    .btn-outline-custom:hover {
+        background: rgba(108,99,255,.20) !important;
+        color: #FFFFFF !important;
+    }
+
+    .modal-content {
+        background: rgba(15,22,51,.98) !important;
+        border-color: rgba(139,132,255,.28) !important;
+    }
+
+    .modal-header,
+    .modal-footer {
+        background: rgba(10,16,40,.86) !important;
+        border-color: rgba(139,132,255,.20) !important;
+    }
+
+    .modal-title {
+        color: #FFFFFF !important;
+    }
+
+    .modal .btn-close {
+        filter: invert(1) grayscale(100%) brightness(220%) !important;
+    }
+
+    .toast-custom {
+        background: rgba(15,22,51,.98) !important;
+        color: #FFFFFF !important;
+    }
+
+    .toast-message strong,
+    .toast-message div {
+        color: #FFFFFF !important;
+    }
+    /* Modal üstte kalsın, form tıklanabilir olsun */
+.modal {
+    z-index: 20000 !important;
+}
+
+.modal-backdrop {
+    z-index: 19990 !important;
+}
+
+.modal-dialog {
+    z-index: 20001 !important;
+    position: relative;
+}
+
+.modal-content {
+    pointer-events: auto !important;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+    /* ===== RAKİP DÜZENLE CUSTOM POPUP - BOOTSTRAP BAĞIMSIZ ===== */
+    .ra-modal-overlay {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 999999 !important;
+        display: none !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 24px !important;
+        background: rgba(0, 0, 0, .72) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+    }
+
+    .ra-modal-overlay.show {
+        display: flex !important;
+    }
+
+    .ra-modal-card {
+        width: min(560px, 100%) !important;
+        max-height: calc(100vh - 48px) !important;
+        overflow-y: auto !important;
+        background: rgba(15,22,51,.99) !important;
+        border: 1px solid rgba(139,132,255,.34) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 32px 90px rgba(0,0,0,.74), 0 0 0 1px rgba(255,255,255,.04) !important;
+        color: #FFFFFF !important;
+        transform: translateY(8px) scale(.98);
+        opacity: 0;
+        transition: .18s ease;
+    }
+
+    .ra-modal-overlay.show .ra-modal-card {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    .ra-modal-header,
+    .ra-modal-footer {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        padding: 16px 18px !important;
+        background: rgba(10,16,40,.88) !important;
+        border-color: rgba(139,132,255,.20) !important;
+    }
+
+    .ra-modal-header {
+        border-bottom: 1px solid rgba(139,132,255,.20) !important;
+    }
+
+    .ra-modal-footer {
+        border-top: 1px solid rgba(139,132,255,.20) !important;
+    }
+
+    .ra-modal-header h5 {
+        margin: 0 !important;
+        color: #FFFFFF !important;
+        font-weight: 900 !important;
+        font-size: 1rem !important;
+    }
+
+    .ra-modal-header h5 i {
+        color: var(--warning) !important;
+    }
+
+    .ra-modal-close {
+        width: 36px !important;
+        height: 36px !important;
+        border: 1px solid rgba(255,255,255,.12) !important;
+        border-radius: 999px !important;
+        background: rgba(255,255,255,.06) !important;
+        color: #FFFFFF !important;
+        font-size: 24px !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+        transition: .18s ease !important;
+    }
+
+    .ra-modal-close:hover {
+        background: rgba(239,68,68,.20) !important;
+        border-color: rgba(239,68,68,.34) !important;
+    }
+
+    .ra-modal-body {
+        padding: 18px !important;
+    }
+
+    .ra-modal-body input,
+    .ra-modal-body textarea,
+    .ra-modal-body select {
+        color: #FFFFFF !important;
+        background: rgba(5,8,22,.94) !important;
+        border-color: rgba(139,132,255,.38) !important;
+    }
+
+    .ra-modal-body select option {
+        background: #0A1028 !important;
+        color: #FFFFFF !important;
+    }
+
+    .ra-modal-footer .btn-outline-custom {
+        background: rgba(255,255,255,.06) !important;
+        border: 1px solid rgba(139,132,255,.38) !important;
+        color: #E8ECFF !important;
+        border-radius: 999px !important;
+        padding: .58rem 1.25rem !important;
+        font-weight: 850 !important;
+        cursor: pointer !important;
+    }
+
+    .ra-modal-footer .btn-outline-custom:hover {
+        background: rgba(108,99,255,.18) !important;
+        color: #FFFFFF !important;
+    }
+
+    .ra-modal-save {
+        width: auto !important;
+        margin: 0 !important;
+        padding: .58rem 1.45rem !important;
+        cursor: pointer !important;
+    }
+
+    body.ra-modal-open {
+        overflow: hidden !important;
+    }
+
+    @media (max-width: 576px) {
+        .ra-modal-overlay {
+            padding: 14px !important;
+            align-items: flex-start !important;
+            padding-top: 82px !important;
+        }
+        .ra-modal-card {
+            max-height: calc(100vh - 96px) !important;
+        }
+    }
+
+.competitor-agency-filter{display:flex;align-items:center;gap:14px;margin:0 0 22px;padding:16px 18px;border:1px solid rgba(139,132,255,.28);border-radius:20px;background:rgba(15,20,41,.86)}.competitor-agency-filter label{font-weight:900;color:#fff;white-space:nowrap}.competitor-agency-filter select{margin-left:auto;width:min(440px,100%);background:rgba(255,255,255,.08);border:1px solid rgba(139,132,255,.35);color:#fff;border-radius:14px;padding:11px 13px}.competitor-agency-filter option{color:#111}@media(max-width:650px){.competitor-agency-filter{align-items:stretch;flex-direction:column}.competitor-agency-filter select{margin-left:0;width:100%}}
+</style>
+{% endblock %}
+{% block content %}
+<div id="toastContainer" class="toast-container"></div>
+
+<div class="competitor-container">
+    <div class="page-header">
+        <div class="header-content">
+            <span class="page-kicker"><i class="fas fa-crosshairs"></i> Octo Rakip Zekası</span>
+            <h1>Rakiplerini tek merkezde izle, reklam hamlelerini daha erken fark et.</h1>
+            <p>Rakip hesaplarını platform bazlı ekleyin; Octo, reklam hareketlerini, içerik yönünü ve fırsat alanlarını daha düzenli takip edebilmeniz için verileri tek ekranda toplar.</p>
+        </div>
+        <div class="octo-hero-visual">
+            <img src="{% static 'images/octo-commander.webp' %}" alt="Octo Rakip Analiz" onerror="this.src='{% static 'images/octo-one.webp' %}'">
+        </div>
+    </div>
+    {% if agency_scope.is_agency %}
+    <form class="competitor-agency-filter" method="get" action="{{ request.path }}">
+        <label for="competitorAgencyClient"><i class="fas fa-building-user me-2"></i>Ajans Firması</label>
+        <select id="competitorAgencyClient" name="agency_client" onchange="this.form.submit()">
+            <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar · rakip eklemek için firma seçin</option>
+            {% for agency_client in agency_scope.clients %}<option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>{% endfor %}
+        </select>
+    </form>
+    {% endif %}
+    
+    <div class="two-columns">
+        <div class="col-form">
+            <div class="card-glass">
+                
+                <div class="card-body">
+                    <div class="form-octo-note">
+                        <img src="{% static 'images/octo-one.webp' %}" alt="Octo AI">
+                        <div>
+                            <strong>Octo rakipleri platformlara göre düzenler.</strong>
+                            <span>Instagram, Facebook, TikTok, LinkedIn, X, Google Ads veya diğer kanallardaki rakiplerinizi segmentleyerek izleyin.</span>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{% url 'rakip_ekle' %}" id="addCompetitorForm">
+                        {% csrf_token %}
+                        {% if agency_scope.is_agency %}<input type="hidden" name="agency_client" value="{% if agency_scope.selected_client %}{{ agency_scope.selected_client.id }}{% endif %}">{% endif %}
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-globe"></i> PLATFORM</label>
+                            <select name="platform" class="form-select" required>
+                                <option value="">Seçiniz</option>
+                                {% for p in platforms %}
+                                <option value="{{ p.id }}">{{ p.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-at"></i> HESAP ADI / ID</label>
+                            <input type="text" name="platform_identifier" class="form-control" 
+                                   placeholder="Instagram kullanıcı adı, Facebook sayfa ID, marka hesabı" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-building"></i> RAKİP ADI</label>
+                            <input type="text" name="name" class="form-control" 
+                                   placeholder="Boş bırakılırsa hesap adı kullanılır">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-link"></i> WEB SİTESİ</label>
+                            <input type="url" name="website" class="form-control" placeholder="https://">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-tag"></i> KATEGORİ</label>
+                                    <select name="category" class="form-select">
+                                        <option value="direct">🎯 Doğrudan Rakip</option>
+                                        <option value="indirect">🔄 Dolaylı Rakip</option>
+                                        <option value="potential">🚀 Potansiyel Rakip</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="checkbox-wrapper" style="margin-top: 1.9rem;">
+                                    <input type="checkbox" name="is_active" id="isActive" checked>
+                                    <span>Aktif izle</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-align-left"></i> AÇIKLAMA</label>
+                            <textarea name="description" class="form-control" 
+                                      placeholder="Rakip hakkında notlar, kampanya odağı veya takip nedeni..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary-custom">
+                            <i class="fas fa-save"></i> Rakibi Kaydet
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-list">
+            <div class="card-glass">
+                <div class="card-header">
+                    <h2><i class="fas fa-list"></i> Mevcut Rakipler</h2>
+                    <p class="card-subtitle">Rakipler platformlara göre gruplanır. Her grubu açarak kayıtları düzenleyebilir veya silebilirsiniz.</p>
+                </div>
+                <div class="card-body" style="padding: 1rem;">
+                    <div id="competitorsListContainer">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Rakipler yükleniyor...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Güncelleme Popup -->
+<div id="updateModalOverlay" class="ra-modal-overlay" aria-hidden="true">
+    <div class="ra-modal-card" role="dialog" aria-modal="true" aria-labelledby="updateModalTitle">
+        <div class="ra-modal-header">
+            <h5 id="updateModalTitle">
+                <i class="fas fa-edit me-2"></i> Rakip Düzenle
+            </h5>
+            <button type="button" class="ra-modal-close" onclick="closeUpdateModal()" aria-label="Kapat">×</button>
+        </div>
+
+        <div class="ra-modal-body">
+            <form id="updateCompetitorForm">
+                <input type="hidden" id="update_id">
+
+                <div class="form-group">
+                    <label class="form-label">Platform</label>
+                    <select id="update_platform" class="form-select">
+                        {% for p in platforms %}
+                        <option value="{{ p.id }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hesap Adı / ID</label>
+                    <input type="text" id="update_platform_identifier" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Rakip Adı</label>
+                    <input type="text" id="update_name" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Web Sitesi</label>
+                    <input type="url" id="update_website" class="form-control">
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label class="form-label">Kategori</label>
+                            <select id="update_category" class="form-select">
+                                <option value="direct">Doğrudan Rakip</option>
+                                <option value="indirect">Dolaylı Rakip</option>
+                                <option value="potential">Potansiyel Rakip</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="checkbox-wrapper" style="margin-top: 1.75rem;">
+                            <input type="checkbox" id="update_is_active">
+                            <span>Aktif</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Açıklama</label>
+                    <textarea id="update_description" class="form-control" rows="3"></textarea>
+                </div>
+            </form>
+        </div>
+
+        <div class="ra-modal-footer">
+            <button type="button" class="btn-outline-custom" onclick="closeUpdateModal()">İptal</button>
+            <button type="button" class="btn-primary-custom ra-modal-save" onclick="updateCompetitor()">
+                <i class="fas fa-save"></i> Güncelle
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentModal = null;
+    const csrftoken = getCookie('csrftoken');
+    
+    // Toast mesajı gösterme
+    function showToast(message, type = 'success', title = '') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        
+        const titles = {
+            'success': '✅ Başarılı',
+            'error': '❌ Hata',
+            'warning': '⚠️ Uyarı'
+        };
+        
+        const icons = {
+            'success': 'fa-check-circle',
+            'error': 'fa-exclamation-circle',
+            'warning': 'fa-exclamation-triangle'
+        };
+        
+        const toast = document.createElement('div');
+        toast.className = `toast-custom toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <div class="toast-icon">
+                    <i class="fas ${icons[type]}"></i>
+                </div>
+                <div class="toast-message">
+                    <strong>${titles[type]} ${title ? `- ${title}` : ''}</strong>
+                    <div>${message}</div>
+                </div>
+            </div>
+            <div class="toast-progress"></div>
+        `;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+    
+    // URL'den mesaj parametresini kontrol et
+    function checkUrlForMessage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get('message');
+        const error = urlParams.get('error');
+        
+        if (message) {
+            showToast(decodeURIComponent(message), 'success', 'Rakip eklendi');
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+        if (error) {
+            showToast(decodeURIComponent(error), 'error', 'Hata');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+    
+    async function loadCompetitors() {
+        const container = document.getElementById('competitorsListContainer');
+        container.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Rakipler yükleniyor...</p></div>';
+        
+        try {
+            const resp = await fetch('/api/rakipler/');
+            const data = await resp.json();
+            
+            if (!data.success || !data.rakipler.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-building"></i>
+                        <p>Henüz rakip eklenmemiş</p>
+                    </div>`;
+                return;
+            }
+            
+            const grouped = {};
+            data.rakipler.forEach(comp => {
+                let platformCode = comp.platform_code;
+                if (!platformCode) platformCode = 'other';
+                
+                if (!grouped[platformCode]) {
+                    grouped[platformCode] = {
+                        name: comp.platform_name || getPlatformName(platformCode),
+                        code: platformCode,
+                        competitors: []
+                    };
+                }
+                grouped[platformCode].competitors.push(comp);
+            });
+            
+            const sortedGroups = Object.entries(grouped).sort((a, b) => {
+                const order = ['instagram', 'facebook', 'youtube', 'tiktok', 'linkedin', 'twitter', 'google_ads', 'other'];
+                return order.indexOf(a[0]) - order.indexOf(b[0]);
+            });
+            
+            let html = '';
+            for (const [code, group] of sortedGroups) {
+                const icon = getPlatformIcon(code);
+                const totalAds = group.competitors.reduce((sum, comp) => sum + Number(comp.total_ads || 0), 0);
+                html += `
+                    <div class="platform-group" data-platform="${code}">
+                        <div class="platform-header" onclick="togglePlatform(this)">
+                            <div class="platform-header-left">
+                                <i class="${icon}"></i>
+                                <h3>${escapeHtml(group.name)}</h3>
+                                <span class="platform-counts">
+                                    <span class="platform-badge">${group.competitors.length}<span class="count-label">rakip</span></span>
+                                    <span class="platform-badge ads-count">${totalAds}<span class="count-label">reklam</span></span>
+                                </span>
+                            </div>
+                            <i class="fas fa-chevron-down platform-chevron"></i>
+                        </div>
+                        <div class="competitors-table-container">
+                            <table class="competitors-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hesap Adı</th>
+                                        <th>Rakip Adı</th>
+                                        <th>Reklam</th>
+                                        <th>Kategori</th>
+                                        <th>Durum</th>
+                                        <th style="width: 80px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                group.competitors.forEach(comp => {
+                    const statusClass = comp.is_active ? 'badge-active' : 'badge-inactive';
+                    const statusText = comp.is_active ? 'Aktif' : 'Pasif';
+                    const categoryClass = `badge-${comp.category === 'direct' ? 'direct' : (comp.category === 'indirect' ? 'indirect' : 'potential')}`;
+                    const categoryText = comp.category === 'direct' ? 'Doğrudan' : (comp.category === 'indirect' ? 'Dolaylı' : 'Potansiyel');
+                    
+                    html += `
+                        <tr>
+                            <td><strong>${escapeHtml(comp.platform_identifier || '-')}</strong></td>
+                            <td>${escapeHtml(comp.name || '-')}</td>
+                            <td><span class="badge-status ads-pill">${Number(comp.total_ads || 0)}</span></td>
+                            <td><span class="badge-status ${categoryClass}">${categoryText}</span></td>
+                            <td><span class="badge-status ${statusClass}">${statusText}</span></td>
+                            <td class="action-buttons">
+                                <button class="btn-icon-sm btn-edit-sm" onclick="openUpdateModal(${comp.id})" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon-sm btn-delete-sm" onclick="deleteCompetitor(${comp.id})" title="Sil">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += `</tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        } catch(e) {
+            console.error('Rakip listesi hatası:', e);
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Hata oluştu</p></div>';
+        }
+    }
+    
+    function togglePlatform(headerElement) {
+        const group = headerElement.closest('.platform-group');
+        if (group) {
+            group.classList.toggle('open');
+        }
+    }
+    
+    function getPlatformName(code) {
+        const names = {
+            'instagram': 'Instagram',
+            'facebook': 'Facebook',
+            'youtube': 'YouTube',
+            'tiktok': 'TikTok',
+            'linkedin': 'LinkedIn',
+            'twitter': 'X (Twitter)',
+            'google_ads': 'Google Ads',
+            'other': 'Diğer Platformlar'
+        };
+        return names[code] || code;
+    }
+    
+
+    function showUpdateModal() {
+        const overlay = document.getElementById('updateModalOverlay');
+        if (!overlay) return;
+
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('ra-modal-open');
+
+        setTimeout(() => {
+            const firstInput = document.getElementById('update_platform_identifier');
+            if (firstInput) firstInput.focus();
+        }, 80);
+    }
+
+    function closeUpdateModal() {
+        const overlay = document.getElementById('updateModalOverlay');
+        if (!overlay) return;
+
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('ra-modal-open');
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeUpdateModal();
+        }
+    });
+
+    document.addEventListener('click', function(event) {
+        const overlay = document.getElementById('updateModalOverlay');
+        if (overlay && event.target === overlay) {
+            closeUpdateModal();
+        }
+    });
+
+
+    async function openUpdateModal(competitorId) {
+        try {
+            const resp = await fetch(`/api/rakipler/${competitorId}/detay/`);
+            const data = await resp.json();
+            if (data.success && data.competitor) {
+                const comp = data.competitor;
+                document.getElementById('update_id').value = comp.id;
+                document.getElementById('update_platform').value = comp.platform_id || '';
+                document.getElementById('update_platform_identifier').value = comp.platform_identifier || '';
+                document.getElementById('update_name').value = comp.name || '';
+                document.getElementById('update_website').value = comp.website || '';
+                document.getElementById('update_category').value = comp.category || 'direct';
+                document.getElementById('update_description').value = comp.description || '';
+                document.getElementById('update_is_active').checked = comp.is_active;
+                
+               showUpdateModal();
+}
+        } catch(e) {
+            showToast('Rakip bilgileri yüklenirken hata oluştu', 'error');
+        }
+    }
+    
+    async function updateCompetitor() {
+        const competitorId = document.getElementById('update_id').value;
+        const data = {
+            platform_id: document.getElementById('update_platform').value,
+            platform_identifier: document.getElementById('update_platform_identifier').value,
+            name: document.getElementById('update_name').value,
+            website: document.getElementById('update_website').value,
+            category: document.getElementById('update_category').value,
+            description: document.getElementById('update_description').value,
+            is_active: document.getElementById('update_is_active').checked
+        };
+        
+        try {
+            const resp = await fetch(`/api/rakip-guncelle/${competitorId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(data)
+            });
+            const result = await resp.json();
+            if (result.success) {
+                closeUpdateModal();
+                loadCompetitors();
+                showToast('Rakip başarıyla güncellendi', 'success');
+            } else {
+                showToast(result.error || 'Güncelleme hatası', 'error');
+            }
+        } catch(e) {
+            showToast('Rakip güncellenirken hata oluştu', 'error');
+        }
+    }
+    
+    async function deleteCompetitor(competitorId) {
+        if (!confirm('Bu rakibi silmek istediğinize emin misiniz?\nRakibe ait tüm reklamlar da silinecektir.')) return;
+        
+        try {
+            const resp = await fetch(`/api/rakip-sil/${competitorId}/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': csrftoken }
+            });
+            const result = await resp.json();
+            if (result.success) {
+                loadCompetitors();
+                showToast('Rakip başarıyla silindi', 'success');
+            } else {
+                showToast(result.error || 'Silme hatası', 'error');
+            }
+        } catch(e) {
+            showToast('Rakip silinirken hata oluştu', 'error');
+        }
+    }
+    
+    function getPlatformIcon(code) {
+        const icons = {
+            'instagram': 'fab fa-instagram',
+            'facebook': 'fab fa-facebook',
+            'google_ads': 'fab fa-google',
+            'youtube': 'fab fa-youtube',
+            'tiktok': 'fab fa-tiktok',
+            'linkedin': 'fab fa-linkedin',
+            'twitter': 'fab fa-twitter',
+            'other': 'fas fa-globe'
+        };
+        return icons[code] || 'fas fa-building';
+    }
+    
+    function getCookie(name) {
+        let v = `; ${document.cookie}`;
+        let parts = v.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCompetitors();
+        checkUrlForMessage();
+    });
+</script>
+{% endblock %}

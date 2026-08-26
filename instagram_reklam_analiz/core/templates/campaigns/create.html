@@ -1,0 +1,731 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Yeni Kampanya Oluştur - Instagram Reklam Analiz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/campaign_create.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="campaign-create-container">
+    <div class="container">
+        <div class="campaign-header">
+            <h1><i class="fas fa-bullhorn"></i> Yeni Kampanya Oluştur</h1>
+            <p>Instagram reklam kampanyanızı oluşturun, AI destekli önerilerle optimize edin</p>
+        </div>
+
+        <form method="POST" id="campaignForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- TEMEL BİLGİLER KARTI -->
+            <div class="campaign-card">
+                <div class="campaign-card-header">
+                    <h3><i class="fas fa-info-circle"></i> Temel Bilgiler</h3>
+                </div>
+                <div class="campaign-card-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> Kampanya Adı <span class="required">*</span></label>
+                            <input type="text" name="campaign_name" id="campaign_name" class="form-control" placeholder="Örn: Yaz İndirimi 2024" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-ad"></i> Reklam Türü <span class="required">*</span></label>
+                            <select name="ad_type" id="ad_type" class="form-select" required>
+                                <option value="">Seçiniz...</option>
+                                <option value="image">📸 Görsel Reklam</option>
+                                <option value="video">🎥 Video Reklam</option>
+                                <option value="carousel">🖼️ Carousel Reklam</option>
+                                <option value="story">📱 Hikaye Reklam</option>
+                                <option value="reels">🎬 Reels Reklam</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-instagram"></i> Instagram Hesabı <span class="required">*</span></label>
+                            <select name="instagram_account" id="instagram_account" class="form-select" required>
+                                <option value="">Hesap seçiniz...</option>
+                                {% for account in instagram_accounts %}
+                                <option value="{{ account.id }}">@{{ account.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Başlangıç Tarihi <span class="required">*</span></label>
+                            <input type="date" name="start_date" id="start_date" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Bitiş Tarihi</label>
+                            <input type="date" name="end_date" id="end_date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-coins"></i> Toplam Bütçe (₺) <span class="required">*</span></label>
+                            <input type="number" name="budget" id="budget" class="form-control" placeholder="1000" step="0.01" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MEDYA YÜKLEME KARTI -->
+            <div class="campaign-card">
+                <div class="campaign-card-header">
+                    <h3><i class="fas fa-image"></i> Reklam Medyası <span class="required">*</span></h3>
+                </div>
+                <div class="campaign-card-body">
+                    <!-- Carousel Bilgi Kutusu -->
+                    <div id="carouselInfo" class="carousel-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Carousel Reklam:</strong> Birden fazla görsel seçmek için <kbd>Ctrl</kbd> (Windows) veya <kbd>Cmd</kbd> (Mac) tuşuna basılı tutun. En fazla 10 görsel seçebilirsiniz.
+                    </div>
+                    
+                    <!-- Tekil Medya Alanı (image/video/reels/story için) -->
+                    <div class="form-group" id="singleMediaArea">
+                        <label><i class="fas fa-upload"></i> <span id="mediaLabelText">Medya Yükle</span> <span class="required">*</span></label>
+                        <div class="media-upload-area" id="mediaUploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Dosya sürükleyin veya tıklayın</p>
+                            <small class="text-muted" id="mediaHelpText">Desteklenen formatlar: JPG, PNG, MP4 (Max: 10MB)</small>
+                            <input type="file" name="media_file" id="media_file" accept="image/*,video/*" style="display: none;">
+                        </div>
+                        <div class="media-preview" id="mediaPreview">
+                            <div class="preview-container"></div>
+                            <button type="button" class="remove-media" id="removeMedia">Medyayı Kaldır</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Carousel Medya Alanı (çoklu dosya için) - DÜZELTİLDİ -->
+                    <div class="form-group" id="carouselMediaArea" style="display: none;">
+                        <label><i class="fas fa-images"></i> Carousel Görselleri (En fazla 10 adet) <span class="required">*</span></label>
+                        <div class="media-upload-area" id="carouselUploadArea">
+                            <i class="fas fa-images"></i>
+                            <p>Görselleri sürükleyin veya tıklayın</p>
+                            <small class="text-muted">Desteklenen formatlar: JPG, PNG (Max: 5MB her biri)</small>
+                            <input type="file" name="carousel_files" id="carousel_files" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div id="carouselPreviewGrid" class="carousel-preview-grid"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- HEDEF KİTLE KARTI -->
+            <div class="campaign-card">
+                <div class="campaign-card-header">
+                    <h3><i class="fas fa-users"></i> Hedef Kitle</h3>
+                    <button type="button" class="ai-assist-btn" id="aiTargetingBtn">
+                        <i class="fas fa-robot"></i> AI Hedef Kitle Öner
+                    </button>
+                </div>
+                <div class="campaign-card-body">
+                    <div class="targeting-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Yaş Aralığı</label>
+                            <div class="age-range">
+                                <input type="number" name="age_min" id="age_min" class="form-control" placeholder="18" min="13" max="65">
+                                <span>-</span>
+                                <input type="number" name="age_max" id="age_max" class="form-control" placeholder="65" min="13" max="65">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-venus-mars"></i> Cinsiyet</label>
+                            <div class="gender-group">
+                                <label class="gender-option">
+                                    <input type="radio" name="gender" value="all" checked> Tümü
+                                </label>
+                                <label class="gender-option">
+                                    <input type="radio" name="gender" value="female"> Kadın
+                                </label>
+                                <label class="gender-option">
+                                    <input type="radio" name="gender" value="male"> Erkek
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-language"></i> Dil</label>
+                            <select name="language" id="language" class="form-select">
+                                <option value="">Tüm Diller</option>
+                                <option value="tr">Türkçe</option>
+                                <option value="en">İngilizce</option>
+                                <option value="de">Almanca</option>
+                                <option value="fr">Fransızca</option>
+                                <option value="ar">Arapça</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Bölge Seçimi -->
+                    <div class="form-group">
+                        <label><i class="fas fa-globe"></i> Hedef Bölgeler</label>
+                        <div class="region-tabs">
+                            <button type="button" class="region-tab active" data-region="turkiye">🇹🇷 Türkiye</button>
+                            <button type="button" class="region-tab" data-region="europe">🇪🇺 Avrupa</button>
+                            <button type="button" class="region-tab" data-region="world">🌍 Dünya</button>
+                        </div>
+                        
+                        <div id="region-turkiye" class="region-grid active-region">
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="all_tr"> Tüm Türkiye</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="istanbul"> İstanbul</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="ankara"> Ankara</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="izmir"> İzmir</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="bursa"> Bursa</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="antalya"> Antalya</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="adana"> Adana</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="kocaeli"> Kocaeli</label>
+                        </div>
+                        
+                        <div id="region-europe" class="region-grid" style="display: none;">
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="all_europe"> Tüm Avrupa</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="germany"> Almanya</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="uk"> İngiltere</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="france"> Fransa</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="italy"> İtalya</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="spain"> İspanya</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="netherlands"> Hollanda</label>
+                        </div>
+                        
+                        <div id="region-world" class="region-grid" style="display: none;">
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="all_world"> Tüm Dünya</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="usa"> ABD</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="canada"> Kanada</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="australia"> Avustralya</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="uae"> BAE</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="japan"> Japonya</label>
+                            <label class="region-checkbox"><input type="checkbox" name="regions" value="china"> Çin</label>
+                        </div>
+                    </div>
+                    
+                    <!-- İlgi Alanları -->
+                    <div class="form-group">
+                        <label><i class="fas fa-heart"></i> İlgi Alanları</label>
+                        <select name="interests" id="interests" class="form-select" multiple size="4">
+                            <option value="moda">👗 Moda & Giyim</option>
+                            <option value="teknoloji">💻 Teknoloji & Elektronik</option>
+                            <option value="spor">⚽ Spor & Fitness</option>
+                            <option value="yemek">🍝 Yemek & Mutfak</option>
+                            <option value="seyahat">✈️ Seyahat & Tatil</option>
+                            <option value="muzik">🎵 Müzik & Eğlence</option>
+                            <option value="film">🎬 Film & Dizi</option>
+                            <option value="kitap">📚 Kitap & Edebiyat</option>
+                            <option value="oyun">🎮 Oyun & E-Spor</option>
+                            <option value="alisveris">🛍️ Alışveriş</option>
+                        </select>
+                        <small class="text-muted">Birden fazla seçim için Ctrl tuşuna basın</small>
+                    </div>
+                    
+                    <div id="aiTargetingSuggestions" class="ai-suggestions">
+                        <h4><i class="fas fa-robot"></i> AI Hedef Kitle Önerileri</h4>
+                        <ul id="aiTargetingList"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- İÇERİK KARTI -->
+            <div class="campaign-card">
+                <div class="campaign-card-header">
+                    <h3><i class="fas fa-edit"></i> İçerik & Kreatif</h3>
+                    <button type="button" class="ai-assist-btn" id="aiContentBtn">
+                        <i class="fas fa-robot"></i> AI İçerik Öner
+                    </button>
+                </div>
+                <div class="campaign-card-body">
+                    <div class="form-group">
+                        <label><i class="fas fa-heading"></i> Reklam Başlığı</label>
+                        <input type="text" name="ad_title" id="ad_title" class="form-control" placeholder="Örn: Yaz indiriminde kaçırma!">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-align-left"></i> Reklam Metni</label>
+                        <textarea name="ad_description" id="ad_description" class="form-control" rows="3" placeholder="Reklam metnini yazın..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-hashtag"></i> Hashtag'ler</label>
+                        <input type="text" name="hashtags" id="hashtags" class="form-control" placeholder="#reklam #instagram #kampanya">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-link"></i> Hedef URL</label>
+                        <input type="url" name="target_url" id="target_url" class="form-control" placeholder="https://www.ornek.com">
+                    </div>
+                    
+                    <div id="aiContentSuggestions" class="ai-suggestions">
+                        <h4><i class="fas fa-robot"></i> AI İçerik Önerileri</h4>
+                        <ul id="aiContentList"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- BUTONLAR -->
+            <div class="form-buttons">
+                <a href="{% url 'campaign_list' %}" class="btn-secondary-custom">
+                    <i class="fas fa-times"></i> İptal
+                </a>
+                <button type="submit" class="btn-primary-custom" id="submitBtn">
+                    <i class="fas fa-save"></i> Kampanyayı Oluştur
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // REKLAM TÜRÜNE GÖRE MEDYA ALANINI AYARLA - DÜZELTİLDİ
+    // ============================================
+    const adTypeSelect = document.getElementById('ad_type');
+    const mediaLabelText = document.getElementById('mediaLabelText');
+    const mediaHelpText = document.getElementById('mediaHelpText');
+    const mediaFileInput = document.getElementById('media_file');
+    const singleMediaArea = document.getElementById('singleMediaArea');
+    const carouselMediaArea = document.getElementById('carouselMediaArea');
+    const carouselInfo = document.getElementById('carouselInfo');
+    const carouselFilesInput = document.getElementById('carousel_files');
+    const mediaUploadArea = document.getElementById('mediaUploadArea');
+    const carouselUploadArea = document.getElementById('carouselUploadArea');
+    
+    let selectedCarouselFiles = [];
+    
+    function updateMediaFields() {
+        const adType = adTypeSelect.value;
+        
+        if (adType === 'carousel') {
+            // Carousel modu - çoklu dosya göster
+            singleMediaArea.style.display = 'none';
+            carouselMediaArea.style.display = 'block';
+            carouselInfo.style.display = 'block';
+            mediaFileInput.removeAttribute('required');
+            carouselFilesInput.setAttribute('required', 'required');
+            
+            mediaLabelText.innerHTML = 'Carousel Görselleri';
+            mediaHelpText.innerHTML = 'Birden fazla görsel seçmek için Ctrl/Cmd tuşuna basın';
+        } else {
+            // Tekil medya modu
+            singleMediaArea.style.display = 'block';
+            carouselMediaArea.style.display = 'none';
+            carouselInfo.style.display = 'none';
+            carouselFilesInput.removeAttribute('required');
+            
+            if (adType === 'reels') {
+                mediaLabelText.innerHTML = 'Reels Videosu Yükle <span class="required">*</span>';
+                mediaHelpText.innerHTML = 'Desteklenen formatlar: MP4 (Max: 100MB, Süre: 15-90 saniye)';
+                mediaFileInput.accept = 'video/*';
+                mediaFileInput.setAttribute('required', 'required');
+            } else if (adType === 'video') {
+                mediaLabelText.innerHTML = 'Video Yükle <span class="required">*</span>';
+                mediaHelpText.innerHTML = 'Desteklenen formatlar: MP4 (Max: 100MB)';
+                mediaFileInput.accept = 'video/*';
+                mediaFileInput.setAttribute('required', 'required');
+            } else if (adType === 'image') {
+                mediaLabelText.innerHTML = 'Görsel Yükle <span class="required">*</span>';
+                mediaHelpText.innerHTML = 'Desteklenen formatlar: JPG, PNG (Max: 10MB)';
+                mediaFileInput.accept = 'image/*';
+                mediaFileInput.setAttribute('required', 'required');
+            } else {
+                mediaLabelText.innerHTML = 'Medya Yükle';
+                mediaHelpText.innerHTML = 'Desteklenen formatlar: JPG, PNG, MP4 (Max: 10MB)';
+                mediaFileInput.accept = 'image/*,video/*';
+                mediaFileInput.removeAttribute('required');
+            }
+        }
+    }
+    
+    adTypeSelect.addEventListener('change', updateMediaFields);
+    updateMediaFields();
+    
+    // ============================================
+    // CAROUSEL ÇOKLU DOSYA SEÇİMİ VE ÖNİZLEME - DÜZELTİLDİ
+    // ============================================
+    if (carouselUploadArea) {
+        carouselUploadArea.addEventListener('click', () => carouselFilesInput.click());
+        
+        carouselUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            carouselUploadArea.style.borderColor = '#667eea';
+            carouselUploadArea.style.background = '#f8f9ff';
+        });
+        
+        carouselUploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            carouselUploadArea.style.borderColor = '#e5e7eb';
+            carouselUploadArea.style.background = '#f9fafb';
+        });
+        
+        carouselUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            carouselUploadArea.style.borderColor = '#e5e7eb';
+            carouselUploadArea.style.background = '#f9fafb';
+            
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            if (files.length > 0) {
+                addCarouselFiles(files);
+            }
+        });
+    }
+    
+    carouselFilesInput.addEventListener('change', function() {
+        if (this.files && this.files.length > 0) {
+            addCarouselFiles(Array.from(this.files));
+        }
+    });
+    
+    function addCarouselFiles(newFiles) {
+        const totalFiles = selectedCarouselFiles.length + newFiles.length;
+        
+        if (totalFiles > 10) {
+            alert(`En fazla 10 görsel seçebilirsiniz! (Şu an: ${selectedCarouselFiles.length}, Eklenmek istenen: ${newFiles.length})`);
+            return;
+        }
+        
+        newFiles.forEach(file => {
+            if (file.type.startsWith('image/')) {
+                selectedCarouselFiles.push(file);
+            }
+        });
+        
+        updateCarouselPreview();
+        
+        // DataTransfer ile input'a dosyaları ata
+        const dataTransfer = new DataTransfer();
+        selectedCarouselFiles.forEach(file => dataTransfer.items.add(file));
+        carouselFilesInput.files = dataTransfer.files;
+    }
+    
+    function updateCarouselPreview() {
+        const previewGrid = document.getElementById('carouselPreviewGrid');
+        if (!previewGrid) return;
+        
+        previewGrid.innerHTML = '';
+        
+        selectedCarouselFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const item = document.createElement('div');
+                item.className = 'carousel-preview-item';
+                item.innerHTML = `
+                    <img src="${e.target.result}" alt="Görsel ${index + 1}">
+                    <span class="order-badge">${index + 1}</span>
+                    <button type="button" class="remove-carousel-item" data-index="${index}">✖</button>
+                `;
+                previewGrid.appendChild(item);
+                
+                item.querySelector('.remove-carousel-item').addEventListener('click', function() {
+                    removeCarouselItem(parseInt(this.getAttribute('data-index')));
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    function removeCarouselItem(index) {
+        selectedCarouselFiles.splice(index, 1);
+        
+        // DataTransfer ile input'a dosyaları ata
+        const dataTransfer = new DataTransfer();
+        selectedCarouselFiles.forEach(file => dataTransfer.items.add(file));
+        carouselFilesInput.files = dataTransfer.files;
+        
+        updateCarouselPreview();
+    }
+    
+    // ============================================
+    // TEKİL MEDYA YÜKLEME VE ÖNİZLEME
+    // ============================================
+    if (mediaUploadArea) {
+        mediaUploadArea.addEventListener('click', () => mediaFileInput.click());
+        
+        mediaUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            mediaUploadArea.style.borderColor = '#667eea';
+            mediaUploadArea.style.background = '#f8f9ff';
+        });
+        
+        mediaUploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            mediaUploadArea.style.borderColor = '#e5e7eb';
+            mediaUploadArea.style.background = '#f9fafb';
+        });
+        
+        mediaUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            mediaUploadArea.style.borderColor = '#e5e7eb';
+            mediaUploadArea.style.background = '#f9fafb';
+            
+            const file = e.dataTransfer.files[0];
+            if (file && (file.type.startsWith('image/') || file.type.startsWith('video/'))) {
+                mediaFileInput.files = e.dataTransfer.files;
+                previewMedia(file);
+            }
+        });
+    }
+    
+    mediaFileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            previewMedia(this.files[0]);
+        }
+    });
+    
+    function previewMedia(file) {
+        const mediaPreview = document.getElementById('mediaPreview');
+        const previewContainer = mediaPreview.querySelector('.preview-container');
+        previewContainer.innerHTML = '';
+        
+        if (file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            previewContainer.appendChild(img);
+        } else if (file.type.startsWith('video/')) {
+            const video = document.createElement('video');
+            video.src = URL.createObjectURL(file);
+            video.controls = true;
+            previewContainer.appendChild(video);
+        }
+        
+        mediaPreview.style.display = 'block';
+        if (mediaUploadArea) mediaUploadArea.style.display = 'none';
+    }
+    
+    const removeMediaBtn = document.getElementById('removeMedia');
+    if (removeMediaBtn) {
+        removeMediaBtn.addEventListener('click', () => {
+            mediaFileInput.value = '';
+            const mediaPreview = document.getElementById('mediaPreview');
+            const previewContainer = mediaPreview.querySelector('.preview-container');
+            previewContainer.innerHTML = '';
+            mediaPreview.style.display = 'none';
+            if (mediaUploadArea) mediaUploadArea.style.display = 'block';
+        });
+    }
+    
+    // ============================================
+    // BÖLGE SEKMELERİ
+    // ============================================
+    const regionTabs = document.querySelectorAll('.region-tab');
+    const regions = {
+        turkiye: document.getElementById('region-turkiye'),
+        europe: document.getElementById('region-europe'),
+        world: document.getElementById('region-world')
+    };
+    
+    regionTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            regionTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            Object.keys(regions).forEach(region => {
+                if (regions[region]) regions[region].style.display = 'none';
+            });
+            
+            const selected = tab.getAttribute('data-region');
+            if (regions[selected]) regions[selected].style.display = 'grid';
+        });
+    });
+    
+    // ============================================
+    // CİNSİYET SEÇİMİ
+    // ============================================
+    document.querySelectorAll('.gender-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('.gender-option').forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+    
+    // ============================================
+    // TÜM BÖLGELER SEÇİLDİĞİNDE
+    // ============================================
+    document.querySelectorAll('input[name="regions"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.value === 'all_tr' || this.value === 'all_europe' || this.value === 'all_world') {
+                if (this.checked) {
+                    const currentRegion = this.closest('.region-grid');
+                    currentRegion.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                        if (cb !== this) cb.checked = false;
+                    });
+                }
+            }
+        });
+    });
+    
+    // ============================================
+    // AI HEDEF KİTLE ÖNERİSİ
+    // ============================================
+    document.getElementById('aiTargetingBtn')?.addEventListener('click', async function() {
+        const suggestionsDiv = document.getElementById('aiTargetingSuggestions');
+        const suggestionsList = document.getElementById('aiTargetingList');
+        const submitBtn = this;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> AI Analiz Ediyor...';
+        suggestionsDiv.style.display = 'block';
+        suggestionsList.innerHTML = '<li><span class="spinner"></span> Yapay zeka hedef kitlenizi analiz ediyor...</li>';
+        
+        setTimeout(() => {
+            const suggestions = [
+                "🎯 25-34 yaş aralığı sizin ürününüz için en yüksek dönüşüm oranına sahip",
+                "📍 İstanbul, Ankara, İzmir ve Almanya en yoğun hedef kitle bölgeleriniz",
+                "👩 Kadın kullanıcılar bu ürün kategorisinde %65 daha fazla etkileşim gösteriyor",
+                "💡 Moda, teknoloji ve seyahat ilgi alanları hedef kitlenizle en uyumlu",
+                "⏰ Akşam 19:00-22:00 saatleri arasında yayın yapmanız önerilir"
+            ];
+            
+            suggestionsList.innerHTML = suggestions.map(s => `<li>${s}</li>`).join('');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-robot"></i> AI Hedef Kitle Öner';
+            
+            if (!document.getElementById('age_min').value) {
+                document.getElementById('age_min').value = 25;
+                document.getElementById('age_max').value = 34;
+            }
+        }, 1500);
+    });
+    
+    // ============================================
+    // AI İÇERİK ÖNERİSİ
+    // ============================================
+    document.getElementById('aiContentBtn')?.addEventListener('click', async function() {
+        const suggestionsDiv = document.getElementById('aiContentSuggestions');
+        const suggestionsList = document.getElementById('aiContentList');
+        const submitBtn = this;
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> AI İçerik Üretiyor...';
+        suggestionsDiv.style.display = 'block';
+        suggestionsList.innerHTML = '<li><span class="spinner"></span> Yapay zeka içerik önerileri oluşturuyor...</li>';
+        
+        const campaignName = document.getElementById('campaign_name')?.value || 'kampanya';
+        
+        setTimeout(() => {
+            const suggestions = [
+                "📸 Görsel önerisi: Canlı renkler ve hareketli öğeler kullanın",
+                "✍️ Başlık önerisi: '🔥 Fırsatları Kaçırma! Özel İndirim Seni Bekliyor'",
+                "📝 Metin önerisi: 'Sınırlı sayıda stokla kaçırma! Hemen alışverişe başla 🛍️'",
+                "#️⃣ Hashtag önerileri: #kampanya #indirim #fırsat #özelteklif",
+                "🎯 CTA önerisi: 'Hemen Al', 'Detayları Gör', 'Şimdi Keşfet'"
+            ];
+            
+            suggestionsList.innerHTML = suggestions.map(s => `<li>${s}</li>`).join('');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-robot"></i> AI İçerik Öner';
+            
+            if (!document.getElementById('ad_title').value) {
+                document.getElementById('ad_title').value = '🔥 ' + campaignName.toUpperCase() + ' Fırsatı!';
+            }
+            if (!document.getElementById('ad_description').value) {
+                document.getElementById('ad_description').value = 'Sınırlı sayıda stokla kaçırma! Hemen alışverişe başla ve özel fırsatlardan yararlan. 🛍️✨';
+            }
+            if (!document.getElementById('hashtags').value) {
+                document.getElementById('hashtags').value = '#' + campaignName.toLowerCase().replace(/ /g, '') + ' #indirim #fırsat #özelteklif #kampanya';
+            }
+        }, 1500);
+    });
+    
+    // ============================================
+    // FORM SUBMIT KONTROLÜ - CAROUSEL DÜZELTİLDİ
+    // ============================================
+    document.getElementById('campaignForm')?.addEventListener('submit', function(e) {
+        const adType = adTypeSelect.value;
+        const instagramAccount = document.getElementById('instagram_account').value;
+        const campaignName = document.getElementById('campaign_name').value;
+        const budget = document.getElementById('budget').value;
+        const startDate = document.getElementById('start_date').value;
+        
+        // Instagram hesabı kontrolü
+        if (!instagramAccount) {
+            e.preventDefault();
+            alert('Lütfen bir Instagram hesabı seçin!');
+            return false;
+        }
+        
+        // Kampanya adı kontrolü
+        if (!campaignName) {
+            e.preventDefault();
+            alert('Lütfen kampanya adını girin!');
+            return false;
+        }
+        
+        // Bütçe kontrolü
+        if (!budget) {
+            e.preventDefault();
+            alert('Lütfen bütçe girin!');
+            return false;
+        }
+        
+        // Başlangıç tarihi kontrolü
+        if (!startDate) {
+            e.preventDefault();
+            alert('Lütfen başlangıç tarihi girin!');
+            return false;
+        }
+        
+        // Carousel medya kontrolü
+        if (adType === 'carousel') {
+            if (selectedCarouselFiles.length === 0) {
+                e.preventDefault();
+                alert('Carousel reklamı için en az 1 görsel seçmelisiniz!');
+                return false;
+            }
+            if (selectedCarouselFiles.length > 10) {
+                e.preventDefault();
+                alert('En fazla 10 görsel seçebilirsiniz!');
+                return false;
+            }
+        }
+        
+        // Tekil medya kontrolü
+        if (adType !== 'carousel') {
+            const mediaFile = document.getElementById('media_file').files[0];
+            if (adType === 'reels' && !mediaFile) {
+                e.preventDefault();
+                alert('Reels reklamı için video yüklemelisiniz!');
+                return false;
+            }
+            if (adType === 'video' && !mediaFile) {
+                e.preventDefault();
+                alert('Video reklam için video yüklemelisiniz!');
+                return false;
+            }
+            if (adType === 'image' && !mediaFile) {
+                e.preventDefault();
+                alert('Görsel reklam için resim yüklemelisiniz!');
+                return false;
+            }
+            
+            // Video boyut kontrolü
+            if (mediaFile && (adType === 'reels' || adType === 'video')) {
+                if (mediaFile.size > 100 * 1024 * 1024) {
+                    e.preventDefault();
+                    alert('Video dosyası 100MB\'dan küçük olmalıdır!');
+                    return false;
+                }
+            }
+        }
+        
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> Oluşturuluyor...';
+    });
+    
+    // ============================================
+    // TARİH MİNİMUM AYARI
+    // ============================================
+    const startDateInput = document.getElementById('start_date');
+    if (startDateInput) {
+        startDateInput.min = new Date().toISOString().split('T')[0];
+    }
+    
+    const endDateInput = document.getElementById('end_date');
+    if (endDateInput && startDateInput) {
+        startDateInput.addEventListener('change', function() {
+            if (this.value) {
+                endDateInput.min = this.value;
+            }
+        });
+    }
+</script>
+{% endblock %}

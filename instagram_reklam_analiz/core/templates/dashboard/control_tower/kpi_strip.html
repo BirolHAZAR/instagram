@@ -1,0 +1,62 @@
+<section class="ct-kpi-strip-v2">
+
+    <article class="ct-top-card ct-score-card" data-tip="Octo AI Skoru; gelir, maliyet, ilgi, dönüşüm, kreatif ve uyarı sinyallerini tek sağlık puanında özetler. 100'e yaklaştıkça genel durum daha güçlüdür.">
+      <span class="ct-tip info" data-tip="Octo AI Skoru; gelir, maliyet, ilgi, dönüşüm, kreatif ve uyarı sinyallerini tek sağlık puanında özetler. 100'e yaklaştıkça genel durum daha güçlüdür."><i class="fas fa-circle-info"></i> Bilgi</span>
+      <div class="ct-card-title">OCTO AI SKORU</div>
+      <div class="ct-score-layout">
+        <div class="ct-score-left">
+          <div class="ct-score-number {% if summary.octo_delta > 0 %}good{% elif summary.octo_delta < 0 %}bad{% else %}neutral{% endif %}">
+            {{ summary.octo_score|tr_int }}<span>/100</span>
+          </div>
+          <div class="ct-score-bottom">
+            <span>{% if summary.octo_delta > 0 %}&#9650;{% elif summary.octo_delta < 0 %}&#9660;{% else %}&#8212;{% endif %} {{ summary.octo_delta_abs|tr_decimal }}% &middot; Geçen döneme göre</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="ct-top-card ct-metric-card">
+      <span class="ct-tip good" data-tip="ROAS, reklam harcamasına karşı oluşan dönüşüm değerini gösterir. Yükselmesi bütçenin daha verimli çalıştığı anlamına gelir."><i class="fas fa-circle-info"></i> Bilgi</span>
+      <div class="ct-metric-head">
+        <div class="ct-round-icon {% if summary.roas_delta > 0 %}good{% elif summary.roas_delta < 0 %}bad{% else %}neutral{% endif %}"><i class="fas fa-chart-line"></i></div>
+        <div class="ct-card-title">ROAS</div>
+      </div>
+      <div class="ct-metric-value {% if summary.roas_delta > 0 %}good{% elif summary.roas_delta < 0 %}bad{% else %}neutral{% endif %}">{{ summary.avg_roas|tr_decimal }}</div>
+      <div class="ct-metric-change {% if summary.roas_delta > 0 %}good{% elif summary.roas_delta < 0 %}bad{% else %}neutral{% endif %}">{% if summary.roas_delta > 0 %}&#9650;{% elif summary.roas_delta < 0 %}&#9660;{% else %}&#8212;{% endif %} {{ summary.roas_delta_abs }}%</div>
+      <div class="ct-metric-sub">Geçen döneme göre</div>
+    </article>
+
+    <article class="ct-top-card ct-metric-card">
+      <span class="ct-tip warn" data-tip="CPC, ortalama tıklama maliyetidir. Düşmesi genelde aynı bütçeyle daha fazla ziyaret alınabildiğini gösterir."><i class="fas fa-circle-info"></i> Bilgi</span>
+      <div class="ct-metric-head">
+        <div class="ct-round-icon {% if summary.cpc_delta > 0 %}bad{% elif summary.cpc_delta < 0 %}good{% else %}neutral{% endif %}"><i class="fas fa-hand-pointer"></i></div>
+        <div class="ct-card-title">CPC</div>
+      </div>
+      <div class="ct-metric-value {% if summary.cpc_delta > 0 %}bad{% elif summary.cpc_delta < 0 %}good{% else %}neutral{% endif %}">{{ summary.avg_cpc|tr_decimal }} TL</div>
+      <div class="ct-metric-change {% if summary.cpc_delta > 0 %}bad{% elif summary.cpc_delta < 0 %}good{% else %}neutral{% endif %}">{% if summary.cpc_delta > 0 %}&#9650;{% elif summary.cpc_delta < 0 %}&#9660;{% else %}&#8212;{% endif %} {{ summary.cpc_delta_abs }}%</div>
+      <div class="ct-metric-sub">Geçen döneme göre</div>
+    </article>
+
+    <article class="ct-top-card ct-metric-card">
+      <span class="ct-tip info" data-tip="CTR, reklamı görenlerin ne kadarının tıkladığını gösterir. Kreatif ve hedefleme ilgisini okumak için kullanılır."><i class="fas fa-circle-info"></i> Bilgi</span>
+      <div class="ct-metric-head">
+        <div class="ct-round-icon {% if summary.ctr_delta > 0 %}good{% elif summary.ctr_delta < 0 %}bad{% else %}neutral{% endif %}"><i class="fas fa-bullseye"></i></div>
+        <div class="ct-card-title">CTR</div>
+      </div>
+      <div class="ct-metric-value {% if summary.ctr_delta > 0 %}good{% elif summary.ctr_delta < 0 %}bad{% else %}neutral{% endif %}">{{ summary.avg_ctr|tr_decimal }}%</div>
+      <div class="ct-metric-change {% if summary.ctr_delta > 0 %}good{% elif summary.ctr_delta < 0 %}bad{% else %}neutral{% endif %}">{% if summary.ctr_delta > 0 %}&#9650;{% elif summary.ctr_delta < 0 %}&#9660;{% else %}&#8212;{% endif %} {{ summary.ctr_delta_abs }}%</div>
+      <div class="ct-metric-sub">Geçen döneme göre</div>
+    </article>
+
+    <article class="ct-top-card ct-metric-card">
+      <span class="ct-tip good" data-tip="Dönüşüm oranı, tıklayan kullanıcıların ne kadarının satış, lead veya hedef aksiyona döndüğünü gösterir."><i class="fas fa-circle-info"></i> Bilgi</span>
+      <div class="ct-metric-head">
+        <div class="ct-round-icon {% if summary.conversion_delta > 0 %}good{% elif summary.conversion_delta < 0 %}bad{% else %}neutral{% endif %}"><i class="fas fa-gears"></i></div>
+        <div class="ct-card-title">DÖNÜŞÜM ORANI</div>
+      </div>
+      <div class="ct-metric-value {% if summary.conversion_delta > 0 %}good{% elif summary.conversion_delta < 0 %}bad{% else %}neutral{% endif %}">{{ summary.conversion_rate|tr_decimal }}%</div>
+      <div class="ct-metric-change {% if summary.conversion_delta > 0 %}good{% elif summary.conversion_delta < 0 %}bad{% else %}neutral{% endif %}">{% if summary.conversion_delta > 0 %}&#9650;{% elif summary.conversion_delta < 0 %}&#9660;{% else %}&#8212;{% endif %} {{ summary.conversion_delta_abs }}%</div>
+      <div class="ct-metric-sub">Geçen döneme göre</div>
+    </article>
+
+  </section>

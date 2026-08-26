@@ -1,0 +1,101 @@
+﻿{% extends 'base.html' %}
+{% load static tr_numbers %}
+
+{% block title %}{{ property.property_name|default:property.property_id }} | Google Analytics{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/google_analytics.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="ga-shell">
+  <section class="ga-hero ga-detail-hero">
+    <div>
+      <a class="ga-back" href="{% url 'google_analytics_center' %}"><i class="fas fa-arrow-left"></i> Google Analytics</a>
+      <span class="ga-kicker"><i class="fas fa-chart-pie"></i> GA4 Property</span>
+      <h1>{{ property.property_name|default:property.property_id }}</h1>
+      <p>{{ property.platform_account.account_name|default:property.platform_account.account_id }} hesabına bağlı property. Son senkron: {{ property.last_synced_at|default:"Henüz yok" }}</p>
+    </div>
+    <div class="ga-hero-mark">
+      <i class="fas fa-users"></i>
+      <strong>{{ totals.users|tr_int }}</strong>
+      <span>Kullanıcı</span>
+    </div>
+  </section>
+
+  <section class="ga-kpi-grid">
+    <div class="ga-kpi"><span>Oturum</span><strong>{{ totals.sessions|tr_int }}</strong><small>Toplam</small></div>
+    <div class="ga-kpi"><span>Kullanıcı</span><strong>{{ totals.users|tr_int }}</strong><small>Tekil</small></div>
+    <div class="ga-kpi"><span>Etkileşim</span><strong>%{{ totals.engagement_rate|tr_decimal }}</strong><small>Engaged session</small></div>
+    <div class="ga-kpi"><span>Dönüşüm</span><strong>{{ totals.conversions|tr_int }}</strong><small>Key events</small></div>
+    <div class="ga-kpi"><span>Gelir</span><strong>{{ totals.revenue|tr_int }} TL</strong><small>Revenue</small></div>
+  </section>
+
+  <section class="ga-layout">
+    <div class="ga-panel">
+      <div class="ga-panel-head">
+        <div><span>Trend</span><h2>Son 14 gün oturum grafiği</h2></div>
+      </div>
+      <div class="ga-bar-chart">
+        {% for row in chart_rows %}
+        <div class="ga-bar-item">
+          <div class="ga-bar" style="--h:{{ row.height }}%"><span>{{ row.sessions|tr_int }}</span></div>
+          <small>{{ row.date|date:"d.m" }}</small>
+        </div>
+        {% empty %}
+        <div class="ga-empty compact"><span>Grafik için henüz günlük metrik yok.</span></div>
+        {% endfor %}
+      </div>
+
+      <div class="ga-table-wrap">
+        <table class="ga-table">
+          <thead>
+            <tr>
+              <th>Tarih</th>
+              <th>Oturum</th>
+              <th>Kullanıcı</th>
+              <th>Etkileşim</th>
+              <th>Dönüşüm</th>
+              <th>Gelir</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for metric in daily_metrics %}
+            <tr>
+              <td>{{ metric.date }}</td>
+              <td>{{ metric.sessions|tr_int }}</td>
+              <td>{{ metric.users|tr_int }}</td>
+              <td>%{{ metric.engagement_rate|tr_decimal }}</td>
+              <td>{{ metric.conversions|tr_int }}</td>
+              <td>{{ metric.total_revenue|tr_int }} TL</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6">Henüz metrik yok.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="ga-panel">
+      <div class="ga-panel-head">
+        <div><span>Landing Page</span><h2>Sayfa performansı</h2></div>
+      </div>
+      <div class="ga-landing-list">
+        {% for page in landing_pages %}
+        <div class="ga-landing-row">
+          <div>
+            <strong>{{ page.landing_page_title|default:page.landing_page }}</strong>
+            <span>{{ page.landing_page }}</span>
+          </div>
+          <b>{{ page.sessions|tr_int }}</b>
+          <em>{{ page.total_revenue|tr_int }} TL</em>
+        </div>
+        {% empty %}
+        <div class="ga-empty compact"><span>Landing page metrikleri GA4 sync sonrası görünür.</span></div>
+        {% endfor %}
+      </div>
+    </aside>
+  </section>
+</div>
+{% endblock %}

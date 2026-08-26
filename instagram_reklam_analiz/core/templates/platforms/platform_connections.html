@@ -1,0 +1,184 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ labels.platform_connections }} | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<style>
+.pc-shell{max-width:none;margin:-10px -6px 0;padding:22px;min-height:calc(100vh - 110px);color:#f8fafc;background:radial-gradient(circle at 14% 0,rgba(34,211,238,.16),transparent 30%),radial-gradient(circle at 86% 10%,rgba(99,102,241,.2),transparent 35%),linear-gradient(145deg,#050816 0,#10172a 56%,#07111f 100%);border-radius:24px}.pc-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;margin-bottom:18px}.pc-kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(34,211,238,.25);background:rgba(34,211,238,.08);color:#9eeaff;border-radius:999px;padding:7px 12px;font-weight:900;font-size:.78rem}.pc-title{font-size:clamp(1.8rem,3vw,3rem);font-weight:950;letter-spacing:0;margin:12px 0 8px;color:#fff}.pc-subtitle{max-width:850px;color:#a7b0c5;line-height:1.65;margin:0}.pc-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.pc-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(34,211,238,.28);border-radius:11px;padding:11px 14px;font-weight:900;text-decoration:none;color:#fff;background:linear-gradient(135deg,#2563eb,#0f766e)}.pc-btn.secondary{background:rgba(255,255,255,.07);color:#e2e8f0}.pc-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.pc-metric{border:1px solid rgba(148,163,184,.18);border-radius:16px;background:rgba(15,23,42,.72);box-shadow:0 22px 60px rgba(0,0,0,.22);padding:16px}.pc-metric span{display:block;color:#94a3b8;font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.pc-metric strong{display:block;margin-top:8px;color:#fff;font-size:1.75rem;line-height:1;font-weight:950}.pc-grid{display:grid;gap:16px}.pc-platform{border:1px solid rgba(148,163,184,.18);border-radius:18px;background:rgba(15,23,42,.8);box-shadow:0 24px 70px rgba(0,0,0,.24);overflow:hidden;backdrop-filter:blur(10px)}.pc-platform-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:16px;border-bottom:1px solid rgba(148,163,184,.14);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02))}.pc-icon{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:rgba(34,211,238,.11);color:#67e8f9;font-size:1.35rem}.pc-icon.instagram{color:#fb7185;background:rgba(244,63,94,.12)}.pc-icon.facebook{color:#60a5fa;background:rgba(59,130,246,.12)}.pc-icon.google_ads{color:#86efac;background:rgba(34,197,94,.12)}.pc-icon.linkedin{color:#7dd3fc;background:rgba(14,165,233,.12)}.pc-icon.tiktok,.pc-icon.x{color:#f8fafc;background:rgba(255,255,255,.08)}.pc-platform h2{font-size:1.15rem;font-weight:950;color:#fff;margin:0}.pc-platform-meta{color:#94a3b8;font-size:.82rem;margin-top:4px}.pc-head-stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.pc-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;border:1px solid rgba(148,163,184,.2);background:rgba(255,255,255,.055);color:#cbd5e1;padding:7px 10px;font-size:.76rem;font-weight:900}.pc-pill.ok{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.12);color:#86efac}.pc-pill.warn{border-color:rgba(255,159,10,.24);background:rgba(255,159,10,.12);color:#ffd18a}.pc-pill.bad{border-color:rgba(248,113,113,.24);background:rgba(248,113,113,.12);color:#fca5a5}.pc-body{padding:14px}.pc-table-wrap{overflow:auto;border:1px solid rgba(148,163,184,.13);border-radius:14px}.pc-table{width:100%;border-collapse:collapse;min-width:880px}.pc-table th{background:rgba(2,6,23,.58);color:#94a3b8;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:950;padding:12px;text-align:left}.pc-table td{padding:13px 12px;border-top:1px solid rgba(148,163,184,.12);color:#dbe4f0;vertical-align:middle}.pc-account{display:flex;align-items:center;gap:10px}.pc-account-avatar{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(37,99,235,.35),rgba(20,184,166,.22));color:#fff;font-weight:950}.pc-account strong{display:block;color:#fff;font-size:.9rem}.pc-muted{color:#94a3b8;font-size:.78rem}.pc-code{display:inline-block;color:#c4b5fd;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.18);border-radius:8px;padding:5px 7px;font-size:.78rem}.pc-empty{text-align:center;padding:34px 16px;color:#94a3b8;border:1px dashed rgba(148,163,184,.25);border-radius:14px;background:rgba(2,6,23,.25)}.pc-empty i{display:block;color:#67e8f9;font-size:1.6rem;margin-bottom:10px}@media(max-width:992px){.pc-shell{margin:0 -4px;padding:14px;border-radius:16px}.pc-hero{grid-template-columns:1fr}.pc-actions{justify-content:flex-start}.pc-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.pc-platform-head{grid-template-columns:auto minmax(0,1fr)}.pc-head-stats{grid-column:1/-1;justify-content:flex-start}}@media(max-width:560px){.pc-metrics{grid-template-columns:1fr}.pc-title{font-size:1.7rem}}
+</style>
+<style>
+.pc-row-actions{display:flex;gap:7px}.pc-action{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;border:1px solid rgba(148,163,184,.2);background:rgba(255,255,255,.055);color:#dbeafe}.pc-action:hover{color:#fff;border-color:rgba(96,165,250,.5);background:rgba(59,130,246,.16)}.pc-action.danger:hover{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.14);color:#fca5a5}
+.pc-edit-dialog{position:fixed;inset:0;margin:auto;width:min(520px,calc(100% - 24px));max-height:calc(100dvh - 24px);overflow:hidden;border:1px solid rgba(139,132,255,.35);border-radius:22px;padding:0;background:#10172a;color:#fff;box-shadow:0 30px 100px rgba(0,0,0,.65)}.pc-edit-dialog::backdrop{background:rgba(2,6,23,.78);backdrop-filter:blur(5px)}.pc-edit-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(148,163,184,.16)}.pc-edit-body{padding:18px}.pc-edit-field{margin-bottom:14px}.pc-edit-field label{display:block;margin-bottom:6px;color:#cbd5e1;font-size:.78rem;font-weight:800}.pc-edit-field input,.pc-edit-field select{width:100%;padding:11px 12px;border:1px solid rgba(148,163,184,.24);border-radius:11px;background:#080e20;color:#fff}.pc-edit-check{display:flex;align-items:center;gap:9px;margin:4px 0 18px}.pc-edit-actions{display:flex;justify-content:flex-end;gap:8px}.pc-dialog-close{border:0;background:rgba(255,255,255,.08);color:#fff;width:34px;height:34px;border-radius:50%}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pc-shell">
+    <section class="pc-hero">
+        <div>
+            <span class="pc-kicker"><i class="fas fa-plug"></i> {{ labels.data_sources }}</span>
+            <h1 class="pc-title">{{ labels.platform_connections }}</h1>
+            <p class="pc-subtitle">{{ labels.platform_connections_desc }}</p>
+        </div>
+        <div class="pc-actions">
+            <a href="{% url 'hesap_ekle' %}" class="pc-btn"><i class="fas fa-plus"></i> {{ labels.connect_account }}</a>
+            <a href="{% url 'sync_center' %}" class="pc-btn secondary"><i class="fas fa-rotate"></i> Sync Center</a>
+        </div>
+    </section>
+
+    <section class="pc-metrics">
+        <div class="pc-metric"><span>{{ labels.total_accounts }}</span><strong>{{ total_account_count|tr_int }}</strong></div>
+        <div class="pc-metric"><span>{{ labels.active_accounts }}</span><strong>{{ total_active_account_count|tr_int }}</strong></div>
+        <div class="pc-metric"><span>{{ labels.connection }}</span><strong>{{ total_connection_count|tr_int }}</strong></div>
+        <div class="pc-metric"><span>{{ labels.active_token }}</span><strong>{{ total_active_connection_count|tr_int }}</strong></div>
+    </section>
+
+    <section class="pc-grid">
+        {% for item in platform_data %}
+        <article class="pc-platform">
+            <div class="pc-platform-head">
+                <div class="pc-icon {{ item.platform.code }}">
+                    {% if item.platform.code == "instagram" %}
+                        <i class="fab fa-instagram"></i>
+                    {% elif item.platform.code == "facebook" %}
+                        <i class="fab fa-facebook"></i>
+                    {% elif item.platform.code == "google_ads" %}
+                        <i class="fab fa-google"></i>
+                    {% elif item.platform.code == "tiktok" %}
+                        <i class="fab fa-tiktok"></i>
+                    {% elif item.platform.code == "linkedin" %}
+                        <i class="fab fa-linkedin"></i>
+                    {% elif item.platform.code == "x" %}
+                        <i class="fab fa-x-twitter"></i>
+                    {% else %}
+                        <i class="fas fa-chart-line"></i>
+                    {% endif %}
+                </div>
+                <div>
+                    <h2>{{ item.platform.name }}</h2>
+                    <div class="pc-platform-meta">Platform toplamı: {{ item.account_count }} {{ labels.accounts }} Â· {{ item.connection_count }} {{ labels.connections }} Â· {{ item.active_token_count }} {{ labels.active_token|lower }}</div>
+                </div>
+                <div class="pc-head-stats">
+                    <span class="pc-pill {% if item.active_account_count %}ok{% else %}warn{% endif %}"><i class="fas fa-circle-check"></i> {{ item.active_account_count }} {{ labels.active }}</span>
+                    <span class="pc-pill {% if item.active_token_count %}ok{% else %}warn{% endif %}"><i class="fas fa-key"></i> {{ item.active_token_count }} token</span>
+                </div>
+            </div>
+
+            <div class="pc-body">
+                {% if item.accounts %}
+                <div class="pc-table-wrap">
+                    <table class="pc-table">
+                        <thead>
+                            <tr>
+                                <th>{{ labels.account }}</th>
+                                <th>Platform ID</th>
+                                <th>Connection</th>
+                                <th>{{ labels.token_status }}</th>
+                                <th>{{ labels.last_sync }}</th>
+                                <th>{{ labels.account_status }}</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in item.accounts %}
+                            <tr>
+                                <td>
+                                    <div class="pc-account">
+                                        <div class="pc-account-avatar">{{ account.account_name|default:account.account_id|first|upper }}</div>
+                                        <div>
+                                            <strong>{{ account.account_name|default:account.account_id }}</strong>
+                                            <div class="pc-muted">{{ account.currency|default:"TRY" }} Â· {{ account.timezone|default:"-" }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code class="pc-code">{{ account.account_id }}</code></td>
+                                <td>
+                                    {% if account.connection %}
+                                        <span class="pc-pill ok">{{ account.connection.name|default:labels.connection }}</span>
+                                    {% else %}
+                                        <span class="pc-pill warn">{{ labels.no_connection }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if account.connection %}
+                                        {% if account.connection.status == "active" %}
+                                            <span class="pc-pill ok">{{ labels.active }}</span>
+                                        {% elif account.connection.status == "expired" %}
+                                            <span class="pc-pill warn">{{ labels.token_expired }}</span>
+                                        {% elif account.connection.status == "error" %}
+                                            <span class="pc-pill bad">{{ labels.error }}</span>
+                                        {% else %}
+                                            <span class="pc-pill warn">{{ account.connection.status }}</span>
+                                        {% endif %}
+                                    {% elif account.access_token %}
+                                        <span class="pc-pill ok">Aktif · hesap tokenı</span>
+                                    {% else %}
+                                        <span class="pc-pill warn">{{ labels.none }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if account.last_sync %}
+                                        {{ account.last_sync|date:"d.m.Y H:i" }}
+                                    {% else %}
+                                        <span class="pc-muted">{{ labels.not_yet }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if account.is_active %}
+                                        <span class="pc-pill ok">{{ labels.active }}</span>
+                                    {% else %}
+                                        <span class="pc-pill warn">{{ labels.passive }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="pc-row-actions">
+                                        <button class="pc-action" type="button" title="Düzenle" data-edit-dialog="account-edit-{{ account.id }}"><i class="fas fa-pen"></i></button>
+                                        <form method="post" action="{% url 'platform_account_delete' account.id %}" onsubmit="return confirm('{{ account.account_name|default:account.account_id|escapejs }} hesabını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.');">
+                                            {% csrf_token %}
+                                            <button class="pc-action danger" type="submit" title="Sil"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </div>
+                                    <dialog class="pc-edit-dialog" id="account-edit-{{ account.id }}">
+                                        <form method="post" action="{% url 'platform_account_update' account.id %}">
+                                            {% csrf_token %}
+                                            <div class="pc-edit-head"><h3 class="h5 mb-0">Hesabı düzenle</h3><button class="pc-dialog-close" type="button" data-dialog-close aria-label="Kapat"><i class="fas fa-xmark"></i></button></div>
+                                            <div class="pc-edit-body">
+                                                <div class="pc-edit-field"><label>Hesap adı</label><input name="account_name" value="{{ account.account_name|default:'' }}" maxlength="200"></div>
+                                                <div class="pc-edit-field"><label>Platform ID</label><input name="account_id" value="{{ account.account_id }}" maxlength="100" required></div>
+                                                <div class="pc-edit-field"><label>Bağlantı</label><select name="connection"><option value="">Bağlantı yok (hesap tokenını kullan)</option>{% for connection in item.connections %}<option value="{{ connection.id }}" {% if account.connection_id == connection.id %}selected{% endif %}>{{ connection.name|default:labels.connection }}</option>{% endfor %}</select></div>
+                                                <label class="pc-edit-check"><input type="checkbox" name="is_active" {% if account.is_active %}checked{% endif %}> Hesap aktif</label>
+                                                <div class="pc-edit-actions"><button class="pc-btn secondary" type="button" data-dialog-close>İptal</button><button class="pc-btn" type="submit"><i class="fas fa-floppy-disk"></i> Kaydet</button></div>
+                                            </div>
+                                        </form>
+                                    </dialog>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="pc-empty">
+                    <i class="fas fa-link-slash"></i>
+                    {{ labels.no_platform_account }}
+                </div>
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+</div>
+<script>
+document.addEventListener('click', event => {
+    const opener = event.target.closest('[data-edit-dialog]');
+    if (opener) document.getElementById(opener.dataset.editDialog)?.showModal();
+    const closer = event.target.closest('[data-dialog-close]');
+    if (closer) closer.closest('dialog')?.close();
+});
+document.querySelectorAll('.pc-edit-dialog').forEach(dialog => {
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Fiyat Takibi{% endblock %}
+
+{% block extra_css %}
+<style>
+  .mpt-page{padding:24px;color:#f8fafc}
+  .mpt-shell{max-width:1720px;margin:0 auto}
+  .mpt-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border:1px solid rgba(148,163,184,.22);border-radius:8px;background:#0f172a;padding:20px}
+  .mpt-kicker{color:#38bdf8;font-size:.75rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+  .mpt-title{margin:0;font-size:1.75rem;font-weight:950;color:#fff}
+  .mpt-lead{margin:7px 0 0;color:#cbd5e1;line-height:1.5;max-width:880px}
+  .mpt-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .mpt-btn{height:40px;border:1px solid rgba(125,211,252,.28);border-radius:8px;background:rgba(56,189,248,.12);color:#f8fafc;text-decoration:none;font-weight:850;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 12px}
+  .mpt-panel{margin-top:16px;border:1px solid rgba(148,163,184,.22);border-radius:8px;background:#0f172a;overflow:hidden}
+  .mpt-table-wrap{overflow-x:auto}
+  .mpt-table{width:100%;border-collapse:collapse;min-width:1120px}
+  .mpt-table th{background:#111c33;color:#94a3b8;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;text-align:left;padding:11px 12px;border-bottom:1px solid rgba(148,163,184,.18)}
+  .mpt-table td{padding:12px;border-bottom:1px solid rgba(148,163,184,.12);vertical-align:middle;color:#e2e8f0}
+  .mpt-product{display:flex;align-items:center;gap:12px;min-width:280px}
+  .mpt-image{width:58px;height:58px;border-radius:8px;border:1px solid rgba(148,163,184,.24);background:#020617;object-fit:cover;flex:0 0 auto}
+  .mpt-image-empty{width:58px;height:58px;border-radius:8px;border:1px solid rgba(148,163,184,.24);background:#111c33;color:#64748b;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .mpt-name{font-weight:950;color:#fff}
+  .mpt-attrs{color:#94a3b8;font-size:.78rem;margin-top:3px;max-width:520px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mpt-price{font-weight:950;color:#f8fafc;white-space:nowrap}
+  .mpt-change{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:.76rem;font-weight:950;white-space:nowrap}
+  .mpt-change.up{background:rgba(34,197,94,.14);color:#86efac}
+  .mpt-change.down{background:rgba(239,68,68,.14);color:#fca5a5}
+  .mpt-change.stable{background:rgba(148,163,184,.14);color:#cbd5e1}
+  .mpt-form{display:flex;align-items:center;gap:8px}
+  .mpt-interval{display:grid;gap:4px}
+  .mpt-interval label{color:#94a3b8;font-size:.66rem;font-weight:900}
+  .mpt-input-wrap{display:flex;align-items:center;border:1px solid rgba(148,163,184,.32);border-radius:8px;background:#0b1527;overflow:hidden}
+  .mpt-action-stack{display:grid;gap:8px;min-width:245px}
+  .mpt-input{width:62px;height:34px;border:0;background:transparent;color:#f8fafc;padding:0 8px}
+  .mpt-unit{height:34px;display:flex;align-items:center;padding:0 8px;border-left:1px solid rgba(148,163,184,.2);color:#7dd3fc;font-size:.7rem;font-weight:950}
+  .mpt-submit{height:36px;border:0;border-radius:8px;background:#16a34a;color:#fff;font-weight:950;padding:0 11px;display:inline-flex;align-items:center;gap:7px}
+  .mpt-submit.off{background:#334155}
+  .mpt-delete{height:34px;border:1px solid rgba(248,113,113,.34);border-radius:8px;background:rgba(239,68,68,.12);color:#fecaca;font-size:.72rem;font-weight:950;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+  .mpt-muted{color:#94a3b8;font-size:.78rem}
+  .mpt-empty{padding:44px 20px;text-align:center;color:#94a3b8}
+  .mpt-empty strong{display:block;color:#fff;margin-bottom:6px}
+  .mpt-pages{display:flex;justify-content:flex-end;gap:8px;padding:12px}
+  .mpt-alert{border:1px solid rgba(148,163,184,.22);border-radius:8px;display:flex;gap:9px;margin-top:12px;padding:11px 13px;font-weight:800}
+  .mpt-alert.success{background:rgba(34,197,94,.12);border-color:rgba(34,197,94,.3);color:#bbf7d0}
+  .mpt-alert.info{background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.28);color:#bae6fd}
+  .mpt-alert.error{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);color:#fecaca}
+  .mpt-submit[disabled]{cursor:wait;opacity:.7}
+  .mpt-track-error{color:#fca5a5;font-size:.72rem;margin-top:4px;max-width:260px}
+  @media(max-width:760px){.mpt-page{padding:14px}.mpt-top{display:block}.mpt-actions{margin-top:12px}.mpt-title{font-size:1.45rem}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mpt-page">
+  <div class="mpt-shell">
+    <section class="mpt-top">
+      <div>
+        <div class="mpt-kicker"><i class="fas fa-chart-line"></i> Pazaryeri Fiyat Takibi</div>
+        <h1 class="mpt-title">Takip Edilecek Ürünler</h1>
+        <p class="mpt-lead">Araştırması yapılmış ürünleri buradan takibe alın. Sistem zamanı gelenleri periyodik olarak yeniler, fiyat yönünü işler ve anlamlı değişimleri bildirime düşürür. Standart kontrol 1 fiyat kontrol hakkı kullanır; kayıtlı ürün kimliği tekrar kullanıldığı için AI kontörü harcamaz.</p>
+      </div>
+      <div class="mpt-actions">
+        <a class="mpt-btn" href="{% url 'marketplace_product_research' %}"><i class="fas fa-magnifying-glass-chart"></i> Ürün Araştırması</a>
+        <a class="mpt-btn" href="{% url 'marketplace_price_history_report' %}"><i class="fas fa-clock-rotate-left"></i> Fiyat Geçmişi</a>
+      </div>
+    </section>
+
+    {% if messages %}
+      {% for message in messages %}
+      <div class="mpt-alert {% if message.tags == 'error' %}error{% elif message.tags == 'info' %}info{% else %}success{% endif %}" role="alert">
+        <i class="fas fa-{% if message.tags == 'error' %}triangle-exclamation{% elif message.tags == 'info' %}circle-info{% else %}circle-check{% endif %}"></i>
+        <span>{{ message }}</span>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <section class="mpt-panel">
+      {% if rows %}
+      <div class="mpt-table-wrap">
+        <table class="mpt-table">
+          <thead>
+            <tr>
+              <th>Ürün</th>
+              <th>Minimum</th>
+              <th>Ortalama</th>
+              <th>Maksimum</th>
+              <th>Önerilen</th>
+              <th>Son Değişim</th>
+              <th>Takip</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr>
+              <td>
+                <div class="mpt-product">
+                  {% if row.image_url %}
+                  <img class="mpt-image" src="{{ row.image_url }}" alt="{{ row.name }}">
+                  {% else %}
+                  <div class="mpt-image-empty"><i class="fas fa-image"></i></div>
+                  {% endif %}
+                  <div>
+                    <div class="mpt-name">{{ row.name }}</div>
+                    <div class="mpt-attrs">{{ row.attributes }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="mpt-price">{{ row.research.min_price }} TL</td>
+              <td class="mpt-price">{{ row.research.average_price }} TL</td>
+              <td class="mpt-price">{{ row.research.max_price }} TL</td>
+              <td class="mpt-price">{{ row.research.recommended_price }} TL</td>
+              <td>
+                {% if row.latest_history %}
+                  {% if row.latest_history.change_direction == 'up' %}
+                  <span class="mpt-change up"><i class="fas fa-arrow-trend-up"></i> +{{ row.latest_history.recommended_price_change }} TL</span>
+                  {% elif row.latest_history.change_direction == 'down' %}
+                  <span class="mpt-change down"><i class="fas fa-arrow-trend-down"></i> {{ row.latest_history.recommended_price_change }} TL</span>
+                  {% else %}
+                  <span class="mpt-change stable"><i class="fas fa-minus"></i> Değişmedi</span>
+                  {% endif %}
+                  <div class="mpt-muted">{{ row.latest_history.checked_at|date:"d.m.Y H:i" }}</div>
+                {% else %}
+                  <span class="mpt-change stable"><i class="fas fa-minus"></i> Henüz ölçüm yok</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="mpt-action-stack">
+                <form class="mpt-form" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="research_id" value="{{ row.research.id }}">
+                  {% if row.research.track_price %}
+                  <input type="hidden" name="action" value="untrack">
+                  <button class="mpt-submit off" type="submit"><i class="fas fa-pause"></i> Durdur</button>
+                  <div class="mpt-muted">Her {{ row.research.tracking_interval_hours }} saatte bir</div>
+                  <div class="mpt-muted">Son kontrol: {{ row.research.last_tracked_at|date:"d.m.Y H:i"|default:"İlk kontrol bekleniyor" }}</div>
+                  <div class="mpt-muted">Sonraki: {{ row.research.next_tracking_at|date:"d.m.Y H:i" }}</div>
+                  {% if row.research.raw_result.tracking_last_error %}<div class="mpt-track-error" title="{{ row.research.raw_result.tracking_last_error }}">Son kontrol başarısız; sistem otomatik yeniden deneyecek.</div>{% endif %}
+                  {% else %}
+                  <input type="hidden" name="action" value="track">
+                  <div class="mpt-interval">
+                    <label for="interval-{{ row.research.id }}">Takip aralığı</label>
+                    <div class="mpt-input-wrap">
+                      <input class="mpt-input" id="interval-{{ row.research.id }}" type="number" name="tracking_interval_hours" value="24" min="6" max="168" step="6" aria-label="Takip aralığı, saat">
+                      <span class="mpt-unit">SAAT</span>
+                    </div>
+                  </div>
+                  <button class="mpt-submit" type="submit"><i class="fas fa-play"></i> Takip Et</button>
+                  {% endif %}
+                </form>
+                <form class="mpt-delete-form" method="post" data-product="{{ row.name|escape }}">
+                  {% csrf_token %}
+                  <input type="hidden" name="research_id" value="{{ row.research.id }}">
+                  <input type="hidden" name="action" value="delete">
+                  <button class="mpt-delete" type="submit"><i class="fas fa-trash-can"></i> Kalıcı Sil</button>
+                </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if page_obj.has_other_pages %}
+      <div class="mpt-pages">
+        {% if page_obj.has_previous %}<a class="mpt-btn" href="?page={{ page_obj.previous_page_number }}">Önceki</a>{% endif %}
+        <span class="mpt-muted">Sayfa {{ page_obj.number }} / {{ paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a class="mpt-btn" href="?page={{ page_obj.next_page_number }}">Sonraki</a>{% endif %}
+      </div>
+      {% endif %}
+      {% else %}
+      <div class="mpt-empty">
+        <strong>Takip edilecek araştırma yok</strong>
+        <span>Önce Ürün Araştırması ekranında ürün görseli ve özellikleriyle analiz oluşturun.</span>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.querySelectorAll('.mpt-form').forEach(function (form) {
+    form.addEventListener('submit', function () {
+      const button = form.querySelector('.mpt-submit');
+      if (!button) return;
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> İşleniyor';
+    });
+  });
+  document.querySelectorAll('.mpt-delete-form').forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+      const product = form.dataset.product || 'Bu ürün';
+      const accepted = window.confirm(
+        product + ' kalıcı olarak silinecek. Araştırma sonuçları, fiyat geçmişi ve yüklenen görsel geri alınamaz. Devam edilsin mi?'
+      );
+      if (!accepted) {
+        event.preventDefault();
+        return;
+      }
+      const button = form.querySelector('.mpt-delete');
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Kalıcı siliniyor';
+      }
+    });
+  });
+</script>
+{% endblock %}

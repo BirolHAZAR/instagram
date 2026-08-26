@@ -1,0 +1,905 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Reklam Hareketleri Analizi{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary: #57c7ff;
+        --primary-dark: #2563eb;
+        --success: #49e0a4;
+        --warning: #f7b955;
+        --danger: #ff6b7a;
+        --dark: #f8fafc;
+        --gray: #a8b3c7;
+        --light: #121a28;
+        --border: rgba(148, 163, 184, 0.22);
+        --panel: rgba(13, 20, 32, 0.96);
+        --panel-soft: rgba(18, 28, 44, 0.92);
+        --text-main: #f8fafc;
+        --text-soft: #cbd5e1;
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.32);
+    }
+    body { background: #070b12; color: var(--text-main); }
+    main { background: #070b12; }
+    .container-fluid.px-4.py-3 {
+        background:
+            radial-gradient(circle at 18% 0%, rgba(87, 199, 255, 0.13), transparent 34%),
+            linear-gradient(180deg, #0a101b 0%, #070b12 58%, #060911 100%);
+        min-height: calc(100vh - 70px);
+    }
+    
+    .two-columns {
+        display: flex;
+        gap: 1.5rem;
+        min-height: calc(100vh - 70px);
+    }
+    .sidebar {
+        width: 340px;
+        flex-shrink: 0;
+        background: var(--panel);
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+    }
+    .sidebar-section {
+        padding: 1rem 1.2rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .sidebar-section h6 {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-soft);
+        margin-bottom: 0.8rem;
+        letter-spacing: 0;
+    }
+    .filter-select {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1.5px solid var(--border);
+        font-size: 0.8rem;
+        margin-bottom: 0.8rem;
+        background: #0a1220;
+        color: var(--text-main);
+        outline: none;
+    }
+    .movement-agency-filter {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+        padding: 16px 18px;
+        border: 1px solid rgba(87, 199, 255, 0.32);
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(73, 224, 164, 0.08));
+        box-shadow: var(--shadow);
+    }
+    .movement-agency-filter-copy strong { display: block; font-size: .92rem; color: #f8fafc; }
+    .movement-agency-filter-copy span { display: block; margin-top: 4px; color: var(--text-soft); font-size: .72rem; }
+    .movement-agency-filter label { min-width: min(390px, 100%); margin: 0; }
+    .movement-agency-filter select { margin: 0; border-color: rgba(87, 199, 255, .55); font-weight: 700; }
+    @media (max-width: 760px) { .movement-agency-filter { align-items: stretch; flex-direction: column; } .movement-agency-filter label { min-width: 0; } }
+    .filter-select:focus {
+        border-color: rgba(87, 199, 255, 0.72);
+        box-shadow: 0 0 0 3px rgba(87, 199, 255, 0.14);
+    }
+    .ad-list {
+        max-height: 55vh;
+        overflow-y: auto;
+    }
+    .ad-item {
+        padding: 0.8rem 1.2rem;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .ad-item:hover { background: rgba(87, 199, 255, 0.08); }
+    .ad-item.active {
+        background: linear-gradient(90deg, rgba(87, 199, 255, 0.18), rgba(73, 224, 164, 0.08));
+        border-left: 3px solid var(--primary);
+    }
+    .ad-name {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: var(--text-main);
+        margin-bottom: 4px;
+    }
+    .ad-meta {
+        font-size: 0.65rem;
+        color: var(--gray);
+        display: flex;
+        gap: 8px;
+    }
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .main-content { flex: 1; min-width: 0; }
+    .reklam-header {
+        background: var(--panel);
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin-bottom: 1.2rem;
+        box-shadow: var(--shadow);
+    }
+    .reklam-title { color: var(--text-main); font-size: 1.1rem; font-weight: 800; margin-bottom: 0.3rem; }
+    .reklam-meta { display: flex; gap: 1rem; font-size: 0.72rem; color: var(--text-soft); flex-wrap: wrap; }
+    
+    .filter-bar {
+        background: var(--panel);
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin-bottom: 1.2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-end;
+    }
+    .date-range-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .date-btn {
+        padding: 5px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #0a1220;
+        color: var(--text-soft);
+        font-size: 0.7rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .date-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #03111d;
+    }
+    .custom-date-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+    .custom-date-row span { color: var(--text-soft); }
+    .custom-date-row .form-control {
+        background: #0a1220;
+        border-color: var(--border);
+        color: var(--text-main);
+    }
+    .btn-refresh {
+        background: linear-gradient(135deg, var(--primary), #49e0a4);
+        color: #03111d;
+        border: none;
+        padding: 6px 18px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        cursor: pointer;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.2rem;
+    }
+    .stat-card {
+        background: linear-gradient(180deg, rgba(18, 28, 44, 0.98), rgba(10, 18, 32, 0.98));
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        padding: 1rem 0.85rem;
+        min-height: 118px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
+    }
+    .stat-value {
+        color: var(--text-main);
+        font-size: clamp(1rem, 1.6vw, 1.32rem);
+        font-weight: 900;
+        line-height: 1.15;
+        width: 100%;
+        overflow-wrap: anywhere;
+    }
+    .stat-label { font-size: 0.62rem; text-transform: uppercase; color: var(--text-soft); margin-top: 0.42rem; letter-spacing: 0; }
+    .stat-change { min-height: 18px; font-size: 0.67rem; margin-top: 4px; font-weight: 700; }
+    .stat-change.up { color: var(--success); }
+    .stat-change.down { color: var(--danger); }
+    
+    .chart-card, .table-card {
+        background: var(--panel);
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        margin-bottom: 1.2rem;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+    .card-header {
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid var(--border);
+        font-weight: 700;
+        font-size: 0.8rem;
+        background: var(--panel-soft);
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+    }
+    .card-header-title { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .report-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    .report-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .report-brand img { width: 112px; height: 54px; object-fit: contain; object-position: left center; border-radius: 8px; }
+    .report-brand strong { color: var(--text-main); font-size: .86rem; }
+    .report-footer-note { margin-top: 14px; color: var(--text-soft); font-size: .68rem; text-align: center; }
+    .report-actions { display: flex; align-items: center; justify-content: flex-end; gap: 0.55rem; flex-wrap: wrap; }
+    .export-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.42rem;
+        min-height: 34px;
+        padding: 7px 12px;
+        border: 1px solid rgba(87, 199, 255, 0.32);
+        border-radius: 8px;
+        background: rgba(87, 199, 255, 0.12);
+        color: var(--text-main);
+        font-size: 0.72rem;
+        font-weight: 800;
+        line-height: 1;
+        cursor: pointer;
+        transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        white-space: nowrap;
+    }
+    .export-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(87, 199, 255, 0.68);
+        background: rgba(87, 199, 255, 0.2);
+    }
+    .export-btn:disabled {
+        cursor: wait;
+        opacity: 0.7;
+        transform: none;
+    }
+    .export-btn.primary {
+        background: linear-gradient(135deg, rgba(87, 199, 255, 0.95), rgba(73, 224, 164, 0.9));
+        color: #03111d;
+        border-color: transparent;
+    }
+    .chart-container { padding: 1rem; height: 320px; }
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 12px; font-size: 0.72rem; border-bottom: 1px solid var(--border); color: var(--text-soft); white-space: nowrap; }
+    th { background: var(--panel-soft); font-weight: 800; color: var(--text-main); }
+    td:nth-child(n+2), th:nth-child(n+2) { text-align: right; }
+    tbody tr:hover { background: rgba(87, 199, 255, 0.06); }
+    .no-data { text-align: center !important; padding: 2rem; color: var(--text-soft); }
+    .stat-card .stat-value {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: #ffffff !important;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 8px 22px rgba(0, 0, 0, 0.36);
+    }
+    #dailyMetricsTable td:nth-child(n+2) {
+        color: #f8fafc !important;
+        font-weight: 750;
+    }
+    .text-muted { color: var(--text-soft) !important; }
+    .text-danger { color: var(--danger) !important; }
+    
+    @media (max-width: 768px) {
+        .two-columns { flex-direction: column; }
+        .sidebar { width: 100%; position: static; }
+        .report-head { flex-direction: column; }
+        .report-actions { justify-content: flex-start; }
+        .card-header { align-items: flex-start; flex-direction: column; }
+    }
+    @media print {
+        body.report-print-mode {
+            background: #070b12 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        body.report-print-mode * {
+            visibility: hidden !important;
+        }
+        body.report-print-mode #movementReportSection,
+        body.report-print-mode #movementReportSection * {
+            visibility: visible !important;
+        }
+        body.report-print-mode #movementReportSection {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            padding: 12px;
+            background: #070b12 !important;
+        }
+        body.report-print-mode .no-export {
+            display: none !important;
+        }
+        body.report-print-mode .table-card {
+            break-before: page;
+            page-break-before: always;
+            overflow: visible !important;
+        }
+        body.report-print-mode .table-container { overflow: visible !important; }
+        body.report-print-mode #dailyMetricsTable thead { display: table-header-group; }
+        body.report-print-mode #dailyMetricsTable tr { break-inside: avoid; page-break-inside: avoid; }
+        body.report-print-mode .chart-card,
+        body.report-print-mode .reklam-header,
+        body.report-print-mode .filter-bar,
+        body.report-print-mode .stat-card {
+            box-shadow: none !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3">
+    {% if agency_scope.is_agency %}
+    <form method="get" class="movement-agency-filter">
+        <div class="movement-agency-filter-copy">
+            <strong><i class="fas fa-building-user me-1"></i> Ajans müşteri görünümü</strong>
+            <span>{% if agency_scope.selected_client %}Yalnız {{ agency_scope.selected_client.name }} reklam hareketleri gösteriliyor.{% else %}Ajansınıza bağlı tüm firmaların reklam hareketleri gösteriliyor.{% endif %}</span>
+        </div>
+        <label for="movementAgencyClient">
+            <select id="movementAgencyClient" name="agency_client" class="filter-select" onchange="this.form.submit()">
+                <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm müşteriler</option>
+                {% for client in agency_scope.clients %}
+                <option value="{{ client.id }}"{% if agency_scope.selected_client.id == client.id %} selected{% endif %}>{{ client.organization.name }} · {{ client.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </form>
+    {% endif %}
+    
+    <div class="two-columns">
+        
+        <!-- SOL SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h6><i class="fas fa-globe me-1"></i> Platform</h6>
+                <select id="platformSelect" class="filter-select">
+                    <option value="">Tüm Platformlar</option>
+                    {% for p in platforms %}
+                    <option value="{{ p.code }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+                
+                <h6 class="mt-3"><i class="fas fa-user-circle me-1"></i> Hesap</h6>
+                <select id="accountSelect" class="filter-select">
+                    <option value="">Tüm Hesaplar</option>
+                    {% for acc in all_platform_accounts %}
+                    <option value="{{ acc.id }}" data-platform="{{ acc.platform.code }}">
+                        {{ acc.account_name|default:acc.account_id }} ({{ acc.platform.name }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="sidebar-section">
+                <h6><i class="fas fa-ad me-1"></i> Reklamlar <span id="reklamCount"></span></h6>
+                <div class="ad-list" id="adList">
+                    <div class="text-center p-3 text-muted">Yükleniyor...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SAĞ ANA İÇERİK -->
+        <div class="main-content">
+            <div id="mainContent">
+                <div class="reklam-header text-center p-5">
+                    <div class="loading-spinner"></div> Yükleniyor...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+let currentChart = null;
+const movementAgencyClient = '{{ agency_scope.selected_client.id|default:""|escapejs }}';
+const movementReportBrandName = '{{ report_branding.brand_name|escapejs }}';
+const movementReportLogoUrl = '{{ report_logo_url|escapejs }}';
+const movementReportFooterNote = '{{ report_branding.footer_note|default:""|escapejs }}';
+
+function loadData() {
+    const platform = document.getElementById('platformSelect').value;
+    const hesap = document.getElementById('accountSelect').value;
+    const dateRange = document.getElementById('dateRangeInput')?.value || 'weekly';
+    const startDate = document.getElementById('customStartDate')?.value || '';
+    const endDate = document.getElementById('customEndDate')?.value || '';
+    const selectedAdId = document.getElementById('selectedAdId')?.value || '';
+    
+    const params = new URLSearchParams();
+    if (movementAgencyClient) params.append('agency_client', movementAgencyClient);
+    if (platform) params.append('platform', platform);
+    if (hesap) params.append('hesap', hesap);
+    if (selectedAdId) params.append('reklam_id', selectedAdId);
+    params.append('date_range', dateRange);
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    
+    fetch(window.location.pathname + '?' + params.toString(), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) return;
+        
+        // Sol taraftaki reklam listesini güncelle
+        const adListDiv = document.getElementById('adList');
+        if (data.reklamlar && data.reklamlar.length > 0) {
+            let html = '';
+            data.reklamlar.forEach(ad => {
+                const activeClass = (data.selected_reklam && data.selected_reklam.id === ad.id) ? 'active' : '';
+                html += `
+                    <div class="ad-item ${activeClass}" data-ad-id="${ad.id}" onclick="selectAd(${ad.id})">
+                        <div class="ad-name">${escapeHtml(ad.name.substring(0, 45))}</div>
+                        <div class="ad-meta">
+                            <span><i class="fab fa-${ad.platform}"></i> ${ad.platform}</span>
+                            <span><i class="fas fa-chart-line"></i> ${ad.performance_score}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            adListDiv.innerHTML = html;
+            document.getElementById('reklamCount').innerHTML = `(${data.reklamlar.length})`;
+        } else {
+            adListDiv.innerHTML = '<div class="text-center p-3 text-muted">Hiç reklam yok</div>';
+            document.getElementById('reklamCount').innerHTML = '(0)';
+        }
+        
+        // Sağ tarafı güncelle
+        if (data.selected_reklam) {
+            updateMainContent(data);
+        } else {
+            document.getElementById('mainContent').innerHTML = '<div class="reklam-header text-center p-5">Lütfen bir reklam seçin.</div>';
+        }
+    })
+    .catch(error => {
+        console.error('AJAX hatası:', error);
+        document.getElementById('mainContent').innerHTML = '<div class="reklam-header text-center p-5 text-danger">Veri yüklenirken hata oluştu.</div>';
+    });
+}
+
+function selectAd(adId) {
+    document.getElementById('selectedAdId').value = adId;
+    loadData();
+}
+
+function updateMainContent(data) {
+    const ad = data.selected_reklam;
+    const labels = data.chart_labels;
+    const impressions = data.chart_impressions;
+    const clicks = data.chart_clicks;
+    const spend = data.chart_spend;
+    const budget = data.chart_budget && data.chart_budget.length ? data.chart_budget[0] : ad.budget;
+    const ctr = data.chart_ctr;
+    const engagement = data.chart_engagement;
+    
+    // Stat kartları
+    const statsHtml = `
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">${formatNumber(data.total_impressions)}</div>
+                <div class="stat-label">Gösterim</div>
+                <div class="stat-change ${data.impressions_change > 0 ? 'up' : (data.impressions_change < 0 ? 'down' : '')}">
+                    ${data.impressions_change !== 0 ? `<i class="fas fa-arrow-${data.impressions_change > 0 ? 'up' : 'down'}"></i> ${formatPercent(Math.abs(data.impressions_change))}` : ''}
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${formatNumber(data.total_clicks)}</div>
+                <div class="stat-label">Tıklama</div>
+                <div class="stat-change ${data.clicks_change > 0 ? 'up' : (data.clicks_change < 0 ? 'down' : '')}">
+                    ${data.clicks_change !== 0 ? `<i class="fas fa-arrow-${data.clicks_change > 0 ? 'up' : 'down'}"></i> ${formatPercent(Math.abs(data.clicks_change))}` : ''}
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${formatCurrency(budget)}</div>
+                <div class="stat-label">Bütçe</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${formatCurrency(data.total_spend)}</div>
+                <div class="stat-label">Harcama</div>
+                <div class="stat-change ${data.spend_change > 0 ? 'up' : (data.spend_change < 0 ? 'down' : '')}">
+                    ${data.spend_change !== 0 ? `<i class="fas fa-arrow-${data.spend_change > 0 ? 'up' : 'down'}"></i> ${formatPercent(Math.abs(data.spend_change))}` : ''}
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${formatPercent(data.avg_ctr)}</div>
+                <div class="stat-label">Ort. CTR</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${formatNumber(data.total_engagement)}</div>
+                <div class="stat-label">Etkileşim</div>
+            </div>
+        </div>
+    `;
+    
+    // --- Tablo satırlarını en güncel tarihten başlayarak ve tam tarih formatıyla oluştur ---
+    let tableRows = '';
+    if (labels && labels.length > 0) {
+        // Tarihleri ve verileri birlikte ters çevir (en güncel üste)
+        const indices = [...Array(labels.length).keys()];
+        indices.reverse(); // en büyük indexten 0'a doğru
+        for (let idx of indices) {
+            const dateStr = labels[idx];
+            // YYYY-MM-DD -> DD/MM/YYYY
+            const parts = dateStr.split('-');
+            const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            tableRows += `
+                <tr>
+                    <td>${formattedDate}</td>
+                    <td>${formatNumber(impressions[idx] || 0)}</td>
+                    <td>${formatNumber(clicks[idx] || 0)}</td>
+                    <td>${formatCurrency(budget)}</td>
+                    <td>${formatCurrency(spend[idx] || 0)}</td>
+                    <td>${formatPercent(ctr[idx] || 0)}</td>
+                    <td>${formatNumber(engagement[idx] || 0)}</td>
+                </tr>
+            `;
+        }
+    } else {
+        tableRows = '<tr><td colspan="7" class="no-data">Bu tarih aralığında veri bulunamadı.</td></tr>';
+    }
+    
+    const tableHtml = `
+        <div class="table-card">
+            <div class="card-header">
+                <span class="card-header-title"><i class="fas fa-table"></i> Günlük Metrik Değişimleri</span>
+                <button type="button" class="export-btn no-export" id="downloadMetricsCsvBtn">
+                    <i class="fas fa-file-csv"></i> CSV İndir
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="dailyMetricsTable">
+                    <thead>
+                        <tr><th>Tarih</th><th>Gösterim</th><th>Tıklama</th><th>Bütçe TL</th><th>Harcama TL</th><th>CTR (%)</th><th>Etkileşim</th></tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    const mainHtml = `
+        <div id="movementReportSection">
+        <div class="reklam-header">
+            <div class="report-brand">
+                <img src="${escapeHtml(movementReportLogoUrl)}" alt="${escapeHtml(movementReportBrandName)} logosu">
+                <strong>${escapeHtml(movementReportBrandName)}</strong>
+            </div>
+            <div class="report-head">
+            <div>
+            <div class="reklam-title">${escapeHtml(ad.name)}</div>
+            <div class="reklam-meta">
+                <span><i class="fab fa-${ad.platform}"></i> ${ad.platform}</span>
+                <span><i class="fas fa-calendar"></i> ${ad.created_at}</span>
+                <span><i class="fas fa-tag"></i> ${ad.media_type}</span>
+                <span><i class="fas fa-chart-simple"></i> Skor: ${ad.performance_score}/100</span>
+            </div>
+            </div>
+            <div class="report-actions no-export">
+                <button type="button" class="export-btn primary" id="downloadReportPdfBtn">
+                    <i class="fas fa-file-pdf"></i> PDF Rapor
+                </button>
+            </div>
+            </div>
+        </div>
+        
+        <div class="filter-bar">
+            <div class="filter-group">
+                <div class="date-range-btns">
+                    <button type="button" class="date-btn" data-range="daily">Günlük</button>
+                    <button type="button" class="date-btn" data-range="weekly">Haftalık</button>
+                    <button type="button" class="date-btn" data-range="monthly">Aylık</button>
+                    <button type="button" class="date-btn" data-range="quarterly">3 Aylık</button>
+                    <button type="button" class="date-btn" data-range="custom">Özel</button>
+                </div>
+                <div class="custom-date-row" id="customDateRow" style="display: none;">
+                    <input type="date" id="customStartDate" class="form-control form-control-sm">
+                    <span>-</span>
+                    <input type="date" id="customEndDate" class="form-control form-control-sm">
+                </div>
+            </div>
+            <button type="button" class="btn-refresh no-export" id="refreshDateRangeBtn"><i class="fas fa-sync-alt"></i> Uygula</button>
+        </div>
+        
+        ${statsHtml}
+        
+        <div class="chart-card">
+            <div class="card-header"><span class="card-header-title"><i class="fas fa-chart-line"></i> Günlük Performans Trendi</span></div>
+            <div class="chart-container"><canvas id="performanceChart"></canvas></div>
+        </div>
+        ${tableHtml}
+        ${movementReportFooterNote ? `<div class="report-footer-note">${escapeHtml(movementReportFooterNote)}</div>` : ''}
+        </div>
+    `;
+    
+    document.getElementById('mainContent').innerHTML = mainHtml;
+    
+    // Grafiği çiz (veriler zaten artan sırada, grafikte değişiklik yok)
+    if (labels && labels.length > 0) {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        if (currentChart) currentChart.destroy();
+        currentChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.map(d => d.slice(5,10)),
+                datasets: [
+                    { label: 'Gösterim', data: impressions, borderColor: '#57c7ff', backgroundColor: 'rgba(87, 199, 255, 0.12)', borderWidth: 2, fill: true, yAxisID: 'y', tension: 0.35 },
+                    { label: 'Tıklama', data: clicks, borderColor: '#49e0a4', backgroundColor: 'rgba(73, 224, 164, 0.10)', borderWidth: 2, fill: true, yAxisID: 'y', tension: 0.35 },
+                    { label: 'Harcama TL', data: spend, borderColor: '#f7b955', backgroundColor: 'rgba(247, 185, 85, 0.12)', borderWidth: 2, fill: true, yAxisID: 'y1', tension: 0.35 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#cbd5e1', boxWidth: 12, boxHeight: 12 } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || '';
+                                const value = context.parsed.y;
+                                return label.includes('TL') ? `${label}: ${formatCurrency(value)}` : `${label}: ${formatNumber(value)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#a8b3c7' }, grid: { color: 'rgba(148, 163, 184, 0.12)' } },
+                    y: {
+                        title: { display: true, text: 'Gösterim / Tıklama', color: '#cbd5e1' },
+                        ticks: { color: '#a8b3c7', callback: value => formatNumber(value) },
+                        grid: { color: 'rgba(148, 163, 184, 0.12)' },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        title: { display: true, text: 'Harcama TL', color: '#cbd5e1' },
+                        ticks: { color: '#a8b3c7', callback: value => formatCurrency(value) },
+                        grid: { drawOnChartArea: false },
+                        position: 'right',
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    // Zaman aralığı butonlarına olay ekle
+    document.querySelectorAll('.date-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const range = this.dataset.range;
+            document.getElementById('dateRangeInput').value = range;
+            const customRow = document.getElementById('customDateRow');
+            if (customRow) customRow.style.display = range === 'custom' ? 'flex' : 'none';
+            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            if (range !== 'custom') {
+                refreshWithDateRange();
+            }
+        });
+    });
+    
+    // Aktif butonu vurgula
+    const currentRange = document.getElementById('dateRangeInput')?.value || 'weekly';
+    document.querySelectorAll('.date-btn').forEach(btn => {
+        if (btn.dataset.range === currentRange) btn.classList.add('active');
+    });
+
+    const refreshBtn = document.getElementById('refreshDateRangeBtn');
+    if (refreshBtn) refreshBtn.addEventListener('click', refreshWithDateRange);
+
+    const csvBtn = document.getElementById('downloadMetricsCsvBtn');
+    if (csvBtn) csvBtn.addEventListener('click', downloadMetricsCsv);
+
+    const pdfBtn = document.getElementById('downloadReportPdfBtn');
+    if (pdfBtn) pdfBtn.addEventListener('click', function() {
+        downloadTopReportPdf(this);
+    });
+}
+
+function refreshWithDateRange() {
+    const range = document.getElementById('dateRangeInput').value;
+    if (range === 'custom') {
+        const start = document.getElementById('customStartDate').value;
+        const end = document.getElementById('customEndDate').value;
+        if (!start || !end) {
+            alert('Lütfen başlangıç ve bitiş tarihi seçin.');
+            return;
+        }
+    }
+    loadData();
+}
+
+function getDownloadBaseName(prefix) {
+    const title = document.querySelector('.reklam-title')?.innerText || 'reklam-hareketleri';
+    const date = new Date().toISOString().slice(0, 10);
+    const safeTitle = title
+        .toLocaleLowerCase('tr-TR')
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48) || 'reklam-hareketleri';
+    return `${prefix}-${safeTitle}-${date}`;
+}
+
+function downloadMetricsCsv() {
+    document.body.dataset.exportStatus = 'csv-started';
+    const table = document.getElementById('dailyMetricsTable');
+    if (!table) {
+        alert('CSV için tablo verisi bulunamadı.');
+        document.body.dataset.exportStatus = 'csv-missing-table';
+        return;
+    }
+
+    const rows = Array.from(table.querySelectorAll('tr')).map(row => {
+        return Array.from(row.querySelectorAll('th, td')).map(cell => {
+            const value = cell.innerText.trim().replace(/\s+/g, ' ');
+            return `"${value.replace(/"/g, '""')}"`;
+        }).join(';');
+    });
+
+    const csv = `\uFEFF${rows.join('\r\n')}`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${getDownloadBaseName('gunluk-metrik-degisimleri')}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(link.href);
+    document.body.dataset.exportStatus = 'csv-ready';
+}
+window.downloadMetricsCsv = downloadMetricsCsv;
+
+async function downloadTopReportPdf(button) {
+    document.body.dataset.exportStatus = 'pdf-started';
+    const report = document.getElementById('movementReportSection');
+    if (!report) {
+        alert('PDF raporu için rapor alanı bulunamadı.');
+        document.body.dataset.exportStatus = 'pdf-missing-report';
+        return;
+    }
+
+    const originalText = button?.innerHTML;
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PDF Açılıyor';
+    }
+
+    try {
+        document.body.classList.add('report-print-mode');
+        const originalTitle = document.title;
+        document.title = getDownloadBaseName('reklam-hareketleri-raporu');
+        window.print();
+        document.title = originalTitle;
+        document.body.dataset.exportStatus = 'pdf-ready';
+    } catch (error) {
+        console.error('PDF oluşturma hatası:', error);
+        document.body.dataset.exportStatus = 'pdf-error';
+        alert('PDF oluşturulurken hata oluştu.');
+    } finally {
+        document.body.classList.remove('report-print-mode');
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    }
+}
+window.downloadTopReportPdf = downloadTopReportPdf;
+
+function formatNumber(num, fractionDigits = 0) {
+    const number = Number.parseFloat(num);
+    const safeNumber = Number.isFinite(number) ? number : 0;
+    return new Intl.NumberFormat('tr-TR', {
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits
+    }).format(safeNumber);
+}
+
+function formatDecimal(num) {
+    return formatNumber(num, 2);
+}
+
+function formatCurrency(num) {
+    return `${formatDecimal(num)} TL`;
+}
+
+function formatPercent(num) {
+    return `${formatDecimal(num)}%`;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// Platform - Hesap bağlantısı
+function updateAccounts() {
+    const platform = document.getElementById('platformSelect').value;
+    const accountSelect = document.getElementById('accountSelect');
+    const options = accountSelect.querySelectorAll('option');
+    accountSelect.value = '';
+    let hasVisible = false;
+    options.forEach(opt => {
+        if (opt.value === '') {
+            opt.style.display = 'block';
+            return;
+        }
+        const optPlatform = opt.getAttribute('data-platform');
+        if (!platform || optPlatform === platform) {
+            opt.style.display = 'block';
+            hasVisible = true;
+        } else {
+            opt.style.display = 'none';
+        }
+    });
+    if (!hasVisible && platform) {
+        // İsteğe bağlı uyarı
+    }
+    loadData();
+}
+
+// Sayfa yüklendiğinde
+document.addEventListener('DOMContentLoaded', function() {
+    // Global değişkenler
+    window.dateRangeInput = document.createElement('input');
+    window.dateRangeInput.type = 'hidden';
+    window.dateRangeInput.id = 'dateRangeInput';
+    window.dateRangeInput.value = 'weekly';
+    document.body.appendChild(window.dateRangeInput);
+    window.selectedAdId = document.createElement('input');
+    window.selectedAdId.type = 'hidden';
+    window.selectedAdId.id = 'selectedAdId';
+    const initialAdParams = new URLSearchParams(window.location.search || '');
+    window.selectedAdId.value = initialAdParams.get('reklam_id') || initialAdParams.get('ad_id') || initialAdParams.get('open_ad') || '';
+    document.body.appendChild(window.selectedAdId);
+    
+    const platformSelect = document.getElementById('platformSelect');
+    const accountSelect = document.getElementById('accountSelect');
+    platformSelect.addEventListener('change', updateAccounts);
+    accountSelect.addEventListener('change', loadData);
+    
+    loadData();
+});
+</script>
+{% endblock %}

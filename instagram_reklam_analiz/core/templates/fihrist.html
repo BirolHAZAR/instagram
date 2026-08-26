@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reklam Fihristi | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/fihrist.css' %}?v=20260716-1">
+{% endblock %}
+
+{% block content %}
+<main class="glossary-page">
+    <header class="glossary-heading">
+        <div>
+            <span class="glossary-kicker"><i class="fas fa-book-open"></i> ReklamAnaliz Sözlüğü</span>
+            <h1>Reklam Fihristi</h1>
+            <p>Reklam raporlarında karşılaştığınız metrikleri, kavramları ve hesaplama yöntemlerini sade Türkçeyle keşfedin.</p>
+        </div>
+        <div class="glossary-total" aria-label="Toplam terim sayısı">
+            <strong>{{ terms|length }}</strong>
+            <span>temel terim</span>
+        </div>
+    </header>
+
+    <section class="glossary-tools" aria-label="Fihrist arama ve filtreleri">
+        <div class="glossary-search-wrap">
+            <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+            <input id="glossarySearch" type="search" autocomplete="off" placeholder="ROAS, tıklama oranı, maliyet..." aria-label="Fihristte ara">
+            <button id="glossaryClear" type="button" title="Aramayı temizle" aria-label="Aramayı temizle" hidden><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="glossary-categories" role="group" aria-label="Kategori filtresi">
+            <button class="glossary-category active" type="button" data-category="all" aria-pressed="true">Tümü</button>
+            {% for category in categories %}
+            <button class="glossary-category" type="button" data-category="{{ category }}" aria-pressed="false">{{ category }}</button>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div class="glossary-summary" aria-live="polite">
+        <span><strong id="glossaryResultCount">{{ terms|length }}</strong> terim gösteriliyor</span>
+        <span id="glossaryActiveFilter">Tüm kategoriler</span>
+    </div>
+
+    <section class="glossary-list" id="glossaryList" aria-label="Reklam terimleri">
+        {% for item in terms %}
+        <article class="glossary-item" data-category="{{ item.category }}" data-search="{{ item.term }} {{ item.name }} {{ item.description }} {{ item.formula }} {{ item.aliases }}">
+            <div class="glossary-term">
+                <span class="glossary-category-label">{{ item.category }}</span>
+                <h2>{{ item.term }}</h2>
+                <strong>{{ item.name }}</strong>
+            </div>
+            <div class="glossary-meaning">
+                <p>{{ item.description }}</p>
+                <div class="glossary-formula">
+                    <span>Formül</span>
+                    <code>{{ item.formula }}</code>
+                </div>
+            </div>
+            <div class="glossary-example">
+                <span>Örnek</span>
+                <p>{{ item.example }}</p>
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+
+    <section class="glossary-empty" id="glossaryEmpty" hidden>
+        <i class="fas fa-magnifying-glass"></i>
+        <h2>Terim bulunamadı</h2>
+        <p>Farklı bir kısaltma veya Türkçe karşılık deneyin.</p>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/fihrist.js' %}?v=20260716-1"></script>
+{% endblock %}

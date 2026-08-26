@@ -1,0 +1,463 @@
+/* ============================================
+   ŞİFRE SIFIRLAMA SAYFASI ÖZEL STİLLERİ
+   Instagram Reklam Analiz Platformu
+   ============================================ */
+
+/* ---------- Password Reset Container ---------- */
+.password-reset-container {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.password-reset-card {
+    max-width: 450px;
+    width: 100%;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.password-reset-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 1.75rem;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.password-reset-header h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.password-reset-header p {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.password-reset-body {
+    padding: 2rem;
+}
+
+.password-reset-done-container {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.password-reset-done-card {
+    max-width: 500px;
+    width: 100%;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease;
+    text-align: center;
+}
+
+.password-reset-done-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    padding: 1.75rem;
+    text-align: center;
+    color: white;
+}
+
+.password-reset-done-header h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.password-reset-done-header p {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.password-reset-done-body {
+    padding: 2rem;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: #d1fae5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.success-icon i {
+    font-size: 3rem;
+    color: #10b981;
+}
+
+.info-text {
+    color: #4b5563;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.email-highlight {
+    background: #f3f4f6;
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    color: #667eea;
+    margin: 1rem 0;
+    word-break: break-all;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    text-decoration: none;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.note-text {
+    font-size: 0.7rem;
+    color: #6b7280;
+    margin-top: 1rem;
+}
+
+/* ---------- Form Grupları ---------- */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 0.85rem;
+}
+
+.form-group label i {
+    margin-right: 8px;
+    color: #667eea;
+    width: 18px;
+}
+
+/* ---------- Input Grupları ---------- */
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-group .input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 0.9rem;
+    z-index: 1;
+    transition: color 0.3s ease;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    font-size: 0.9rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+    font-family: inherit;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.input-group input:focus + .input-icon {
+    color: #667eea;
+}
+
+.input-group input.error {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+/* ---------- Buton ---------- */
+.btn-reset {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-reset::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-reset:hover::before {
+    left: 100%;
+}
+
+.btn-reset:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-reset:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ---------- Geri Butonu ---------- */
+.btn-back {
+    background: transparent;
+    border: 1px solid #667eea;
+    color: #667eea;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    transform: translateY(-2px);
+    border-color: transparent;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* ---------- Alert Mesajları ---------- */
+.alert {
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 0.8rem;
+    animation: slideInRight 0.3s ease;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border-left-color: #10b981;
+}
+
+.alert-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left-color: #ef4444;
+}
+
+.alert-info {
+    background: #dbeafe;
+    color: #1e40af;
+    border-left-color: #3b82f6;
+}
+
+.alert i {
+    font-size: 1rem;
+}
+
+/* ---------- Text Center ---------- */
+.text-center {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+/* ---------- Loading Spinner ---------- */
+.spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+/* ---------- Animasyonlar ---------- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---------- Responsive Tasarım ---------- */
+@media (max-width: 576px) {
+    .password-reset-card {
+        margin: 0 1rem;
+    }
+    
+    .password-reset-header {
+        padding: 1.25rem;
+    }
+    
+    .password-reset-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .password-reset-body {
+        padding: 1.25rem;
+    }
+
+    .password-reset-done-card {
+        margin: 0 1rem;
+    }
+
+    .password-reset-done-header {
+        padding: 1.25rem;
+    }
+
+    .password-reset-done-body {
+        padding: 1.25rem;
+    }
+
+    .success-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .success-icon i {
+        font-size: 2rem;
+    }
+    
+    .input-group input {
+        padding: 0.7rem 1rem 0.7rem 2.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-reset {
+        padding: 0.7rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-back {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* ---------- Dark Mode Desteği ---------- */
+@media (prefers-color-scheme: dark) {
+    .password-reset-card {
+        background: #1f2937;
+    }
+    
+    .password-reset-body {
+        background: #1f2937;
+    }
+    
+    .form-group label {
+        color: #f3f4f6;
+    }
+    
+    .input-group input {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f3f4f6;
+    }
+    
+    .input-group input:focus {
+        background: #1f2937;
+    }
+    
+    .btn-back {
+        color: #9ca3af;
+        border-color: #9ca3af;
+    }
+    
+    .btn-back:hover {
+        color: white;
+    }
+}

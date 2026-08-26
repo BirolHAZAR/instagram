@@ -1,0 +1,63 @@
+{% load tr_numbers %}
+<section class="ct-executive-summary-card {{ executive_summary.status|default:'neutral' }}" aria-label="Octo Executive Summary">
+  <span class="ct-tip info" data-tip="Yönetici özeti; en önemli fırsat, en kritik risk, potansiyel kazanç ve risk altındaki değeri tek ekranda anlatır."><i class="fas fa-circle-info"></i> Özet</span>
+  <div class="ct-executive-main">
+    <div class="ct-executive-brand">
+      <div class="ct-executive-icon {{ executive_summary.status|default:'neutral' }}">
+        <i class="fas {{ executive_summary.status_icon|default:'fa-eye' }}"></i>
+      </div>
+      <div>
+        <span class="ct-executive-eyebrow">YÖNETİCİ ÖZETİ</span>
+        <h2>OCTO <strong>EXECUTIVE SUMMARY</strong></h2>
+        <p>Dashboarddaki en güncel AI analiz kaydından üretilen kısa yönetici özeti.</p>
+      </div>
+    </div>
+    <div class="ct-executive-status-badge {{ executive_summary.status|default:'neutral' }}">
+      <i class="fas {{ executive_summary.status_icon|default:'fa-eye' }}"></i>
+      {{ executive_summary.status_label|default:'İZLEMEDE' }}
+    </div>
+  </div>
+
+  <div class="ct-executive-metrics">
+    <div class="ct-executive-metric good"><span><i class="fas fa-arrow-trend-up"></i> Fırsatlar</span><strong>{{ executive_summary.opportunities|default:0|tr_int }}</strong><small>Öne çıkan pozitif sinyal</small></div>
+    <div class="ct-executive-metric bad"><span><i class="fas fa-triangle-exclamation"></i> Riskler</span><strong>{{ executive_summary.risks|default:0|tr_int }}</strong><small>Öncelikli takip alanı</small></div>
+    <div class="ct-executive-metric good"><span><i class="fas fa-coins"></i> Potansiyel Kazanç</span><strong>{{ executive_summary.potential_gain|default:0|tr_int }} TL</strong><small>AI fırsat tahmini</small></div>
+    <div class="ct-executive-metric bad"><span><i class="fas fa-shield-halved"></i> Risk Altındaki Gelir</span><strong>{{ executive_summary.potential_loss|default:0|tr_int }} TL</strong><small>Önlenebilir kayıp</small></div>
+    <div class="ct-executive-metric info"><span><i class="fas fa-brain"></i> AI Güven</span><strong>%{{ executive_summary.confidence|default:0 }}</strong><small>{{ executive_summary.updated_at|default:'Henüz analiz yok' }}</small></div>
+  </div>
+
+  <div class="ct-executive-insights">
+    <article class="ct-executive-insight good">
+      <span>EN KRİTİK FIRSAT</span>
+      <strong>{{ executive_summary.top_opportunity.title|default:'Fırsat izleniyor' }}</strong>
+      {% if executive_summary.top_opportunity.items %}
+        <ol class="ct-executive-numbered-list">
+          {% for item in executive_summary.top_opportunity.items %}<li>{{ item }}</li>{% endfor %}
+        </ol>
+      {% else %}
+        <p>{{ executive_summary.top_opportunity.detail|default:'Octo yeni fırsatları sonraki analiz döneminde yeniden ölçecek.' }}</p>
+      {% endif %}
+      <em>Etki: {{ executive_summary.top_opportunity.amount|default:0|tr_int }} TL</em>
+    </article>
+
+    <article class="ct-executive-insight bad">
+      <span>EN KRİTİK RİSK</span>
+      <strong>{{ executive_summary.top_risk.title|default:'Risk izleniyor' }}</strong>
+      {% if executive_summary.top_risk.items %}
+        <ol class="ct-executive-numbered-list">
+          {% for item in executive_summary.top_risk.items %}<li>{{ item }}</li>{% endfor %}
+        </ol>
+      {% else %}
+        <p>{{ executive_summary.top_risk.detail|default:'Kritik risk sinyalleri sonraki analiz döneminde yeniden ölçülecek.' }}</p>
+      {% endif %}
+      <em>Risk: {{ executive_summary.top_risk.amount|default:0|tr_int }} TL</em>
+    </article>
+
+    <article class="ct-executive-insight neutral">
+      <span>OPERASYON DURUMU</span>
+      <strong>{{ executive_summary.status_text|default:'Veriler düzenli izlenmeli.' }}</strong>
+      <p>{{ executive_summary.campaigns|default:0|tr_int }} kampanya · {{ executive_summary.pending_tasks|default:0|tr_int }} bekleyen görev · {{ executive_summary.critical_alerts|default:0|tr_int }} kritik uyarı</p>
+      <em>Octo Score: {{ executive_summary.octo_score|default:0 }}</em>
+    </article>
+  </div>
+</section>

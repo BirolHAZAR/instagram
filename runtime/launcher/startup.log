@@ -1,0 +1,9 @@
+﻿2026-08-20 11:34:22 ReklamAnaliz Docker servisleri kontrol ediliyor.
+2026-08-20 11:34:23 Docker imajlari guncelleniyor ve servisler baslatiliyor.
+2026-08-20 11:34:31 Demo kullanicisi dogrulaniyor.
+2026-08-20 11:34:42 ReklamAnaliz hazir: http://127.0.0.1:8000/
+2026-08-20 11:41:36 Redis zaten hazir.
+2026-08-20 11:41:36 Mevcut PostgreSQL veritabani kontrol ediliyor.
+2026-08-20 11:41:46 Yerel web sunucusu baslatiliyor.
+2026-08-20 11:42:10 Celery servisleri baslatiliyor.
+2026-08-20 11:42:11 ReklamAnaliz hazir: http://127.0.0.1:8000/

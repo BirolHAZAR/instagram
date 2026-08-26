@@ -1,0 +1,181 @@
+/* Styles extracted from core/templates/instagram/account_detail.html. */
+
+/* Extracted from core/templates/instagram/account_detail.html: account_detail.html */
+/* Özel buton stilleri - site renkleriyle uyumlu */
+    .btn-gradient {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    .btn-gradient:hover {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        color: white;
+    }
+    .btn-gradient:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .btn-outline-gradient {
+        background: transparent;
+        border: 1px solid #6366f1;
+        color: #6366f1;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-gradient:hover {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border-color: transparent;
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    /* Instagram Giriş Butonu - Özel Stil */
+    .btn-instagram-login {
+        background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af, #515bd4);
+        border: none;
+        color: white !important;
+        transition: all 0.3s ease;
+    }
+    .btn-instagram-login:hover {
+        background: linear-gradient(135deg, #e06c1f, #c51e6b, #6a2a9e, #3f46c4);
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(245, 133, 41, 0.3);
+        color: white !important;
+    }
+    
+    /* Kart başlık renkleri */
+    .card-header.bg-primary {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    }
+    .card-header.bg-success {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+    }
+    
+    /* Progress bar */
+    .progress-bar {
+        background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    }
+    
+    /* Demografik Analiz Stilleri */
+    .demographic-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .demographic-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 0.75rem;
+    }
+    .progress {
+        height: 8px;
+        border-radius: 4px;
+        margin: 0.5rem 0;
+    }
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+    .stat-label {
+        font-size: 0.7rem;
+        color: #6b7280;
+    }
+    .location-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .location-item:last-child {
+        border-bottom: none;
+    }
+    .location-name {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    .location-percentage {
+        font-size: 0.8rem;
+        color: #6366f1;
+        font-weight: 600;
+    }
+    .insight-badge {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    .loading-spinner {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid #e5e7eb;
+        border-top-color: #6366f1;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    .real-badge {
+        background: #10b981;
+        color: white;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 50px;
+        margin-left: 0.5rem;
+    }
+    
+    /* ============================================
+       INSTAGRAM GİRİŞ POPUP (Telefon Boyutu)
+       ============================================ */
+    .instagram-login-modal .modal-dialog {
+        max-width: 380px;
+        margin: 1.75rem auto;
+    }
+    .instagram-login-modal .modal-content {
+        border-radius: 20px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .instagram-login-modal .modal-body {
+        padding: 0;
+        height: 560px;
+        overflow: hidden;
+    }
+    .instagram-login-iframe {
+        width: 100%;
+        height: 560px;
+        border: none;
+        background: white;
+    }
+    .instagram-login-header {
+        background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af, #515bd4);
+        padding: 12px;
+        text-align: center;
+        color: white;
+    }
+    .instagram-login-header h5 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    .instagram-login-header p {
+        margin: 0;
+        font-size: 0.7rem;
+        opacity: 0.9;
+    }
+
+/* Extracted from core/templates/instagram/account_detail.html: account_detail.html */
+.bg-pink {
+    background: linear-gradient(90deg, #ec489a, #f43f5e);
+}

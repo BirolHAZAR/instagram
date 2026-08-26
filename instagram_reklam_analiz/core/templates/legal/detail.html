@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ document.title }} | ReklamAnaliz.net{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/legal.css' %}?v=contrast-20260716-1">{% endblock %}
+
+{% block content %}
+<section class="legal-shell legal-detail-shell">
+    <nav class="legal-breadcrumb" aria-label="Sayfa yolu">
+        <a href="{% url 'legal_document_index' %}">Hukuk ve Politikalar</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>{{ document.title }}</span>
+    </nav>
+
+    {% if is_preview %}
+    <div class="legal-preview-note"><i class="fas fa-triangle-exclamation"></i> Bu metin {{ document.get_status_display|lower }} durumunda ve yalnızca personel önizlemesinde görünür.</div>
+    {% endif %}
+
+    <article class="legal-document">
+        <header>
+            <span class="legal-eyebrow">{{ document.get_category_display }}</span>
+            <h1>{{ document.title }}</h1>
+            <p>{{ document.summary }}</p>
+            <div class="legal-meta">
+                <span><i class="fas fa-code-branch"></i> Sürüm {{ document.version }}</span>
+                {% if document.effective_date %}<span><i class="fas fa-calendar-check"></i> Yürürlük: {{ document.effective_date|date:"d.m.Y" }}</span>{% endif %}
+                <span><i class="fas fa-clock"></i> Güncelleme: {{ document.updated_at|date:"d.m.Y" }}</span>
+            </div>
+        </header>
+        <div class="legal-document-body">{{ rendered_content }}</div>
+        <footer>
+            <strong>İletişim</strong>
+            <span>{{ site_settings.company_name }} · <a href="mailto:{{ site_settings.support_email }}">{{ site_settings.support_email }}</a></span>
+        </footer>
+    </article>
+</section>
+{% endblock %}

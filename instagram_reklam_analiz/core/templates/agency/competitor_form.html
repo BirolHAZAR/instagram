@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rakip Ekle - Ajans Paneli{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="agency-page">
+  <div class="agency-shell">
+    <div class="agency-topbar">
+      <div class="agency-title"><h1>Rakip ekle</h1><p>Müşteri bazında rakip profili oluşturun.</p></div>
+      <a class="agency-btn" href="{% url 'agency_dashboard_org' organization.id %}"><i class="fas fa-arrow-left"></i> Geri</a>
+    </div>
+    <section class="agency-panel agency-form">
+      <form method="post">
+        {% csrf_token %}
+        <div class="agency-form-row">
+          <div>{{ form.agency_client.label_tag }}{{ form.agency_client }}</div>
+          <div>{{ form.platform.label_tag }}{{ form.platform }}</div>
+          <div>{{ form.platform_account.label_tag }}{{ form.platform_account }}</div>
+          <div>{{ form.category.label_tag }}{{ form.category }}</div>
+          <div>{{ form.name.label_tag }}{{ form.name }}</div>
+          <div>{{ form.platform_identifier.label_tag }}{{ form.platform_identifier }}</div>
+          <div>{{ form.website.label_tag }}{{ form.website }}</div>
+        </div>
+        <div style="margin-top:14px;">{{ form.description.label_tag }}{{ form.description }}</div>
+        <div class="form-check" style="margin-top:14px;">{{ form.is_active }} {{ form.is_active.label_tag }}</div>
+        {{ form.errors }}
+        <button class="agency-btn primary" type="submit" style="margin-top:18px;"><i class="fas fa-save"></i> Kaydet</button>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

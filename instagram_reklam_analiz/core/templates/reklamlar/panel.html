@@ -1,0 +1,1323 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reklam Yönetim Paneli - Tüm Platformlar{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ads_ai_popup.css' %}?v=20260723-2">
+<style>
+
+    :root{
+        --bg-primary:#050816;--bg-secondary:#0A1028;--panel:#0F1633;--panel-soft:#111A3D;
+        --accent:#6C63FF;--accent-light:#8B84FF;--cyan:#35D5FF;--green:#22C55E;
+        --warning:#F59E0B;--danger:#EF4444;--text:#FFFFFF;--text-soft:#B8BED0;
+        --muted:#8791B2;--line:rgba(139,132,255,.18);--glass:rgba(255,255,255,.065);
+        --shadow:0 28px 70px rgba(0,0,0,.38);--radius:26px;
+    }
+    body{background:radial-gradient(circle at 12% 0%,rgba(108,99,255,.28),transparent 32%),radial-gradient(circle at 88% 10%,rgba(53,213,255,.15),transparent 28%),linear-gradient(180deg,var(--bg-primary),#070B1D 58%,#050816);color:var(--text);}
+    main{padding-top:2rem!important;}
+    .text-muted,.small.text-muted{color:var(--text-soft)!important;}
+    .octo-page-shell{max-width:1440px;margin:0 auto;}
+    .octo-hero{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(15,22,51,.96),rgba(10,16,40,.94));border:1px solid var(--line);border-radius:32px;padding:1.35rem 1.55rem;margin-bottom:1.45rem;box-shadow:var(--shadow);}
+    .octo-hero:before{content:"";position:absolute;inset:-40%;background:radial-gradient(circle,rgba(108,99,255,.18),transparent 35%);pointer-events:none;}
+    .octo-hero-inner{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:1.25rem;}
+    .octo-kicker{display:inline-flex;align-items:center;gap:.45rem;padding:.36rem .75rem;border:1px solid rgba(139,132,255,.35);border-radius:999px;background:rgba(108,99,255,.12);color:#DAD8FF;font-size:.76rem;font-weight:800;letter-spacing:.35px;text-transform:uppercase;}
+    .octo-hero h1{font-size:clamp(1.55rem,2.2vw,2.35rem);font-weight:900;letter-spacing:-.04em;margin:.7rem 0 .35rem;}
+    .octo-hero p{color:var(--text-soft);font-size:.98rem;max-width:820px;margin:0;line-height:1.65;}
+    .octo-visual{width:138px;min-width:138px;height:138px;border-radius:30px;background:linear-gradient(145deg,rgba(108,99,255,.18),rgba(53,213,255,.1));display:flex;align-items:center;justify-content:center;border:1px solid rgba(139,132,255,.25);box-shadow:inset 0 0 35px rgba(108,99,255,.18);}
+    .octo-visual img{max-width:155px;max-height:155px;object-fit:contain;filter:drop-shadow(0 24px 34px rgba(0,0,0,.45));}
+    .octo-chip-row{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.95rem;}
+    .octo-chip{display:inline-flex;align-items:center;gap:.42rem;padding:.48rem .72rem;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);color:#E9ECFF;font-size:.78rem;font-weight:700;}
+    .glass-card,.platform-selector,.sidebar,.reklam-header,.filter-bar,.chart-card,.table-card,.filter-sidebar,.table-container,.card,.platform-card{background:rgba(15,22,51,.82)!important;border:1px solid var(--line)!important;border-radius:24px!important;box-shadow:0 18px 46px rgba(0,0,0,.24)!important;color:var(--text)!important;backdrop-filter:blur(18px);}
+    .card-header,.filter-header-bar{background:rgba(10,16,40,.9)!important;border-color:var(--line)!important;color:var(--text)!important;}
+    h1,h2,h3,h4,h5,h6,.section-title,.filter-title,.reklam-title{color:var(--text)!important;}
+    select,input,textarea,.form-control,.form-select,.filter-select{background:rgba(5,8,22,.78)!important;border:1px solid rgba(139,132,255,.24)!important;color:var(--text)!important;border-radius:14px!important;}
+    input::placeholder,textarea::placeholder{color:#7E88A8!important;}
+    .btn-primary,.btn-sync,.btn-apply,.btn-modal-submit{background:linear-gradient(135deg,var(--accent),var(--accent-light))!important;border:none!important;color:#fff!important;box-shadow:0 14px 28px rgba(108,99,255,.28);}
+    .btn-light,.btn-outline-light,.btn-reset,.btn-connect{border-radius:999px!important;}
+    .btn-light{background:#fff!important;color:#111827!important;border:none!important;font-weight:800;}
+    .btn-outline-light,.btn-connect{border:1px solid rgba(255,255,255,.22)!important;color:#fff!important;background:rgba(255,255,255,.06)!important;}
+    .btn-outline-light:hover,.btn-connect:hover{background:#fff!important;color:#050816!important;}
+    table{color:var(--text)!important;} th{background:rgba(10,16,40,.92)!important;color:#DDE3FF!important;border-color:var(--line)!important;} td{border-color:rgba(139,132,255,.12)!important;color:#E8ECFF!important;}
+    .stat-card{background:rgba(17,26,61,.86)!important;border:1px solid var(--line)!important;border-radius:20px!important;color:var(--text)!important;box-shadow:0 14px 34px rgba(0,0,0,.2)!important;}
+    .stat-value,.value{color:#fff!important;}.stat-label,.label{color:var(--text-soft)!important;}
+    .badge{font-weight:800;}
+    @media(max-width:900px){.octo-hero-inner{flex-direction:column;text-align:center}.octo-chip-row{justify-content:center}.octo-visual{width:118px;height:118px;min-width:118px}}
+
+    .container-fluid.py-4{max-width:1440px;margin:auto;padding-top:0!important;}
+    .page-header{display:none!important;}
+    .platform-btn{background:rgba(255,255,255,.065)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:16px!important;color:#EEF2FF!important;padding:.72rem .85rem!important;font-size:.86rem;font-weight:800;margin-bottom:.55rem;}
+    .platform-btn:hover,.platform-btn.active{background:linear-gradient(135deg,rgba(108,99,255,.95),rgba(139,132,255,.82))!important;transform:translateX(4px);}
+    .account-card{background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:16px!important;color:#fff!important;}
+    .account-card:hover,.account-card.active{border-color:var(--accent-light)!important;background:rgba(108,99,255,.16)!important;}
+    .ads-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;}
+    .ad-card{background:#fff!important;border-radius:22px!important;overflow:hidden;border:1px solid rgba(15,23,42,.08)!important;box-shadow:0 18px 44px rgba(0,0,0,.22)!important;}
+    .ad-card:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(0,0,0,.28)!important;}
+    .ad-title{color:#111827!important;font-weight:900!important;}.metric-mini{background:#F5F7FF!important;border:1px solid #E8ECFF!important;}
+    .metric-mini .label{color:#64748b!important}.metric-mini .value{color:#111827!important}.collapsible-section summary{color:#5B55EA!important;}
+    @media(max-width:1400px){.ads-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:1100px){.ads-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:768px){.ads-grid{grid-template-columns:1fr}}
+
+
+    /* Sol platform kartı: bozmadan akordeon hesap görünümü */
+    .platform-accordion-item{margin-bottom:.65rem;}
+    .platform-btn{position:relative;display:flex!important;align-items:center;justify-content:space-between;gap:.7rem;}
+    .platform-main{display:flex;align-items:center;gap:.65rem;min-width:0;}
+    .platform-main i{width:24px;text-align:center;font-size:1.05rem;}
+    .platform-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .platform-count{font-size:.68rem;font-weight:900;color:#050816;background:linear-gradient(135deg,#fff,#DDE3FF);border-radius:999px;padding:.18rem .48rem;box-shadow:0 8px 20px rgba(0,0,0,.16);}
+    .platform-chevron{font-size:.72rem;color:#DAD8FF;transition:transform .22s ease;}
+    .platform-accordion-item.open .platform-chevron{transform:rotate(180deg);}
+    .platform-accounts-inline{display:none;margin:.45rem 0 .75rem .35rem;padding:.55rem;border:1px solid rgba(139,132,255,.16);border-radius:18px;background:rgba(5,8,22,.32);}
+    .platform-accordion-item.open .platform-accounts-inline{display:block;animation:octoAccounts .18s ease-out;}
+    @keyframes octoAccounts{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+    .account-card-inline{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:14px!important;color:#fff!important;padding:.7rem .75rem;margin-bottom:.45rem;cursor:pointer;transition:.2s;}
+    .account-card-inline:last-child{margin-bottom:0;}
+    .account-card-inline:hover,.account-card-inline.active{border-color:var(--accent-light)!important;background:rgba(108,99,255,.20)!important;transform:translateX(4px);}
+    .account-card-inline .account-name{font-size:.78rem;font-weight:850;line-height:1.25;color:#fff;}
+    .account-card-inline .account-id{font-size:.64rem;color:var(--text-soft);margin-top:.15rem;}
+    .octo-mini-advisor{display:flex;align-items:center;gap:.7rem;margin-top:1rem;padding:.85rem;border-radius:18px;background:linear-gradient(135deg,rgba(108,99,255,.16),rgba(53,213,255,.08));border:1px solid rgba(139,132,255,.18);}
+    .octo-mini-advisor img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 12px 16px rgba(0,0,0,.35));}
+    .octo-mini-advisor strong{font-size:.78rem;color:#fff;display:block;}
+    .octo-mini-advisor span{font-size:.66rem;color:var(--text-soft);line-height:1.35;display:block;}
+
+
+    /* V2: Sol kartı ortalı/kompakt yap, sağ reklam kartlarını 4 kolon hizala */
+    .row.g-4{align-items:flex-start;}
+    .platform-left-col{display:flex;justify-content:center;}
+    .platform-card-compact{
+        width:100%;
+        max-width:300px;
+        margin:0 auto;
+        padding:1rem!important;
+        border-radius:22px!important;
+    }
+    .platform-card-compact h5{
+        font-size:.92rem!important;
+        margin-bottom:.85rem!important;
+        text-align:center;
+        letter-spacing:-.01em;
+    }
+    .platform-card-compact hr{margin:.9rem 0!important;}
+    .platform-btn{
+        min-height:46px;
+        padding:.62rem .68rem!important;
+        font-size:.82rem!important;
+        border-radius:14px!important;
+        margin-bottom:.48rem!important;
+    }
+    .platform-main{gap:.55rem;}
+    .platform-main i{width:21px;font-size:.98rem;}
+    .platform-count{font-size:.64rem;padding:.14rem .42rem;}
+    .platform-accounts-inline{
+        margin:.36rem .08rem .65rem .08rem!important;
+        padding:.48rem!important;
+        border-radius:15px!important;
+    }
+    .account-card-inline{
+        padding:.62rem .66rem!important;
+        border-radius:12px!important;
+        margin-bottom:.38rem!important;
+    }
+    .account-card-inline .account-name{font-size:.74rem!important;}
+    .account-card-inline .account-id{font-size:.6rem!important;}
+    #accountList{font-size:.72rem;line-height:1.35;}
+    .octo-mini-advisor{
+        flex-direction:column;
+        text-align:center;
+        gap:.45rem;
+        padding:.75rem!important;
+        border-radius:16px!important;
+    }
+    .octo-mini-advisor img{width:58px;height:58px;}
+    .octo-mini-advisor strong{font-size:.74rem!important;}
+    .octo-mini-advisor span{font-size:.62rem!important;}
+    .ads-right-col{min-width:0;}
+    .ads-panel-wide{padding:1.08rem!important;}
+    .ads-grid{
+        display:grid!important;
+        grid-template-columns:repeat(4,minmax(0,1fr))!important;
+        gap:.9rem!important;
+        align-items:start;
+    }
+    .ad-card{width:100%;min-width:0;}
+    .ad-media img,.ad-media video,.video-container{height:180px!important;}
+    .ad-content{padding:.72rem!important;}
+    .ad-title{font-size:.8rem!important;line-height:1.32!important;}
+    .metric-mini{padding:5px 6px!important;}
+    .metric-mini .label{font-size:.55rem!important;}
+    .metric-mini .value{font-size:.68rem!important;}
+    .collapsible-section summary{font-size:.66rem!important;}
+    @media(max-width:1399px){.ads-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}.platform-card-compact{max-width:292px;}}
+    @media(max-width:1100px){.ads-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}.platform-card-compact{max-width:100%;}}
+    @media(max-width:991px){.platform-left-col{justify-content:stretch}.platform-card-compact{max-width:100%;}.ads-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
+    @media(max-width:640px){.ads-grid{grid-template-columns:1fr!important;}.ad-media img,.ad-media video,.video-container{height:210px!important;}}
+
+    /* ===== FINAL FIX: Sol platform kartı oranları + reklam iç metrik/grafik okunabilirliği ===== */
+
+    /* Sol kart daha dar, başlık daha güçlü, butonlar eşit ölçü */
+    .platform-card-compact{
+        max-width:276px!important;
+        padding:.95rem!important;
+    }
+    .platform-card-compact h5{
+        font-size:1.08rem!important;
+        line-height:1.25!important;
+        font-weight:900!important;
+        text-align:center!important;
+        margin-bottom:1rem!important;
+        color:#FFFFFF!important;
+        letter-spacing:-.02em!important;
+    }
+    .platform-card-compact h5 i{
+        font-size:1.02rem!important;
+        color:var(--accent-light)!important;
+    }
+    .platform-btn,
+    .account-card-inline{
+        min-height:44px!important;
+        height:44px!important;
+        padding:.58rem .68rem!important;
+        font-size:.84rem!important;
+        line-height:1!important;
+        border-radius:14px!important;
+        display:flex!important;
+        align-items:center!important;
+    }
+    .platform-btn{
+        justify-content:space-between!important;
+        margin-bottom:.45rem!important;
+    }
+    .platform-main,
+    .account-card-inline{
+        gap:.54rem!important;
+    }
+    .platform-main i{
+        width:21px!important;
+        min-width:21px!important;
+        font-size:1rem!important;
+    }
+    .platform-name,
+    .account-card-inline .account-name{
+        font-size:.84rem!important;
+        font-weight:850!important;
+        letter-spacing:-.01em!important;
+        white-space:nowrap!important;
+        overflow:hidden!important;
+        text-overflow:ellipsis!important;
+        color:#F4F6FF!important;
+    }
+    .platform-count{
+        min-width:25px!important;
+        height:22px!important;
+        display:inline-flex!important;
+        align-items:center!important;
+        justify-content:center!important;
+        font-size:.68rem!important;
+        padding:0 .38rem!important;
+    }
+    .platform-chevron{
+        font-size:.68rem!important;
+    }
+    .platform-accounts-inline{
+        padding:.44rem!important;
+        margin:.32rem 0 .62rem 0!important;
+        border-radius:15px!important;
+    }
+    .account-card-inline{
+        justify-content:flex-start!important;
+        margin-bottom:.4rem!important;
+    }
+    .account-card-inline .account-id{
+        display:none!important;
+    }
+    #accountList{
+        font-size:.74rem!important;
+    }
+
+    /* Reklam kartı iç okunabilirlik */
+    .ad-card{
+        color:#111827!important;
+        background:#FFFFFF!important;
+    }
+    .ad-card *{
+        box-sizing:border-box;
+    }
+    .ad-card .text-muted,
+    .ad-card .small.text-muted,
+    .ad-card small{
+        color:#64748B!important;
+    }
+    .ad-media{
+        position:relative!important;
+        background:#E5E7EB!important;
+        min-height:180px!important;
+        overflow:hidden!important;
+    }
+    .ad-type-badge{
+        position:absolute!important;
+        top:9px!important;
+        right:9px!important;
+        z-index:5!important;
+        display:inline-flex!important;
+        align-items:center!important;
+        gap:4px!important;
+        padding:.26rem .52rem!important;
+        border-radius:999px!important;
+        background:rgba(5,8,22,.78)!important;
+        color:#FFFFFF!important;
+        font-size:.62rem!important;
+        font-weight:850!important;
+        backdrop-filter:blur(8px)!important;
+        box-shadow:0 8px 18px rgba(0,0,0,.18)!important;
+    }
+    .ad-content{
+        color:#111827!important;
+        background:#FFFFFF!important;
+    }
+    .ad-title{
+        font-size:.82rem!important;
+        line-height:1.35!important;
+        color:#0F172A!important;
+        margin-bottom:.65rem!important;
+        letter-spacing:-.015em!important;
+    }
+
+    /* Açılır analiz bölümleri */
+    .collapsible-section{
+        border:1px solid #E7EAF5!important;
+        border-radius:14px!important;
+        margin-top:.55rem!important;
+        padding:0!important;
+        overflow:hidden!important;
+        background:#FAFBFF!important;
+    }
+    .collapsible-section summary{
+        list-style:none!important;
+        display:flex!important;
+        align-items:center!important;
+        justify-content:space-between!important;
+        min-height:34px!important;
+        padding:.55rem .68rem!important;
+        background:linear-gradient(180deg,#FFFFFF,#F5F7FF)!important;
+        color:#312E81!important;
+        font-size:.74rem!important;
+        line-height:1.15!important;
+        font-weight:900!important;
+        letter-spacing:-.01em!important;
+        border-bottom:1px solid #E7EAF5!important;
+        cursor:pointer!important;
+    }
+    .collapsible-section summary::-webkit-details-marker{
+        display:none!important;
+    }
+    .collapsible-section summary:after{
+        content:"⌄";
+        color:#6C63FF;
+        font-weight:900;
+        transition:.2s;
+    }
+    .collapsible-section[open] summary:after{
+        transform:rotate(180deg);
+    }
+    .collapsible-section > div{
+        color:#111827!important;
+    }
+
+    /* Metrik kutuları */
+    .metric-mini{
+        background:#F8FAFF!important;
+        border:1px solid #E5E9F7!important;
+        border-radius:11px!important;
+        padding:.44rem .45rem!important;
+        min-height:48px!important;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.7)!important;
+    }
+    .metric-mini .label{
+        display:block!important;
+        color:#667085!important;
+        font-size:.62rem!important;
+        line-height:1.15!important;
+        font-weight:800!important;
+        margin-bottom:.18rem!important;
+        white-space:nowrap!important;
+        overflow:hidden!important;
+        text-overflow:ellipsis!important;
+    }
+    .metric-mini .value{
+        display:block!important;
+        color:#111827!important;
+        font-size:.78rem!important;
+        line-height:1.1!important;
+        font-weight:950!important;
+        letter-spacing:-.02em!important;
+    }
+
+    /* Bütçe / performans barları */
+    .heatmap-bar{
+        width:100%!important;
+        height:8px!important;
+        border-radius:999px!important;
+        background:#E5E7EB!important;
+        overflow:hidden!important;
+        margin-top:.35rem!important;
+        box-shadow:inset 0 1px 2px rgba(15,23,42,.08)!important;
+    }
+    .heatmap-fill{
+        height:100%!important;
+        min-width:4px!important;
+        border-radius:999px!important;
+        display:block!important;
+    }
+
+    /* Saatlik ısı haritası */
+    .hourly-chart{
+        display:flex!important;
+        align-items:flex-end!important;
+        gap:3px!important;
+        height:74px!important;
+        padding:.62rem .55rem .48rem!important;
+        margin:.4rem .55rem .62rem!important;
+        border-radius:13px!important;
+        background:linear-gradient(180deg,#F8FAFF,#EEF2FF)!important;
+        border:1px solid #E3E8F8!important;
+    }
+    .hourly-bar{
+        flex:1 1 0!important;
+        min-width:5px!important;
+        max-width:12px!important;
+        border-radius:6px 6px 3px 3px!important;
+        opacity:1!important;
+        box-shadow:0 4px 10px rgba(99,102,241,.14)!important;
+        border:1px solid rgba(255,255,255,.65)!important;
+    }
+    .hourly-bar:hover{
+        transform:scaleY(1.08)!important;
+        filter:saturate(1.15)!important;
+    }
+
+    /* Demografi / şehir barları */
+    .demographic-row{
+        display:grid!important;
+        grid-template-columns:48px 1fr 36px!important;
+        align-items:center!important;
+        gap:7px!important;
+        margin:.32rem .55rem!important;
+        font-size:.68rem!important;
+        color:#111827!important;
+    }
+    .demographic-row .label{
+        width:auto!important;
+        text-align:left!important;
+        color:#475467!important;
+        font-size:.64rem!important;
+        font-weight:850!important;
+        white-space:nowrap!important;
+        overflow:hidden!important;
+        text-overflow:ellipsis!important;
+    }
+    .demographic-row .bar-container{
+        position:relative!important;
+        height:13px!important;
+        border-radius:999px!important;
+        background:#E8ECF7!important;
+        overflow:hidden!important;
+        box-shadow:inset 0 1px 2px rgba(15,23,42,.08)!important;
+    }
+    .demographic-row .bar-fill{
+        position:absolute!important;
+        left:0!important;
+        top:0!important;
+        height:100%!important;
+        min-width:3px!important;
+        border-radius:999px!important;
+        display:block!important;
+    }
+    .demographic-row .bar-value{
+        width:auto!important;
+        text-align:right!important;
+        color:#111827!important;
+        font-size:.64rem!important;
+        font-weight:950!important;
+    }
+
+    /* Cihaz dağılımı */
+    .device-dist{
+        display:grid!important;
+        grid-template-columns:72px 1fr 34px!important;
+        align-items:center!important;
+        gap:7px!important;
+        margin:.34rem .55rem!important;
+        color:#111827!important;
+        font-size:.66rem!important;
+    }
+    .device-dist span{
+        color:#475467!important;
+        font-size:.64rem!important;
+        font-weight:850!important;
+        white-space:nowrap!important;
+    }
+    .device-dist strong{
+        color:#111827!important;
+        font-size:.64rem!important;
+        font-weight:950!important;
+        text-align:right!important;
+    }
+    .device-bar{
+        height:12px!important;
+        min-width:4px!important;
+        border-radius:999px!important;
+        display:block!important;
+        box-shadow:0 3px 8px rgba(15,23,42,.12)!important;
+    }
+
+    /* Açılır bölümlerin iç başlıklarını görünür yap */
+    .collapsible-section div[style*="font-size:0.6rem"]{
+        color:#344054!important;
+        font-size:.66rem!important;
+        font-weight:900!important;
+        margin:.55rem .55rem .35rem!important;
+    }
+
+    /* Durum, tarih, AI butonu */
+    .ad-status{
+        display:inline-flex!important;
+        align-items:center!important;
+        min-height:24px!important;
+        padding:.28rem .55rem!important;
+        border-radius:999px!important;
+        font-size:.64rem!important;
+        font-weight:900!important;
+    }
+    .status-active{background:#DCFCE7!important;color:#166534!important;}
+    .status-paused{background:#FEF3C7!important;color:#92400E!important;}
+    .status-completed{background:#E0E7FF!important;color:#3730A3!important;}
+    .btn-ai-analyze{
+        background:linear-gradient(135deg,#6C63FF,#8B84FF)!important;
+        color:#FFFFFF!important;
+        border:none!important;
+        border-radius:999px!important;
+        padding:.36rem .72rem!important;
+        font-size:.68rem!important;
+        font-weight:900!important;
+        box-shadow:0 10px 20px rgba(108,99,255,.25)!important;
+    }
+    .btn-ai-analyze:hover{
+        transform:translateY(-1px)!important;
+        color:#FFFFFF!important;
+        filter:saturate(1.12)!important;
+    }
+
+    /* 4 kolon korunur, içerik sıkışınca okunurluk bozulmaz */
+    .ads-grid{
+        grid-template-columns:repeat(4,minmax(0,1fr))!important;
+        gap:.92rem!important;
+    }
+    @media(max-width:1399px){.ads-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}}
+    @media(max-width:1100px){.ads-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
+    @media(max-width:640px){.ads-grid{grid-template-columns:1fr!important;}}
+
+
+    /* ===== ONLY FIX: Platform butonları sabit ve eşit genişlik ===== */
+    .platform-card-compact{
+        width:276px!important;
+        max-width:276px!important;
+        min-width:276px!important;
+    }
+    #platformList,
+    .platform-accordion-item,
+    .platform-accounts-inline{
+        width:100%!important;
+        max-width:100%!important;
+        box-sizing:border-box!important;
+    }
+    .platform-btn{
+        width:100%!important;
+        max-width:100%!important;
+        min-width:100%!important;
+        box-sizing:border-box!important;
+        display:flex!important;
+        align-items:center!important;
+        justify-content:space-between!important;
+    }
+    .platform-main{
+        flex:1 1 auto!important;
+        min-width:0!important;
+        max-width:calc(100% - 58px)!important;
+    }
+    .platform-name{
+        display:block!important;
+        width:100%!important;
+        min-width:0!important;
+    }
+    .platform-btn > .d-flex{
+        flex:0 0 52px!important;
+        width:52px!important;
+        min-width:52px!important;
+        justify-content:flex-end!important;
+    }
+    .account-card-inline{
+        width:100%!important;
+        max-width:100%!important;
+        min-width:100%!important;
+        box-sizing:border-box!important;
+    }
+    @media(max-width:991px){
+        .platform-card-compact{
+            width:100%!important;
+            max-width:100%!important;
+            min-width:0!important;
+        }
+    }
+
+    .ads-agency-filter{position:relative;z-index:3;display:flex;align-items:center;gap:.85rem;margin-top:1.1rem;padding:.85rem 1rem;border-radius:18px;background:linear-gradient(135deg,rgba(108,99,255,.22),rgba(53,213,255,.09));border:1px solid rgba(139,132,255,.42);box-shadow:0 14px 30px rgba(0,0,0,.18)}.ads-agency-filter label{display:flex;align-items:center;gap:.45rem;font-size:.78rem;font-weight:900;white-space:nowrap}.ads-agency-filter select{margin-left:auto;width:min(410px,100%);height:42px;padding:0 .85rem!important;font-weight:900}.ads-agency-filter small{font-size:.68rem;color:var(--text-soft);font-weight:800}@media(max-width:700px){.ads-agency-filter{align-items:stretch;flex-direction:column}.ads-agency-filter select{margin-left:0;width:100%}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 octo-page-shell">
+    <section class="octo-hero">
+        <div class="octo-hero-inner">
+            <div>
+                <span class="octo-kicker"><i class="fas fa-brain"></i> Octo Reklam Komuta Merkezi</span>
+                <h1>Tüm reklam hesaplarınız tek panelde, tek zekâ ile yönetilir.</h1>
+                <p>Meta, TikTok, Google Ads, LinkedIn, X ve Google Analytics verilerinizi birleştirin; reklamlarınızı çekin, performansı görün ve AI destekli aksiyon önerileriyle bütçenizi daha bilinçli yönetin.</p>
+                <div class="octo-chip-row"><span class="octo-chip"><i class="fab fa-google"></i> Google Ads</span><span class="octo-chip"><i class="fas fa-chart-pie"></i> GA4</span><span class="octo-chip"><i class="fab fa-meta"></i> Meta</span><span class="octo-chip"><i class="fab fa-tiktok"></i> TikTok</span><span class="octo-chip"><i class="fas fa-robot"></i> AI Öneri</span></div>
+            </div>
+            <div class="octo-visual"><img src="{% static 'images/octo-one.webp' %}" alt="Octo AI"></div>
+        </div>
+        {% if agency_scope.is_agency %}
+        <form class="ads-agency-filter" method="get" action="{{ request.path }}">
+            <label for="adsPanelAgencyClient"><i class="fas fa-building-user"></i> Ajans müşterisi</label>
+            <select id="adsPanelAgencyClient" name="agency_client" onchange="this.form.submit()">
+                <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm müşteriler</option>
+                {% for client in agency_scope.clients %}
+                <option value="{{ client.id }}"{% if agency_scope.selected_client.id == client.id %} selected{% endif %}>{{ client.organization.name }} · {{ client.name }}</option>
+                {% endfor %}
+            </select>
+            <small>Platform hesapları ve reklamlar seçime göre otomatik yenilenir.</small>
+        </form>
+        {% endif %}
+    </section>
+    <div class="page-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold"><i class="fas fa-chart-line me-2"></i> Reklam Yönetim Paneli</h1>
+                <p class="opacity-75 mb-0">Tüm platformlardaki reklamlarınızı tek yerden yönetin, analiz edin ve senkronize edin.</p>
+            </div>
+            <div class="mt-3 mt-sm-0">
+                <a href="{% url 'dashboard' %}" class="btn btn-light rounded-pill px-4">
+                    <i class="fas fa-arrow-left me-2"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-3 platform-left-col">
+            <div class="platform-selector platform-card-compact">
+                <h5 class="fw-bold mb-3"><i class="fas fa-th-large me-2"></i> Platformlar</h5>
+                <div id="platformList"><div class="loading-spinner"></div></div>
+                <hr class="my-3 opacity-25">
+                <h5 class="fw-bold mb-3"><i class="fas fa-users me-2"></i> Hesaplar</h5>
+                <div id="accountList"><div class="text-center py-3 text-muted">Bir platform seçin</div></div>
+                <button id="syncBtn" class="btn btn-sync w-100 mt-3" disabled><i class="fas fa-sync-alt me-2"></i> Reklamları Çek</button>
+                <div class="octo-mini-advisor">
+                    <img src="{% static 'images/octo-one.webp' %}" alt="Octo AI">
+                    <div>
+                        <strong>Octo hesapları burada toplar.</strong>
+                        <span>Platforma tıklayın, bağlı hesapları açın ve reklamları tek panelde çekin.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 ads-right-col">
+            <div class="platform-selector ads-panel-wide">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold mb-0"><i class="fas fa-ad me-2"></i> Reklamlar</h4>
+                    <span id="adCount" class="badge bg-primary rounded-pill px-3 py-2">0 reklam</span>
+                </div>
+                <div id="adsContainer" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="octoSyncOverlay" style="display:none; position:fixed; inset:0; background:rgba(5,8,22,.84); backdrop-filter:blur(10px); z-index:99999; align-items:center; justify-content:center;">
+    <div style="width:min(560px,92vw); background:linear-gradient(135deg,#0F1633,#0A1028); border:1px solid rgba(139,132,255,.35); border-radius:28px; padding:28px; color:white; text-align:center; box-shadow:0 30px 80px rgba(0,0,0,.45);">
+        <div style="width:112px;height:112px;margin:0 auto 16px;border-radius:50%;background:rgba(108,99,255,.18);display:flex;align-items:center;justify-content:center;">
+            <img src="{% static 'images/octo-one.webp' %}" alt="Octo" style="width:112px;height:112px;object-fit:contain;filter:drop-shadow(0 18px 24px rgba(0,0,0,.35));">
+        </div>
+
+        <h4 style="font-weight:900;margin-bottom:8px;">Octo reklam hesabını inceliyor</h4>
+        <p id="octoSyncMessage" style="color:#B8BED0;margin-bottom:18px;">Senkronizasyon başlatılıyor...</p>
+
+        <div style="height:12px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin-bottom:16px;">
+            <div id="octoSyncProgress" style="height:100%;width:0%;background:linear-gradient(90deg,#6C63FF,#35D5FF);border-radius:999px;transition:.35s;"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px;">
+            <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:10px;">
+                <strong id="octoCampaignCount">0</strong>
+                <span style="display:block;font-size:11px;color:#B8BED0;">Kampanya</span>
+            </div>
+            <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:10px;">
+                <strong id="octoAdGroupCount">0</strong>
+                <span style="display:block;font-size:11px;color:#B8BED0;">Reklam Grubu</span>
+            </div>
+            <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:10px;">
+                <strong id="octoAdCount">0</strong>
+                <span style="display:block;font-size:11px;color:#B8BED0;">Reklam</span>
+            </div>
+            <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:10px;">
+                <strong id="octoCreativeCount">0</strong>
+                <span style="display:block;font-size:11px;color:#B8BED0;">Kreatif</span>
+            </div>
+            <div style="background:rgba(255,255,255,.07);border-radius:14px;padding:10px;">
+                <strong id="octoMetricCount">0</strong>
+                <span style="display:block;font-size:11px;color:#B8BED0;">Metrik</span>
+            </div>
+        </div>
+
+        <div id="octoSyncError" style="display:none;margin-top:14px;color:#FCA5A5;font-size:13px;"></div>
+
+        <button id="octoSyncCloseBtn" onclick="closeOctoSyncOverlay()" style="display:none;margin-top:18px;border:0;border-radius:999px;padding:10px 20px;font-weight:800;background:white;color:#050816;">
+            Tamam
+        </button>
+    </div>
+</div>
+
+<script>
+    let currentPlatformCode = null;
+    let currentAccountId = null;
+    const agencyClientScope = '{{ agency_scope.selected_client.id|default:""|escapejs }}';
+    window.adsPanelAgencyClientScope = agencyClientScope;
+
+    function scopedApiUrl(path, params = {}) {
+        const url = new URL(path, window.location.origin);
+        if (agencyClientScope) url.searchParams.set('agency_client', agencyClientScope);
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') url.searchParams.set(key, value);
+        });
+        return url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function normalizePlatformCode(rawCode) {
+        const code = (rawCode || '').toString().trim().toLowerCase();
+        const map = {
+            'meta': 'facebook',
+            'fb': 'facebook',
+            'facebook_ads': 'facebook',
+            'instagram_business': 'instagram',
+            'google': 'google_ads',
+            'googleads': 'google_ads',
+            'google-ads': 'google_ads',
+            'ga4': 'google_analytics',
+            'analytics': 'google_analytics',
+            'twitter': 'x',
+            'twitter_x': 'x'
+        };
+        return map[code] || code;
+    }
+
+    function getAccountsFromPayload(data, platformCode) {
+        const normalizedCode = normalizePlatformCode(platformCode);
+
+        if (Array.isArray(data.accounts)) return data.accounts;
+        if (Array.isArray(data.platform_accounts)) return data.platform_accounts;
+        if (Array.isArray(data.connections)) return data.connections;
+        if (Array.isArray(data.results)) return data.results;
+
+        const platforms = Array.isArray(data.platforms) ? data.platforms : [];
+        const platform = platforms.find(p => normalizePlatformCode(p.code || p.platform_code || p.slug || p.name) === normalizedCode);
+
+        if (!platform) return [];
+
+        if (Array.isArray(platform.accounts)) return platform.accounts;
+        if (Array.isArray(platform.platform_accounts)) return platform.platform_accounts;
+        if (Array.isArray(platform.connections)) return platform.connections;
+        return [];
+    }
+
+    function getAccountName(acc) {
+        return acc.account_name || acc.name || acc.display_name || acc.page_name || acc.business_name || acc.username || acc.account_id || acc.external_account_id || 'Reklam Hesabı';
+    }
+
+    function getAccountExternalId(acc) {
+        return acc.account_id || acc.external_account_id || acc.platform_account_id || acc.remote_id || acc.id || '';
+    }
+
+    async function loadPlatforms() {
+        const container = document.getElementById('platformList');
+        const accountList = document.getElementById('accountList');
+
+        try {
+            container.innerHTML = '<div class="loading-spinner"></div>';
+
+            const resp = await fetch(scopedApiUrl('/api/platform-accounts/'), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await resp.json();
+
+            if (!data.success) {
+                container.innerHTML = '<div class="text-center py-3 text-muted">Platformlar yüklenemedi.</div>';
+                return;
+            }
+
+            const rawPlatforms = data.platforms || [];
+            const platforms = rawPlatforms.map(p => ({
+                ...p,
+                code: normalizePlatformCode(p.code || p.platform_code || p.slug || p.name),
+                name: p.name || getPlatformLabel(normalizePlatformCode(p.code || p.platform_code || p.slug || p.name)),
+                account_count: p.account_count || p.accounts_count || p.connection_count || p.connected_accounts_count || (Array.isArray(p.accounts) ? p.accounts.length : 0) || (Array.isArray(p.platform_accounts) ? p.platform_accounts.length : 0) || 0
+            }));
+
+            if (!platforms.length) {
+                container.innerHTML = '<div class="text-center py-3">Hiç platform hesabı yok.<br><a href="/hesap-ekle/">Hesap ekleyin</a></div>';
+                accountList.innerHTML = '<div class="text-center py-3 text-muted">Bir platform seçin</div>';
+                return;
+            }
+
+            let html = '';
+            platforms.forEach(p => {
+                html += `
+                    <div class="platform-accordion-item" data-platform-wrap="${escapeHtml(p.code)}">
+                        <button class="platform-btn" data-platform="${escapeHtml(p.code)}" type="button">
+                            <span class="platform-main">
+                                <i class="${getPlatformIcon(p.code)}"></i>
+                                <span class="platform-name">${escapeHtml(p.name || getPlatformLabel(p.code))}</span>
+                            </span>
+                            <span class="d-flex align-items-center gap-2">
+                                <span class="platform-count">${p.account_count || 0}</span>
+                                <i class="fas fa-chevron-down platform-chevron"></i>
+                            </span>
+                        </button>
+                        <div class="platform-accounts-inline" id="accounts-inline-${escapeHtml(p.code)}">
+                            <div class="small text-muted px-1 py-2">Hesapları görmek için platforma tıklayın.</div>
+                        </div>
+                    </div>`;
+            });
+
+            container.innerHTML = html;
+
+            container.querySelectorAll('.platform-btn').forEach(btn => {
+                btn.addEventListener('click', async function () {
+                    const platformCode = normalizePlatformCode(this.dataset.platform);
+                    const wrap = document.querySelector(`[data-platform-wrap="${platformCode}"]`);
+                    const inlineTarget = document.getElementById(`accounts-inline-${platformCode}`);
+                    const wasOpen = wrap && wrap.classList.contains('open');
+
+                    document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.platform-accordion-item').forEach(item => item.classList.remove('open'));
+
+                    currentAccountId = null;
+                    const syncBtn = document.getElementById('syncBtn');
+                    if (syncBtn) syncBtn.disabled = true;
+
+                    if (wasOpen) {
+                        currentPlatformCode = null;
+                        accountList.innerHTML = '<div class="text-center py-3 text-muted">Bir platform seçin</div>';
+                        return;
+                    }
+
+                    this.classList.add('active');
+                    if (wrap) wrap.classList.add('open');
+                    currentPlatformCode = platformCode;
+
+                    accountList.innerHTML = '<div class="text-center py-3 text-muted">Hesaplar yükleniyor...</div>';
+                    await loadAccounts(platformCode, inlineTarget, data);
+                });
+            });
+
+        } catch (error) {
+            console.error('Platformlar yüklenemedi:', error);
+            container.innerHTML = '<div class="text-center py-3 text-muted">Platformlar yüklenirken hata oluştu.</div>';
+        }
+    }
+
+    async function loadAccounts(platformCode, targetContainer = null, platformPayload = null) {
+        const normalizedCode = normalizePlatformCode(platformCode);
+        const inlineContainer = targetContainer || document.getElementById(`accounts-inline-${normalizedCode}`);
+        const sideAccountList = document.getElementById('accountList');
+
+        if (!inlineContainer) return;
+
+        inlineContainer.innerHTML = '<div class="loading-spinner"></div>';
+
+        try {
+            let data = platformPayload;
+            let accounts = data ? getAccountsFromPayload(data, normalizedCode) : [];
+
+            if (!accounts.length) {
+                const resp = await fetch(scopedApiUrl('/api/platform-accounts/', {platform: normalizedCode}), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                data = await resp.json();
+                accounts = getAccountsFromPayload(data, normalizedCode);
+            }
+
+            if (!data || !data.success || !accounts.length) {
+                inlineContainer.innerHTML = '<div class="text-center py-3 text-muted">Bu platformda bağlı hesap yok.</div>';
+                sideAccountList.innerHTML = '<div class="text-center py-3 text-muted">Bu platformda hesap yok.</div>';
+                return;
+            }
+
+            let html = '';
+            accounts.forEach(acc => {
+                const accountId = acc.id || acc.pk || acc.connection_id;
+                const accountName = getAccountName(acc);
+                const accountExternalId = getAccountExternalId(acc);
+
+                html += `
+                    <div class="account-card-inline" data-account-id="${escapeHtml(accountId)}">
+                        <div class="account-name">${escapeHtml(accountName)}</div>
+                        <div class="account-id">ID: ${escapeHtml(accountExternalId)}</div>
+                    </div>`;
+            });
+
+            inlineContainer.innerHTML = html;
+
+            const sideHtml = accounts.map(acc => {
+                const accountId = acc.id || acc.pk || acc.connection_id;
+                const accountName = getAccountName(acc);
+                const accountExternalId = getAccountExternalId(acc);
+                return `
+                    <div class="account-card-inline" data-account-id="${escapeHtml(accountId)}">
+                        <div class="account-name">${escapeHtml(accountName)}</div>
+                        <div class="account-id">ID: ${escapeHtml(accountExternalId)}</div>
+                    </div>`;
+            }).join('');
+
+            sideAccountList.innerHTML = sideHtml || `<div class="text-center py-3 text-muted">${accounts.length} hesap ${getPlatformLabel(normalizedCode)} altında gösteriliyor.</div>`;
+
+            document.querySelectorAll('.account-card-inline').forEach(card => {
+                card.addEventListener('click', function (event) {
+                    event.stopPropagation();
+
+                    document.querySelectorAll('.account-card-inline, .account-card').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+
+                    currentAccountId = this.dataset.accountId;
+
+                    const syncBtn = document.getElementById('syncBtn');
+                    if (syncBtn) syncBtn.disabled = false;
+
+                    loadAds(currentAccountId);
+                });
+            });
+
+        } catch (error) {
+            console.error('Platform hesapları yüklenemedi:', error);
+            inlineContainer.innerHTML = '<div class="text-center py-3 text-muted">Hesaplar yüklenirken hata oluştu.</div>';
+            sideAccountList.innerHTML = '<div class="text-center py-3 text-muted">Hesaplar yüklenemedi.</div>';
+        }
+    }
+
+    function getPlatformLabel(code) {
+        return {
+            'instagram':'Instagram',
+            'facebook':'Facebook',
+            'google_ads':'Google Ads',
+            'google_analytics':'Google Analytics',
+            'youtube':'YouTube',
+            'tiktok':'TikTok',
+            'linkedin':'LinkedIn',
+            'x':'X'
+        }[code] || 'platform';
+    }
+
+    async function loadAds(accountId) {
+        const container = document.getElementById('adsContainer');
+        container.innerHTML = '<div class="loading-spinner"></div>';
+        const resp = await fetch(scopedApiUrl('/api/reklamlar/', {account_id: accountId}));
+        const data = await resp.json();
+        if (!data.success || !data.ads.length) {
+            container.innerHTML = '<div class="text-center py-5"><i class="fas fa-ad fa-2x mb-2 opacity-50"></i><br>Bu hesaba ait reklam bulunamadı.</div>';
+            document.getElementById('adCount').innerText = '0 reklam';
+            return;
+        }
+        document.getElementById('adCount').innerText = `${data.ads.length} reklam`;
+        let html = '<div class="ads-grid">';
+        data.ads.forEach(ad => {
+            html += createAdCard(ad);
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function createAdCard(ad) {
+        let mediaHtml = '';
+        const mediaUrl = ad.media_url || '';
+        const adType = ad.media_type || 'image';
+        
+        if (adType === 'video' || adType === 'reels') {
+            mediaHtml = `
+                <div class="video-container" style="position:relative;width:100%;height:200px;background:#000;overflow:hidden;">
+                    <video src="${mediaUrl}" muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <source src="${mediaUrl}" type="video/mp4">
+                    </video>
+                    <img src="${ad.thumbnail_url || 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'}" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
+                    <div class="video-play-overlay" onclick="toggleVideo(this)" style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(0,0,0,0.2);z-index:2;">
+                        <i class="fas fa-play-circle" style="font-size:3rem;color:white;text-shadow:0 2px 15px rgba(0,0,0,0.5);"></i>
+                    </div>
+                </div>`;
+        } else {
+            const imgUrl = mediaUrl || `https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80`;
+            mediaHtml = `<img src="${imgUrl}" alt="${ad.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80'" style="width:100%;height:200px;object-fit:cover;">`;
+        }
+        
+        const metrics = ad;
+        const impressions = metrics.impressions || 0;
+        const clicks = metrics.clicks || 0;
+        const ctr = metrics.ctr || 0;
+        const spend = metrics.spend || 0;
+        const budget = metrics.budget || 0;
+        const budgetUsage = metrics.budget_usage_percent || 0;
+        const conversions = metrics.conversions || 0;
+        const cpc = metrics.cpc || 0;
+        const cpm = metrics.cpm || 0;
+        const conversionRate = metrics.conversion_rate || 0;
+        const roi = metrics.roi || 0;
+        const reach = metrics.reach || 0;
+        const frequency = metrics.frequency || 1;
+        const engagement = metrics.engagement || 0;
+        const engagementRate = metrics.engagement_rate || 0;
+        const likes = metrics.likes || 0;
+        const comments = metrics.comments || 0;
+        const shares = metrics.shares || 0;
+        const saves = metrics.saves || 0;
+        const videoViews = metrics.video_views || 0;
+        const videoCompletionRate = metrics.video_completion_rate || 0;
+        
+        // Status - gelen status_display'i öncelikle kullan
+        let statusClass = 'status-completed';
+        let statusText = 'Tamamlandı';
+        if (metrics.status_display) {
+            statusText = metrics.status_display;
+            if (metrics.status === 'active') statusClass = 'status-active';
+            else if (metrics.status === 'paused') statusClass = 'status-paused';
+        } else {
+            const rawStatus = (metrics.status || '').toLowerCase();
+            if (rawStatus === 'active') { statusClass = 'status-active'; statusText = 'Aktif'; }
+            else if (rawStatus === 'paused') { statusClass = 'status-paused'; statusText = 'Duraklatıldı'; }
+            else if (rawStatus === 'completed') { statusClass = 'status-completed'; statusText = 'Tamamlandı'; }
+            else if (rawStatus === 'pending_review') { statusClass = 'status-paused'; statusText = 'İncelemede'; }
+            else if (rawStatus === 'scheduled') { statusClass = 'status-completed'; statusText = 'Planlandı'; }
+        }
+        
+        let mediaTypeText = '📸 Görsel';
+        if (adType === 'video') mediaTypeText = '🎥 Video';
+        else if (adType === 'carousel') mediaTypeText = '🖼️ Carousel';
+        else if (adType === 'reels') mediaTypeText = '📱 Reels';
+        
+        let budgetColor = '', budgetText = '';
+        if (budgetUsage >= 90) { budgetColor = 'text-danger'; budgetText = '⚠️ Kritik'; }
+        else if (budgetUsage >= 70) { budgetColor = 'text-warning'; budgetText = '🟡 Yüksek'; }
+        else if (budgetUsage >= 30) { budgetColor = 'text-info'; budgetText = '🔵 Orta'; }
+        else { budgetColor = 'text-success'; budgetText = '✅ Düşük'; }
+        
+        // Performans skoru (API'den gelen yoksa hesapla)
+        let performanceScore = metrics.performance_score || 0;
+        if (performanceScore === 0 && (impressions > 0 || clicks > 0)) {
+            let ctrScore = Math.min(100, (ctr / 10) * 100);
+            let engagementScore = Math.min(100, (engagementRate / 10) * 100);
+            let conversionScore = Math.min(100, (conversionRate / 20) * 100);
+            performanceScore = Math.round((ctrScore + engagementScore + conversionScore) / 3);
+            if (isNaN(performanceScore)) performanceScore = 50;
+        }
+        let performanceColor = '';
+        if (performanceScore >= 80) performanceColor = '#10b981';
+        else if (performanceScore >= 60) performanceColor = '#f59e0b';
+        else if (performanceScore >= 40) performanceColor = '#ef4444';
+        else performanceColor = '#8b5cf6';
+        
+        // Saatlik etkileşim
+        const hourlyData = metrics.hourly_engagement || [];
+        const maxHourly = Math.max(...hourlyData, 1);
+        const peakHours = metrics.peak_hours || [];
+        const hourlyChartHtml = hourlyData.map((val, hour) => {
+            const isPeak = peakHours.includes(hour);
+            const heightPercent = maxHourly > 0 ? (val / maxHourly) * 100 : 0;
+            return `<div class="hourly-bar" style="height:${heightPercent}%;background:${isPeak ? 'linear-gradient(180deg,#f58529,#dd2a7b)' : '#cbd5e1'};" title="${hour}:00 - ${val} etkileşim${isPeak ? ' (Pik saat!)' : ''}"></div>`;
+        }).join('');
+        
+        // Yaş dağılımı
+        const ageData = metrics.age_distribution || {};
+        let ageDistributionHtml = '';
+        if (Object.keys(ageData).length === 0) {
+            ageDistributionHtml = '<div class="text-muted small">0</div>';
+        } else {
+            ageDistributionHtml = Object.entries(ageData).map(([age, val]) => {
+                const color = age === '25-34' ? '#f58529' : age === '18-24' ? '#dd2a7b' : '#cbd5e1';
+                return `<div class="demographic-row"><div class="label">${age}</div><div class="bar-container"><div class="bar-fill" style="width:${val}%;background:${color};"></div></div><div class="bar-value">${val}%</div></div>`;
+            }).join('');
+        }
+        
+        // Cinsiyet dağılımı
+        const genderData = metrics.gender_split || {};
+        let genderDistributionHtml = '';
+        if (Object.keys(genderData).length === 0) {
+            genderDistributionHtml = '<div class="text-muted small">0</div>';
+        } else {
+            genderDistributionHtml = `
+                <div class="demographic-row"><div class="label">👨 Erkek</div><div class="bar-container"><div class="bar-fill" style="width:${genderData.male || 0}%;background:#4e79a7;"></div></div><div class="bar-value">${genderData.male || 0}%</div></div>
+                <div class="demographic-row"><div class="label">👩 Kadın</div><div class="bar-container"><div class="bar-fill" style="width:${genderData.female || 0}%;background:#e15759;"></div></div><div class="bar-value">${genderData.female || 0}%</div></div>
+                <div class="demographic-row"><div class="label">❓ Diğer</div><div class="bar-container"><div class="bar-fill" style="width:${genderData.unknown || 0}%;background:#bab0ac;"></div></div><div class="bar-value">${Math.round(genderData.unknown || 0)}%</div></div>`;
+        }
+        
+        // Şehir dağılımı
+        const cityData = metrics.city_distribution || {};
+        let cityDistributionHtml = '';
+        if (Object.keys(cityData).length === 0) {
+            cityDistributionHtml = '<div class="text-muted small">0</div>';
+        } else {
+            cityDistributionHtml = Object.entries(cityData).slice(0,5).map(([city, val]) => `
+                <div class="demographic-row"><div class="label" style="width:50px;">${city.substring(0,6)}</div><div class="bar-container"><div class="bar-fill" style="width:${Math.min(100, val)}%;background:linear-gradient(90deg,#667eea,#764ba2);"></div></div><div class="bar-value">${val}%</div></div>`).join('');
+        }
+        
+        // Cihaz dağılımı
+        const deviceData = metrics.device_split || {};
+        let deviceDistributionHtml = '';
+        if (Object.keys(deviceData).length === 0) {
+            deviceDistributionHtml = '<div class="text-muted small">0</div>';
+        } else {
+            deviceDistributionHtml = `
+                <div class="device-dist"><span>📱 Mobil</span><div class="device-bar" style="width:${deviceData.mobile || 0}%;background:#4CAF50;"></div><strong>${deviceData.mobile || 0}%</strong></div>
+                <div class="device-dist"><span>💻 Masaüstü</span><div class="device-bar" style="width:${deviceData.desktop || 0}%;background:#2196F3;"></div><strong>${deviceData.desktop || 0}%</strong></div>
+                <div class="device-dist"><span>📋 Tablet</span><div class="device-bar" style="width:${deviceData.tablet || 0}%;background:#FF9800;"></div><strong>${Math.round(deviceData.tablet || 0)}%</strong></div>`;
+        }
+        
+        const adName = escapeHtml(ad.name || 'Reklam');
+        
+        return `
+            <div class="ad-card" data-ad-id="${ad.id}" onclick="if(!event.target.closest('button,details,a,video')) openAIPopup('${ad.id}')">
+                <div class="ad-media">
+                    ${mediaHtml}
+                    <span class="ad-type-badge">${mediaTypeText}</span>
+                </div>
+                <div class="ad-content">
+                    <div class="ad-title fw-bold">${adName}</div>
+                    <div class="ad-card-context"><span><i class="fas fa-bullhorn"></i><b>${escapeHtml(ad.campaign || '-')}</b></span><span><i class="fas fa-layer-group"></i><b>${escapeHtml(ad.ad_group || '-')}</b></span></div>
+                    
+                    <details class="collapsible-section">
+                        <summary>📊 Performans Metrikleri</summary>
+                        <div class="row g-1 mt-2">
+                            <div class="col-6"><div class="metric-mini"><div class="label">👁️ Gösterim</div><div class="value">${formatNumber(impressions)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">🖱️ Tıklama</div><div class="value">${formatNumber(clicks)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">📊 CTR</div><div class="value ${ctr > 3 ? 'text-success' : (ctr > 1.5 ? 'text-warning' : 'text-danger')}">${parseFloat(ctr).toFixed(2)}%</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">💰 Harcama</div><div class="value">₺${formatNumber(spend)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">👥 Erişim</div><div class="value">${formatNumber(reach)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">🔄 Frekans</div><div class="value">${parseFloat(frequency).toFixed(1)}x</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">💬 Etkileşim</div><div class="value">${formatNumber(engagement)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">📈 Etk. Oranı</div><div class="value">${parseFloat(engagementRate).toFixed(2)}%</div></div></div>
+                            <div class="col-4"><div class="metric-mini"><div class="label">❤️ Beğeni</div><div class="value">${formatNumber(likes)}</div></div></div>
+                            <div class="col-4"><div class="metric-mini"><div class="label">💬 Yorum</div><div class="value">${formatNumber(comments)}</div></div></div>
+                            <div class="col-4"><div class="metric-mini"><div class="label">🔖 Kaydetme</div><div class="value">${formatNumber(saves)}</div></div></div>
+                            ${(adType === 'video' || adType === 'reels') ? `
+                            <div class="col-6"><div class="metric-mini"><div class="label">🎬 Video İzlenme</div><div class="value">${formatNumber(videoViews)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini"><div class="label">⏱️ Tamamlanma</div><div class="value">${parseFloat(videoCompletionRate).toFixed(1)}%</div></div></div>` : ''}
+                        </div>
+                        
+                        <div class="mt-2">
+                            <div class="metric-mini" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe);">
+                                <div class="label">💰 Bütçe / Limit</div>
+                                <div class="value">₺${formatNumber(budget)}</div>
+                                <div class="small ${budgetColor} mt-1">Kullanım: ${parseFloat(budgetUsage).toFixed(1)}% ${budgetText}</div>
+                                <div class="heatmap-bar mt-1"><div class="heatmap-fill" style="width:${Math.min(100, budgetUsage)}%;background:${budgetUsage >= 90 ? '#ef4444' : (budgetUsage >= 70 ? '#f59e0b' : '#10b981')};"></div></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-1 mt-1">
+                            <div class="col-6"><div class="metric-mini" style="background:#f0fdf4;"><div class="label">💰 YG (ROI)</div><div class="value text-success">${parseFloat(roi).toFixed(1)}%</div></div></div>
+                            <div class="col-6"><div class="metric-mini" style="background:#eff6ff;"><div class="label">💸 TBM (CPC)</div><div class="value text-primary">₺${parseFloat(cpc).toFixed(2)}</div></div></div>
+                            <div class="col-6"><div class="metric-mini" style="background:#fff7ed;"><div class="label">🎯 Dönüşüm Oranı</div><div class="value text-warning">${parseFloat(conversionRate).toFixed(1)}%</div></div></div>
+                            <div class="col-6"><div class="metric-mini" style="background:#fef2f2;"><div class="label">📺 BGBM (CPM)</div><div class="value text-danger">₺${parseFloat(cpm).toFixed(2)}</div></div></div>
+                        </div>
+                    </details>
+                    
+                    <details class="collapsible-section">
+                        <summary>⏰ Etkileşim Saatleri (Isı Haritası)</summary>
+                        <div style="font-size:0.6rem;color:#888;margin-bottom:4px;">Pik saatler: ${peakHours.map(h => `${h}:00`).join(', ')}</div>
+                        <div class="hourly-chart">${hourlyChartHtml}</div>
+                    </details>
+                    
+                    <details class="collapsible-section">
+                        <summary>👥 Demografi - Yaş & Cinsiyet</summary>
+                        <div style="margin-top:4px;">
+                            <div style="font-size:0.6rem;font-weight:600;">Yaş Dağılımı</div>
+                            ${ageDistributionHtml}
+                            <div style="font-size:0.6rem;font-weight:600;margin:8px 0 4px;">Cinsiyet Dağılımı</div>
+                            ${genderDistributionHtml}
+                        </div>
+                    </details>
+                    
+                    <details class="collapsible-section">
+                        <summary>🏙️ Şehir & Cihaz Dağılımı</summary>
+                        <div style="margin-top:4px;">
+                            <div style="font-size:0.6rem;font-weight:600;">🌍 En Çok Etkileşim Alan Şehirler</div>
+                            ${cityDistributionHtml}
+                            <div style="font-size:0.6rem;font-weight:600;margin:8px 0 4px;">📱 Cihaz Dağılımı</div>
+                            ${deviceDistributionHtml}
+                        </div>
+                    </details>
+                    
+                    <div class="mt-2">
+                        <div class="d-flex justify-content-between small mb-1"><span>Performans Skoru</span><span class="fw-bold">${performanceScore}/100</span></div>
+                        <div style="height:4px;background:#e5e7eb;border-radius:2px;"><div style="width:${performanceScore}%; height:100%; background:${performanceColor}; border-radius:2px;"></div></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <span class="ad-status ${statusClass}">${statusText}</span>
+                        <small class="text-muted"><i class="fas fa-calendar"></i> ${ad.created_time ? new Date(ad.created_time).toLocaleDateString('tr-TR') : 'Yeni'}</small>
+                    </div>
+                    
+                </div>
+            </div>
+        `;
+    }
+
+    function toggleVideo(element) { }
+    function openAIPopup(adId, adTitle) { window.openAIPopup(adId, adTitle); }
+    
+    function openOctoSyncOverlay() {
+        const overlay = document.getElementById('octoSyncOverlay');
+        if (overlay) overlay.style.display = 'flex';
+
+        document.getElementById('octoSyncCloseBtn').style.display = 'none';
+        document.getElementById('octoSyncError').style.display = 'none';
+
+        updateOctoSyncUI({
+            progress: 0,
+            message: 'Octo senkronizasyonu başlatıyor...',
+            campaigns_count: 0,
+            adgroups_count: 0,
+            ads_count: 0,
+            creatives_count: 0,
+            metrics_count: 0
+        });
+    }
+
+    function closeOctoSyncOverlay() {
+        const overlay = document.getElementById('octoSyncOverlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+
+    function updateOctoSyncUI(job) {
+        document.getElementById('octoSyncProgress').style.width = `${job.progress || 0}%`;
+        document.getElementById('octoSyncMessage').innerText = job.message || 'İşleniyor...';
+        document.getElementById('octoCampaignCount').innerText = job.campaigns_count || 0;
+        document.getElementById('octoAdGroupCount').innerText = job.adgroups_count || 0;
+        document.getElementById('octoAdCount').innerText = job.ads_count || 0;
+        document.getElementById('octoCreativeCount').innerText = job.creatives_count || 0;
+        document.getElementById('octoMetricCount').innerText = job.metrics_count || 0;
+    }
+
+    function pollOctoSyncJob(jobId) {
+        const interval = setInterval(() => {
+            fetch(`/api/sync-job/${jobId}/`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) return;
+
+                const job = data.job;
+                updateOctoSyncUI(job);
+
+                if (job.status === 'completed') {
+                    clearInterval(interval);
+                    document.getElementById('octoSyncCloseBtn').style.display = 'inline-flex';
+
+                    if (typeof showToast === 'function') {
+                        showToast(job.message || 'Reklamlar başarıyla incelendi.', 'success', 'Octo tamamladı');
+                    }
+
+                    if (currentAccountId) loadAds(currentAccountId);
+                    loadPlatforms();
+                }
+
+                if (job.status === 'failed') {
+                    clearInterval(interval);
+                    document.getElementById('octoSyncCloseBtn').style.display = 'inline-flex';
+
+                    const errorBox = document.getElementById('octoSyncError');
+                    errorBox.style.display = 'block';
+                    errorBox.innerText = job.error_message || 'Senkronizasyon sırasında hata oluştu.';
+
+                    if (typeof showToast === 'function') {
+                        showToast(job.error_message || 'Senkronizasyon hatası oluştu.', 'error', 'Octo hata aldı');
+                    }
+                }
+            })
+            .catch(error => console.error('Sync job polling error:', error));
+        }, 1200);
+    }
+
+    function syncAccount(accountId, daysBack = 90) {
+        if (!accountId) {
+            if (typeof showToast === 'function') {
+                showToast('Lütfen önce bir reklam hesabı seçin.', 'warning', 'Hesap seçilmedi');
+            } else {
+                alert('Lütfen önce bir reklam hesabı seçin.');
+            }
+            return;
+        }
+
+        openOctoSyncOverlay();
+
+        const formData = new FormData();
+        formData.append('days_back', daysBack);
+
+        fetch(scopedApiUrl(`/api/sync-account/${accountId}/`), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || 'Senkronizasyon başlatılamadı.');
+            }
+            pollOctoSyncJob(data.job_id);
+        })
+        .catch(error => {
+            updateOctoSyncUI({
+                progress: 100,
+                message: error.message || 'Senkronizasyon başlatılırken hata oluştu.',
+                campaigns_count: 0,
+                adgroups_count: 0,
+                ads_count: 0,
+                creatives_count: 0,
+                metrics_count: 0
+            });
+
+            const errorBox = document.getElementById('octoSyncError');
+            errorBox.style.display = 'block';
+            errorBox.innerText = error.message || 'Senkronizasyon başlatılırken hata oluştu.';
+
+            document.getElementById('octoSyncCloseBtn').style.display = 'inline-flex';
+
+            if (typeof showToast === 'function') {
+                showToast(error.message, 'error', 'Hata');
+            }
+        });
+    }
+
+    document.getElementById('syncBtn').onclick = () => {
+        syncAccount(currentAccountId, 90);
+    };
+    
+    function formatNumber(n) { return window.raFormatNumber(n); }
+    function formatMoney(n) { return window.raFormatMoney(n); }
+    function getPlatformIcon(c) { return { 'instagram':'fab fa-instagram','facebook':'fab fa-facebook','google_ads':'fab fa-google','google_analytics':'fas fa-chart-pie','youtube':'fab fa-youtube','tiktok':'fab fa-tiktok','linkedin':'fab fa-linkedin','x':'fab fa-x-twitter' }[c] || 'fas fa-ad'; }
+    function getCookie(name) { let v = `; ${document.cookie}`; let parts = v.split(`; ${name}=`); if (parts.length===2) return parts.pop().split(';').shift(); }
+    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    
+    loadPlatforms();
+</script>
+<script>window.adsPanelCsrfToken = getCookie('csrftoken') || '';</script>
+<script src="{% static 'js/ads_ai_popup.js' %}?v=20260723-4"></script>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Demo Talep Et - ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/demo_request.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="demo-page">
+    <section class="demo-hero">
+        <div class="demo-hero-copy">
+            <div class="demo-eyebrow"><i class="fas fa-calendar-check"></i> ReklamAnaliz.net demo</div>
+            <h1>Reklam verinizi tek merkezde nasil karar sistemine donusturecegimizi birlikte gorelim.</h1>
+            <p>Meta, Instagram, TikTok, Google Ads, LinkedIn, X, Google Analytics, rakip reklam takibi ve Octo AI onerilerini ihtiyaciniza gore canli senaryo uzerinden anlatalim.</p>
+            <div class="demo-proof">
+                <span><i class="fas fa-chart-line"></i> Performans analizi</span>
+                <span><i class="fas fa-brain"></i> Octo AI onerileri</span>
+                <span><i class="fas fa-user-secret"></i> Rakip reklam zekasi</span>
+            </div>
+        </div>
+        <div class="demo-hero-card">
+            <img src="{% static 'images/octo-nexus.webp' %}" alt="Octo AI" onerror="this.style.display='none';">
+            <strong>Demo sonrasi netlesecekler</strong>
+            <ul>
+                <li>Hangi paket is modelinize uygun?</li>
+                <li>Hangi platformlar once baglanmali?</li>
+                <li>AI kredi ve urun arastirma limitleri yeterli mi?</li>
+                <li>Ajans veya marka akisiniz nasil kurulabilir?</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="demo-grid">
+        <aside class="demo-side">
+            <h2>Satis gorusmesi degil, net yol haritasi.</h2>
+            <p>Demo talebinizi aldigimizda ekibimiz once ihtiyacinizi inceler. Gorusmede size rastgele ekran gezdirmek yerine, reklam operasyonunuz icin hangi kurulumun dogru oldugunu konusuruz.</p>
+            <div class="demo-step"><span>1</span><div><strong>Ihtiyaci anlariz</strong><small>Platformlar, ekip yapisi, reklam butcesi ve hedefler.</small></div></div>
+            <div class="demo-step"><span>2</span><div><strong>Canli senaryo gosteririz</strong><small>Dashboard, rakip takibi, AI oneriler ve raporlama.</small></div></div>
+            <div class="demo-step"><span>3</span><div><strong>Paket ve kurulum oneririz</strong><small>Silver, Gold, Platin veya ajans paketleri icin net yonlendirme.</small></div></div>
+        </aside>
+
+        <div class="demo-form-card">
+            <div class="demo-form-head">
+                <h2>Demo talep formu</h2>
+                <p>Formu doldurun, size uygun demo akisini planlayalim.</p>
+            </div>
+            <form method="post" class="demo-form">
+                {% csrf_token %}
+                <div class="demo-field-grid">
+                    <label>Ad Soyad
+                        <input name="name" type="text" required placeholder="Adiniz Soyadiniz">
+                    </label>
+                    <label>Is e-postasi
+                        <input name="email" type="email" required placeholder="ornek@firma.com">
+                    </label>
+                    <label>Telefon
+                        <input name="phone" type="tel" required placeholder="+90 5xx xxx xx xx">
+                    </label>
+                    <label>Firma / Marka (isteğe bağlı)
+                        <input name="company" type="text" placeholder="Firma adı">
+                    </label>
+                    <label>Rolunuz
+                        <select name="role">
+                            <option value="">Seciniz</option>
+                            <option>Firma sahibi / Kurucu</option>
+                            <option>Pazarlama yoneticisi</option>
+                            <option>Ajans yoneticisi</option>
+                            <option>Performans pazarlama uzmani</option>
+                            <option>E-ticaret yoneticisi</option>
+                        </select>
+                    </label>
+                    <label>Aylik reklam butcesi
+                        <select name="ad_spend">
+                            <option value="">Seciniz</option>
+                            <option>0 - 25.000 TL</option>
+                            <option>25.000 - 100.000 TL</option>
+                            <option>100.000 - 500.000 TL</option>
+                            <option>500.000 TL+</option>
+                            <option>Ajans olarak coklu hesap yonetiyoruz</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="demo-checks">
+                    <strong>Hangi alanlari gormek istersiniz?</strong>
+                    <label><input type="checkbox" name="platforms" value="Meta / Instagram"> Meta / Instagram</label>
+                    <label><input type="checkbox" name="platforms" value="Google Ads"> Google Ads</label>
+                    <label><input type="checkbox" name="platforms" value="TikTok Ads"> TikTok Ads</label>
+                    <label><input type="checkbox" name="platforms" value="Google Analytics"> Google Analytics</label>
+                    <label><input type="checkbox" name="platforms" value="Rakip reklam takibi"> Rakip reklam takibi</label>
+                    <label><input type="checkbox" name="platforms" value="Urun arastirma / fiyat kontrol"> Urun arastirma / fiyat kontrol</label>
+                </div>
+
+                <label class="demo-full">Oncelikli hedefiniz
+                    <select name="goal" required>
+                        <option value="">Seciniz</option>
+                        <option>Reklam performansini tek panelde izlemek</option>
+                        <option>AI ile analiz ve aksiyon onerisi almak</option>
+                        <option>Rakip reklamlarini takip etmek</option>
+                        <option>Ajans musteri raporlamasini profesyonellestirmek</option>
+                        <option>Urun arastirma ve fiyat kontrol surecini kurmak</option>
+                    </select>
+                </label>
+
+                <label class="demo-full">Ek notunuz
+                    <textarea name="message" rows="5" placeholder="Kullandiginiz platformlari, mevcut sorununuzu veya demo beklentinizi yazabilirsiniz."></textarea>
+                </label>
+
+                <button type="submit" class="demo-submit"><i class="fas fa-paper-plane"></i> Demo Talebini Gonder</button>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

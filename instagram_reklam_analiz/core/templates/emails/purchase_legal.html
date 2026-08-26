@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="tr">
+<body style="margin:0;background:#f1f5f9;font-family:Arial,sans-serif;color:#1f2937">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f1f5f9;padding:28px 12px">
+<tr><td align="center">
+<table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;width:100%;background:#ffffff;border:1px solid #dbe4ee;border-radius:8px;overflow:hidden">
+<tr><td style="background:#071127;padding:24px 30px;color:#ffffff">
+    <div style="font-size:22px;font-weight:800">ReklamAnaliz.net</div>
+    <div style="font-size:12px;color:#9edce2;margin-top:4px">Ödeme ve sözleşme belgeleri</div>
+</td></tr>
+{% if is_sample %}<tr><td style="background:#fff4cf;color:#755300;padding:12px 30px;font-weight:700">BU BİR ÖRNEK E-POSTADIR, GERÇEK TAHSİLAT YAPILMAMIŞTIR.</td></tr>{% endif %}
+<tr><td style="padding:30px">
+    <p style="margin:0 0 14px">Sayın <strong>{{ recipient_name }}</strong>,</p>
+    <p style="margin:0 0 22px;line-height:1.6"><strong>{{ item_name }}</strong> için ödeme/sipariş kaydınız alınmıştır. Ödeme sırasında onayladığınız sözleşmeler bu e-postaya PDF olarak eklenmiştir.</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px">
+        <tr><td style="padding:10px 14px;color:#64748b">Ödeme yöntemi</td><td style="padding:10px 14px;text-align:right;font-weight:700">{{ payment_method }}</td></tr>
+        <tr><td style="padding:10px 14px;color:#64748b">Durum</td><td style="padding:10px 14px;text-align:right;font-weight:700">{{ payment_status }}</td></tr>
+        <tr><td style="padding:10px 14px;color:#64748b">Toplam</td><td style="padding:10px 14px;text-align:right;font-weight:700">{{ amount }} TL</td></tr>
+        <tr><td style="padding:10px 14px;color:#64748b">Referans</td><td style="padding:10px 14px;text-align:right;font-weight:700">{{ payment_reference }}</td></tr>
+        <tr><td style="padding:10px 14px;color:#64748b">Onay zamanı</td><td style="padding:10px 14px;text-align:right;font-weight:700">{{ accepted_at|date:"d.m.Y H:i" }}</td></tr>
+    </table>
+    <h2 style="font-size:16px;margin:26px 0 12px">Ekteki sözleşmeler</h2>
+    <ul style="margin:0;padding-left:20px;line-height:1.8;color:#475569">{% for document in documents %}<li>{{ document.title }} <strong>v{{ document.version }}</strong></li>{% endfor %}</ul>
+    <p style="margin:24px 0 0;color:#64748b;font-size:13px;line-height:1.6">Bu e-postayı ve eklerini işleminizin kalıcı kaydı olarak saklamanızı öneririz.</p>
+</td></tr>
+<tr><td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:18px 30px;color:#64748b;font-size:12px">HZR Yazılım Danışmanlık Dijital Paz. LTD ŞTİ · info@reklamanaliz.net · www.reklamanaliz.net</td></tr>
+</table>
+</td></tr></table>
+</body>
+</html>

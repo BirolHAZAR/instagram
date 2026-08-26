@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load tr_numbers %}
+
+{% block title %}Instagram Reklam Raporu{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ig-report-page {
+        padding: 28px 0 40px;
+    }
+
+    .ig-report-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .ig-report-head h1 {
+        margin: 0 0 6px;
+        font-size: 2rem;
+        font-weight: 900;
+    }
+
+    .ig-report-head p {
+        margin: 0;
+        color: #64748b;
+    }
+
+    .ig-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .ig-summary-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fff;
+        padding: 16px;
+    }
+
+    .ig-summary-card span {
+        display: block;
+        color: #64748b;
+        font-size: .78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .ig-summary-card strong {
+        display: block;
+        margin-top: 7px;
+        color: #0f172a;
+        font-size: 1.35rem;
+        font-weight: 900;
+    }
+
+    .ig-report-table-wrap {
+        overflow-x: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .ig-report-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 980px;
+    }
+
+    .ig-report-table th,
+    .ig-report-table td {
+        padding: 13px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .ig-report-table th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: .76rem;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
+
+    .ig-report-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .ig-ad-name {
+        color: #0f172a;
+        font-weight: 850;
+    }
+
+    .ig-muted {
+        color: #64748b;
+        font-size: .84rem;
+    }
+
+    .ig-status {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 4px 9px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-size: .76rem;
+        font-weight: 850;
+    }
+
+    .ig-empty {
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        background: #f8fafc;
+        padding: 34px;
+        text-align: center;
+        color: #64748b;
+    }
+
+    @media (max-width: 900px) {
+        .ig-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .ig-report-head {
+            display: block;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container ig-report-page">
+    <div class="ig-report-head">
+        <div>
+            <h1>Instagram Reklam Raporu</h1>
+            <p>Instagram hesaplarından senkronize edilen gerçek reklam ve metrik kayıtları.</p>
+        </div>
+        <a href="{% url 'instagram_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Instagram Paneline Dön
+        </a>
+    </div>
+
+    <div class="ig-summary-grid">
+        <div class="ig-summary-card">
+            <span>Reklam</span>
+            <strong>{{ ads|length }}</strong>
+        </div>
+        <div class="ig-summary-card">
+            <span>Gösterim</span>
+            <strong>{{ summary.impressions|default:0|tr_int }}</strong>
+        </div>
+        <div class="ig-summary-card">
+            <span>Tıklama</span>
+            <strong>{{ summary.clicks|default:0|tr_int }}</strong>
+        </div>
+        <div class="ig-summary-card">
+            <span>Harcama</span>
+            <strong>{{ summary.spend|default:0|tr_decimal }} TL</strong>
+        </div>
+        <div class="ig-summary-card">
+            <span>Ortalama CTR</span>
+            <strong>%{{ summary.ctr|default:0|tr_decimal }}</strong>
+        </div>
+        <div class="ig-summary-card">
+            <span>Ortalama CPC</span>
+            <strong>{{ summary.cpc|default:0|tr_decimal }} TL</strong>
+        </div>
+        <div class="ig-summary-card">
+            <span>ROAS</span>
+            <strong>{{ summary.roas|default:0|tr_decimal }}</strong>
+        </div>
+        <div class="ig-summary-card">
+            <span>Etkileşim</span>
+            <strong>%{{ summary.engagement_rate|default:0|tr_decimal }}</strong>
+        </div>
+    </div>
+
+    {% if ads %}
+    <div class="ig-report-table-wrap">
+        <table class="ig-report-table">
+            <thead>
+                <tr>
+                    <th>Reklam</th>
+                    <th>Hesap</th>
+                    <th>Kampanya</th>
+                    <th>Durum</th>
+                    <th>Format</th>
+                    <th>Son Senkron</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad in ads %}
+                <tr>
+                    <td>
+                        <div class="ig-ad-name">{{ ad.name|default:ad.headline|default:"Adsız reklam" }}</div>
+                        {% if ad.platform_ad_id %}<div class="ig-muted">ID: {{ ad.platform_ad_id }}</div>{% endif %}
+                    </td>
+                    <td>{{ ad.platform_account.account_name|default:ad.platform_account.account_id|default:"-" }}</td>
+                    <td>{{ ad.campaign.name|default:"-" }}</td>
+                    <td><span class="ig-status">{{ ad.get_status_display }}</span></td>
+                    <td>{{ ad.ad_format|default:ad.creative.get_creative_type_display|default:"-" }}</td>
+                    <td>
+                        {% if ad.last_synced_at %}
+                            {{ ad.last_synced_at|date:"d.m.Y H:i" }}
+                        {% else %}
+                            <span class="ig-muted">Henüz yok</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="ig-empty">
+        <strong>Henüz Instagram reklam kaydı yok.</strong>
+        <div>Instagram panelinden reklam senkronizasyonu başlatıldığında rapor burada oluşur.</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

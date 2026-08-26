@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}E-posta Onayı - ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="signup-page auth-state-page">
+    <div class="signup-shell auth-state-shell">
+        <aside class="signup-brand-panel">
+            <img src="{% static 'images/logo2.png' %}" alt="ReklamAnaliz.net" class="signup-brand-logo">
+            <p class="brand-kicker">hesap güvenliği</p>
+            <h1>Doğrulanmış hesapla güvenli panele geç.</h1>
+            <p class="brand-copy">
+                E-posta onayı tamamlandığında ReklamAnaliz panelindeki kampanya, rapor ve platform bağlantılarına
+                güvenli şekilde erişebilirsin.
+            </p>
+            <div class="brand-metrics" aria-label="Güvenlik adımları">
+                <span><strong>Mail</strong><small>Onay</small></span>
+                <span><strong>2FA</strong><small>Hazır</small></span>
+                <span><strong>SaaS</strong><small>Panel</small></span>
+            </div>
+        </aside>
+
+        <div class="signup-card auth-state-card">
+            {% if confirmation %}
+                <div class="auth-state-icon success">
+                    <i class="fas fa-envelope-circle-check"></i>
+                </div>
+                <span class="signup-kicker">son adım</span>
+                <h2>E-posta adresini onayla</h2>
+                <p>
+                    <strong>{{ confirmation.email_address.email }}</strong> adresini ReklamAnaliz hesabına bağlamak
+                    için onayı tamamla.
+                </p>
+
+                <form method="post" action="{% url 'account_confirm_email' confirmation.key %}" class="auth-confirm-form">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-signup">
+                        <i class="fas fa-check-circle"></i> E-postayı onayla
+                    </button>
+                </form>
+
+                <p class="security-note auth-state-note">
+                    <i class="fas fa-shield-halved"></i>
+                    Onaydan sonra hesabınıza giriş yapabilir ve güvenlik ayarlarınızı yönetebilirsiniz.
+                </p>
+            {% else %}
+                <div class="auth-state-icon warning">
+                    <i class="fas fa-triangle-exclamation"></i>
+                </div>
+                <span class="signup-kicker">bağlantı geçersiz</span>
+                <h2>Doğrulama bağlantısı kullanılamıyor</h2>
+                <p>
+                    Bu bağlantı süresi dolmuş, daha önce kullanılmış veya geçersiz olabilir. Giriş yapıp yeni doğrulama
+                    e-postası isteyebilirsiniz.
+                </p>
+                <div class="auth-state-actions">
+                    <a href="{% url 'account_login' %}" class="btn-signup">
+                        <i class="fas fa-right-to-bracket"></i> Giriş ekranına dön
+                    </a>
+                    <a href="{% url 'contact' %}" class="auth-secondary-action">
+                        <i class="fas fa-headset"></i> Destek al
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

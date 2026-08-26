@@ -1,0 +1,27 @@
+{% if agency_scope and agency_scope.is_agency %}
+<form class="ct-agency-filter-feature" method="get" action="{{ request.path }}" aria-label="Kontrol Kulesi ajans firması filtresi">
+  <input type="hidden" name="period" value="{{ filters.active_period }}">
+  <input type="hidden" name="date_from" value="{{ filters.date_from }}">
+  <input type="hidden" name="date_to" value="{{ filters.date_to }}">
+
+  <div class="ct-agency-filter-icon"><i class="fas fa-building-user"></i></div>
+  <div class="ct-agency-filter-copy">
+    <span>AJANS FİRMASI</span>
+    <strong>{% if agency_scope.selected_client %}{{ agency_scope.selected_client.name }}{% else %}Tüm firmalar{% endif %}</strong>
+    <small>Dashboard ve rapor verileri seçtiğiniz firmaya göre filtrelenir.</small>
+  </div>
+  <label class="ct-agency-filter-select" for="ctAgencyClientScope">
+    <span><i class="fas fa-filter"></i> Raporlanacak firma</span>
+    <select id="ctAgencyClientScope" name="agency_client" onchange="this.form.submit()">
+      <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+      {% for agency_client in agency_scope.clients %}
+      <option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <div class="ct-agency-filter-state">
+    <i class="fas fa-circle-check"></i>
+    <span>{% if agency_scope.selected_client %}Firma filtresi aktif{% else %}Ajans geneli gösteriliyor{% endif %}</span>
+  </div>
+</form>
+{% endif %}

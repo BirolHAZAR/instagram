@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kurtarma Kodu Olu&#351;tur{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>Kurtarma Kodlar&#305;</h3>
+                <p>Telefonunuza eri&#351;emedi&#287;inizde hesab&#305;n&#305;za girebilmek i&#231;in yedek kodlar olu&#351;turun.</p>
+                <a href="{% url 'mfa_index' %}" class="allauth-side-link">
+                    <i class="fas fa-arrow-left"></i>2FA Ayarlar&#305;
+                </a>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head">
+                    <span><i class="fas fa-key"></i>Yedek eri&#351;im</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>Kurtarma Kodu Olu&#351;tur</h1>
+                    <p>Yeni kodlar olu&#351;turuldu&#287;unda mevcut kullan&#305;lmam&#305;&#351; kodlar ge&#231;ersiz hale gelir.</p>
+                    {% url 'mfa_generate_recovery_codes' as action_url %}
+                    <form method="post" action="{{ action_url }}" class="allauth-form">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="allauth-primary-btn">
+                            <i class="fas fa-rotate"></i>Yeni Kod Olu&#351;tur
+                        </button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

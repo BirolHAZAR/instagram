@@ -1,0 +1,10 @@
+Yeni iletisim mesaji
+
+Ad Soyad: {{ contact.name }}
+E-posta: {{ contact.email }}
+Konu: {{ contact.subject }}
+
+Mesaj:
+{{ contact.message }}
+
+Kayit zamani: {{ contact.created_at|date:"d.m.Y H:i" }}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Reklam Analiz Raporu</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #f8f9fa; font-family: Arial, sans-serif; }
+        .email-container { max-width: 650px; margin: 0 auto; background: white; border-radius: 20px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 22px; }
+        .header p { margin: 5px 0 0; font-size: 13px; opacity: 0.9; }
+        
+        .pdf-viewer {
+            width: 100%;
+            height: 800px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            background: #f5f5f5;
+        }
+        .pdf-viewer embed,
+        .pdf-viewer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .score-section { text-align: center; padding: 30px; background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; }
+        .score-circle { width: 100px; height: 100px; border-radius: 50%; background: #4CAF50; margin: 0 auto; position: relative; }
+        .score-inner { position: absolute; top: 7px; left: 7px; width: 86px; height: 86px; border-radius: 50%; background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .score-value { font-size: 28px; font-weight: 800; color: white; line-height: 1; }
+        .score-label { font-size: 9px; color: rgba(255,255,255,0.7); }
+        
+        .footer { text-align: center; padding: 20px; background: #f8f9fa; color: #888; font-size: 11px; border-top: 1px solid #e0e0e0; }
+        .footer a { color: #667eea; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 AI Reklam Analiz Raporu</h1>
+            <p>{{ ad_title }}</p>
+            <p style="font-size: 11px; opacity: 0.7;">{{ generated_at }}</p>
+        </div>
+        
+        <!-- Hızlı Skor Özeti -->
+        <div class="score-section">
+            <div class="score-circle">
+                <div class="score-inner">
+                    <span class="score-value">{{ overall_score }}</span>
+                    <span class="score-label">/100</span>
+                </div>
+            </div>
+            <p style="margin-top: 15px; font-size: 14px;">Genel Performans Skoru</p>
+            <p style="font-size: 12px; opacity: 0.8;">AI analizi tamamlandı</p>
+        </div>
+        
+        <!-- PDF GÖRÜNTÜLEYİCİ -->
+        {% if pdf_base64 %}
+        <div style="padding: 15px; background: #f0f0f0; text-align: center;">
+            <p style="font-weight: bold; color: #555; margin: 0 0 10px 0;">📄 AI Analiz Raporu (PDF)</p>
+        </div>
+        <div class="pdf-viewer">
+            <embed src="data:application/pdf;base64,{{ pdf_base64 }}" 
+                   type="application/pdf" 
+                   width="100%" 
+                   height="800px">
+        </div>
+        {% else %}
+        <div style="padding: 30px; text-align: center; background: #fff3cd; margin: 20px;">
+            <p>⚠️ PDF oluşturulamadı. Detaylı analiz sonuçları aşağıdadır.</p>
+        </div>
+        
+        <!-- Eğer PDF yoksa metin olarak göster -->
+        <div style="padding: 20px;">
+            {% for agent in agents %}
+            <div style="background: #f8f9ff; border-radius: 10px; padding: 15px; margin-bottom: 10px; border: 1px solid #e8e8ff;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <span style="font-size: 20px;">●</span>
+                    <strong>● Analiz sonucu</strong>
+                    <span style="margin-left: auto; font-weight: 800;">{{ agent.score }}%</span>
+                </div>
+                <div style="background: #e0e0e0; border-radius: 5px; height: 6px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: #e0e0e0; border-radius: 5px; height: 6px;">
+    <tr>
+        <td width="{{ agent.score }}%" style="height: 6px; border-radius: 5px; background: #4CAF50; font-size: 0; line-height: 0;"></td>
+        <td style="height: 6px; font-size: 0; line-height: 0;"></td>
+    </tr>
+</table>
+                </div>
+                <p style="margin: 8px 0 0; font-size: 12px; color: #666;">{{ agent.details }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>Bu rapor <strong>AdGenius AI</strong> tarafından otomatik oluşturulmuştur.</p>
+            <p>Kapsamlı AI analizi tamamlanmıştır.</p>
+        </div>
+        
+    </div>
+</body>
+</html>

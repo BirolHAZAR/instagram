@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ client.name }} - Ajans Paneli{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="agency-page">
+  <div class="agency-shell">
+    <div class="agency-topbar">
+      <div class="agency-title">
+        <h1>{{ client.name }}</h1>
+        <p>{{ organization.name }} müşteri çalışma alanı.</p>
+      </div>
+      <div class="agency-actions">
+        <a class="agency-btn" href="{% url 'agency_dashboard_org' organization.id %}"><i class="fas fa-arrow-left"></i> Ajansa Dön</a>
+        {% if can_manage_accounts %}<a class="agency-btn" href="{% url 'agency_client_platform_account_create' organization.id client.id %}"><i class="fas fa-link"></i> Hesap Bağla</a>{% endif %}
+        {% if can_manage_competitors %}<a class="agency-btn primary" href="{% url 'agency_competitor_create' organization.id %}"><i class="fas fa-crosshairs"></i> Rakip Ekle</a>{% endif %}
+      </div>
+    </div>
+
+    <div class="agency-grid">
+      <div class="agency-stat"><span>Platform Hesabı</span><strong>{{ platform_accounts|length }}</strong></div>
+      <div class="agency-stat"><span>Rakip Profili</span><strong>{{ competitors|length }}</strong></div>
+      <div class="agency-stat"><span>Web Sitesi</span><strong style="font-size:1rem;">{{ client.website|default:"-" }}</strong></div>
+      <div class="agency-stat"><span>Yetkili</span><strong style="font-size:1rem;">{{ client.contact_name|default:"-" }}</strong></div>
+    </div>
+
+    <div class="agency-layout">
+      <section class="agency-panel">
+        <h2>Müşteri platform hesapları</h2>
+        {% if platform_accounts %}
+        <table class="agency-table">
+          <thead><tr><th>Platform</th><th>Hesap</th><th>Son senkron</th><th>Durum</th></tr></thead>
+          <tbody>
+          {% for account in platform_accounts %}
+            <tr>
+              <td>{{ account.platform.name }}</td>
+              <td>{{ account.account_name|default:account.account_id }}</td>
+              <td>{{ account.last_sync|default:"-" }}</td>
+              <td>{% if account.is_active %}Aktif{% else %}Pasif{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="agency-empty">Bu müşteriye henüz platform hesabı bağlanmadı.</div>
+        {% endif %}
+        {% if can_manage_accounts %}
+        <div class="agency-empty" style="margin-top:14px; text-align:left;">
+          <strong>Mevcut hesabı bu müşteriye bağla</strong>
+          <form method="post" action="{% url 'agency_client_assign_account' organization.id client.id %}" style="margin-top:12px;">
+            {% csrf_token %}
+            {{ assignment_form.platform_account }}
+            <button class="agency-btn primary" type="submit" style="margin-top:10px;"><i class="fas fa-link"></i> Bağla</button>
+          </form>
+        </div>
+        {% endif %}
+      </section>
+
+      <aside class="agency-panel">
+        <h2>Müşteri rakipleri</h2>
+        {% if competitors %}
+        <table class="agency-table">
+          <thead><tr><th>Rakip</th><th>Platform</th><th>Reklam</th></tr></thead>
+          <tbody>
+          {% for competitor in competitors %}
+            <tr>
+              <td>{{ competitor.name }}</td>
+              <td>{{ competitor.platform.name|default:"-" }}</td>
+              <td>{{ competitor.total_ads_seen }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="agency-empty">Bu müşteriye henüz rakip eklenmedi.</div>
+        {% endif %}
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %}

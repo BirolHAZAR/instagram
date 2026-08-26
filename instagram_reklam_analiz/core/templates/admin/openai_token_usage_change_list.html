@@ -1,0 +1,41 @@
+{% extends "admin/change_list.html" %}
+{% load humanize %}
+
+{% block result_list %}
+{% if token_totals %}
+<style>
+  .token-summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin:0 0 18px; }
+  .token-summary div { padding:14px 16px; background:#fff; border:1px solid #dbe3ef; border-top:4px solid #2563eb; border-radius:8px; }
+  .token-summary span { display:block; color:#64748b; font-size:12px; font-weight:700; text-transform:uppercase; }
+  .token-summary strong { display:block; margin-top:5px; color:#111827; font-size:23px; }
+  .token-summary .unassigned { border-top-color:#f59e0b; }
+</style>
+<div class="token-summary">
+  <div><span>Kayıt</span><strong>{{ token_record_count|intcomma }}</strong></div>
+  <div><span>Yerel kayıtlı giriş token</span><strong>{{ token_totals.input_sum|intcomma }}</strong></div>
+  <div><span>Yerel kayıtlı çıkış token</span><strong>{{ token_totals.output_sum|intcomma }}</strong></div>
+  <div><span>Toplam token</span><strong>{{ token_totals.token_sum|intcomma }}</strong></div>
+  <div><span>Kullanıcıya bağlı</span><strong>{{ token_totals.attributed_sum|intcomma }}</strong></div>
+  <div class="unassigned"><span>Kullanıcıya atanmamış</span><strong>{{ token_totals.unassigned_sum|intcomma }}</strong></div>
+</div>
+{% if token_user_totals %}
+<div style="background:#fff;border:1px solid #dbe3ef;border-radius:8px;margin:0 0 18px;overflow-x:auto;">
+  <h2 style="padding:14px 16px 4px;margin:0;color:#111827;">Üye Bazlı Gerçek Token Toplamları</h2>
+  <table style="width:100%;border-collapse:collapse;min-width:650px;">
+    <thead><tr><th style="padding:10px 16px;text-align:left;">Üye</th><th>Giriş</th><th>Çıkış</th><th>Toplam</th></tr></thead>
+    <tbody>
+    {% for row in token_user_totals %}
+      <tr style="border-top:1px solid #eef2f7;">
+        <td style="padding:10px 16px;">{{ row.user__email|default:row.user__username }}</td>
+        <td style="text-align:right;padding:10px 16px;">{{ row.input_sum|intcomma }}</td>
+        <td style="text-align:right;padding:10px 16px;">{{ row.output_sum|intcomma }}</td>
+        <td style="text-align:right;padding:10px 16px;font-weight:800;">{{ row.token_sum|intcomma }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endif %}
+{{ block.super }}
+{% endblock %}

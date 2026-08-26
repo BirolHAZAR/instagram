@@ -1,0 +1,504 @@
+{% extends "base.html" %}
+{% load static tr_numbers %}
+
+{% block title %}Kontrol Kulesi | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/control_tower.css' %}?v=ct-creative-image-frame-20260720">
+<style>.navbar .agency-client-scope-form{display:none!important}</style>
+{% endblock %}
+
+{% block content %}
+<div class="ct-wrap">
+  <div class="ct-topbar">
+    <div class="ct-title">
+      <h1>KONTROL KULESİ <span class="ct-ai-badge">AI POWERED</span></h1>
+      <p>Tüm hesaplarınızın genel performans özeti · {{ filters.date_label }}</p>
+    </div>
+    <div class="ct-actions">
+      <div class="ct-date"><i class="fas fa-calendar-days"></i> {{ filters.selected_days }} gün</div>
+      <div class="ct-auto" data-tip="Kontrol Kulesi verilerinin hangi sıklıkla tazelendiğini gösterir. Bu bilgi, ekrandaki rakamların ne kadar güncel olduğunu anlamanı sağlar.">Veri yenileme: {{ refresh_meta.snapshot_refresh_label }}</div>
+      <button class="ct-alert-bell {% if control_alert_center.total_count %}has-alerts{% endif %}" type="button" data-ct-alert-toggle aria-label="Kritik uyarı merkezi" aria-expanded="false" data-tip="Kampanya, reklam, kreatif veya rakip tarafında acil kontrol gerektiren mesajları açar.">
+        <i class="fas fa-bell"></i>
+        <span class="ct-alert-bell-count">{{ control_alert_center.total_count|default:0 }}</span>
+      </button>
+      <div class="ct-top-action-stack">
+        <a class="ct-btn primary ct-archive-top-btn" href="/control-tower/archive/"><i class="fas fa-box-archive"></i> Arşiv</a>
+        <a class="ct-btn ct-top-ai-run-btn" href="?{{ octo_ai_refresh_query }}#octoAiAnalysisReport"><i class="fas fa-wand-magic-sparkles"></i> Analiz Et</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="ct-alert-drawer-backdrop" data-ct-alert-close aria-hidden="true"></div>
+  <aside class="ct-alert-drawer" id="ctAlertDrawer" aria-hidden="true" aria-label="Kontrol Kulesi alarm merkezi">
+    <div class="ct-alert-drawer-head">
+      <div>
+        <span>ALARM MERKEZİ</span>
+        <strong>Gerçek kritik mesajlar</strong>
+      </div>
+      <button type="button" class="ct-alert-drawer-close" data-ct-alert-close aria-label="Kapat"><i class="fas fa-xmark"></i></button>
+    </div>
+
+    <div class="ct-alert-drawer-stats">
+      <div class="danger"><strong>{{ control_alert_center.critical_count|default:0 }}</strong><span>Kritik</span></div>
+      <div class="warning"><strong>{{ control_alert_center.warning_count|default:0 }}</strong><span>Uyarı</span></div>
+      <div class="success"><strong>{{ control_alert_center.opportunity_count|default:0 }}</strong><span>Fırsat</span></div>
+    </div>
+
+    <div class="ct-alert-drawer-list">
+      {% for item in control_alert_center.items %}
+        <a class="ct-alert-drawer-item {{ item.state }}" href="{{ item.target_url }}">
+          <span class="ct-alert-drawer-icon"><i class="fas {{ item.icon }}"></i></span>
+          <span class="ct-alert-drawer-content">
+            <strong>{{ item.title }}</strong>
+            <em>{{ item.source_label }}{% if item.target_name %} · {{ item.target_name }}{% endif %}</em>
+            <small>{{ item.message }}</small>
+          </span>
+          <span class="ct-alert-drawer-meta">
+            <b>{{ item.severity_label }}</b>
+            <i>{{ item.time_label }}</i>
+          </span>
+        </a>
+      {% empty %}
+        <div class="ct-alert-drawer-empty">
+          <i class="fas fa-circle-check"></i>
+          <strong>Kritik mesaj yok</strong>
+          <span>Şu an müdahale gerektiren kampanya, reklam veya rakip sinyali bulunmuyor.</span>
+        </div>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <div class="ct-refresh-status-strip {{ refresh_meta.status_state }}" aria-label="Kontrol Kulesi güncellik bilgisi">
+    <div class="ct-refresh-pill {{ refresh_meta.snapshot_state }}" data-tip="Reklam performans verilerinin en son ne zaman güncellendiğini gösterir. Süre uzadıysa ekrandaki veriler yenilenmelidir.">
+      <i class="fas fa-database"></i>
+      <span>Son veri güncellemesi</span>
+      <strong>{{ refresh_meta.snapshot_time }}</strong>
+      <em>{{ refresh_meta.snapshot_age }}</em>
+    </div>
+    <div class="ct-refresh-pill {{ refresh_meta.ai_state }}" data-tip="Octo AI tarafından üretilen son analiz zamanını gösterir. Eski analizler karar verirken tekrar yenilenmelidir.">
+      <i class="fas fa-brain"></i>
+      <span>Son AI analizi</span>
+      <strong>{{ refresh_meta.ai_time }}</strong>
+      <em>{{ refresh_meta.ai_age }}</em>
+    </div>
+    <div class="ct-refresh-pill info" data-tip="Veri ve AI analizlerinin beklenen yenilenme sıklığını gösterir. Bu alan ekranın güncellik ritmini anlatır.">
+      <i class="fas fa-clock-rotate-left"></i>
+      <span>Yenileme planı</span>
+      <strong>Veri {{ refresh_meta.snapshot_refresh_label }} · AI {{ refresh_meta.ai_refresh_label }}</strong>
+      <em>{{ refresh_meta.period_label }}</em>
+    </div>
+    <div class="ct-refresh-pill {{ refresh_meta.status_state }}" data-tip="Kontrol Kulesi’nin güncel, beklemede veya yenileme gerektiren durumda olup olmadığını özetler.">
+      <i class="fas fa-signal"></i>
+      <span>Durum</span>
+      <strong>{{ refresh_meta.status_label }}</strong>
+      <em>Güncellik özeti</em>
+    </div>
+  </div>
+
+  <div class="ct-filter-panel ct-filter-panel-top" id="ctFilterPanel">
+    {% include "dashboard/control_tower/agency_filter.html" %}
+
+    <div class="ct-filter-form ct-filter-form-top">
+      <div class="ct-filter-title ct-filter-title-inline">
+        <i class="fas fa-calendar-check"></i>
+        <div>
+          <strong>Akıllı Tarih Filtresi</strong>
+          <span>{{ filters.period_label }} görünüm · {{ filters.date_label }}</span>
+        </div>
+      </div>
+
+      <form class="ct-date-range-form" method="get" aria-label="Kontrol Kulesi tarih aralığı filtresi">
+        <input type="hidden" name="period" value="custom">
+        <label class="ct-date-input-wrap" title="Başlangıç tarihi">
+          <i class="fas fa-calendar-day"></i>
+          <input class="ct-date-input" type="date" name="date_from" value="{{ filters.date_from }}" max="{{ filters.today }}">
+        </label>
+        <label class="ct-date-input-wrap" title="Bitiş tarihi">
+          <i class="fas fa-calendar-check"></i>
+          <input class="ct-date-input" type="date" name="date_to" value="{{ filters.date_to }}" max="{{ filters.today }}">
+        </label>
+        <button class="ct-apply-btn" type="submit"><i class="fas fa-check"></i> Uygula</button>
+      </form>
+
+      <div class="ct-period-switch" aria-label="Kontrol Kulesi hızlı tarih filtresi">
+        <a href="{{ period_links.daily }}" class="{% if filters.active_period == 'daily' %}active{% endif %}"><i class="fas fa-calendar-day"></i> Günlük</a>
+        <a href="{{ period_links.weekly }}" class="{% if filters.active_period == 'weekly' %}active{% endif %}"><i class="fas fa-calendar-week"></i> Haftalık</a>
+        <a href="{{ period_links.monthly }}" class="{% if filters.active_period == 'monthly' %}active{% endif %}"><i class="fas fa-calendar-days"></i> Aylık</a>
+        <a href="{{ period_links.quarterly }}" class="{% if filters.active_period == 'quarterly' %}active{% endif %}"><i class="fas fa-chart-line"></i> 3 Aylık</a>
+      </div>
+
+      <div class="ct-filter-side">
+        <div class="ct-filter-badge" data-tip="Bu görünüm seçilen tarih aralığındaki reklam performans kayıtlarından hesaplanır.">Kaynak: Reklam performans verileri</div>
+        <div class="ct-period-note" data-tip="Günlük, haftalık, aylık ve 3 aylık seçenekler ekranı otomatik günceller. Özel aralık için tarih seçip Uygula’ya basılır.">Hızlı seçimler tarih aralığını otomatik değiştirir. Manuel tarih için Uygula.</div>
+      </div>
+    </div>
+  </div>
+
+  {% include "dashboard/control_tower/kpi_strip.html" %}
+
+  {% include "dashboard/control_tower/live_summary_row.html" %}
+
+  <section class="ct-platform-strip-card" aria-label="Platform Durum Merkezi">
+    <div class="ct-platform-strip-head">
+      <div>
+        <span>PLATFORM DURUM MERKEZİ</span>
+        <strong>Tüm bağlantılar tek satırda</strong>
+      </div>
+      <em>{{ summary.platform_connections }} bağlantı · {{ summary.platform_accounts }} hesap</em>
+    </div>
+    <div class="ct-platform-strip-grid">
+      {% for platform in platform_strip_cards %}
+        <div class="ct-platform-strip-item {{ platform.state }}">
+          <i class="{{ platform.icon }}"></i>
+          <div>
+            <strong>{{ platform.name }}</strong>
+            <span>{{ platform.status }} · {{ platform.accounts }} hesap</span>
+          </div>
+          <small>{{ platform.sync }}</small>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if executive_summary %}
+    {% include "dashboard/control_tower/executive_summary_ai.html" %}
+  {% endif %}
+
+  <section class="ct-ordered-row ct-competitor-row-full" aria-label="Rakip istihbaratı">
+    <div class="ct-ordered-col ct-ordered-col-full">
+      {% include "dashboard/control_tower/competitor_center.html" %}
+    </div>
+  </section>
+
+  <section class="ct-ordered-row ct-health-task-row" aria-label="Kampanya sağlığı ve Octo görev merkezi">
+    <div class="ct-ordered-col ct-ordered-col-left ct-health-ordered-col">
+      {% include "dashboard/control_tower/campaign_health.html" %}
+    </div>
+    <div class="ct-ordered-col ct-ordered-col-right ct-task-ordered-col">
+      {% include "dashboard/control_tower/task_center.html" %}
+    </div>
+  </section>
+
+  {% include "dashboard/control_tower/creative_wall.html" %}
+
+  <section class="ct-ai-report-panel ct-ai-strategic-panel" id="octoAiAnalysisReport">
+    <div class="ct-ai-report-head">
+      <div class="ct-ai-report-title">
+        <div class="ct-ai-avatar-wrap ct-ai-avatar-free">
+          <img src="{% static 'images/octo-analyst.webp' %}" alt="Octo AI Analyst" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+          <div class="ct-ai-avatar-fallback"><i class="fas fa-brain"></i></div>
+        </div>
+        <div>
+          <div class="ct-ai-eyebrow"><i class="fas fa-bolt"></i> Premium Strategic Advisor</div>
+          <h3>OCTO AI STRATEJİK ANALİZİ</h3>
+          <p>Derin analiz dashboard üzerinde en güncel haliyle görünür. Geçmiş analizler ve PDF çıktıları Arşiv sayfasından alınır.</p>
+        </div>
+      </div>
+      <div class="ct-ai-report-actions">
+        <a class="ct-ai-report-btn primary ct-ai-run-btn" href="?{{ octo_ai_refresh_query }}#octoAiAnalysisReport"><i class="fas fa-wand-magic-sparkles"></i><span>Analiz Et</span></a>
+        <a class="ct-ai-report-btn success ct-archive-inline-btn" href="/control-tower/archive/"><i class="fas fa-box-archive"></i> Arşivde Gör</a>
+      </div>
+    </div>
+
+    {% if octo_ai_report_error %}
+      <div class="ct-ai-report-error"><i class="fas fa-triangle-exclamation"></i> AI analiz okunamadı: {{ octo_ai_report_error }}</div>
+    {% elif octo_ai_report %}
+      <div class="ct-ai-report-summary ct-ai-strategic-summary">
+        <div class="ct-ai-report-main">
+          <div class="ct-ai-report-main-icon"><i class="fas fa-compass-drafting"></i></div>
+          <div>
+            <strong>{{ octo_ai_report.headline }}</strong>
+            <span>Son analiz: {{ octo_ai_report.created_at }} · Dönem: {{ octo_ai_report.date_label }} · Snapshot ID: {{ ai_snapshot_id }}</span>
+          </div>
+        </div>
+        <div class="ct-ai-report-metric {{ octo_ai_report.overall_state }}"><i class="fas fa-gauge-high"></i><span>Octo Skoru</span><strong>{{ octo_ai_report.octo_score }}</strong></div>
+        <div class="ct-ai-report-metric good"><i class="fas fa-shield-halved"></i><span>AI Güven</span><strong>%{{ octo_ai_report.avg_confidence }}</strong></div>
+        <div class="ct-ai-report-metric good"><i class="fas fa-arrow-trend-up"></i><span>Fırsat</span><strong>₺{{ octo_ai_report.total_gain|tr_int }}</strong></div>
+        <div class="ct-ai-report-metric bad"><i class="fas fa-triangle-exclamation"></i><span>Risk</span><strong>₺{{ octo_ai_report.total_loss|tr_int }}</strong></div>
+      </div>
+
+      <div class="ct-ai-strategic-grid">
+        {% for analysis in octo_ai_report.analyses %}
+          <article class="ct-ai-strategy-card {{ analysis.state }}">
+            <div class="ct-ai-strategy-top">
+              <div class="ct-ai-strategy-icon">
+                <i class="fas {% if analysis.state == 'bad' %}fa-triangle-exclamation{% elif analysis.state == 'good' %}fa-circle-check{% elif analysis.state == 'neutral' %}fa-eye{% else %}fa-circle-info{% endif %}"></i>
+              </div>
+              <div>
+                <span class="ct-ai-card-kicker">{{ analysis.severity|upper }} · Güven %{{ analysis.confidence }}</span>
+                <h4>{{ analysis.title_tr }}</h4>
+              </div>
+            </div>
+
+            <div class="ct-ai-strategy-body ct-ai-strategy-five-blocks">
+              <div class="ct-ai-strategy-block what">
+                <label><i class="fas fa-magnifying-glass-chart"></i> Ne oldu?</label>
+                {% if analysis.what_happened_items %}<ol class="ct-ai-numbered-list">{% for item in analysis.what_happened_items %}<li>{{ item }}</li>{% endfor %}</ol>{% else %}<p>{{ analysis.what_happened }}</p>{% endif %}
+              </div>
+              <div class="ct-ai-strategy-block why">
+                <label><i class="fas fa-diagram-project"></i> Neden oldu?</label>
+                {% if analysis.why_happened_items %}<ol class="ct-ai-numbered-list">{% for item in analysis.why_happened_items %}<li>{{ item }}</li>{% endfor %}</ol>{% else %}<p>{{ analysis.why_happened }}</p>{% endif %}
+              </div>
+              <div class="ct-ai-strategy-block forecast">
+                <label><i class="fas fa-forward"></i> Ne olacak?</label>
+                {% if analysis.what_will_happen_items %}<ol class="ct-ai-numbered-list">{% for item in analysis.what_will_happen_items %}<li>{{ item }}</li>{% endfor %}</ol>{% else %}<p>{{ analysis.what_will_happen }}</p>{% endif %}
+              </div>
+              <div class="ct-ai-strategy-block recommendation">
+                <label><i class="fas fa-bullseye"></i> Ne yapmalıyım?</label>
+                {% if analysis.recommended_action_items %}<ol class="ct-ai-numbered-list ct-ai-action-list">{% for item in analysis.recommended_action_items %}<li>{{ item }}</li>{% endfor %}</ol>{% else %}<p>{{ analysis.recommended_action }}</p>{% endif %}
+              </div>
+              <div class="ct-ai-strategy-block impact">
+                <label><i class="fas fa-chart-line"></i> Beklenen etki</label>
+                {% if analysis.expected_impact_items %}<ol class="ct-ai-numbered-list">{% for item in analysis.expected_impact_items %}<li>{{ item }}</li>{% endfor %}</ol>{% else %}<p>{{ analysis.expected_impact_text }}</p>{% endif %}
+              </div>
+            </div>
+
+            <div class="ct-ai-impact-row">
+              <div class="good"><span>Beklenen Kazanç</span><strong>₺{{ analysis.expected_gain|tr_int }}</strong></div>
+              <div class="bad"><span>Risk / Kayıp</span><strong>₺{{ analysis.expected_loss|tr_int }}</strong></div>
+              <div><span>Aksiyon</span><strong>{{ analysis.action_type }}</strong></div>
+            </div>
+          </article>
+        {% empty %}
+          <div class="ct-ai-empty-state">
+            <div class="ct-ai-empty-icon"><i class="fas fa-brain"></i></div>
+            <strong>Henüz kart bazlı derin AI analiz yok.</strong>
+            <span>Analiz Et butonu yeni stratejik analiz üretir ve sonuç bu alanda görünür.</span>
+          </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <div class="ct-ai-empty-state">
+        <div class="ct-ai-empty-icon"><i class="fas fa-brain"></i></div>
+        <strong>Henüz kayıtlı AI analiz yok.</strong>
+        <span>Analiz Et butonu yeni kayıt üretir. Dashboard en güncel analizi gösterir; eski kayıtlar tarih-saat sırasıyla Arşiv sayfasında raporlanır.</span>
+      </div>
+    {% endif %}
+  </section>
+
+  <div class="ct-analysis-loader-overlay" id="ctAnalysisLoader" aria-hidden="true">
+    <div class="ct-analysis-loader-card" role="status" aria-live="polite">
+      <div class="ct-analysis-loader-orbit"><span></span><span></span><span></span></div>
+      <div class="ct-analysis-loader-avatar">
+        <img src="{% static 'images/octo-analyst.webp' %}" alt="Octo AI" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+        <div><i class="fas fa-brain"></i></div>
+      </div>
+      <div class="ct-analysis-loader-copy">
+        <small>OCTO CONTROL TOWER</small>
+        <h3>Octo AI analiz ediyor...</h3>
+        <p>Kampanya, kreatif, rakip ve risk sinyalleri değerlendiriliyor.</p>
+      </div>
+      <div class="ct-analysis-loader-progress"><div id="ctAnalysisLoaderBar"></div></div>
+      <div class="ct-analysis-loader-progress-meta"><span id="ctAnalysisProgressLabel">0%</span><em>İşlem sürüyor</em></div>
+      <div class="ct-analysis-loader-steps">
+        <span><i class="fas fa-database"></i> Snapshot</span>
+        <span><i class="fas fa-chart-line"></i> KPI</span>
+        <span><i class="fas fa-bullseye"></i> Aksiyon</span>
+        <span><i class="fas fa-users-viewfinder"></i> Rakip</span>
+        <span><i class="fas fa-brain"></i> Octo AI</span>
+        <span><i class="fas fa-file-pdf"></i> Rapor</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+(function(){
+  if(window.ctTooltipGlobal){ return; }
+  window.ctTooltipGlobal = true;
+
+  const tip = document.createElement('div');
+  tip.className = 'ct-tooltip-v2';
+  tip.setAttribute('role', 'tooltip');
+  document.body.appendChild(tip);
+
+  function showTip(el){
+    const text = (el.getAttribute('data-tip') || '').trim();
+    if(!text){ return; }
+    tip.textContent = text;
+    tip.style.display = 'block';
+    tip.classList.remove('below');
+
+    const rect = el.getBoundingClientRect();
+    const margin = 12;
+    const tipRect = tip.getBoundingClientRect();
+    let left = rect.left + (rect.width / 2) - (tipRect.width / 2);
+    left = Math.max(margin, Math.min(left, window.innerWidth - tipRect.width - margin));
+
+    let top = rect.top - tipRect.height - 12;
+    if(top < margin){
+      top = rect.bottom + 12;
+      tip.classList.add('below');
+    }
+
+    const arrowLeft = rect.left + (rect.width / 2) - left;
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+    tip.style.setProperty('--tip-arrow-left', `${arrowLeft}px`);
+  }
+
+  function hideTip(){
+    tip.style.display = 'none';
+  }
+
+  document.addEventListener('mouseover', function(e){
+    const el = e.target.closest('[data-tip]');
+    if(el){ showTip(el); }
+  });
+  document.addEventListener('focusin', function(e){
+    const el = e.target.closest('[data-tip]');
+    if(el){ showTip(el); }
+  });
+  document.addEventListener('mouseout', function(e){
+    if(e.target.closest('[data-tip]')){ hideTip(); }
+  });
+  document.addEventListener('focusout', function(e){
+    if(e.target.closest('[data-tip]')){ hideTip(); }
+  });
+  window.addEventListener('scroll', hideTip, true);
+  window.addEventListener('resize', hideTip);
+})();
+</script>
+
+<script>
+(function(){
+  const loader = document.getElementById('ctAnalysisLoader');
+  if(!loader){ return; }
+
+  const bar = document.getElementById('ctAnalysisLoaderBar');
+  const label = document.getElementById('ctAnalysisProgressLabel');
+  const steps = Array.from(loader.querySelectorAll('.ct-analysis-loader-steps span'));
+  let timer = null;
+  let closeTimer = null;
+
+  function setProgress(value){
+    const pct = Math.max(0, Math.min(100, value));
+    if(bar){ bar.style.width = pct + '%'; }
+    if(label){ label.textContent = Math.round(pct) + '%'; }
+    steps.forEach(function(step, idx){
+      const threshold = (idx + 1) * (100 / Math.max(steps.length, 1));
+      step.classList.toggle('done', pct >= threshold);
+      step.classList.toggle('active', pct < threshold && pct >= threshold - 18);
+    });
+  }
+
+  function closeAnalyzeLoader(){
+    window.clearInterval(timer);
+    window.clearTimeout(closeTimer);
+    timer = null;
+    closeTimer = null;
+    loader.classList.remove('show');
+    loader.setAttribute('aria-hidden', 'true');
+    setProgress(0);
+  }
+
+  function openAnalyzeLoader(){
+    window.clearInterval(timer);
+    window.clearTimeout(closeTimer);
+    let progress = 4;
+    setProgress(progress);
+    loader.classList.add('show');
+    loader.setAttribute('aria-hidden', 'false');
+
+    timer = window.setInterval(function(){
+      progress = Math.min(progress + Math.random() * 8 + 3, 92);
+      setProgress(progress);
+    }, 420);
+
+    // Navigasyon iptal olursa veya hata nedeniyle sayfa yenilenmezse loader ekranda kalmasın.
+    closeTimer = window.setTimeout(closeAnalyzeLoader, 90000);
+  }
+
+  document.querySelectorAll('.ct-ai-run-btn, .ct-top-ai-run-btn').forEach(function(button){
+    button.addEventListener('click', function(){
+      const href = button.getAttribute('href');
+      if(!href || href === '#'){ return; }
+      openAnalyzeLoader();
+    });
+  });
+
+  window.addEventListener('pageshow', closeAnalyzeLoader);
+  window.addEventListener('pagehide', closeAnalyzeLoader);
+  window.addEventListener('popstate', closeAnalyzeLoader);
+  window.addEventListener('beforeunload', function(){ setProgress(100); });
+})();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const tabs = document.querySelectorAll('[data-trend-tab]');
+  const panels = document.querySelectorAll('[data-trend-panel]');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      const target = tab.getAttribute('data-trend-tab');
+      tabs.forEach(function(item){ item.classList.remove('active'); });
+      panels.forEach(function(panel){ panel.classList.remove('active'); });
+      tab.classList.add('active');
+      const activePanel = document.querySelector('[data-trend-panel="' + target + '"]');
+      if(activePanel){ activePanel.classList.add('active'); }
+    });
+  });
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+(function(){
+  // Otomatik aylık görünüme yönlendirme kaldırıldı.
+  // Bu yönlendirme sayfa açıkken periyodik yeniden yükleme hissi ve sürekli dönen loader/cursor sorununa yol açıyordu.
+})();
+</script>
+
+<!-- CT Faz 5: Competitor pressure pill and final role separation styles -->
+
+<script>
+(function(){
+  const drawer = document.getElementById('ctAlertDrawer');
+  const toggle = document.querySelector('[data-ct-alert-toggle]');
+  const backdrop = document.querySelector('.ct-alert-drawer-backdrop');
+  const closers = document.querySelectorAll('[data-ct-alert-close]');
+  if(!drawer || !toggle || !backdrop){ return; }
+
+  function openDrawer(){
+    drawer.classList.add('show');
+    backdrop.classList.add('show');
+    drawer.setAttribute('aria-hidden', 'false');
+    backdrop.setAttribute('aria-hidden', 'false');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('ct-alert-drawer-open');
+  }
+
+  function closeDrawer(){
+    drawer.classList.remove('show');
+    backdrop.classList.remove('show');
+    drawer.setAttribute('aria-hidden', 'true');
+    backdrop.setAttribute('aria-hidden', 'true');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('ct-alert-drawer-open');
+  }
+
+  toggle.addEventListener('click', function(){
+    if(drawer.classList.contains('show')){ closeDrawer(); }
+    else { openDrawer(); }
+  });
+  closers.forEach(function(item){ item.addEventListener('click', closeDrawer); });
+  document.addEventListener('keydown', function(event){
+    if(event.key === 'Escape'){ closeDrawer(); }
+  });
+})();
+</script>
+
+{% endblock %}

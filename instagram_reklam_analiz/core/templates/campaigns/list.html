@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kampanyalar - Instagram Reklam Analiz{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-bullhorn"></i> Kampanyalar</h1>
+        <a href="{% url 'campaign_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Yeni Kampanya
+        </a>
+    </div>
+    
+    <!-- Filtreler -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row">
+                <div class="col-md-3">
+                    <select name="status" class="form-control">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Aktif</option>
+                        <option value="paused" {% if status_filter == 'paused' %}selected{% endif %}>Duraklatıldı</option>
+                        <option value="ended" {% if status_filter == 'ended' %}selected{% endif %}>Sona Erdi</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="search" class="form-control" placeholder="Kampanya ara..." value="{{ search }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrele</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Kampanya Listesi -->
+    <div class="row">
+        {% for campaign in campaigns %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ campaign.campaign_name }}</h5>
+                        {% if campaign.status == 'active' %}
+                        <span class="badge bg-success">Aktif</span>
+                        {% elif campaign.status == 'paused' %}
+                        <span class="badge bg-warning">Duraklatıldı</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Sona Erdi</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        <i class="fab fa-instagram"></i> @{{ campaign.instagram_account.username }}
+                    </p>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted">Bütçe</small>
+                            <h6>{{ campaign.budget }} ₺</h6>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Harcama</small>
+                            <h6>{{ campaign.spent_amount }} ₺</h6>
+                        </div>
+                    </div>
+                    <div class="progress mb-3">
+                        <div class="progress-bar" style="width: {{ campaign.percentage }}%"></div>
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted">Başlangıç</small>
+                            <div>{{ campaign.start_date|date:"d.m.Y" }}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Bitiş</small>
+                            <div>{{ campaign.end_date|date:"d.m.Y"|default:"-" }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100">
+                        <a href="{% url 'campaign_detail' campaign.id %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-chart-line"></i> Detaylar
+                        </a>
+                        <a href="{% url 'ai_analyze_campaign' campaign.id %}" class="btn btn-info btn-sm">
+                            <i class="fas fa-robot"></i> AI Analiz
+                        </a>
+                        <a href="{% url 'campaign_edit' campaign.id %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Düzenle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle fa-2x mb-3"></i>
+                <h5>Henüz kampanya bulunmuyor</h5>
+                <p>Yeni bir kampanya oluşturarak başlayın.</p>
+                <a href="{% url 'campaign_create' %}" class="btn btn-primary">Kampanya Oluştur</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if campaigns.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if campaigns.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ campaigns.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Önceki</a>
+            </li>
+            {% endif %}
+            
+            {% for num in campaigns.paginator.page_range %}
+            <li class="page-item {% if campaigns.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if campaigns.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ campaigns.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">Sonraki</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

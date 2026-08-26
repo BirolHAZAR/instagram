@@ -1,0 +1,179 @@
+﻿{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ labels.influencer_discovery }} | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<style>
+.inf-shell{
+  max-width:none;
+  margin:-10px -6px 0;
+  padding:22px;
+  min-height:calc(100vh - 110px);
+  color:#f8fafc;
+  background:
+    radial-gradient(circle at 14% 0,rgba(34,211,238,.16),transparent 30%),
+    radial-gradient(circle at 86% 10%,rgba(99,102,241,.2),transparent 35%),
+    linear-gradient(145deg,#050816 0,#10172a 56%,#07111f 100%);
+  border-radius:24px;
+  overflow:hidden;
+}
+.inf-wrap{width:100%;max-width:none;margin:0;}
+.inf-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;margin-bottom:18px;}
+.inf-kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(34,211,238,.25);background:rgba(34,211,238,.08);color:#9eeaff;border-radius:999px;padding:7px 12px;font-weight:900;font-size:.78rem;}
+.inf-title{font-size:clamp(1.8rem,3vw,3rem);font-weight:950;letter-spacing:0;margin:12px 0 8px;color:#fff;}
+.inf-subtitle{max-width:850px;color:#a7b0c5;line-height:1.65;margin:0;}
+.inf-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+.inf-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(34,211,238,.28);border-radius:11px;padding:11px 14px;font-weight:900;text-decoration:none;color:#fff;background:linear-gradient(135deg,#2563eb,#0f766e);}
+.inf-btn.secondary{background:rgba(255,255,255,.07);color:#e2e8f0;}
+.inf-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px;align-items:stretch;}
+.inf-metric{min-width:0;min-height:112px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid rgba(148,163,184,.18);border-radius:16px;background:rgba(15,23,42,.72);box-shadow:0 22px 60px rgba(0,0,0,.22);padding:17px 18px;}
+.inf-metric span{display:block;color:#94a3b8;font-size:.72rem;line-height:1.25;font-weight:900;text-transform:uppercase;letter-spacing:.06em;}
+.inf-metric strong{display:block;margin-top:8px;color:#fff;font-size:clamp(1.25rem,1.65vw,1.62rem);line-height:1.08;font-weight:950;word-break:break-word;}
+.inf-layout{display:flex;align-items:flex-start;gap:0;width:100%;max-width:100%;overflow:hidden;}
+.inf-layout>aside.inf-panel{flex:0 0 292px;width:292px;}
+.inf-layout>main.inf-panel{flex:1 1 auto;width:auto;margin-left:-1px;}
+.inf-panel{min-width:0;border:1px solid rgba(148,163,184,.18);border-radius:18px;background:rgba(15,23,42,.8);box-shadow:0 24px 70px rgba(0,0,0,.24);overflow:hidden;}
+.inf-panel-head{padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.14);display:flex;align-items:center;gap:9px;}
+.inf-panel-head i{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:rgba(34,211,238,.11);color:#67e8f9;}
+.inf-panel-head h2{font-size:.98rem;margin:0;font-weight:950;color:#fff;}
+.inf-body{padding:14px;min-width:0;}
+.inf-label{display:block;font-size:.72rem;text-transform:uppercase;font-weight:900;color:#94a3b8;margin:0 0 6px;}
+.inf-input{width:100%;border:1px solid rgba(148,163,184,.24);background:rgba(2,6,23,.62);color:#f8fafc;border-radius:10px;padding:10px 12px;font-size:.88rem;margin-bottom:12px;}
+.inf-input option{color:#111827;}
+.inf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:10px;width:100%;max-width:100%;}
+.inf-card{min-width:0;display:grid;grid-template-rows:52px 50px 1fr;gap:9px;min-height:174px;height:100%;border:1px solid rgba(148,163,184,.16);border-radius:15px;background:rgba(2,6,23,.44);padding:13px;text-decoration:none;color:#f8fafc;transition:.15s;}
+.inf-card:hover{transform:translateY(-2px);border-color:rgba(34,211,238,.5);box-shadow:0 18px 38px rgba(34,211,238,.09);color:#fff;}
+.inf-card-top{display:flex;gap:10px;align-items:center;min-width:0;height:52px;}
+.inf-avatar{flex:0 0 46px;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(37,99,235,.42),rgba(20,184,166,.28));font-weight:950;font-size:1.05rem;}
+.inf-name{min-width:0;}
+.inf-name strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.9rem;}
+.inf-name span{display:block;color:#94a3b8;font-size:.74rem;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.inf-badges{display:flex;align-content:flex-start;gap:6px;flex-wrap:wrap;min-width:0;height:50px;overflow:hidden;}
+.inf-pill{display:inline-flex;align-items:center;gap:6px;max-width:100%;height:22px;border-radius:999px;border:1px solid rgba(148,163,184,.2);background:rgba(255,255,255,.055);color:#cbd5e1;padding:0 8px;font-size:.66rem;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.inf-pill.ok{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.12);color:#86efac;}
+.inf-card-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;align-self:end;}
+.inf-card-metrics div{min-width:0;min-height:54px;border:1px solid rgba(148,163,184,.12);border-radius:11px;padding:8px;background:rgba(255,255,255,.035);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.inf-card-metrics span{display:block;color:#94a3b8;font-size:.58rem;line-height:1.15;text-transform:uppercase;font-weight:900;}
+.inf-card-metrics b{display:block;margin-top:5px;color:#fff;font-size:.82rem;line-height:1.1;word-break:break-word;}
+.inf-empty{text-align:center;padding:44px 16px;color:#94a3b8;border:1px dashed rgba(148,163,184,.25);border-radius:14px;background:rgba(2,6,23,.25);}
+.inf-pagination{display:flex;justify-content:center;gap:8px;margin-top:16px;}
+.inf-pagination a,.inf-pagination span{border:1px solid rgba(148,163,184,.18);border-radius:10px;padding:9px 12px;color:#dbe4f0;text-decoration:none;background:rgba(15,23,42,.72);}
+@media(max-width:1200px){.inf-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.inf-metrics{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:920px){.inf-shell{padding:14px;border-radius:16px;}.inf-hero{grid-template-columns:1fr;}.inf-layout{display:grid;grid-template-columns:1fr;gap:14px;}.inf-layout>aside.inf-panel,.inf-layout>main.inf-panel{width:100%;margin-left:0;}.inf-actions{justify-content:flex-start;}.inf-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:600px){.inf-metrics,.inf-grid{grid-template-columns:1fr;}.inf-metric{min-height:96px;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="inf-shell">
+  <div class="inf-wrap">
+    <section class="inf-hero">
+      <div>
+        <span class="inf-kicker"><i class="fas fa-users-viewfinder"></i> {{ labels.influencer_discovery }}</span>
+        <h1 class="inf-title">{{ labels.influencer_title }}</h1>
+        <p class="inf-subtitle">{{ labels.influencer_subtitle }}</p>
+      </div>
+    </section>
+
+    <section class="inf-metrics">
+      <div class="inf-metric"><span>{{ labels.profiles }}</span><strong>{{ stats.total|tr_int }}</strong></div>
+      <div class="inf-metric"><span>{{ labels.total_followers }}</span><strong>{{ stats.total_followers|tr_int }}</strong></div>
+      <div class="inf-metric"><span>{{ labels.avg_engagement }}</span><strong>%{{ stats.avg_engagement|tr_decimal }}</strong></div>
+      <div class="inf-metric"><span>{{ labels.largest_profile }}</span><strong>{{ stats.max_followers|tr_int }}</strong></div>
+    </section>
+
+    <div class="inf-layout">
+      <aside class="inf-panel">
+        <div class="inf-panel-head"><i class="fas fa-sliders"></i><h2>{{ labels.filters_and_add }}</h2></div>
+        <div class="inf-body">
+          <form method="get">
+            <label class="inf-label">{{ labels.search }}</label>
+            <input class="inf-input" name="q" value="{{ filters.q }}" placeholder="{{ labels.influencer_search_placeholder }}">
+            <label class="inf-label">{{ labels.platform }}</label>
+            <select class="inf-input" name="platform">
+              <option value="">{{ labels.all_platforms }}</option>
+              {% for platform in platforms %}<option value="{{ platform.id }}" {% if filters.platform == platform.id|stringformat:"s" %}selected{% endif %}>{{ platform.name }}</option>{% endfor %}
+            </select>
+            <label class="inf-label">{{ labels.category|default:"Category" }}</label>
+            <select class="inf-input" name="category">
+              <option value="">{{ labels.all_categories }}</option>
+              {% for key,label in categories %}<option value="{{ key }}" {% if filters.category == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+            <label class="inf-label">{{ labels.country }}</label>
+            <input class="inf-input" name="country" value="{{ filters.country }}" placeholder="{{ labels.country_placeholder }}">
+            <label class="inf-label">{{ labels.min_followers }}</label>
+            <input class="inf-input" name="min_followers" value="{{ filters.min_followers }}" inputmode="numeric">
+            <label class="inf-label">{{ labels.min_engagement }}</label>
+            <input class="inf-input" name="min_engagement" value="{{ filters.min_engagement }}" inputmode="decimal">
+            <button class="inf-btn" style="width:100%;justify-content:center" type="submit"><i class="fas fa-filter"></i> {{ labels.filter }}</button>
+          </form>
+
+          {% if user.is_authenticated %}
+          <hr style="border-color:rgba(148,163,184,.16);margin:18px 0;">
+          <form method="post" action="{% url 'influencer_add' %}">
+            {% csrf_token %}
+            <label class="inf-label">{{ labels.new_influencer }}</label>
+            <select class="inf-input" name="platform" required>
+              <option value="">{{ labels.select_platform }}</option>
+              {% for platform in platforms %}<option value="{{ platform.id }}">{{ platform.name }}</option>{% endfor %}
+            </select>
+            <input class="inf-input" name="handle" placeholder="{{ labels.handle_placeholder }}" required>
+            <input class="inf-input" name="display_name" placeholder="{{ labels.display_name }}">
+            <select class="inf-input" name="category">
+              {% for key,label in categories %}<option value="{{ key }}">{{ label }}</option>{% endfor %}
+            </select>
+            <input class="inf-input" name="country" placeholder="{{ labels.country }}">
+            <input class="inf-input" name="city" placeholder="{{ labels.city }}">
+            <input class="inf-input" name="follower_count" placeholder="{{ labels.follower_count }}" inputmode="numeric">
+            <input class="inf-input" name="engagement_rate" placeholder="{{ labels.engagement_rate }}" inputmode="decimal">
+            <button class="inf-btn" style="width:100%;justify-content:center" type="submit"><i class="fas fa-plus"></i> {{ labels.add_to_pool }}</button>
+          </form>
+          {% endif %}
+        </div>
+      </aside>
+
+      <main class="inf-panel">
+        <div class="inf-panel-head"><i class="fas fa-table-list"></i><h2>{{ labels.influencer_list }}</h2></div>
+        <div class="inf-body">
+          {% if influencers %}
+          <div class="inf-grid">
+            {% for influencer in influencers %}
+            <a class="inf-card" href="{% url 'influencer_detail' influencer.id %}">
+              <div class="inf-card-top">
+                <div class="inf-avatar">{{ influencer.display_name|first|upper }}</div>
+                <div class="inf-name">
+                  <strong>{{ influencer.display_name }}</strong>
+                  <span>{{ influencer.platform.name|default:labels.platform }} · {{ influencer.handle }}</span>
+                </div>
+              </div>
+              <div class="inf-badges">
+                <span class="inf-pill">{{ influencer.get_category_display }}</span>
+                {% if influencer.is_verified %}<span class="inf-pill ok"><i class="fas fa-circle-check"></i> {{ labels.verified }}</span>{% endif %}
+                <span class="inf-pill">{{ influencer.country|default:labels.no_country }}</span>
+              </div>
+              <div class="inf-card-metrics">
+                <div><span>{{ labels.followers }}</span><b>{{ influencer.follower_count|tr_int }}</b></div>
+                <div><span>{{ labels.engagement }}</span><b>%{{ influencer.engagement_rate|tr_decimal }}</b></div>
+                <div><span>{{ labels.estimated_reach }}</span><b>{{ influencer.estimated_reach|tr_int }}</b></div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="inf-empty">{{ labels.no_influencer_found }}</div>
+          {% endif %}
+
+          {% if page_obj.has_other_pages %}
+          <div class="inf-pagination">
+            {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">{{ labels.previous }}</a>{% endif %}
+            <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">{{ labels.next }}</a>{% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+{% endblock %}

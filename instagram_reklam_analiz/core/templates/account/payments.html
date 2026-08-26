@@ -1,0 +1,305 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ã–demelerim{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/account_payments.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="payments-wrapper">
+    <div class="container">
+        <!-- Sayfa BaÅŸlÄ±ÄŸÄ± -->
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'my_account' %}">
+                                <i class="fas fa-home me-1"></i>HesabÄ±m
+                            </a></li>
+                            <li class="breadcrumb-item active">Ã–demelerim</li>
+                        </ol>
+                    </nav>
+                    <h2 class="mt-2">
+                        <i class="fas fa-credit-card me-2" style="color: #667eea;"></i>Ã–demelerim
+                    </h2>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'pricing' %}" class="btn-purple">
+                        <i class="fas fa-plus me-2"></i>Yeni Abonelik
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        {% if payments %}
+            <!-- Ä°statistik KartlarÄ± -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="stat-value">{{ total_payments }}</div>
+                    <div class="stat-label">Toplam Ã–deme</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-value">{{ completed_payments }}</div>
+                    <div class="stat-label">BaÅŸarÄ±lÄ± Ã–deme</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-lira-sign"></i>
+                    </div>
+                    <div class="stat-value">{{ total_amount|default:"0"|tr_decimal }} â‚º</div>
+                    <div class="stat-label">Toplam Harcama</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-value">{{ last_payment_date|date:"d.m"|default:"-" }}</div>
+                    <div class="stat-label">Son Ã–deme</div>
+                </div>
+            </div>
+            
+            <!-- Filtreler -->
+            <div class="filter-card">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <span class="fw-bold me-3 text-muted" style="font-size: 13px;">
+                        <i class="fas fa-filter me-1"></i>Filtrele:
+                    </span>
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-list me-1"></i>TÃ¼mÃ¼
+                    </button>
+                    <button class="filter-btn" data-filter="completed">
+                        <i class="fas fa-check-circle me-1"></i>Tamamlanan
+                    </button>
+                    <button class="filter-btn" data-filter="credit_card">
+                        <i class="far fa-credit-card me-1"></i>Kredi KartÄ±
+                    </button>
+                    <button class="filter-btn" data-filter="bank_transfer">
+                        <i class="fas fa-university me-1"></i>Havale
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Ã–deme Listesi -->
+            {% for payment in payments %}
+            <div class="payment-card {{ payment.payment_method }}" 
+                 data-status="{{ payment.status }}" 
+                 data-method="{{ payment.payment_method }}">
+                <div class="row align-items-center">
+                    <!-- Ã–deme YÃ¶ntemi Ä°konu -->
+                    <div class="col-auto">
+                        <div class="payment-method-icon {% if payment.payment_method == 'credit_card' %}method-credit{% else %}method-transfer{% endif %}">
+                            {% if payment.payment_method == 'credit_card' %}
+                                <i class="far fa-credit-card"></i>
+                            {% else %}
+                                <i class="fas fa-university"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Ã–deme Bilgileri -->
+                    <div class="col-md-3 mb-2 mb-md-0">
+                        <div class="payment-info">
+                            <h5>
+                                {% if payment.payment_method == 'credit_card' %}
+                                    Kredi KartÄ±
+                                {% else %}
+                                    Havale/EFT
+                                {% endif %}
+                            </h5>
+                            {% if payment.plan %}
+                                <p class="payment-plan">{{ payment.plan.display_name }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Tarih ve Ä°ÅŸlem No -->
+                    <div class="col-md-3 mb-2 mb-md-0">
+                        <div class="payment-date">
+                            <i class="far fa-calendar-alt me-1"></i>
+                            {{ payment.created_at|date:"d.m.Y" }}
+                        </div>
+                        <div class="payment-date mt-1">
+                            <i class="far fa-clock me-1"></i>
+                            {{ payment.created_at|date:"H:i" }}
+                        </div>
+                        {% if payment.transaction_id %}
+                        <div class="payment-date mt-1">
+                            <i class="fas fa-hashtag me-1"></i>
+                            <small>{{ payment.transaction_id|truncatechars:15 }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Tutar -->
+                    <div class="col-md-2 mb-2 mb-md-0 text-md-center">
+                        <div class="payment-amount">
+                            {{ payment.amount|tr_decimal }} â‚º
+                        </div>
+                        {% if payment.kdv_amount %}
+                        <small class="text-muted">KDV: {{ payment.kdv_amount|tr_decimal }} â‚º</small>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Durum -->
+                    <div class="col-md-2 mb-2 mb-md-0 text-md-center">
+                        <span class="status-badge status-{{ payment.status }}">
+                            <span class="status-dot {{ payment.status }}"></span>
+                            {% if payment.status == 'completed' %}
+                                TamamlandÄ±
+                            {% elif payment.status == 'pending' %}
+                                Beklemede
+                            {% elif payment.status == 'failed' %}
+                                BaÅŸarÄ±sÄ±z
+                            {% elif payment.status == 'refunded' %}
+                                Ä°ade Edildi
+                            {% else %}
+                                {{ payment.get_status_display }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <!-- Detay Butonu -->
+                    <div class="col-md-2 text-md-end mt-2 mt-md-0">
+                        <button class="btn-outline-purple" data-bs-toggle="modal" 
+                                data-bs-target="#paymentModal{{ payment.id }}">
+                            <i class="fas fa-eye me-1"></i>Detay
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detay Modal -->
+            <div class="modal fade payment-detail-modal" id="paymentModal{{ payment.id }}" tabindex="-1"
+                 aria-labelledby="paymentModalLabel{{ payment.id }}" aria-hidden="true"
+                 data-bs-backdrop="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none;">
+                            <h5 class="modal-title fw-bold" id="paymentModalLabel{{ payment.id }}">
+                                <i class="fas fa-receipt me-2"></i>Ã–deme DetayÄ±
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div class="detail-item">
+                                <span class="detail-label">Ä°ÅŸlem No</span>
+                                <span class="detail-value">
+                                    <code>{{ payment.transaction_id|default:"BelirtilmemiÅŸ" }}</code>
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Plan</span>
+                                <span class="detail-value text-gradient fw-bold">
+                                    {{ payment.plan.display_name|default:"BelirtilmemiÅŸ" }}
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Ã–deme YÃ¶ntemi</span>
+                                <span class="detail-value">
+                                    {% if payment.payment_method == 'credit_card' %}
+                                        <i class="far fa-credit-card me-1"></i>Kredi KartÄ±
+                                    {% else %}
+                                        <i class="fas fa-university me-1"></i>Havale/EFT
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Tutar (KDV HariÃ§)</span>
+                                <span class="detail-value">{{ payment.amount|tr_decimal }} â‚º</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">KDV (%20)</span>
+                                <span class="detail-value">{{ payment.kdv_amount|tr_decimal }} â‚º</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Toplam Tutar</span>
+                                <span class="detail-value fw-bold" style="font-size: 18px; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                                    {{ payment.amount|tr_decimal }} â‚º
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Durum</span>
+                                <span class="detail-value">
+                                    <span class="status-badge status-{{ payment.status }} d-inline-flex">
+                                        <span class="status-dot {{ payment.status }}"></span>
+                                        {{ payment.get_status_display }}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Tarih</span>
+                                <span class="detail-value">{{ payment.created_at|date:"d.m.Y H:i" }}</span>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="border-top: 1px solid #f1f2f6;">
+                            <button type="button" class="btn-outline-purple" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i>Kapat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+        {% else %}
+            <!-- BoÅŸ Durum -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <h3>HenÃ¼z Ã–deme Yok</h3>
+                <p>AI destekli reklam araÃ§larÄ±mÄ±zÄ± kullanmak iÃ§in hemen bir pakete abone olun!</p>
+                <a href="{% url 'pricing' %}" class="btn-purple" style="display: inline-flex; padding: 15px 40px; font-size: 16px;">
+                    <i class="fas fa-shopping-cart me-2"></i>Paketleri Ä°ncele
+                </a>
+                <div class="mt-4">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        GÃ¼venli Ã¶deme altyapÄ±sÄ± ile 256-bit SSL korumasÄ±
+                    </small>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filtreleme iÅŸlevi
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const paymentCards = document.querySelectorAll('.payment-card');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Aktif butonu gÃ¼ncelle
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                
+                // KartlarÄ± filtrele
+                paymentCards.forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'block';
+                    } else if (filter === 'completed') {
+                        card.style.display = card.dataset.status === 'completed' ? 'block' : 'none';
+                    } else {
+                        card.style.display = card.dataset.method === filter ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

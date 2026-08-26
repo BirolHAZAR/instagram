@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Giriş Yap - ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="signup-page">
+    <div class="signup-shell">
+        <aside class="signup-brand-panel">
+            <img src="{% static 'images/logo2.png' %}" alt="ReklamAnaliz.net" class="signup-brand-logo">
+            <p class="brand-kicker">reklamanaliz.net</p>
+            <h1>Paneline güvenli şekilde giriş yap.</h1>
+            <p class="brand-copy">
+                Reklam performansı, AI analizleri, kontör kullanımı ve platform bağlantılarını tek merkezden yönet.
+            </p>
+            <div class="brand-metrics" aria-label="Portal özellikleri">
+                <span><strong>AI</strong><small>Analiz</small></span>
+                <span><strong>2FA</strong><small>Koruma</small></span>
+                <span><strong>SaaS</strong><small>Kontrol</small></span>
+            </div>
+            <div class="brand-points">
+                <span><i class="fas fa-chart-line"></i> Performans raporları</span>
+                <span><i class="fas fa-coins"></i> AI kontör takibi</span>
+                <span><i class="fas fa-shield-halved"></i> Güvenli oturum yönetimi</span>
+            </div>
+        </aside>
+
+        <div class="signup-card login-card">
+            <div class="signup-card-top">
+                <div class="signup-title-block">
+                    <span class="signup-kicker">Üye girişi</span>
+                    <h2>ReklamAnaliz paneline giriş yap</h2>
+                    <p>Hesabına eriş, kampanyalarını ve otomatik analiz süreçlerini kaldığın yerden yönet.</p>
+                </div>
+                <a href="{% url 'account_signup' %}" class="signin-link">
+                    <i class="fas fa-user-plus"></i> Kayıt Ol
+                </a>
+            </div>
+
+            <div class="signup-status-row">
+                <span><i class="fas fa-lock"></i> Güvenli oturum</span>
+                <span><i class="fas fa-envelope-circle-check"></i> Mail doğrulama</span>
+                <span><i class="fas fa-user-shield"></i> 2FA desteği</span>
+            </div>
+
+            <div class="signup-body">
+                {% if request.GET.csrf_refreshed %}
+                <div class="alert alert-info">
+                    <i class="fas fa-rotate"></i>
+                    Güvenlik oturumu yenilendi. Lütfen giriş bilgilerinizi tekrar gönderin.
+                </div>
+                {% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                    {% if "success" not in message.tags %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" action="{% url 'account_login' %}" class="signup-form login-form">
+                    {% csrf_token %}
+                    {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                    {% endif %}
+
+                    <div class="login-form-grid">
+                        <div class="form-group">
+                            <label for="id_login">Kullanıcı Adı veya E-posta</label>
+                            <div class="input-group">
+                                <span class="input-icon"><i class="fas fa-user"></i></span>
+                                <input type="text" name="login" id="id_login" placeholder="kullanici_adi@reklamanaliz.net" value="{{ form.login.value|default:'' }}" autocomplete="username" required>
+                            </div>
+                            {% if form.login.errors %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form.login.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_password">Şifre</label>
+                            <div class="input-group">
+                                <span class="input-icon"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password" id="id_password" placeholder="Şifrenizi yazın" autocomplete="current-password" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('id_password')" aria-label="Şifreyi göster">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ form.password.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="error-message form-wide"><i class="fas fa-exclamation-circle"></i> {{ form.non_field_errors|join:", " }}</div>
+                    {% endif %}
+
+                    <div class="login-options">
+                        <label class="remember-option" for="id_remember">
+                            <input type="checkbox" name="remember" id="id_remember">
+                            <span>Beni hatırla</span>
+                        </label>
+                        <a href="{% url 'account_reset_password' %}" class="forgot-link">
+                            <i class="fas fa-key"></i> Şifremi unuttum
+                        </a>
+                    </div>
+
+                    <div class="signup-submit-row login-submit-row">
+                        <button type="submit" class="btn-signup">
+                            <i class="fas fa-right-to-bracket"></i> Giriş Yap
+                        </button>
+                        <p>Paylaşımlı cihazlarda “beni hatırla” seçeneğini kullanmamanı öneririz.</p>
+                    </div>
+                </form>
+
+                {% if social_login_providers %}
+                <div class="social-signup-box">
+                    <div class="social-head">
+                        <strong>Sosyal hesapla giriş yap</strong>
+                        <span>Sadece aktif bağlantılar gösterilir.</span>
+                    </div>
+                    <div class="social-grid">
+                        {% for provider in social_login_providers %}
+                            <a href="{{ provider.login_url }}" class="social-provider active">
+                                <i class="{{ provider.icon }}"></i>
+                                <span>{{ provider.label }}</span>
+                                <small>Aktif</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                    <p class="security-note"><i class="fas fa-circle-info"></i> Sosyal girişler bağlı e-posta hesabınızla güvenli oturum açar.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = field.parentElement.querySelector('.password-toggle i');
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}

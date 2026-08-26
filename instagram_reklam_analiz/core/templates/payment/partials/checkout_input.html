@@ -1,0 +1,15 @@
+<div class="form-floating-custom">
+    <input
+        type="{{ type|default:'text' }}"
+        class="form-control {% if error %}is-invalid{% endif %}"
+        name="{{ name }}"
+        placeholder="{{ label }}"
+        value="{{ value|default_if_none:'' }}"
+        {% if required %}required{% endif %}
+        {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+        {% if inputmode %}inputmode="{{ inputmode }}"{% endif %}
+        {% if inputmode == "numeric" %}oninput="digitsOnly(this)"{% endif %}
+    >
+    <label>{{ label }}</label>
+    {% for item in error %}<div class="field-error">{{ item }}</div>{% endfor %}
+</div>

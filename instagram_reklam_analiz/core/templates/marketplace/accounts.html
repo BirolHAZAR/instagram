@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}Pazaryeri Hesapları{% endblock %}
+
+{% block extra_css %}
+<style>
+  .mpa-page {
+    --mpa-panel: rgba(16, 26, 45, .94);
+    --mpa-panel-2: rgba(12, 20, 36, .98);
+    --mpa-line: rgba(148, 163, 184, .22);
+    --mpa-line-strong: rgba(125, 211, 252, .26);
+    --mpa-text: #f8fafc;
+    --mpa-soft: #cbd5e1;
+    --mpa-muted: #94a3b8;
+    --mpa-cyan: #38bdf8;
+    --mpa-green: #22c55e;
+    --mpa-amber: #f59e0b;
+    --mpa-red: #ef4444;
+    padding: 24px;
+    color: var(--mpa-text);
+  }
+  .mpa-shell { max-width: 1720px; margin: 0 auto; }
+  .mpa-top {
+    border: 1px solid var(--mpa-line);
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, rgba(56, 189, 248, .12), transparent 38%),
+      linear-gradient(90deg, rgba(34, 197, 94, .08), rgba(129, 140, 248, .10)),
+      var(--mpa-panel-2);
+    padding: 22px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: start;
+    box-shadow: 0 18px 48px rgba(0,0,0,.24);
+  }
+  .mpa-kicker { display:flex; align-items:center; gap:8px; color:var(--mpa-cyan); font-size:.76rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+  .mpa-title { margin:0; font-size:1.85rem; font-weight:950; letter-spacing:0; color:var(--mpa-text); }
+  .mpa-lead { margin:7px 0 0; color:var(--mpa-soft); max-width:920px; font-size:.95rem; line-height:1.55; }
+  .mpa-organization { margin-top:10px; color:var(--mpa-muted); font-size:.86rem; }
+  .mpa-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+  .mpa-btn {
+    height:42px; border:1px solid var(--mpa-line-strong); border-radius:8px; padding:0 14px;
+    background:rgba(56,189,248,.14); color:var(--mpa-text); text-decoration:none; font-weight:850;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; white-space:nowrap;
+  }
+  .mpa-btn:hover { color:#fff; background:rgba(56,189,248,.22); }
+  .mpa-btn.primary { border-color:transparent; background:#2563eb; }
+  .mpa-supported { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .mpa-supported span { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(125,211,252,.22); color:#e0f2fe; font-size:.78rem; font-weight:900; }
+  .mpa-supported i { color:var(--mpa-cyan); }
+
+  .mpa-kpis { display:grid; grid-template-columns:repeat(4, minmax(150px, 1fr)); gap:10px; margin:16px 0; }
+  .mpa-kpi { border:1px solid var(--mpa-line); border-radius:8px; background:var(--mpa-panel); padding:13px 14px; min-height:78px; }
+  .mpa-kpi span { display:block; color:var(--mpa-muted); font-size:.76rem; font-weight:800; margin-bottom:6px; }
+  .mpa-kpi strong { display:block; color:var(--mpa-text); font-size:1.25rem; font-weight:950; line-height:1.15; }
+  .mpa-kpi small { color:var(--mpa-soft); font-size:.72rem; }
+
+  .mpa-layout { display:grid; grid-template-columns:460px minmax(0,1fr); gap:16px; align-items:start; }
+  .mpa-panel { border:1px solid var(--mpa-line); border-radius:8px; background:var(--mpa-panel); overflow:hidden; color:var(--mpa-text); }
+  .mpa-panel-head { padding:13px 15px; border-bottom:1px solid var(--mpa-line); display:flex; align-items:center; justify-content:space-between; gap:10px; font-weight:950; color:var(--mpa-text); }
+  .mpa-panel-head small { color:var(--mpa-muted); font-weight:750; }
+  .mpa-form { padding:16px; display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+  .mpa-form .wide,
+  .mpa-form .field-marketplace,
+  .mpa-form .field-agency_client,
+  .mpa-form .field-store_name,
+  .mpa-form .field-api_key_encrypted,
+  .mpa-form .field-api_secret_encrypted,
+  .mpa-form .field-sync_mode { grid-column:1 / -1; }
+  .mpa-form label { display:block; color:var(--mpa-muted); font-size:.75rem; font-weight:850; margin-bottom:6px; }
+  .mpa-form input,
+  .mpa-form select,
+  .mpa-form textarea {
+    width:100%; min-height:42px; border:1px solid rgba(148,163,184,.32); border-radius:8px;
+    background:#0b1527; color:var(--mpa-text); padding:0 12px; outline:none;
+  }
+  .mpa-form textarea { min-height:86px; padding:10px 12px; }
+  .mpa-form input::placeholder { color:#64748b; }
+  .mpa-form input:focus,
+  .mpa-form select:focus,
+  .mpa-form textarea:focus { border-color:var(--mpa-cyan); box-shadow:0 0 0 3px rgba(56,189,248,.12); }
+  .mpa-form input[type="checkbox"] {
+    width:18px; min-height:18px; height:18px; padding:0; accent-color:var(--mpa-green);
+  }
+  .mpa-form .helptext { display:block; color:var(--mpa-soft); font-size:.75rem; line-height:1.4; margin-top:5px; }
+  .mpa-errors { border:1px solid rgba(239,68,68,.35); background:rgba(239,68,68,.12); color:#fecaca; border-radius:8px; padding:10px 12px; font-size:.84rem; }
+  .mpa-submit {
+    grid-column:1 / -1; height:44px; border:0; border-radius:8px; padding:0 16px;
+    background:#16a34a; color:#fff; font-weight:950; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  }
+
+  .mpa-table-wrap { overflow:auto; }
+  .mpa-table { width:100%; min-width:1080px; border-collapse:separate; border-spacing:0; }
+  .mpa-table th {
+    padding:12px 13px; text-align:left; background:#0b1527; color:var(--mpa-muted);
+    border-bottom:1px solid var(--mpa-line); font-size:.73rem; font-weight:950; white-space:nowrap;
+  }
+  .mpa-table td { padding:13px; border-bottom:1px solid rgba(148,163,184,.14); color:var(--mpa-soft); vertical-align:middle; font-size:.86rem; }
+  .mpa-table tr:hover td { background:rgba(56,189,248,.045); }
+  .mpa-store { color:var(--mpa-text); font-weight:950; }
+  .mpa-mini { color:var(--mpa-muted); font-size:.75rem; margin-top:3px; }
+  .mpa-badge { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 8px; background:rgba(129,140,248,.16); color:#c7d2fe; font-size:.74rem; font-weight:900; white-space:nowrap; }
+  .mpa-badge.active { background:rgba(34,197,94,.14); color:#86efac; }
+  .mpa-badge.passive { background:rgba(148,163,184,.14); color:#cbd5e1; }
+  .mpa-badge.error { background:rgba(239,68,68,.14); color:#fca5a5; }
+  .mpa-row-actions { display:flex; gap:6px; align-items:center; white-space:nowrap; }
+  .mpa-row-actions form { margin:0; }
+  .mpa-action { border:1px solid var(--mpa-line); border-radius:7px; background:#0b1527; color:var(--mpa-soft); padding:7px 9px; text-decoration:none; font-weight:800; font-size:.75rem; }
+  .mpa-action:hover { color:#fff; border-color:var(--mpa-cyan); }
+  .mpa-action.delete { color:#fca5a5; border-color:rgba(239,68,68,.3); }
+  .mpa-sync-mode { color:var(--mpa-text); font-weight:850; }
+  .mpa-empty { padding:40px 20px; text-align:center; color:var(--mpa-muted); }
+  .mpa-empty strong { display:block; color:var(--mpa-text); margin-bottom:6px; }
+
+  @media (max-width: 1180px) {
+    .mpa-layout { grid-template-columns:1fr; }
+    .mpa-kpis { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  }
+  @media (max-width: 760px) {
+    .mpa-page { padding:14px; }
+    .mpa-top { grid-template-columns:1fr; }
+    .mpa-actions { justify-content:flex-start; }
+    .mpa-form { grid-template-columns:1fr; }
+    .mpa-kpis { grid-template-columns:1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mpa-page">
+  <div class="mpa-shell">
+    <section class="mpa-top">
+      <div>
+        <div class="mpa-kicker"><i class="fas fa-link"></i> Pazaryeri Bağlantıları</div>
+        <h1 class="mpa-title">Pazaryeri Hesapları</h1>
+        <p class="mpa-lead">Trendyol, Hepsiburada ve n11 mağaza bilgilerini aboneliğinize bağlı olarak tanımlayın. API anahtarı ve secret bilgileri şifreli saklanır; ürün çekim koşulları her mağaza için ayrı yönetilir.</p>
+        <div class="mpa-supported" aria-label="Desteklenen pazaryerleri">
+          <span><i class="fas fa-store"></i> Trendyol</span>
+          <span><i class="fas fa-store"></i> Hepsiburada</span>
+          <span><i class="fas fa-store"></i> n11</span>
+        </div>
+        {% if organization %}<div class="mpa-organization"><strong>Organizasyon:</strong> {{ organization.name }}</div>{% endif %}
+      </div>
+      <div class="mpa-actions">
+        <a class="mpa-btn" href="#bagli-hesaplar"><i class="fas fa-list-check"></i> Bağlı Hesapları Gör</a>
+        <a class="mpa-btn" href="{% url 'marketplace_product_management' %}"><i class="fas fa-boxes-stacked"></i> Ürün Yönetimi</a>
+        <a class="mpa-btn primary" href="{% url 'marketplace_price_history_report' %}"><i class="fas fa-chart-line"></i> Ürün Raporları</a>
+      </div>
+    </section>
+
+    <section class="mpa-kpis" aria-label="Pazaryeri hesap özeti">
+      <div class="mpa-kpi"><span>Bağlı Hesap</span><strong>{{ accounts|length }}</strong><small>Tanımlı mağaza</small></div>
+      <div class="mpa-kpi"><span>Desteklenen Platform</span><strong>3</strong><small>Trendyol, Hepsiburada, n11</small></div>
+      <div class="mpa-kpi"><span>Varsayılan Çekim</span><strong>250</strong><small>Satışa hazır ürün</small></div>
+      <div class="mpa-kpi"><span>Güvenlik</span><strong>Şifreli</strong><small>API anahtarı saklama</small></div>
+    </section>
+
+    <div class="mpa-layout">
+      <section class="mpa-panel" id="bagli-hesaplar">
+        <div class="mpa-panel-head">
+          <span>{% if editing_account %}Mağazayı Düzenle{% else %}Yeni Hesap Bağla{% endif %}</span>
+          <small>{% if editing_account %}{{ editing_account.store_name }}{% else %}Mağaza ve sync ayarları{% endif %}</small>
+        </div>
+        <form class="mpa-form" method="post"{% if editing_account %} action="{% url 'marketplace_account_edit' editing_account.id %}"{% endif %}>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+          <div class="mpa-errors wide">{{ form.non_field_errors }}</div>
+          {% endif %}
+          {% for field in form %}
+            <div class="field-{{ field.name }}">
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+              {% if field.errors %}<div class="mpa-errors">{{ field.errors }}</div>{% endif %}
+            </div>
+          {% endfor %}
+          <button class="mpa-submit" type="submit"><i class="fas fa-link"></i> {% if editing_account %}Doğrula ve Güncelle{% else %}Canlı Bağlantıyı Doğrula ve Kaydet{% endif %}</button>
+          {% if editing_account %}<a class="mpa-btn wide" href="{% url 'marketplace_accounts' %}">Düzenlemeyi İptal Et</a>{% endif %}
+        </form>
+      </section>
+
+      <section class="mpa-panel">
+        <div class="mpa-panel-head"><span>Bağlı Hesaplar</span><small>Aktif mağazalar ve çekim kuralları</small></div>
+        <div class="mpa-table-wrap">
+          <table class="mpa-table">
+            <thead>
+              <tr>
+                <th>Pazaryeri</th>
+                <th>Mağaza</th>
+                <th>Satıcı ID</th>
+                <th>Müşteri</th>
+                <th>Ürün Koşulu</th>
+                <th>Limit</th>
+                <th>Aralık</th>
+                <th>Durum</th>
+                <th>Bağlantı</th>
+                <th>Son Sync</th>
+                <th>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for account in accounts %}
+              <tr>
+                <td><span class="mpa-badge">{{ account.marketplace.name }}</span></td>
+                <td>
+                  <div class="mpa-store">{{ account.store_name }}</div>
+                  <div class="mpa-mini">{{ account.marketplace.code }}</div>
+                </td>
+                <td>{{ account.seller_id|default:"-" }}</td>
+                <td>{% if account.agency_client %}{{ account.agency_client.name }}{% else %}Bireysel{% endif %}</td>
+                <td>
+                  <div class="mpa-sync-mode">{{ account.get_sync_mode_display }}</div>
+                  <div class="mpa-mini">{% if account.include_products_without_price %}Fiyatsız ürün dahil{% else %}Fiyat zorunlu{% endif %}</div>
+                </td>
+                <td><span class="mpa-badge">{{ account.sync_product_limit }} ürün</span></td>
+                <td>
+                  <div>{{ account.price_stock_sync_interval_minutes }} dk fiyat/stok</div>
+                  <div class="mpa-mini">{{ account.catalog_sync_interval_minutes }} dk katalog</div>
+                </td>
+                <td><span class="mpa-badge {% if account.is_active %}active{% else %}passive{% endif %}">{% if account.is_active %}Aktif{% else %}Pasif{% endif %}</span></td>
+                <td>
+                  {% if account.extra_credentials.connection_status == 'verified' %}
+                    <span class="mpa-badge active"><i class="fas fa-circle-check"></i> Doğrulandı</span>
+                    <div class="mpa-mini">{{ account.extra_credentials.connection_verified_at|default:""|slice:":10" }}</div>
+                  {% elif account.extra_credentials.connection_status == 'error' %}
+                    <span class="mpa-badge error" title="{{ account.extra_credentials.connection_error }}"><i class="fas fa-triangle-exclamation"></i> Hatalı</span>
+                  {% else %}<span class="mpa-badge passive">Test edilmedi</span>{% endif %}
+                </td>
+                <td>{% if account.last_sync_at %}{{ account.last_sync_at|date:"d.m.Y H:i" }}{% else %}-{% endif %}</td>
+                <td>
+                  <div class="mpa-row-actions">
+                    <form method="post" action="{% url 'marketplace_account_test' account.id %}">{% csrf_token %}<button class="mpa-action" type="submit" title="Canlı bağlantıyı test et"><i class="fas fa-plug"></i> Test</button></form>
+                    <a class="mpa-action" href="{% url 'marketplace_account_edit' account.id %}"><i class="fas fa-pen"></i> Düzenle</a>
+                    <form method="post" action="{% url 'marketplace_account_delete' account.id %}" onsubmit="return confirm('{{ account.store_name|escapejs }} mağaza bağlantısı ve ilişkili senkron kayıtları kalıcı olarak silinsin mi?');">{% csrf_token %}<button class="mpa-action delete" type="submit"><i class="fas fa-trash"></i> Sil</button></form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="11">
+                  <div class="mpa-empty">
+                    <strong>Henüz pazaryeri hesabı yok</strong>
+                    <span>İlk mağaza bağlantınızı soldaki formdan tanımlayabilirsiniz.</span>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

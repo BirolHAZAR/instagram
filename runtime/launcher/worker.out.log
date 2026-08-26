@@ -1,0 +1,76 @@
+ 
+ -------------- celery@BIROLNB v5.6.3 (recovery)
+--- ***** ----- 
+-- ******* ---- Windows-11-10.0.26200-SP0 2026-08-20 11:42:20
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         instagram_reklam_analiz:0x25d15914d40
+- ** ---------- .> transport:   redis://127.0.0.1:6379/0
+- ** ---------- .> results:     redis://127.0.0.1:6379/1
+- *** --- * --- .> concurrency: 16 (solo)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** ----- 
+ -------------- [queues]
+                .> ai               exchange=default(direct) key=default
+                .> billing          exchange=default(direct) key=default
+                .> default          exchange=default(direct) key=default
+                .> maintenance      exchange=default(direct) key=default
+                .> marketplace      exchange=default(direct) key=default
+                .> notifications    exchange=default(direct) key=default
+                .> reports          exchange=default(direct) key=default
+                .> sync             exchange=default(direct) key=default
+
+[tasks]
+  . config.celery.debug_task
+  . core.tasks.admin_ops.dispatch_admin_managed_schedules
+  . core.tasks.admin_ops.dispatch_octo_rule_engine_sweep
+  . core.tasks.admin_ops.generate_octo_tasks
+  . core.tasks.admin_ops.refresh_due_marketplace_researches
+  . core.tasks.admin_ops.refresh_expired_tokens
+  . core.tasks.admin_ops.sync_openai_usage
+  . core.tasks.ads_pipeline.sync_platform_account_ads
+  . core.tasks.analysis_tasks.analyze_ad
+  . core.tasks.analysis_tasks.analyze_multiple_ads
+  . core.tasks.analysis_tasks.scan_anomalies_for_all_users
+  . core.tasks.budget_tasks.apply_budget_rule
+  . core.tasks.budget_tasks.run_budget_optimizer
+  . core.tasks.communications.dispatch_announcements
+  . core.tasks.communications.dispatch_lifecycle_emails
+  . core.tasks.competitor_sync.sync_all_live_competitors
+  . core.tasks.competitor_sync.sync_competitor_live_ads
+  . core.tasks.control_tower_ai.generate_control_tower_ai_report_task
+  . core.tasks.maintenance_tasks.cleanup_old_data
+  . core.tasks.maintenance_tasks.cleanup_old_raw_data
+  . core.tasks.maintenance_tasks.process_due_subscription_renewals
+  . core.tasks.maintenance_tasks.purge_expired_pending_deletion_accounts
+  . core.tasks.maintenance_tasks.refresh_expired_tokens
+  . core.tasks.maintenance_tasks.sync_account_deletion_lifecycle
+  . core.tasks.marketplace_sync.refresh_single_tracked_research
+  . core.tasks.marketplace_sync.refresh_tracked_marketplace_researches
+  . core.tasks.marketplace_sync.run_product_research_agent
+  . core.tasks.marketplace_sync.sync_due_marketplace_accounts
+  . core.tasks.marketplace_sync.sync_marketplace_account
+  . core.tasks.metric_tasks.cleanup_old_metric_history
+  . core.tasks.metric_tasks.fill_metric_history
+  . core.tasks.metric_tasks.record_daily_metrics_for_all_ads
+  . core.tasks.metric_tasks.refresh_daily_demo_metrics
+  . core.tasks.metric_tasks.update_metric_deltas
+  . core.tasks.notification_tasks.generate_periodic_report
+  . core.tasks.notification_tasks.refresh_all_users_alerts
+  . core.tasks.notification_tasks.scan_critical_alerts_for_all_users
+  . core.tasks.notification_tasks.send_daily_notification_summaries
+  . core.tasks.organic_publish.publish_scheduled_social_post
+  . core.tasks.report_tasks.dispatch_due_scheduled_reports
+  . core.tasks.report_tasks.generate_weekly_report
+  . core.tasks.report_tasks.generate_weekly_reports_for_all_users
+  . core.tasks.report_tasks.send_scheduled_report
+  . core.tasks.sync_tasks.sync_all_platform_accounts
+  . core.tasks.sync_tasks.sync_due_organic_accounts
+  . core.tasks.sync_tasks.sync_google_ads
+  . core.tasks.sync_tasks.sync_meta_accounts
+  . core.tasks.sync_tasks.sync_organic_account
+  . core.tasks.sync_tasks.sync_platform_account_ads
+  . core.tasks.sync_tasks.sync_tiktok
+  . core.tasks.v2_platform_sync.sync_all_v2_platform_accounts
+  . core.tasks.v2_platform_sync.sync_v2_platform_account_ads
+

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Müşteri Hesabı Bağla - Ajans Paneli{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="agency-page">
+  <div class="agency-shell">
+    <div class="agency-topbar">
+      <div class="agency-title"><h1>Platform hesabı bağla</h1><p>Müşteri/marka alanına reklam hesabı ekleyin.</p></div>
+      <a class="agency-btn" href="{% url 'agency_dashboard_org' organization.id %}"><i class="fas fa-arrow-left"></i> Geri</a>
+    </div>
+    <section class="agency-panel agency-form">
+      <form method="post">
+        {% csrf_token %}
+        <div class="agency-form-row">
+          <div><label for="agencyClient">Bu hesap hangi müşteriye bağlı?</label><select class="form-select" id="agencyClient" name="agency_client" required>{% for client in clients %}<option value="{{ client.id }}"{% if selected_client.id == client.id %} selected{% endif %}>{{ client.name }}</option>{% endfor %}</select></div>
+          <div><label for="platformCode">Platform</label><select class="form-select" id="platformCode" name="platform" required><option value="">Platform seçin</option>{% for code, item in platforms.items %}<option value="{{ code }}">{{ item.name }}</option>{% endfor %}</select></div>
+          <div><label for="accountName">Hesap adı</label><input class="form-control" id="accountName" name="account_name" placeholder="Hesap adı"></div>
+          <div><label for="accountId">Platform hesap ID</label><input class="form-control" id="accountId" name="account_id" placeholder="Platform hesap ID"></div>
+        </div>
+        <div style="margin-top:14px;"><label for="accessToken">Erişim tokenı</label><textarea class="form-control" id="accessToken" name="access_token" rows="3" placeholder="Platform erişim tokenı"></textarea><small id="connectionHelp" style="display:block;margin-top:8px;color:#94a3b8">Platform seçtiğinizde bağlantı kriteri burada gösterilir.</small></div>
+        <button class="agency-btn primary" type="submit" style="margin-top:18px;"><i class="fas fa-link"></i> Doğrula ve Bağla</button>
+      </form>
+    </section>
+  </div>
+</div>
+<script>
+(() => {
+  const platform = document.getElementById('platformCode');
+  const help = document.getElementById('connectionHelp');
+  const token = document.getElementById('accessToken');
+  const accountName = document.getElementById('accountName');
+  const accountId = document.getElementById('accountId');
+  const verified = new Set(['instagram','facebook','youtube','tiktok','linkedin','x']);
+  const update = () => {
+    const usesTokenVerification = verified.has(platform.value);
+    token.required = usesTokenVerification;
+    accountName.required = false;
+    accountId.required = false;
+    help.textContent = usesTokenVerification
+      ? 'Bu platformda access token zorunludur. Token platform API’sinde doğrulanır ve erişilebilen gerçek hesaplar otomatik bağlanır.'
+      : 'Google Ads ve Google Analytics 4 için hesap adı veya platform hesap ID alanlarından en az birini girin.';
+  };
+  platform.addEventListener('change', update);
+  update();
+})();
+</script>
+{% endblock %}

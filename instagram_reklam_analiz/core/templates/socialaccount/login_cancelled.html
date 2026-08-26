@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sosyal Giri&#351; &#304;ptal Edildi{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>Sosyal Giri&#351;</h3>
+                <p>Sosyal hesap ile giri&#351; i&#351;lemi tamamlanmad&#305;.</p>
+                <a href="{% url 'account_login' %}" class="allauth-side-link">
+                    <i class="fas fa-arrow-left"></i>Giri&#351;e D&#246;n
+                </a>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head">
+                    <span><i class="fas fa-ban"></i>&#304;&#351;lem iptal edildi</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>Sosyal Giri&#351; &#304;ptal Edildi</h1>
+                    <p>Giri&#351; veya ba&#287;lant&#305; i&#351;lemini tekrar ba&#351;latabilirsiniz.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

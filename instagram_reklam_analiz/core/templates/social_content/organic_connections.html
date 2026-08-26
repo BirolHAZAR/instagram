@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ labels.organic_connections_title }} | ReklamAnaliz.net{% endblock %}
+{% block extra_css %}
+<style>
+.organic-shell{max-width:1500px;margin:0 auto}.organic-hero{position:relative;overflow:hidden;border:1px solid rgba(139,132,255,.24);border-radius:30px;background:linear-gradient(135deg,rgba(16,23,53,.96),rgba(5,8,22,.9));box-shadow:0 30px 80px rgba(0,0,0,.34);padding:28px;margin-bottom:22px}.organic-hero:before{content:"";position:absolute;right:-120px;top:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.18),transparent 62%)}.organic-kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,212,255,.24);background:rgba(0,212,255,.08);color:#9eeaff;border-radius:999px;padding:7px 12px;font-weight:900;font-size:.78rem}.organic-title{font-size:clamp(1.7rem,3vw,3rem);font-weight:950;letter-spacing:0;margin:14px 0 8px}.organic-subtitle{color:var(--text-secondary);max-width:850px;font-size:1rem;line-height:1.7}.organic-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.organic-card{background:rgba(15,20,41,.82);border:1px solid rgba(139,132,255,.2);border-radius:24px;padding:20px;box-shadow:0 22px 60px rgba(0,0,0,.24);height:100%}.organic-card h3{color:#fff;font-weight:950}.post-row{display:grid;grid-template-columns:68px 1fr auto;gap:14px;align-items:center;padding:14px;border:1px solid rgba(139,132,255,.14);border-radius:18px;background:rgba(255,255,255,.035);margin-bottom:10px}.post-thumb{width:68px;height:68px;border-radius:18px;background:linear-gradient(135deg,rgba(108,99,255,.28),rgba(0,212,255,.14));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem}.post-title{font-weight:900;color:#fff}.post-meta{color:var(--text-muted);font-size:.82rem}.status-pill{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:.76rem;font-weight:900;background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.2)}.status-pill.planned{background:rgba(255,159,10,.12);color:#ffd18a;border-color:rgba(255,159,10,.22)}.platform-tile{border:1px solid rgba(139,132,255,.18);border-radius:20px;padding:16px;background:rgba(255,255,255,.04)}.empty-state{text-align:center;padding:36px;border:1px dashed rgba(139,132,255,.28);border-radius:24px;color:var(--text-secondary)}
+.organic-agency-filter{display:flex;align-items:center;gap:14px;margin:0 0 20px;padding:15px 18px;border:1px solid rgba(139,132,255,.25);border-radius:20px;background:rgba(15,20,41,.82)}.organic-agency-filter label{font-weight:900;color:#fff;white-space:nowrap}.organic-agency-filter select{margin-left:auto;width:min(430px,100%);background:rgba(255,255,255,.07);border:1px solid rgba(139,132,255,.3);color:#fff;border-radius:14px;padding:10px 12px}.organic-agency-filter option{color:#111}@media(max-width:650px){.organic-agency-filter{align-items:stretch;flex-direction:column}.organic-agency-filter select{margin-left:0;width:100%}}
+.account-sync-btn.is-loading{pointer-events:none;opacity:.75}.account-sync-btn .sync-spinner{display:none}.account-sync-btn.is-loading .sync-spinner{display:inline-block}.account-sync-btn.is-loading .sync-icon{display:none}.account-sync-feedback{display:none;margin-top:8px;padding:8px 10px;border-radius:10px;font-size:.75rem;font-weight:800}.account-sync-feedback.show{display:block}.account-sync-feedback.ok{color:#86efac;background:rgba(34,197,94,.11);border:1px solid rgba(34,197,94,.2)}.account-sync-feedback.bad{color:#fca5a5;background:rgba(248,113,113,.11);border:1px solid rgba(248,113,113,.2)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="organic-shell">
+    <section class="organic-hero">
+        <span class="organic-kicker"><i class="fas fa-link"></i> {{ labels.organic_connections_title }}</span>
+        <h1 class="organic-title">{{ labels.organic_connections_heading }}</h1>
+        <p class="organic-subtitle">{{ labels.organic_connections_desc }}</p>
+        <div class="organic-actions"><a href="{% url 'platform_connections' %}" class="btn btn-accent"><i class="fas fa-plug me-2"></i>{{ labels.go_to_platform_connections }}</a></div>
+    </section>
+    {% if agency_scope.is_agency %}
+    <form class="organic-agency-filter" method="get" action="{{ request.path }}">
+        <label for="organicConnectionsAgencyClient"><i class="fas fa-building-user me-2"></i>Firma Filtresi</label>
+        <select id="organicConnectionsAgencyClient" name="agency_client" onchange="this.form.submit()">
+            <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+            {% for agency_client in agency_scope.clients %}<option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>{% endfor %}
+        </select>
+    </form>
+    {% endif %}
+    <div class="row g-3">
+        <div class="col-lg-7"><div class="organic-card"><h3>{{ labels.active_connections }}</h3>
+            {% if connections %}{% for c in connections %}<div class="post-row"><div class="post-thumb"><i class="fas fa-plug"></i></div><div><div class="post-title">{{ c.platform.name }} - {{ c.name|default:c.user.username }}</div><div class="post-meta">{{ labels.status }}: {{ c.get_status_display }} · {{ labels.last_sync }}: {{ c.last_sync|default:labels.not_yet }}</div></div><span class="status-pill {% if c.status != 'active' %}planned{% endif %}">{{ c.get_status_display }}</span></div>{% endfor %}{% else %}<div class="empty-state">{{ labels.no_platform_connection }}</div>{% endif %}
+        </div></div>
+        <div class="col-lg-5"><div class="organic-card"><h3>{{ labels.platform_accounts }}</h3>
+            {% if accounts %}{% for a in accounts %}<div class="platform-tile mb-2"><strong>{{ a.account_name|default:a.account_id }}</strong><div class="post-meta">{% if a.agency_client %}{{ a.agency_client.name }} · {% endif %}{{ a.platform.name }} · {{ a.account_id }}</div><div class="post-meta">{{ labels.organic_content_count }}: {{ a.organic_post_total }}{% if a.organic_latest_post_at %} · {{ labels.last_post }}: {{ a.organic_latest_post_at|date:"d.m.Y H:i" }}{% endif %}</div><form method="post" action="{% url 'organic_content_sync_account' a.id %}" class="mt-2 account-sync-form">{% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-light account-sync-btn"><i class="fas fa-rotate me-1 sync-icon"></i><i class="fas fa-circle-notch fa-spin me-1 sync-spinner"></i><span>Senkronize et</span></button><div class="account-sync-feedback" role="status" aria-live="polite"></div></form></div>{% endfor %}{% else %}<div class="empty-state">{{ labels.no_linked_platform_account }}</div>{% endif %}
+        </div></div>
+    </div>
+</div>
+<script>
+document.querySelectorAll('.account-sync-form').forEach(form => {
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = form.querySelector('.account-sync-btn');
+    const label = button.querySelector('span');
+    const feedback = form.querySelector('.account-sync-feedback');
+    button.classList.add('is-loading');
+    button.disabled = true;
+    label.textContent = 'Senkronize ediliyor…';
+    feedback.className = 'account-sync-feedback show';
+    feedback.textContent = 'Hesap kontrol ediliyor, lütfen bekleyin…';
+    try {
+      const response = await fetch(form.action, {method:'POST', body:new FormData(form), headers:{'X-Requested-With':'XMLHttpRequest'}});
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Senkronizasyon tamamlanamadı.');
+      feedback.className = 'account-sync-feedback show ok';
+      feedback.textContent = data.message;
+      label.textContent = 'Senkronize edildi';
+      window.setTimeout(() => window.location.reload(), 900);
+    } catch (error) {
+      feedback.className = 'account-sync-feedback show bad';
+      feedback.textContent = error.message;
+      label.textContent = 'Tekrar dene';
+      button.classList.remove('is-loading');
+      button.disabled = false;
+    }
+  });
+});
+</script>
+{% endblock %}

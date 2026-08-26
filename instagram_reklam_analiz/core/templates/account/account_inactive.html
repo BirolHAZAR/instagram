@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hesap Pasif{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>Hesap Durumu</h3>
+                <p>Bu hesap &#351;u anda aktif olmad&#305;&#287;&#305; i&#231;in eri&#351;im sa&#287;lanam&#305;yor.</p>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head danger">
+                    <span><i class="fas fa-circle-exclamation"></i>Hesap pasif</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>Hesap Pasif</h1>
+                    <p>Hesab&#305;n&#305;z&#305;n yeniden etkinle&#351;tirilmesi i&#231;in destek ekibiyle ileti&#351;ime ge&#231;ebilirsiniz.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

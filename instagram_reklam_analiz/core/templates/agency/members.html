@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ajans Kullanıcıları{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/agency.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="agency-page">
+  <div class="agency-shell">
+    <div class="agency-topbar">
+      <div class="agency-title">
+        <h1>Kullanıcılar ve yetkiler</h1>
+        <p>{{ organization.name }} için ekip üyelerini ve rollerini yönetin.</p>
+      </div>
+      <a class="agency-btn" href="{% url 'agency_dashboard_org' organization.id %}"><i class="fas fa-arrow-left"></i> Ajansa Dön</a>
+    </div>
+
+    <div class="agency-grid">
+      <div class="agency-stat"><span>Kullanıcı Limiti</span><strong>{{ member_count }}/{{ seat_limit }}</strong></div>
+      <div class="agency-stat"><span>Owner</span><strong style="font-size:1rem;">{{ organization.owner.email|default:organization.owner.username }}</strong></div>
+      <div class="agency-stat"><span>Paket</span><strong style="font-size:1rem;">{{ organization.active_plan.display_name|default:"-" }}</strong></div>
+      <div class="agency-stat"><span>Durum</span><strong style="font-size:1rem;">Aktif</strong></div>
+    </div>
+
+    <div class="agency-layout">
+      <section class="agency-panel">
+        <h2>Ekip üyeleri</h2>
+        <table class="agency-table">
+          <thead><tr><th>Kullanıcı</th><th>Rol</th><th>Yetki Alanları</th><th>Durum</th><th></th></tr></thead>
+          <tbody>
+            <tr>
+              <td>{{ organization.owner.email|default:organization.owner.username }}</td>
+              <td>Owner</td>
+              <td>Tüm alanlar</td>
+              <td>Aktif</td>
+              <td></td>
+            </tr>
+            {% for member in members %}
+            {% if member.user_id != organization.owner_id %}
+            <tr>
+              <td>{{ member.user.email|default:member.user.username }}</td>
+              <td>{{ member.role_group.name|default:member.get_role_display }}</td>
+              <td>
+                {% if member.role_group %}
+                  {% if member.role_group.can_manage_clients %}<span class="agency-chip">Müşteri</span>{% endif %}
+                  {% if member.role_group.can_manage_accounts %}<span class="agency-chip">Hesap</span>{% endif %}
+                  {% if member.role_group.can_manage_competitors %}<span class="agency-chip">Rakip</span>{% endif %}
+                  {% if member.role_group.can_view_reports %}<span class="agency-chip">Rapor</span>{% endif %}
+                  {% if member.role_group.can_manage_members %}<span class="agency-chip">Kullanıcı</span>{% endif %}
+                  {% if member.role_group.can_manage_billing %}<span class="agency-chip">Fatura</span>{% endif %}
+                {% else %}
+                  <span class="agency-chip">Eski rol</span>
+                {% endif %}
+              </td>
+              <td>{% if member.is_active %}Aktif{% else %}Pasif{% endif %}</td>
+              <td>
+                <div style="display:flex;gap:7px;flex-wrap:wrap;">
+                  <a class="agency-btn" href="{% url 'agency_member_update' organization.id member.id %}"><i class="fas fa-pen"></i> Düzenle</a>
+                  <form method="post" action="{% url 'agency_subaccount_delete' organization.id member.id %}" onsubmit="return confirm('{{ member.user.email|default:member.user.username|escapejs }} ajans alt kullanıcılarından kaldırılsın mı?');">
+                    {% csrf_token %}
+                    <button class="agency-btn" type="submit" style="border-color:#ef4444;color:#fecaca;"><i class="fas fa-trash"></i> Alt Kullanıcıyı Sil</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <aside class="agency-panel">
+        <h2>Alt kullanıcı oluştur</h2>
+        <div class="agency-empty" style="text-align:left; margin-bottom:14px;">
+          Kullanıcı adı, e-posta ve giriş parolası zorunludur. Girilen kullanıcı adı veya e-posta sistemde zaten kayıtlıysa mevcut hesap ajansa eklenir; parolası değiştirilmez.
+        </div>
+        <form method="post" action="{% url 'agency_member_invite' organization.id %}" class="agency-form">
+          {% csrf_token %}
+          {{ invite_form.non_field_errors }}
+          <div class="agency-permission-grid">
+            <div>{{ invite_form.first_name.label_tag }}{{ invite_form.first_name }}{{ invite_form.first_name.errors }}</div>
+            <div>{{ invite_form.last_name.label_tag }}{{ invite_form.last_name }}{{ invite_form.last_name.errors }}</div>
+          </div>
+          <div style="margin-top:14px;">{{ invite_form.username.label_tag }}{{ invite_form.username }}<small>{{ invite_form.username.help_text }}</small>{{ invite_form.username.errors }}</div>
+          <div>{{ invite_form.email.label_tag }}{{ invite_form.email }}</div>
+          <div class="agency-permission-grid" style="margin-top:14px;">
+            <div>{{ invite_form.password1.label_tag }}{{ invite_form.password1 }}{{ invite_form.password1.errors }}</div>
+            <div>{{ invite_form.password2.label_tag }}{{ invite_form.password2 }}{{ invite_form.password2.errors }}</div>
+          </div>
+          <div style="margin-top:14px;">{{ invite_form.role_group.label_tag }}{{ invite_form.role_group }}{{ invite_form.role_group.errors }}</div>
+          <button class="agency-btn primary" type="submit" style="margin-top:18px;"><i class="fas fa-user-plus"></i> Alt Kullanıcı Oluştur</button>
+        </form>
+      </aside>
+    </div>
+
+    <section class="agency-panel" style="margin-top:18px;">
+      <div class="agency-topbar" style="margin-bottom:12px;">
+        <div class="agency-title"><h2>Yetki grupları</h2><p>Bir grupta yapılan değişiklik o gruptaki tüm kullanıcılara uygulanır.</p></div>
+        <a class="agency-btn primary" href="{% url 'agency_role_group_create' organization.id %}"><i class="fas fa-plus"></i> Yeni Grup</a>
+      </div>
+      <table class="agency-table">
+        <thead><tr><th>Grup</th><th>Açıklama</th><th>Kullanıcı</th><th>Durum</th><th></th></tr></thead>
+        <tbody>
+          {% for group in role_groups %}
+          <tr>
+            <td>{{ group.name }}</td>
+            <td>{{ group.description|default:"-" }}</td>
+            <td>{{ group.members.count }}</td>
+            <td>{% if group.is_active %}Aktif{% else %}Pasif{% endif %}</td>
+            <td><a class="agency-btn" href="{% url 'agency_role_group_update' organization.id group.id %}"><i class="fas fa-pen"></i> Düzenle</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sosyal Giri&#351; Hatas&#305;{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>Sosyal Giri&#351;</h3>
+                <p>Sosyal hesap ba&#287;lant&#305;s&#305; s&#305;ras&#305;nda bir sorun olu&#351;tu.</p>
+                <a href="{% url 'socialaccount_connections' %}" class="allauth-side-link">
+                    <i class="fas fa-link"></i>Sosyal Giri&#351;ler
+                </a>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head danger">
+                    <span><i class="fas fa-circle-exclamation"></i>Ba&#287;lant&#305; hatas&#305;</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>Sosyal Giri&#351; Hatas&#305;</h1>
+                    <p>Sa&#287;lay&#305;c&#305;dan beklenen yan&#305;t al&#305;namad&#305;. L&#252;tfen tekrar deneyin.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

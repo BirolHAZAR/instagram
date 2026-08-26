@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tr_numbers %}
+
+{% block title %}Profilim{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/account_profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-wrapper">
+    <div class="container">
+        <div class="profile-header">
+            <div class="profile-identity">
+                <div class="profile-avatar">
+                    {% if user.first_name %}
+                        {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                    {% else %}
+                        {{ user.username|first|upper }}
+                    {% endif %}
+                </div>
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'my_account' %}">
+                                    <i class="fas fa-home me-1"></i>Hesab&#305;m
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">Profilim</li>
+                        </ol>
+                    </nav>
+                    <h1>{{ user.get_full_name|default:user.username }}</h1>
+                    <p>{{ user.email|default:"E-posta adresi eklenmemi&#351;" }}</p>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <a href="{% url 'my_account' %}" class="profile-btn soft">
+                    <i class="fas fa-arrow-left"></i>Hesab&#305;ma Git
+                </a>
+                <a href="{% url 'account_change_password' %}" class="profile-btn outline">
+                    <i class="fas fa-key"></i>&#350;ifre
+                </a>
+            </div>
+        </div>
+
+        {% if messages %}
+            <div class="profile-messages">
+                {% for message in messages %}
+                    <div class="profile-alert {{ message.tags }}">
+                        <i class="fas fa-circle-check"></i>{{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="profile-grid">
+            <aside class="profile-summary">
+                <section class="profile-card user-card">
+                    <div class="user-card-logo">
+                        <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                    </div>
+                    <div class="user-card-avatar">{{ user.username|first|upper }}</div>
+                    <h2>{{ user.username }}</h2>
+                    <p>{{ user.email|default:"E-posta tan&#305;ml&#305; de&#287;il" }}</p>
+                    <div class="profile-meta">
+                        <span><i class="fas fa-calendar-alt"></i>&#220;yelik: {{ user.date_joined|date:"d.m.Y" }}</span>
+                        <span><i class="fas fa-clock"></i>Son giri&#351;: {{ user.last_login|date:"d.m.Y H:i"|default:"Hen&#252;z yok" }}</span>
+                    </div>
+                </section>
+
+                <section class="profile-stat-grid">
+                    <div class="profile-stat">
+                        <span>Instagram</span>
+                        <strong>{{ instagram_count|default:0|tr_int }}</strong>
+                    </div>
+                    <div class="profile-stat">
+                        <span>Kampanya</span>
+                        <strong>{{ campaign_count|default:0|tr_int }}</strong>
+                    </div>
+                    <div class="profile-stat wide">
+                        <span>AI Kredi</span>
+                        <strong>{{ ai_credit_balance.current_balance|default:0|tr_int }}</strong>
+                        <small>Toplam hak: {{ ai_credit_total|default:0|tr_int }}</small>
+                    </div>
+                </section>
+
+                <section class="profile-card quick-links">
+                    <h3>H&#305;zl&#305; Eri&#351;im</h3>
+                    <a href="{% url 'account_email' %}">
+                        <i class="fas fa-envelope-circle-check"></i>E-posta Ayarlar&#305;
+                    </a>
+                    <a href="{% url 'socialaccount_connections' %}">
+                        <i class="fas fa-link"></i>Sosyal Ba&#287;lant&#305;lar
+                    </a>
+                    <a href="{% url 'mfa_index' %}">
+                        <i class="fas fa-shield-halved"></i>&#199;ift Koruma
+                    </a>
+                </section>
+            </aside>
+
+            <main class="profile-main">
+                <section class="profile-card edit-card">
+                    <div class="profile-card-head">
+                        <div>
+                            <span>Profil Bilgileri</span>
+                            <h2>Ki&#351;isel Bilgileri D&#252;zenle</h2>
+                        </div>
+                        <i class="fas fa-user-pen"></i>
+                    </div>
+
+                    <form method="post" action="{% url 'profile_update' %}" class="profile-form">
+                        {% csrf_token %}
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label for="username">Kullan&#305;c&#305; Ad&#305;</label>
+                                <input id="username" type="text" name="username" value="{{ user.username }}" required>
+                            </div>
+                            <div class="form-field">
+                                <label for="email">E-posta Adresi</label>
+                                <input id="email" type="email" name="email" value="{{ user.email }}">
+                            </div>
+                            <div class="form-field">
+                                <label for="first_name">Ad</label>
+                                <input id="first_name" type="text" name="first_name" value="{{ user.first_name }}">
+                            </div>
+                            <div class="form-field">
+                                <label for="last_name">Soyad</label>
+                                <input id="last_name" type="text" name="last_name" value="{{ user.last_name }}">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="profile-btn primary">
+                                <i class="fas fa-save"></i>Profili G&#252;ncelle
+                            </button>
+                            <a href="{% url 'account_change_password' %}" class="profile-btn outline">
+                                <i class="fas fa-key"></i>&#350;ifre De&#287;i&#351;tir
+                            </a>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="profile-card security-card">
+                    <div class="profile-card-head">
+                        <div>
+                            <span>Hesap G&#252;venli&#287;i</span>
+                            <h2>G&#252;venlik ve Eri&#351;im</h2>
+                        </div>
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="security-list">
+                        <a href="{% url 'account_email' %}">
+                            <span><i class="fas fa-envelope"></i>E-posta do&#287;rulama ve adres y&#246;netimi</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'mfa_index' %}">
+                            <span><i class="fas fa-mobile-screen-button"></i>2FA ve kurtarma kodlar&#305;</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'account_delete' %}" class="danger">
+                            <span><i class="fas fa-trash"></i>Hesab&#305; silme ekran&#305;</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

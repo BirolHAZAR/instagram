@@ -1,0 +1,81 @@
+﻿{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ influencer.display_name }} | {{ labels.influencer_discovery }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.inf-detail{max-width:none;margin:-10px -6px 0;padding:22px;min-height:calc(100vh - 110px);color:#f8fafc;background:radial-gradient(circle at 14% 0,rgba(34,211,238,.16),transparent 30%),radial-gradient(circle at 86% 10%,rgba(99,102,241,.2),transparent 35%),linear-gradient(145deg,#050816 0,#10172a 56%,#07111f 100%);border-radius:24px}.inf-wrap{max-width:1320px;margin:0 auto}.inf-back{display:inline-flex;align-items:center;gap:8px;color:#cbd5e1;text-decoration:none;margin-bottom:14px;font-weight:900}.inf-profile{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}.inf-card{border:1px solid rgba(148,163,184,.18);border-radius:18px;background:rgba(15,23,42,.8);box-shadow:0 24px 70px rgba(0,0,0,.24);overflow:hidden}.inf-head{padding:22px;display:flex;gap:16px;align-items:center;border-bottom:1px solid rgba(148,163,184,.14)}.inf-avatar{width:76px;height:76px;border-radius:22px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(37,99,235,.42),rgba(20,184,166,.28));font-weight:950;font-size:1.8rem}.inf-head h1{font-size:2rem;font-weight:950;margin:0}.inf-head p{color:#94a3b8;margin:5px 0 0}.inf-body{padding:18px}.inf-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.inf-metric{border:1px solid rgba(148,163,184,.14);border-radius:14px;background:rgba(2,6,23,.34);padding:14px}.inf-metric span{display:block;color:#94a3b8;font-size:.72rem;font-weight:900;text-transform:uppercase}.inf-metric strong{display:block;color:#fff;font-size:1.35rem;margin-top:6px}.inf-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;border:1px solid rgba(148,163,184,.2);background:rgba(255,255,255,.055);color:#cbd5e1;padding:7px 10px;font-size:.76rem;font-weight:900;margin:0 6px 8px 0}.inf-table{width:100%;border-collapse:collapse;min-width:720px}.inf-table-wrap{overflow:auto;border:1px solid rgba(148,163,184,.13);border-radius:14px}.inf-table th{background:rgba(2,6,23,.58);color:#94a3b8;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;font-weight:950;padding:12px;text-align:left}.inf-table td{padding:13px 12px;border-top:1px solid rgba(148,163,184,.12);color:#dbe4f0}.inf-side-row{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid rgba(148,163,184,.12)}.inf-side-row span{color:#94a3b8}.inf-side-row strong{text-align:right}.inf-empty{color:#94a3b8;border:1px dashed rgba(148,163,184,.25);border-radius:14px;padding:28px;text-align:center}@media(max-width:1000px){.inf-profile{grid-template-columns:1fr}.inf-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.inf-detail{padding:14px;border-radius:16px}.inf-head{display:block}.inf-avatar{margin-bottom:12px}.inf-metrics{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="inf-detail">
+  <div class="inf-wrap">
+    <a class="inf-back" href="{% url 'influencer_discovery' %}"><i class="fas fa-arrow-left"></i> {{ labels.back_to_influencers }}</a>
+    <div class="inf-profile">
+      <main class="inf-card">
+        <div class="inf-head">
+          <div class="inf-avatar">{{ influencer.display_name|first|upper }}</div>
+          <div>
+            <h1>{{ influencer.display_name }}</h1>
+            <p>{{ influencer.platform.name|default:labels.platform }} · {{ influencer.handle }}{% if influencer.profile_url %} · <a href="{{ influencer.profile_url }}" target="_blank" rel="noopener" style="color:#67e8f9;">{{ labels.profile_link }}</a>{% endif %}</p>
+          </div>
+        </div>
+        <div class="inf-body">
+          <div style="margin-bottom:12px;">
+            <span class="inf-pill">{{ influencer.get_category_display }}</span>
+            <span class="inf-pill">{{ influencer.country|default:labels.no_country }}{% if influencer.city %} / {{ influencer.city }}{% endif %}</span>
+            <span class="inf-pill">{{ influencer.get_source_display }}</span>
+            {% if influencer.is_verified %}<span class="inf-pill">{{ labels.verified }}</span>{% endif %}
+          </div>
+          <section class="inf-metrics">
+            <div class="inf-metric"><span>{{ labels.followers }}</span><strong>{{ influencer.follower_count|tr_int }}</strong></div>
+            <div class="inf-metric"><span>{{ labels.engagement }}</span><strong>%{{ influencer.engagement_rate|tr_decimal }}</strong></div>
+            <div class="inf-metric"><span>{{ labels.avg_views }}</span><strong>{{ influencer.avg_views|tr_int }}</strong></div>
+            <div class="inf-metric"><span>{{ labels.estimated_reach }}</span><strong>{{ influencer.estimated_reach|tr_int }}</strong></div>
+          </section>
+          <h2 style="font-size:1.05rem;font-weight:950;margin:22px 0 12px;">{{ labels.metric_history }}</h2>
+          {% if history %}
+          <div class="inf-table-wrap">
+            <table class="inf-table">
+              <thead><tr><th>{{ labels.date }}</th><th>{{ labels.followers }}</th><th>{{ labels.likes }}</th><th>{{ labels.comments }}</th><th>{{ labels.views }}</th><th>{{ labels.engagement }}</th><th>{{ labels.estimated_reach }}</th></tr></thead>
+              <tbody>
+                {% for row in history %}
+                <tr>
+                  <td>{{ row.date|date:"d.m.Y" }}</td>
+                  <td>{{ row.follower_count|tr_int }}</td>
+                  <td>{{ row.avg_likes|tr_int }}</td>
+                  <td>{{ row.avg_comments|tr_int }}</td>
+                  <td>{{ row.avg_views|tr_int }}</td>
+                  <td>%{{ row.engagement_rate|tr_decimal }}</td>
+                  <td>{{ row.estimated_reach|tr_int }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="inf-empty">{{ labels.no_metric_history }}</div>
+          {% endif %}
+        </div>
+      </main>
+      <aside class="inf-card">
+        <div class="inf-body">
+          <h2 style="font-size:1.05rem;font-weight:950;margin:0 0 12px;">{{ labels.decision_info }}</h2>
+          <div class="inf-side-row"><span>{{ labels.following }}</span><strong>{{ influencer.following_count|tr_int }}</strong></div>
+          <div class="inf-side-row"><span>{{ labels.post_count }}</span><strong>{{ influencer.post_count|tr_int }}</strong></div>
+          <div class="inf-side-row"><span>{{ labels.average_likes }}</span><strong>{{ influencer.avg_likes|tr_int }}</strong></div>
+          <div class="inf-side-row"><span>{{ labels.average_comments }}</span><strong>{{ influencer.avg_comments|tr_int }}</strong></div>
+          <div class="inf-side-row"><span>{{ labels.estimated_budget }}</span><strong>{{ influencer.estimated_price_min|tr_decimal }} - {{ influencer.estimated_price_max|tr_decimal }}</strong></div>
+          <div class="inf-side-row"><span>{{ labels.contact_info }}</span><strong>{{ influencer.contact_email|default:labels.none }}</strong></div>
+          {% if influencer.notes %}
+          <h3 style="font-size:.92rem;font-weight:950;margin:18px 0 8px;">{{ labels.note }}</h3>
+          <p style="color:#cbd5e1;line-height:1.6;">{{ influencer.notes }}</p>
+          {% endif %}
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %}

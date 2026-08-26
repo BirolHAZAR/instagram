@@ -1,0 +1,49 @@
+{% load admin_dashboard %}
+<section class="report-panel">
+    <h2>{{ title }}</h2>
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th>Üye</th>
+                <th>Kayıt Tarihi</th>
+                <th>Deneme Başlangıcı</th>
+                <th>Deneme Bitişi</th>
+                <th class="num">Verilen Token</th>
+                <th>Abonelik Durumu</th>
+                <th>Abonelik Planı</th>
+                <th>Abonelik Tarihi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                <tr>
+                    <td>
+                        <a href="{{ row.detail_url }}">{{ row.email|default:row.name }}</a>
+                        <br><span class="muted">{{ row.name }}</span>
+                    </td>
+                    <td>{{ row.joined_at|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        {% if row.trial_start %}
+                            {{ row.trial_start|date:"d.m.Y" }}
+                        {% else %}
+                            {{ row.trial_started_at|date:"d.m.Y H:i" }}
+                        {% endif %}
+                    </td>
+                    <td>{{ row.trial_end|date:"d.m.Y"|default:"-" }}</td>
+                    <td class="num">{{ row.trial_credits|tr_int }}</td>
+                    <td>
+                        {% if row.converted %}
+                            <span class="status-pill yes">Abonelik aldı</span>
+                        {% else %}
+                            <span class="status-pill no">Bekliyor</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ row.paid_plan }}</td>
+                    <td>{{ row.converted_at|date:"d.m.Y H:i"|default:"-" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8">{{ empty_text }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>

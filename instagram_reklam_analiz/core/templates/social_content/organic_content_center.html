@@ -1,0 +1,209 @@
+﻿{% extends "base.html" %}
+{% load humanize %}
+{% block title %}{{ labels.organic_content_center }} | ReklamAnaliz.net{% endblock %}
+{% block extra_css %}
+<style>
+.organic-shell{max-width:1500px;margin:0 auto}.organic-hero{position:relative;overflow:hidden;border:1px solid rgba(139,132,255,.24);border-radius:30px;background:linear-gradient(135deg,rgba(16,23,53,.96),rgba(5,8,22,.9));box-shadow:0 30px 80px rgba(0,0,0,.34);padding:28px;margin-bottom:22px}.organic-hero:before{content:"";position:absolute;right:-120px;top:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.18),transparent 62%)}.organic-kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,212,255,.24);background:rgba(0,212,255,.08);color:#9eeaff;border-radius:999px;padding:7px 12px;font-weight:900;font-size:.78rem}.organic-title{font-size:clamp(1.7rem,3vw,3rem);font-weight:950;letter-spacing:0;margin:14px 0 8px}.organic-subtitle{color:var(--text-secondary);max-width:850px;font-size:1rem;line-height:1.7}.organic-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.organic-card{background:rgba(15,20,41,.82);border:1px solid rgba(139,132,255,.2);border-radius:24px;padding:20px;box-shadow:0 22px 60px rgba(0,0,0,.24);height:100%}.organic-card h3,.organic-card h5{color:#fff;font-weight:950}.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}.metric-card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));border:1px solid rgba(139,132,255,.18);border-radius:22px;padding:18px}.metric-label{color:var(--text-muted);font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.metric-value{font-size:1.75rem;font-weight:950;color:#fff}.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.filter-bar select,.filter-bar input{background:rgba(255,255,255,.06)!important;border:1px solid rgba(139,132,255,.22)!important;color:#fff!important;border-radius:16px!important;padding:11px 13px!important}.filter-bar option{color:#111}.post-row{display:grid;grid-template-columns:68px 1fr auto;gap:14px;align-items:center;padding:14px;border:1px solid rgba(139,132,255,.14);border-radius:18px;background:rgba(255,255,255,.035);margin-bottom:10px}.post-thumb{width:68px;height:68px;border-radius:18px;background:linear-gradient(135deg,rgba(108,99,255,.28),rgba(0,212,255,.14));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;overflow:hidden}.post-thumb img{width:100%;height:100%;object-fit:cover}.post-title{font-weight:900;color:#fff}.post-meta{color:var(--text-muted);font-size:.82rem}.status-pill{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-size:.76rem;font-weight:900;background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.2)}.status-pill.planned,.status-pill.queued{background:rgba(255,159,10,.12);color:#ffd18a;border-color:rgba(255,159,10,.22)}.status-pill.draft{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(148,163,184,.22)}.status-pill.published{background:rgba(34,197,94,.13);color:#86efac;border-color:rgba(34,197,94,.24)}.status-pill.failed{background:rgba(248,113,113,.13);color:#fca5a5;border-color:rgba(248,113,113,.24)}.platform-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.platform-tile{border:1px solid rgba(139,132,255,.18);border-radius:20px;padding:16px;background:rgba(255,255,255,.04)}.platform-icon{width:44px;height:44px;border-radius:15px;background:rgba(108,99,255,.17);display:flex;align-items:center;justify-content:center;color:#9eeaff;font-size:1.3rem;margin-bottom:10px}.empty-state{text-align:center;padding:36px;border:1px dashed rgba(139,132,255,.28);border-radius:24px;color:var(--text-secondary)}@media(max-width:992px){.metric-grid{grid-template-columns:repeat(2,1fr)}.platform-grid{grid-template-columns:1fr}.post-row{grid-template-columns:52px 1fr}.post-row>div:last-child{grid-column:1/-1}.post-thumb{width:52px;height:52px}}
+</style>
+<style>
+.post-row{grid-template-columns:68px minmax(0,1fr) auto;cursor:pointer;transition:.2s ease}
+.post-row:hover,.post-row:focus-visible{background:rgba(139,132,255,.09);border-color:rgba(139,132,255,.42);transform:translateY(-1px);outline:none}
+.post-metrics{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:9px}.post-metric{color:#dbeafe;font-size:.78rem;font-weight:800}.post-metric i{color:#9eeaff;margin-right:4px}
+.post-detail-dialog{position:fixed;inset:0;margin:auto;width:min(820px,calc(100% - 24px));max-width:none;max-height:calc(100dvh - 24px);overflow:hidden;border:1px solid rgba(139,132,255,.35);border-radius:24px;padding:0;background:#10162d;color:#fff;box-shadow:0 30px 100px rgba(0,0,0,.65)}.post-detail-dialog::backdrop{background:rgba(2,6,23,.78);backdrop-filter:blur(5px)}
+.post-detail-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(139,132,255,.18)}.post-detail-body{padding:16px 18px;overflow:hidden}.detail-media{display:block;width:100%;max-height:min(30dvh,250px);object-fit:contain;border-radius:16px;background:rgba(0,0,0,.22);margin-bottom:12px}.detail-caption{display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:3;white-space:pre-wrap;line-height:1.45;color:#e5e7eb}.detail-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0}.detail-metric{min-width:0;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(139,132,255,.14)}.detail-metric span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-muted);font-size:.65rem}.detail-metric strong{font-size:.95rem}.dialog-close{border:0;background:rgba(255,255,255,.08);color:#fff;width:34px;height:34px;border-radius:50%}
+@media(max-height:700px){.post-detail-head{padding:9px 14px}.post-detail-body{padding:10px 14px}.detail-media{max-height:22dvh;margin-bottom:8px}.detail-caption{-webkit-line-clamp:2;font-size:.88rem}.detail-metrics{margin:8px 0;gap:6px}.detail-metric{padding:6px 8px}}
+@media(max-width:600px){.post-detail-dialog{width:calc(100% - 12px);max-height:calc(100dvh - 12px);border-radius:18px}.detail-metrics{grid-template-columns:repeat(5,minmax(0,1fr))}.detail-metric{padding:7px 4px;text-align:center}.detail-metric span{font-size:.57rem}.detail-metric strong{font-size:.82rem}}
+.refresh-btn.is-loading{pointer-events:none;opacity:.78}.refresh-btn .refresh-spinner{display:none}.refresh-btn.is-loading .refresh-spinner{display:inline-block}.refresh-btn.is-loading .refresh-icon{display:none}.refresh-feedback{display:none;margin-top:10px;padding:10px 13px;border-radius:12px;font-size:.82rem;font-weight:800}.refresh-feedback.show{display:block}.refresh-feedback.ok{color:#86efac;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.22)}.refresh-feedback.bad{color:#fca5a5;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.22)}.custom-date-field[hidden]{display:none!important}
+.organic-agency-filter{display:flex;align-items:center;gap:14px;margin:0 0 20px;padding:15px 18px;border:1px solid rgba(139,132,255,.25);border-radius:20px;background:rgba(15,20,41,.82)}.organic-agency-filter label{font-weight:900;color:#fff;white-space:nowrap}.organic-agency-filter select{margin-left:auto;width:min(430px,100%);background:rgba(255,255,255,.07);border:1px solid rgba(139,132,255,.3);color:#fff;border-radius:14px;padding:10px 12px}.organic-agency-filter option{color:#111}@media(max-width:650px){.organic-agency-filter{align-items:stretch;flex-direction:column}.organic-agency-filter select{margin-left:0;width:100%}}
+.post-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px;margin-top:9px}.post-delete-btn{border:1px solid rgba(248,113,113,.35);background:rgba(220,38,38,.12);color:#fecaca}.post-delete-btn:hover{background:rgba(220,38,38,.24);color:#fff}
+</style>
+{% endblock %}
+{% block content %}
+<div class="organic-shell">
+    <section class="organic-hero">
+        <span class="organic-kicker"><i class="fas fa-share-nodes"></i> {{ labels.organic_content_ops }}</span>
+        <h1 class="organic-title">{{ labels.organic_content_title }}</h1>
+        <p class="organic-subtitle">{{ labels.organic_content_desc }}</p>
+        <div class="organic-actions">
+            <a href="{% url 'creative_studio' %}" class="btn btn-accent"><i class="fas fa-sparkles me-2"></i>{{ labels.create_in_creative_studio }}</a>
+            <a href="{% url 'organic_connections' %}" class="btn btn-outline-light"><i class="fas fa-link me-2"></i>{{ labels.organic_connections }}</a>
+            <form id="organic-refresh-form" method="post" action="{% url 'organic_content_refresh' %}">{% csrf_token %}<button id="organic-refresh-btn" type="submit" class="btn btn-outline-light refresh-btn"><i class="fas fa-rotate me-2 refresh-icon"></i><i class="fas fa-circle-notch fa-spin me-2 refresh-spinner"></i>Verileri Yenile</button></form>
+        </div>
+        <div id="organic-refresh-feedback" class="refresh-feedback" role="status" aria-live="polite"></div>
+    </section>
+
+    {% if agency_scope.is_agency %}
+    <form class="organic-agency-filter" method="get" action="{{ request.path }}">
+        <label for="organicAgencyClient"><i class="fas fa-building-user me-2"></i>Firma Filtresi</label>
+        <select id="organicAgencyClient" name="agency_client" onchange="this.form.submit()">
+            <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+            {% for agency_client in agency_scope.clients %}<option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>{% endfor %}
+        </select>
+    </form>
+    {% endif %}
+
+    <div class="metric-grid">
+        <div class="metric-card"><div class="metric-label">{{ labels.total_content }}</div><div class="metric-value">{{ stats.total_posts|tr_int }}</div></div>
+        <div class="metric-card"><div class="metric-label">{{ labels.impressions }}</div><div class="metric-value">{{ stats.impressions|tr_int }}</div></div>
+        <div class="metric-card"><div class="metric-label">{{ labels.reach }}</div><div class="metric-value">{{ stats.reach|tr_int }}</div></div>
+        <div class="metric-card"><div class="metric-label">{{ labels.engagement }}</div><div class="metric-value">{{ stats.engagement|tr_int }}</div></div>
+    </div>
+    <div class="metric-grid">
+        <div class="metric-card"><div class="metric-label">{{ labels.published }}</div><div class="metric-value">{{ stats.published_posts|tr_int }}</div></div>
+        <div class="metric-card"><div class="metric-label">{{ labels.draft }}</div><div class="metric-value">{{ stats.draft_posts|tr_int }}</div></div>
+        <div class="metric-card"><div class="metric-label">{{ labels.avg_engagement }}</div><div class="metric-value">%{{ stats.avg_engagement_rate|tr_decimal }}</div></div>
+        <div class="metric-card"><div class="metric-label">{{ labels.profile_visits }}</div><div class="metric-value">{{ stats.profile_visits|tr_int }}</div></div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="organic-card">
+                <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-3">
+                    <div><h3 class="mb-1">{{ labels.content_flow }}</h3><div class="post-meta">{{ labels.recent_organic_posts }}</div></div>
+                    <form class="filter-bar" method="get">
+                        <input name="platform" value="{{ selected_platform }}" placeholder="{{ labels.search_platform }}">
+                        <select name="type">
+                            <option value="">{{ labels.all_types }}</option>
+                            {% for key,label in post_type_choices %}<option value="{{ key }}" {% if selected_type == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                        </select>
+                        <select name="period" id="organic-period">
+                            <option value="daily" {% if selected_period == 'daily' %}selected{% endif %}>Günlük</option>
+                            <option value="weekly" {% if selected_period == 'weekly' %}selected{% endif %}>Haftalık</option>
+                            <option value="monthly" {% if selected_period == 'monthly' %}selected{% endif %}>Aylık</option>
+                            <option value="quarterly" {% if selected_period == 'quarterly' %}selected{% endif %}>3 Aylık</option>
+                            <option value="custom" {% if selected_period == 'custom' %}selected{% endif %}>İki Tarih Arası</option>
+                        </select>
+                        <input class="custom-date-field" type="date" name="start_date" value="{{ start_date|date:'Y-m-d' }}" aria-label="Başlangıç tarihi" {% if selected_period != 'custom' %}hidden{% endif %}>
+                        <input class="custom-date-field" type="date" name="end_date" value="{{ end_date|date:'Y-m-d' }}" aria-label="Bitiş tarihi" {% if selected_period != 'custom' %}hidden{% endif %}>
+                        <button class="btn btn-outline-light" type="submit">{{ labels.filter }}</button>
+                    </form>
+                </div>
+                {% if posts %}
+                    {% for post in posts %}
+                    <div class="post-row" tabindex="0" role="button" aria-label="İçerik detayını aç" data-post-detail>
+                        <div class="post-thumb">{% if post.thumbnail_url or post.image_url %}<img src="{{ post.thumbnail_url|default:post.image_url }}" alt="">{% else %}<i class="fas fa-image"></i>{% endif %}</div>
+                        <div>
+                            <div class="post-title">{{ post.caption|default:labels.unnamed_organic_content|truncatechars:90 }}</div>
+                            <div class="post-meta">{% if post.platform_account %}{% if post.platform_account.agency_client %}{{ post.platform_account.agency_client.name }} Â· {% endif %}{{ post.platform_account.platform.name }} Â· {{ post.platform_account.account_name|default:post.platform_account.account_id }}{% else %}{{ post.platform_connection.platform.name|default:labels.platform_not_selected }}{% endif %} Â· {{ post.get_post_type_display }} Â· {% if post.posted_at %}{{ post.posted_at|date:"d.m.Y H:i" }}{% else %}{{ labels.draft }}{% endif %}</div>
+                            <div class="post-metrics">
+                                <span class="post-metric"><i class="fas fa-eye"></i>{{ labels.reach }}: {{ post.organic_metrics.reach|tr_int }}</span>
+                                <span class="post-metric"><i class="fas fa-heart"></i>{{ labels.likes }}: {{ post.organic_metrics.likes|tr_int }}</span>
+                                <span class="post-metric"><i class="fas fa-comment"></i>{{ labels.comments }}: {{ post.organic_metrics.comments|tr_int }}</span>
+                                <span class="post-metric"><i class="fas fa-chart-line"></i>{{ labels.engagement }}: {{ post.organic_metrics.engagement|tr_int }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="status-pill {{ post.organic_status_class }}">{{ post.organic_status_label }}</span>
+                            <div class="post-meta mt-2">{{ post.organic_status_note }}</div>
+                            {% if not post.posted_at %}
+                            <form method="post" action="{% url 'organic_content_publish' post.id %}" class="mt-2">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-accent" type="submit" {% if not post.organic_publish_ready %}disabled title="{{ post.organic_publish_block_reason }}"{% endif %}>
+                                    <i class="fas fa-paper-plane me-1"></i>{{ labels.publish_content }}
+                                </button>
+                            </form>
+                            {% endif %}
+                            <form method="post" action="{% url 'organic_content_delete' post.id %}" class="post-actions" onsubmit="return confirm('Bu içerik yalnızca yerel Organik İçerik Merkezi kaydından silinsin mi? Instagram gönderisi silinmeyecek.');">
+                                {% csrf_token %}
+                                <button class="btn btn-sm post-delete-btn" type="submit"><i class="fas fa-trash me-1"></i>Sil</button>
+                            </form>
+                        </div>
+                        <template class="post-detail-template">
+                            {% if post.image_url or post.thumbnail_url %}<img class="detail-media" src="{{ post.image_url|default:post.thumbnail_url }}" alt="">{% endif %}
+                            {% if post.video_url %}<video class="detail-media" src="{{ post.video_url }}" controls></video>{% endif %}
+                            <div class="detail-caption">{{ post.caption|default:labels.unnamed_organic_content }}</div>
+                            <div class="post-meta mt-2">{{ post.get_post_type_display }} · {% if post.posted_at %}{{ post.posted_at|date:"d.m.Y H:i" }}{% else %}{{ labels.draft }}{% endif %}</div>
+                            <div class="detail-metrics">
+                                <div class="detail-metric"><span>{{ labels.impressions }}</span><strong>{{ post.organic_metrics.impressions|tr_int }}</strong></div>
+                                <div class="detail-metric"><span>{{ labels.reach }}</span><strong>{{ post.organic_metrics.reach|tr_int }}</strong></div>
+                                <div class="detail-metric"><span>{{ labels.engagement }}</span><strong>{{ post.organic_metrics.engagement|tr_int }}</strong></div>
+                                <div class="detail-metric"><span>{{ labels.likes }}</span><strong>{{ post.organic_metrics.likes|tr_int }}</strong></div>
+                                <div class="detail-metric"><span>{{ labels.comments }}</span><strong>{{ post.organic_metrics.comments|tr_int }}</strong></div>
+                                <div class="detail-metric"><span>{{ labels.shares }}</span><strong>{{ post.organic_metrics.shares|tr_int }}</strong></div>
+                                <div class="detail-metric"><span>{{ labels.saves }}</span><strong>{{ post.organic_metrics.saves|tr_int }}</strong></div>
+                                <div class="detail-metric"><span>{{ labels.video_views }}</span><strong>{{ post.organic_metrics.video_views|tr_int }}</strong></div>
+                                <div class="detail-metric"><span>{{ labels.profile_visits }}</span><strong>{{ post.organic_metrics.profile_visits|tr_int }}</strong></div>
+                                <div class="detail-metric"><span>Web sitesi tıklaması</span><strong>{{ post.organic_metrics.website_clicks|tr_int }}</strong></div>
+                            </div>
+                            {% if post.permalink %}<a class="btn btn-outline-light" href="{{ post.permalink }}" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square me-2"></i>Instagram'da aç</a>{% endif %}
+                        </template>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state"><h5>{{ labels.no_organic_content }}</h5><p>{{ labels.first_content_hint }}</p><a href="{% url 'creative_studio' %}" class="btn btn-accent">{{ labels.create_in_creative_studio }}</a></div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="organic-card">
+                <h5>{{ start_date|date:"d.m.Y" }} – {{ end_date|date:"d.m.Y" }}</h5>
+                <p class="post-meta mb-3">{{ labels.organic_performance_summary }}</p>
+                <div class="d-flex justify-content-between mb-2"><span>{{ labels.likes }}</span><strong>{{ stats.likes|tr_int }}</strong></div>
+                <div class="d-flex justify-content-between mb-2"><span>{{ labels.comments }}</span><strong>{{ stats.comments|tr_int }}</strong></div>
+                <div class="d-flex justify-content-between mb-2"><span>{{ labels.shares }}</span><strong>{{ stats.shares|tr_int }}</strong></div>
+                <div class="d-flex justify-content-between mb-2"><span>{{ labels.saves }}</span><strong>{{ stats.saves|tr_int }}</strong></div>
+                <div class="d-flex justify-content-between"><span>{{ labels.video_views }}</span><strong>{{ stats.video_views|tr_int }}</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
+<dialog class="post-detail-dialog" id="post-detail-dialog" aria-labelledby="post-detail-title">
+    <div class="post-detail-head"><h5 id="post-detail-title" class="mb-0">İçerik detayı</h5><button class="dialog-close" type="button" aria-label="Kapat"><i class="fas fa-xmark"></i></button></div>
+    <div class="post-detail-body"></div>
+</dialog>
+<script>
+(() => {
+  const dialog = document.getElementById('post-detail-dialog');
+  const body = dialog?.querySelector('.post-detail-body');
+  if (!dialog || !body) return;
+  const openDetail = row => {
+    const template = row.querySelector('.post-detail-template');
+    if (!template) return;
+    body.replaceChildren(template.content.cloneNode(true));
+    dialog.showModal();
+  };
+  document.querySelectorAll('[data-post-detail]').forEach(row => {
+    row.addEventListener('click', event => {
+      if (event.target.closest('a,button,form,input,select,video')) return;
+      openDetail(row);
+    });
+    row.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openDetail(row); }
+    });
+  });
+  dialog.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+})();
+</script>
+<script>
+(() => {
+  const period = document.getElementById('organic-period');
+  const dates = document.querySelectorAll('.custom-date-field');
+  period?.addEventListener('change', () => dates.forEach(field => field.hidden = period.value !== 'custom'));
+
+  const form = document.getElementById('organic-refresh-form');
+  const button = document.getElementById('organic-refresh-btn');
+  const feedback = document.getElementById('organic-refresh-feedback');
+  form?.addEventListener('submit', async event => {
+    event.preventDefault();
+    button.classList.add('is-loading');
+    button.disabled = true;
+    feedback.className = 'refresh-feedback show';
+    feedback.textContent = 'Instagram verileri güncelleniyor…';
+    try {
+      const response = await fetch(form.action, {method:'POST', body:new FormData(form), headers:{'X-Requested-With':'XMLHttpRequest'}});
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Veriler güncellenemedi.');
+      feedback.className = 'refresh-feedback show ok';
+      feedback.textContent = `${data.message} ${data.metrics} metrik kaydı yenilendi.`;
+      window.setTimeout(() => window.location.reload(), 700);
+    } catch (error) {
+      feedback.className = 'refresh-feedback show bad';
+      feedback.textContent = error.message;
+      button.classList.remove('is-loading');
+      button.disabled = false;
+    }
+  });
+})();
+</script>
+{% endblock %}

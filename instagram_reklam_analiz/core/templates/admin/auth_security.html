@@ -1,0 +1,211 @@
+{% extends "admin/base_site.html" %}
+{% load admin_dashboard %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .security-page {
+        display: grid;
+        gap: 18px;
+    }
+
+    .security-hero,
+    .security-panel {
+        background: #ffffff;
+        border: 1px solid #dbe3ef;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        color: #111827;
+        padding: 18px;
+    }
+
+    .security-hero {
+        border-top: 5px solid #111827;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .security-hero h1,
+    .security-panel h2 {
+        color: #111827;
+        margin: 0 0 8px;
+    }
+
+    .security-hero p {
+        color: #475569;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .security-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .security-button,
+    .security-button:link,
+    .security-button:visited {
+        background: #111827 !important;
+        border: 1px solid #111827;
+        border-radius: 8px;
+        color: #ffffff !important;
+        display: inline-flex;
+        font-weight: 850;
+        min-height: 34px;
+        padding: 8px 12px;
+        text-decoration: none;
+    }
+
+    .security-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .security-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 14px;
+        text-align: center;
+    }
+
+    .security-card span {
+        color: #334155;
+        display: block;
+        font-size: 12px;
+        font-weight: 850;
+        text-transform: uppercase;
+    }
+
+    .security-card strong {
+        color: #0f172a;
+        display: block;
+        font-size: 24px;
+        font-weight: 900;
+        margin-top: 6px;
+    }
+
+    .security-table {
+        border-collapse: collapse;
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .security-table th,
+    .security-table td {
+        background: #ffffff !important;
+        border-bottom: 1px solid #eef2f7;
+        color: #111827 !important;
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+        word-break: break-word;
+    }
+
+    .security-table th {
+        background: #f8fafc !important;
+        color: #334155 !important;
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
+
+    .security-badge {
+        border-radius: 999px;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 850;
+        padding: 6px 9px;
+    }
+
+    .security-badge.ok {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .security-badge.warn {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .security-code {
+        color: #64748b;
+        display: block;
+        font-family: Consolas, "Liberation Mono", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="security-page">
+    <section class="security-hero">
+        <div>
+            <h1>Güvenlik ve Sosyal Giriş Ayarları</h1>
+            <p>Mail doğrulama, Google/Facebook/Instagram/TikTok sosyal girişleri ve çift koruma durumu buradan izlenir.</p>
+        </div>
+        <div class="security-actions">
+            <a class="security-button" href="{% url 'admin:index' %}">Admin Ana Panel</a>
+            <a class="security-button" href="/admin/socialaccount/socialapp/">Social Applications</a>
+        </div>
+    </section>
+
+    <section class="security-grid">
+        <article class="security-card"><span>E-posta doğrulama</span><strong>{{ email_verification }}</strong></article>
+        <article class="security-card"><span>Sosyal e-posta doğrulama</span><strong>{{ social_email_verification }}</strong></article>
+        <article class="security-card"><span>Doğrulanmış e-posta</span><strong>{{ verified_email_count|tr_int }} / {{ users_with_email|tr_int }}</strong></article>
+        <article class="security-card"><span>2FA kullanan üye</span><strong>{{ mfa_user_count|tr_int }}</strong></article>
+        <article class="security-card"><span>2FA yöntemleri</span><strong>{{ mfa_supported_types }}</strong></article>
+    </section>
+
+    <section class="security-panel">
+        <h2>Sosyal Giriş Sağlayıcıları</h2>
+        <table class="security-table">
+            <thead>
+                <tr>
+                    <th>Sağlayıcı</th>
+                    <th>Durum</th>
+                    <th>Env Alanları</th>
+                    <th>Callback URL</th>
+                    <th>İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in provider_rows %}
+                    <tr>
+                        <td><strong>{{ row.name }}</strong><span class="security-code">{{ row.id }}</span></td>
+                        <td>
+                            {% if row.configured %}
+                                <span class="security-badge ok">Aktif</span>
+                            {% elif row.env_ready %}
+                                <span class="security-badge warn">Env hazır, sync gerekli</span>
+                            {% else %}
+                                <span class="security-badge warn">Client bilgisi eksik</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ row.env_client_id }}</strong>: {% if row.env_client_id_set %}var{% else %}eksik{% endif %}<br>
+                            <strong>{{ row.env_secret }}</strong>: {% if row.env_secret_set %}var{% else %}eksik{% endif %}
+                        </td>
+                        <td><span class="security-code">{{ row.callback_url }}</span></td>
+                        <td>
+                            {% if row.admin_change_url %}
+                                <a class="security-button" href="{{ row.admin_change_url }}">Düzenle</a>
+                            {% else %}
+                                <a class="security-button" href="{{ row.admin_add_url }}">Ekle</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+{% endblock %}

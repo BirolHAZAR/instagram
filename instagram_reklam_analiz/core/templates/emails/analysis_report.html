@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Reklam Analiz Raporu</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8f9fa; font-family: Arial, sans-serif;">
+    
+    <!-- Ana Konteynır -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f9fa; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table width="650" cellpadding="0" cellspacing="0" style="background-color: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="color: white; margin: 0 0 10px 0; font-size: 24px;">🤖 AI Reklam Analiz Raporu</h1>
+                            <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 14px;">{{ ad_title }}</p>
+                            <p style="color: rgba(255,255,255,0.7); margin: 5px 0 0 0; font-size: 12px;">{{ generated_at }}</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Genel Skor -->
+                    <tr>
+                        <td style="padding: 30px; text-align: center; background: linear-gradient(135deg, #1a1a2e, #16213e);">
+                            <table cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <!-- Skor Dairesi -->
+                                        <div style="width: 120px; height: 120px; border-radius: 50%; background: #4CAF50; margin: 0 auto; position: relative;">
+                                            <div style="position: absolute; top: 8px; left: 8px; width: 104px; height: 104px; border-radius: 50%; background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                                <span style="color: white; font-size: 32px; font-weight: 800; line-height: 1;">{{ overall_score }}</span>
+                                                <span style="color: rgba(255,255,255,0.7); font-size: 10px;">/100</span>
+                                            </div>
+                                        </div>
+                                        <p style="color: rgba(255,255,255,0.8); margin-top: 15px; font-size: 14px;">Genel Performans Skoru</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- AI analiz sonuçları -->
+                    <tr>
+                        <td style="padding: 30px;">
+                            <h2 style="color: #2c3e50; font-size: 18px; margin: 0 0 20px 0;">📊 Detaylı AI Analizleri</h2>
+                            
+                            {% for agent in agents %}
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 15px; background: #f8f9ff; border-radius: 12px; border: 1px solid #e8e8ff;">
+                                <tr>
+                                    <td style="padding: 20px;">
+                                        <table width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="width: 50px; vertical-align: top;">
+                                                    <div style="width: 45px; height: 45px; border-radius: 50%; text-align: center; line-height: 45px; font-size: 20px;">●</div>
+                                                </td>
+                                                <td style="vertical-align: top;">
+                                                    <h3 style="margin: 0 0 5px 0; font-size: 15px; color: #2c3e50;">● Analiz sonucu</h3>
+                                                    <p style="margin: 0 0 8px 0; font-size: 12px; color: #888;">{{ agent.summary }}</p>
+                                                </td>
+                                                <td style="width: 60px; text-align: right; vertical-align: top;">
+                                                    <span style="font-size: 22px; font-weight: 800;">{{ agent.score }}%</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" style="padding-top: 10px;">
+                                                    <div style="background: #e0e0e0; border-radius: 6px; height: 6px; width: 100%;">
+                                                        <table width="100%" cellpadding="0" cellspacing="0" style="background: #e0e0e0; border-radius: 6px;">
+    <tr>
+        <td width="{{ agent.score }}%" style="height: 6px; border-radius: 6px; background: #667eea; font-size: 0; line-height: 0;"></td>
+        <td style="height: 6px; font-size: 0; line-height: 0;"></td>
+    </tr>
+</table>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" style="padding-top: 12px; font-size: 13px; color: #555; line-height: 1.6;">
+                                                    <strong>📋 Bulgular:</strong> {{ agent.details }}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: #f8f9fa; padding: 20px 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+                            <p style="margin: 0; font-size: 12px; color: #888;">
+                                Bu rapor <strong>AdGenius AI</strong> tarafından otomatik oluşturulmuştur.<br>
+                                Kapsamlı AI analizi tamamlanmıştır.
+                            </p>
+                            <p style="margin: 10px 0 0 0; font-size: 11px; color: #aaa;">
+                                &copy; {% now "Y" %} AdGenius. T&#252;m hakları saklıdır.
+                            </p>
+                        </td>
+                    </tr>
+                    
+                </table>
+            </td>
+        </tr>
+    </table>
+    
+</body>
+</html>

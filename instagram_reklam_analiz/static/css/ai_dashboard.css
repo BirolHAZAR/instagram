@@ -1,0 +1,397 @@
+/* Styles extracted from core/templates/ai/dashboard.html. */
+
+/* Extracted from core/templates/ai/dashboard.html: dashboard.html */
+:root {
+        --primary: #667eea;
+        --primary-dark: #5a67d8;
+        --success: #27AE60;
+        --warning: #F39C12;
+        --danger: #E74C3C;
+        --info: #4A90D9;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-600: #6b7280;
+        --gray-800: #1f2937;
+    }
+    
+    .ai-header {
+        background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 28px;
+        color: white;
+        box-shadow: 0 4px 20px rgba(14, 165, 233, 0.25);
+    }
+    
+    .ai-header h1 { 
+        color: white; 
+        font-weight: 700; 
+        font-size: 28px; 
+        margin: 0 0 8px 0; 
+    }
+    
+    .ai-header p { 
+        color: rgba(255,255,255,0.9); 
+        margin: 0; 
+        font-size: 15px; 
+    }
+    
+    /* Instagram Hesap Seçici - Profesyonel Tasarım */
+    .account-selector-wrapper {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 24px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    
+    .selector-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .selector-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .selector-title .icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea15, #764ba215);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+    
+    .selector-title h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+    
+    .selector-title p {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 4px 0 0 0;
+    }
+    
+    .account-badge-total {
+        background: #f3f4f6;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #4b5563;
+    }
+    
+    .account-badge-total span {
+        color: #6366f1;
+        font-weight: 700;
+        font-size: 18px;
+    }
+    
+    .accounts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+    
+    .account-card {
+        background: var(--gray-50);
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .account-card:hover {
+        border-color: #6366f1;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
+    }
+    
+    .account-card.active {
+        border-color: #6366f1;
+        background: linear-gradient(135deg, #6366f105, #8b5cf605);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+    }
+    
+    .account-card.active::before {
+        content: '✓';
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 24px;
+        height: 24px;
+        background: #6366f1;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+    .account-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 12px;
+    }
+    
+    .account-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        flex-shrink: 0;
+    }
+    
+    .account-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .account-details {
+        flex: 1;
+    }
+    
+    .account-username {
+        font-weight: 700;
+        font-size: 16px;
+        color: #1f2937;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .verified-badge {
+        background: #e0f2fe;
+        color: #0284c7;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+    
+    .account-stats {
+        display: flex;
+        gap: 16px;
+        font-size: 12px;
+        color: #6b7280;
+    }
+    
+    .account-stats span {
+        font-weight: 600;
+        color: #4b5563;
+    }
+    
+    .ads-preview {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e5e7eb;
+        font-size: 12px;
+        color: #6366f1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 14px;
+        padding: 18px 20px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+        border: 1px solid #e2e8f0;
+        text-align: center;
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .stat-card .stat-icon { font-size: 28px; margin-bottom: 6px; }
+    .stat-card .stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+    .stat-card .stat-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-top: 2px; }
+    
+    .section-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 22px;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .ad-list-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: white;
+    }
+    
+    .ad-list-item:hover { 
+        border-color: #6366f1; 
+        background: #f8fafc; 
+        transform: translateX(4px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .ad-list-item.selected { 
+        border-color: #6366f1; 
+        background: #eff6ff;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+    }
+    
+    .ad-thumb {
+        width: 60px; height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; color: white; flex-shrink: 0;
+    }
+    
+    .ad-info { flex: 1; min-width: 0; }
+    .ad-name { font-weight: 600; font-size: 14px; color: #1e293b; margin-bottom: 4px; }
+    .ad-meta { font-size: 11px; color: #64748b; }
+    .ad-meta i { margin-right: 4px; }
+    
+    .ad-score {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 14px;
+        background: #f1f5f9;
+        color: #64748b;
+    }
+    
+    .ad-score.high { background: #dcfce7; color: #166534; }
+    .ad-score.medium { background: #fef3c7; color: #92400e; }
+    .ad-score.low { background: #fee2e2; color: #991b1b; }
+    
+    .btn-analyze {
+        background: linear-gradient(135deg, #0ea5e9, #6366f1);
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+    }
+    
+    .btn-analyze:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4); 
+    }
+    
+    .btn-analyze:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .result-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+    }
+    
+    .result-item {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s;
+    }
+    
+    .result-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    
+    .result-item .r-value { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+    .result-item .r-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600; }
+    
+    .empty-state { text-align: center; padding: 50px 20px; color: #94A3B8; }
+    .empty-state .icon { font-size: 56px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state a { color: var(--info); font-weight: 500; text-decoration: none; }
+    
+    @media (max-width: 768px) {
+        .accounts-grid {
+            grid-template-columns: 1fr;
+        }
+        .selector-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .section-title {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+        }
+    }
+
+/* Extracted from core/templates/ai/dashboard.html: dashboard.html */
+@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.05); }
+    }
+    @keyframes loading {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(400%); }
+    }

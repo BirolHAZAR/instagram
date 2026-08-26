@@ -1,0 +1,7 @@
+Merhaba {{ first_name }},
+
+{{ campaign.body }}
+
+{{ campaign.cta_text }}: {{ campaign.cta_url }}
+
+ReklamAnaliz.net

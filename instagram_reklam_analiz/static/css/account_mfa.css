@@ -1,0 +1,263 @@
+.mfa-wrapper {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 40px 0;
+}
+
+.mfa-header,
+.mfa-status-card,
+.mfa-card {
+    background: #ffffff;
+    box-shadow: 0 5px 25px rgba(15, 23, 42, 0.07);
+}
+
+.mfa-header {
+    border-radius: 20px;
+    margin-bottom: 30px;
+    padding: 30px;
+}
+
+.breadcrumb {
+    background: transparent;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.breadcrumb-item a,
+.mfa-header h2 i {
+    color: #667eea;
+}
+
+.breadcrumb-item a {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.breadcrumb-item.active,
+.mfa-header p,
+.mfa-status-card p,
+.method-copy p,
+.method-note {
+    color: #64748b;
+}
+
+.mfa-header h2 {
+    color: #1f2937;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.mfa-header p {
+    font-weight: 600;
+    margin: 0;
+}
+
+.mfa-header-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.mfa-status-card {
+    align-items: center;
+    border: 2px solid transparent;
+    border-radius: 22px;
+    display: flex;
+    gap: 18px;
+    margin-bottom: 24px;
+    padding: 26px;
+}
+
+.mfa-status-card.enabled {
+    border-color: #86efac;
+}
+
+.mfa-status-card.disabled {
+    border-color: #fde68a;
+}
+
+.mfa-status-icon {
+    align-items: center;
+    border-radius: 18px;
+    color: #ffffff;
+    display: flex;
+    flex: 0 0 64px;
+    font-size: 26px;
+    height: 64px;
+    justify-content: center;
+    width: 64px;
+}
+
+.mfa-status-card.enabled .mfa-status-icon {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.mfa-status-card.disabled .mfa-status-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.status-kicker {
+    color: #667eea;
+    display: block;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.7px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.mfa-status-card h4 {
+    color: #1f2937;
+    font-weight: 800;
+    margin: 0 0 4px;
+}
+
+.mfa-status-card p {
+    font-weight: 600;
+    margin: 0;
+}
+
+.mfa-grid {
+    display: grid;
+    gap: 18px;
+}
+
+.mfa-card {
+    align-items: center;
+    border-radius: 22px;
+    display: grid;
+    gap: 18px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: 26px;
+}
+
+.method-icon {
+    align-items: center;
+    border-radius: 18px;
+    display: flex;
+    flex: 0 0 58px;
+    font-size: 24px;
+    height: 58px;
+    justify-content: center;
+    width: 58px;
+}
+
+.method-icon.app {
+    background: #eef2ff;
+    color: #667eea;
+}
+
+.method-icon.codes {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.method-copy h5 {
+    color: #1f2937;
+    font-weight: 800;
+    margin: 0 0 5px;
+}
+
+.method-copy p {
+    font-weight: 600;
+    line-height: 1.45;
+    margin: 0 0 10px;
+}
+
+.method-badge {
+    align-items: center;
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 900;
+    gap: 7px;
+    padding: 8px 12px;
+}
+
+.method-badge.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.method-badge.inactive {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.method-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.action-stack {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-mfa-soft,
+.btn-mfa-primary,
+.btn-mfa-danger {
+    align-items: center;
+    border-radius: 12px;
+    display: inline-flex;
+    font-size: 14px;
+    font-weight: 800;
+    gap: 8px;
+    justify-content: center;
+    padding: 11px 18px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-mfa-soft {
+    background: #f8f9ff;
+    border: 2px solid #e0e7ff;
+    color: #4f5fd5;
+}
+
+.btn-mfa-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: 0;
+    color: #ffffff;
+}
+
+.btn-mfa-danger {
+    background: #fff1f2;
+    border: 2px solid #fecdd3;
+    color: #e11d48;
+}
+
+.btn-mfa-soft:hover,
+.btn-mfa-primary:hover,
+.btn-mfa-danger:hover {
+    transform: translateY(-2px);
+}
+
+.method-note {
+    font-size: 13px;
+    font-weight: 800;
+}
+
+@media (max-width: 768px) {
+    .mfa-header-actions,
+    .mfa-status-card {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .mfa-card {
+        grid-template-columns: 1fr;
+    }
+
+    .method-action,
+    .action-stack {
+        align-items: stretch;
+    }
+
+    .btn-mfa-soft,
+    .btn-mfa-primary,
+    .btn-mfa-danger {
+        width: 100%;
+    }
+}

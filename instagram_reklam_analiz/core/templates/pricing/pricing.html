@@ -1,0 +1,197 @@
+﻿{% extends 'base.html' %}
+{% load static tr_numbers %}
+
+{% block title %}{% if current_language == "en" %}Pricing - ReklamAnaliz.net{% else %}FiyatlandÄ±rma - ReklamAnaliz.net{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pricing.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pricing-page">
+    <div class="pricing-wrap">
+        <section class="pricing-hero">
+            <div>
+                <div class="eyebrow"><i class="fas fa-layer-group"></i> {% if current_language == "en" %}All ad accounts, Google Analytics, and AI recommendations in one center{% else %}TÃ¼m reklam hesaplarÄ±, Google Analytics ve AI Ã¶nerileri tek merkezde{% endif %}</div>
+                <h1>{% if current_language == "en" %}Do not just choose a plan;<br><span class="gradient-text">choose an ad growth system.</span>{% else %}Paket seÃ§me deÄŸil,<br><span class="gradient-text">reklam bÃ¼yÃ¼me sistemi</span> seÃ§me zamanÄ±.{% endif %}</h1>
+                <p class="hero-lead">{% if current_language == "en" %}ReklamAnaliz.net brings Meta, Instagram, Facebook, TikTok, Google Ads, LinkedIn, X, and Google Analytics data into one dashboard. Octo AI analyzes performance, tracks competitor ads, creates new ad ideas, and recommends practical budget actions.{% else %}ReklamAnaliz.net; Meta, Instagram, Facebook, TikTok, Google Ads, LinkedIn, X ve Google Analytics verilerini tek panelde toplar. Octo AI performansÄ± analiz eder, rakip reklamlarÄ±nÄ± izler, yeni reklam fikirleri Ã¼retir ve bÃ¼tÃ§enizi daha akÄ±llÄ± kullanmanÄ±z iÃ§in uygulanabilir Ã¶neriler sunar.{% endif %}</p>
+                <div class="hero-actions">
+                    {% if request.user.is_authenticated %}
+                    <a href="#paketler" class="btn-ra-primary"><i class="fas fa-tags"></i> {% if current_language == "en" %}View Plans{% else %}Paketleri Ä°ncele{% endif %}</a>
+                    {% else %}
+                    <a href="{% url 'account_signup' %}" class="btn-ra-primary"><i class="fas fa-rocket"></i> {% if current_language == "en" %}Start Now{% else %}Hemen BaÅŸla{% endif %}</a>
+                    {% endif %}
+                    <a href="#paketler" class="btn-ra-secondary"><i class="fas fa-tags"></i> {% if current_language == "en" %}View Plans{% else %}Paketleri Ä°ncele{% endif %}</a>
+                </div>
+                <div class="trust-row">
+                    <div class="trust-pill"><strong>{% if current_language == "en" %}One panel{% else %}Tek panel{% endif %}</strong>{% if current_language == "en" %}Unify every platform without getting lost.{% else %}Platformlar arasÄ±nda kaybolmadan tÃ¼m veriyi birleÅŸtir.{% endif %}</div>
+                    <div class="trust-pill"><strong>{% if current_language == "en" %}AI advice{% else %}AI Ã¶neri{% endif %}</strong>{% if current_language == "en" %}Not only reports, but clear next actions.{% else %}Sadece rapor deÄŸil, ne yapman gerektiÄŸini gÃ¶r.{% endif %}</div>
+                    <div class="trust-pill"><strong>{% if current_language == "en" %}Competitor intelligence{% else %}Rakip zekasÄ±{% endif %}</strong>{% if current_language == "en" %}Track competitor ads and catch opportunities.{% else %}Rakip reklamlarÄ±nÄ± takip edip fÄ±rsatlarÄ± yakala.{% endif %}</div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="octo-orbit">
+                    <img src="{% static 'images/octo-one.webp' %}" class="octo-main" alt="Octo AI">
+                    <div class="platform-chip chip-meta"><i class="fab fa-facebook"></i><div>Meta Ads<small>Instagram + Facebook</small></div></div>
+                    <div class="platform-chip chip-google"><i class="fab fa-google"></i><div>Google Ads<small>Search + Display</small></div></div>
+                    <div class="platform-chip chip-tiktok"><i class="fab fa-tiktok"></i><div>TikTok Ads<small>{% if current_language == "en" %}Creative analysis{% else %}Kreatif analiz{% endif %}</small></div></div>
+                    <div class="platform-chip chip-linkedin"><i class="fab fa-linkedin"></i><div>LinkedIn<small>B2B</small></div></div>
+                    <div class="platform-chip chip-analytics"><i class="fas fa-chart-pie"></i><div>Analytics<small>{% if current_language == "en" %}Conversion data{% else %}DÃ¶nÃ¼ÅŸÃ¼m verisi{% endif %}</small></div></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="billing-panel" id="paketler">
+            <div class="billing-toggle-wrapper">
+                <span class="billing-option active" data-billing="monthly">{% if current_language == "en" %}Monthly payment{% else %}AylÄ±k Ã¶deme{% endif %}</span>
+                <label class="toggle-switch" aria-label="{% if current_language == "en" %}Billing selection{% else %}FaturalandÄ±rma seÃ§imi{% endif %}"><input type="checkbox" id="billingToggle" class="billing-toggle"><span class="toggle-slider"></span></label>
+                <span class="billing-option" data-billing="yearly">{% if current_language == "en" %}Yearly payment{% else %}YÄ±llÄ±k Ã¶deme{% endif %} <span class="save-badge">%20 {% if current_language == "en" %}off{% else %}avantaj{% endif %}</span></span>
+            </div>
+        </div>
+
+        {% if plans %}
+        <div class="pricing-grid">
+            {% for plan in plans %}
+            <div class="pricing-card {% if plan.name == 'gold' %}featured{% endif %}">
+                {% if plan.name == 'gold' %}<div class="popular-ribbon">{% if current_language == "en" %}Best Value{% else %}Ekonomik SeÃ§im{% endif %}</div>{% endif %}
+                <div class="plan-head">
+                    <div class="plan-icon {{ plan.name }}">{% if plan.name == 'silver' %}<i class="fas fa-gem"></i>{% elif plan.name == 'gold' %}<i class="fas fa-crown"></i>{% elif plan.name == 'platinum' or plan.name == 'platinyum' %}<i class="fas fa-rocket"></i>{% else %}<i class="fas fa-star"></i>{% endif %}</div>
+                    <div>
+                        <h3 class="plan-name">
+                            {% if plan.name == 'silver' %}Silver{% elif plan.name == 'gold' %}Gold{% elif plan.name == 'platinum' or plan.name == 'platinyum' %}Platin{% else %}{{ plan.display_name }}{% endif %}
+                        </h3>
+                        <div class="plan-fit">
+                            {% if current_language == "en" %}
+                                {% if plan.name == 'silver' %}Growing business{% elif plan.name == 'gold' %}Best price/performance{% elif plan.name == 'platinum' or plan.name == 'platinyum' %}Advanced power{% else %}Flexible usage{% endif %}
+                            {% else %}
+                                {% if plan.name == 'silver' %}BÃ¼yÃ¼yen iÅŸletme{% elif plan.name == 'gold' %}Ekonomik / fiyat-performans{% elif plan.name == 'platinum' or plan.name == 'platinyum' %}Kurumsal gÃ¼Ã§{% else %}Esnek kullanÄ±m{% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <p class="plan-description">
+                    {% if current_language == "en" %}
+                        {% if plan.name == 'silver' %}For businesses managing multiple accounts and looking for competitor tracking plus regular AI recommendations.{% elif plan.name == 'gold' %}The balanced main package for advanced analysis, competitor tracking, reporting, and AI-assisted growth decisions.{% elif plan.name == 'platinum' or plan.name == 'platinyum' %}For advanced teams needing unlimited analysis, white label, API, and VIP support.{% else %}For teams that want to manage advertising from one center and make AI-assisted decisions.{% endif %}
+                    {% else %}
+                        {% if plan.name == 'silver' %}Birden fazla hesabÄ± yÃ¶neten, rakiplerini takip etmek ve dÃ¼zenli AI Ã¶nerileriyle bÃ¼tÃ§esini verimli kullanmak isteyen iÅŸletmeler iÃ§in.{% elif plan.name == 'gold' %}GeliÅŸmiÅŸ analiz, rakip takibi ve raporlama gÃ¼cÃ¼nÃ¼ dengeli maliyetle almak isteyen iÅŸletmeler iÃ§in ana paket.{% elif plan.name == 'platinum' or plan.name == 'platinyum' %}SÄ±nÄ±rsÄ±z analiz, beyaz etiket, API ve VIP destek ihtiyacÄ± olan kurumsal yapÄ±lar iÃ§in.{% else %}Reklam yÃ¶netimini tek merkezden takip etmek ve AI destekli karar almak isteyen ekipler iÃ§in.{% endif %}
+                    {% endif %}
+                </p>
+                <div class="price-container">
+                    <div class="price-wrapper"><span class="currency">TL</span><span class="amount monthly-price">{{ plan.price|tr_int }}</span><span class="amount yearly-price">{{ plan.yearly_price|default:plan.price|tr_int }}</span><span class="period">/{% if current_language == "en" %}mo{% else %}ay{% endif %}</span></div>
+                    <div class="yearly-savings"><span class="original-price">TL {{ plan.price|tr_int }}</span><span class="save-badge">%20 {% if current_language == "en" %}discount{% else %}indirim{% endif %}</span></div>
+                    <div class="kdv-info">{% if current_language == "en" %}VAT included{% else %}KDV dahil{% endif %}: TL <span class="monthly-kdv">{{ plan.price_with_kdv|tr_int }}</span><span class="yearly-kdv">{{ plan.yearly_price_with_kdv|default:plan.price_with_kdv|tr_int }}</span> / {% if current_language == "en" %}month{% else %}ay{% endif %}</div>
+                </div>
+                <div class="plan-value-box">
+                    {% if current_language == "en" %}
+                        Octo converts performance, competitor, and reporting signals into clear decisions for this package level.
+                    {% else %}
+                        Octo, bu paket seviyesine gÃ¶re performans, rakip ve raporlama sinyallerini net kararlara dÃ¶nÃ¼ÅŸtÃ¼rÃ¼r.
+                    {% endif %}
+                </div>
+                <div class="plan-credit-box"><i class="fas fa-bolt"></i><strong>{{ plan.ai_credits_per_month|tr_int }}</strong><span>{% if current_language == "en" %}monthly AI credits included{% else %}aylık AI kredi dahil{% endif %}</span></div>
+                <div class="plan-credit-box plan-product-box"><i class="fas fa-magnifying-glass-chart"></i><strong>{{ plan.marketplace_product_research_per_month|tr_int }}</strong><span>{% if current_language == "en" %}monthly product research included{% else %}aylık ürün araştırma dahil{% endif %}</span></div>
+                <div class="plan-credit-box plan-price-check-box"><i class="fas fa-chart-line"></i><strong>{{ plan.marketplace_price_check_per_month|tr_int }}</strong><span>{% if current_language == "en" %}monthly price checks included{% else %}aylık fiyat kontrol dahil{% endif %}</span></div>
+                <ul class="features-list">{% for feature in plan.get_feature_list %}<li><span class="feature-icon"><i class="fas fa-check"></i></span>{{ feature }}</li>{% endfor %}</ul>
+                {% if plan.name == 'gold' %}<div class="economic-bottom-badge"><i class="fas fa-tag"></i> {% if current_language == "en" %}Best cost / performance balance{% else %}En iyi maliyet / performans dengesi{% endif %}</div>{% endif %}
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'checkout' plan.id %}" class="btn btn-select-plan {% if plan.name == 'gold' %}btn-gold{% else %}btn-outline-gradient{% endif %}"><i class="fas fa-bolt"></i> {% if current_language == "en" %}Choose This Plan{% else %}Bu Paketi SeÃ§{% endif %}</a>
+                {% else %}
+                <a href="{% url 'account_login' %}?next={% url 'checkout' plan.id %}" class="btn btn-select-plan {% if plan.name == 'gold' %}btn-gold{% else %}btn-outline-gradient{% endif %}"><i class="fas fa-user-plus"></i> {% if current_language == "en" %}Sign Up and Start{% else %}Ãœye Ol ve BaÅŸla{% endif %}</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <section class="platform-strip">
+            <div class="strip-title"><h3>{% if current_language == "en" %}The biggest advantage: your entire ad world on one screen{% else %}En bÃ¼yÃ¼k avantaj: tÃ¼m reklam dÃ¼nyanÄ±z tek ekranda{% endif %}</h3><p>{% if current_language == "en" %}Octo simplifies data that looks complex to clients: which platform works, which ad is tired, which competitor is moving, and what to do in the next campaign.{% else %}MÃ¼ÅŸteri iÃ§in karmaÅŸÄ±k gÃ¶rÃ¼nen verileri Octo sadeleÅŸtirir: hangi platform iyi Ã§alÄ±ÅŸÄ±yor, hangi reklam yoruldu, hangi rakip Ã¶ne Ã§Ä±ktÄ± ve bir sonraki kampanyada ne yapÄ±lmalÄ±.{% endif %}</p></div>
+            <div class="platform-grid"><div class="platform-box"><i class="fab fa-instagram"></i><span>Instagram</span></div><div class="platform-box"><i class="fab fa-facebook"></i><span>Facebook</span></div><div class="platform-box"><i class="fab fa-google"></i><span>Google Ads</span></div><div class="platform-box"><i class="fab fa-tiktok"></i><span>TikTok Ads</span></div><div class="platform-box"><i class="fab fa-linkedin"></i><span>LinkedIn Ads</span></div><div class="platform-box"><i class="fab fa-x-twitter"></i><span>X Ads</span></div><div class="platform-box"><i class="fas fa-chart-line"></i><span>Google Analytics</span></div></div>
+        </section>
+
+        {% if agency_plans %}
+        <section class="agency-section">
+            <div class="section-head"><h2>{% if current_language == "en" %}Agency plans{% else %}Ajans paketleri{% endif %}</h2><p>{% if current_language == "en" %}A second package structure for agencies managing multiple brands, users, and client accounts.{% else %}Birden fazla marka, ekip Ã¼yesi ve mÃ¼ÅŸteri hesabÄ± yÃ¶neten ajanslar iÃ§in ikinci paket yapÄ±sÄ±.{% endif %}</p></div>
+            <div class="billing-panel agency-billing-panel">
+                <div class="billing-toggle-wrapper">
+                    <span class="billing-option active" data-billing="monthly">{% if current_language == "en" %}Monthly payment{% else %}AylÄ±k Ã¶deme{% endif %}</span>
+                    <label class="toggle-switch" aria-label="{% if current_language == "en" %}Agency billing selection{% else %}Ajans faturalandÄ±rma seÃ§imi{% endif %}"><input type="checkbox" id="agencyBillingToggle" class="billing-toggle"><span class="toggle-slider"></span></label>
+                    <span class="billing-option" data-billing="yearly">{% if current_language == "en" %}Yearly payment{% else %}YÄ±llÄ±k Ã¶deme{% endif %} <span class="save-badge">%20 {% if current_language == "en" %}off{% else %}avantaj{% endif %}</span></span>
+                </div>
+            </div>
+            <div class="agency-grid">
+                {% for plan in agency_plans %}
+                <div class="agency-card {% if plan.is_most_popular %}featured{% endif %}">
+                    {% if plan.is_most_popular %}<div class="agency-ribbon">{% if current_language == "en" %}Ideal for agencies{% else %}Ajanslar iÃ§in ideal{% endif %}</div>{% endif %}
+                    <div class="agency-card-head"><div class="agency-icon"><i class="fas fa-users-cog"></i></div><div><h3>{{ plan.display_name }}</h3><span>{{ plan.included_seats }} {% if current_language == "en" %}users{% else %}kullanÄ±cÄ±{% endif %} / {{ plan.client_limit_text }} {% if current_language == "en" %}client area{% else %}mÃ¼ÅŸteri alanÄ±{% endif %}</span></div></div>
+                    <div class="agency-price"><span>TL</span><strong class="monthly-price">{{ plan.price|tr_int }}</strong><strong class="yearly-price">{{ plan.yearly_price|default:plan.price|tr_int }}</strong><small>/{% if current_language == "en" %}mo{% else %}ay{% endif %}</small></div>
+                    <div class="yearly-savings agency-yearly-savings"><span class="original-price">TL {{ plan.price|tr_int }}</span><span class="save-badge">%20 {% if current_language == "en" %}discount{% else %}indirim{% endif %}</span></div>
+                    <div class="agency-kdv">{% if current_language == "en" %}VAT included{% else %}KDV dahil{% endif %}: TL <span class="monthly-kdv">{{ plan.price_with_kdv|tr_int }}</span><span class="yearly-kdv">{{ plan.yearly_price_with_kdv|default:plan.price_with_kdv|tr_int }}</span> / {% if current_language == "en" %}month{% else %}ay{% endif %}</div>
+                    <div class="plan-credit-box agency-credit-box"><i class="fas fa-bolt"></i><strong>{{ plan.ai_credits_per_month|tr_int }}</strong><span>{% if current_language == "en" %}monthly AI credits included{% else %}aylık AI kredi dahil{% endif %}</span></div>
+                    <div class="plan-credit-box plan-product-box agency-credit-box"><i class="fas fa-magnifying-glass-chart"></i><strong>{{ plan.marketplace_product_research_per_month|tr_int }}</strong><span>{% if current_language == "en" %}monthly product research included{% else %}aylık ürün araştırma dahil{% endif %}</span></div>
+                    <div class="plan-credit-box plan-price-check-box agency-credit-box"><i class="fas fa-chart-line"></i><strong>{{ plan.marketplace_price_check_per_month|tr_int }}</strong><span>{% if current_language == "en" %}monthly price checks included{% else %}aylık fiyat kontrol dahil{% endif %}</span></div>
+                    <ul class="features-list agency-features">{% for feature in plan.get_feature_list %}<li><span class="feature-icon"><i class="fas fa-check"></i></span>{{ feature }}</li>{% endfor %}</ul>
+                    {% if request.user.is_authenticated %}<a href="{% url 'checkout' plan.id %}" class="btn btn-select-plan {% if plan.is_most_popular %}btn-gold{% else %}btn-outline-gradient{% endif %}"><i class="fas fa-building"></i> {% if current_language == "en" %}Start as Agency{% else %}Ajans Olarak BaÅŸla{% endif %}</a>{% else %}<a href="{% url 'account_login' %}?next={% url 'checkout' plan.id %}" class="btn btn-select-plan {% if plan.is_most_popular %}btn-gold{% else %}btn-outline-gradient{% endif %}"><i class="fas fa-user-plus"></i> {% if current_language == "en" %}Sign Up and Start Agency{% else %}Ãœye Ol ve Ajans BaÅŸlat{% endif %}</a>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if product_research_packages %}
+        <section class="credit-section product-research-section">
+            <div class="section-head"><h2>{% if current_language == "en" %}Extra product research packages{% else %}Ek ürün araştırma paketleri{% endif %}</h2><p>{% if current_language == "en" %}When your monthly product research right ends, add a separate package without changing your subscription.{% else %}Aylık ürün araştırma hakkınız bittiğinde aboneliğinizi değiştirmeden ek araştırma paketi alabilirsiniz.{% endif %}</p></div>
+            <div class="credit-grid">
+                {% for package in product_research_packages %}
+                <div class="credit-card product-credit-card">
+                    <div class="credit-icon product-credit-icon"><i class="fas fa-magnifying-glass-chart"></i></div>
+                    <h3>{{ package.display_name }}</h3>
+                    <div class="credit-price">TL {{ package.price|tr_int }} <span>+ KDV</span></div>
+                    <div class="credit-kdv">{% if current_language == "en" %}VAT included{% else %}KDV dahil{% endif %}: TL {{ package.price_with_kdv|tr_int }}</div>
+                    {% if request.user.is_authenticated %}
+                    <a href="{% url 'product_research_checkout' package.id %}" class="btn btn-select-plan btn-outline-gradient credit-buy-btn"><i class="fas fa-cart-shopping"></i> {% if current_language == "en" %}Buy{% else %}Satın Al{% endif %}</a>
+                    {% else %}
+                    <a href="{% url 'account_login' %}?next={% url 'product_research_checkout' package.id %}" class="btn btn-select-plan btn-outline-gradient credit-buy-btn"><i class="fas fa-cart-shopping"></i> {% if current_language == "en" %}Sign In and Buy{% else %}Giriş Yap ve Satın Al{% endif %}</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <span id="ai-kredi-paketleri" class="credit-section-anchor" aria-hidden="true"></span>
+        {% if ai_credit_packages %}
+        <section class="credit-section">
+            <div class="section-head"><h2>{% if current_language == "en" %}Extra AI credit packages{% else %}Ek AI kredi paketleri{% endif %}</h2><p>{% if current_language == "en" %}When your package limit ends, buy extra credits without changing your subscription.{% else %}Paket limitiniz bittiÄŸinde aboneliÄŸinizi deÄŸiÅŸtirmeden ek kredi satÄ±n alabilirsiniz.{% endif %}</p></div>
+            <div class="credit-grid">
+                {% for package in ai_credit_packages %}
+                <div class="credit-card">
+                    <div class="credit-icon"><i class="fas fa-bolt"></i></div>
+                    <h3>{{ package.display_name }}</h3>
+                    <div class="credit-count">{{ package.credits }} {% if current_language == "en" %}credits{% else %}kredi{% endif %}</div>
+                    <div class="credit-price">TL {{ package.price|tr_int }} <span>+ KDV</span></div>
+                    <div class="credit-kdv">{% if current_language == "en" %}VAT included{% else %}KDV dahil{% endif %}: TL {{ package.price_with_kdv|tr_int }}</div>
+                    {% if request.user.is_authenticated %}
+                    <a href="{% url 'credit_checkout' package.id %}" class="btn btn-select-plan btn-outline-gradient credit-buy-btn"><i class="fas fa-cart-shopping"></i> {% if current_language == "en" %}Buy Credits{% else %}Satın Al{% endif %}</a>
+                    {% else %}
+                    <a href="{% url 'account_login' %}?next={% url 'credit_checkout' package.id %}" class="btn btn-select-plan btn-outline-gradient credit-buy-btn"><i class="fas fa-cart-shopping"></i> {% if current_language == "en" %}Sign In and Buy{% else %}Giriş Yap ve Satın Al{% endif %}</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <div class="guarantee-badge">
+            <div class="guarantee-icon"><i class="fas fa-shield-alt"></i></div>
+            <div><h4>{% if current_language == "en" %}Secure start, clear value{% else %}GÃ¼venli baÅŸlangÄ±Ã§, net deÄŸer{% endif %}</h4><p>{% if current_language == "en" %}Explore ReklamAnaliz.net free for 14 days. No payment is collected unless you explicitly purchase a paid plan.{% else %}ReklamAnaliz.net'i 14 gÃ¼n Ã¼cretsiz kullanÄ±n. AÃ§Ä±kÃ§a Ã¼cretli bir paket satÄ±n almadÄ±kÃ§a Ã¶deme alÄ±nmaz.{% endif %}</p></div>
+            {% if request.user.is_authenticated %}<a href="#paketler" class="btn-ra-primary">{% if current_language == "en" %}View Plans{% else %}Paketleri Ä°ncele{% endif %}</a>{% else %}<a href="{% url 'account_signup' %}" class="btn-ra-primary">{% if current_language == "en" %}Start{% else %}BaÅŸla{% endif %}</a>{% endif %}
+        </div>
+        {% else %}
+        <div class="empty-plans"><i class="fas fa-box-open fa-4x"></i><h3>{% if current_language == "en" %}No plans have been created yet{% else %}HenÃ¼z paketler oluÅŸturulmamÄ±ÅŸ{% endif %}</h3><p>{% if current_language == "en" %}Please contact your system administrator.{% else %}LÃ¼tfen sistem yÃ¶neticiniz ile iletiÅŸime geÃ§in.{% endif %}</p>{% if request.user.is_staff %}<a href="/admin/core/membershipplan/add/" class="btn-ra-primary"><i class="fas fa-plus me-2"></i> {% if current_language == "en" %}Create New Plan{% else %}Yeni Paket OluÅŸtur{% endif %}</a>{% endif %}</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/pricing.js' %}?v=20260701-agency-billing"></script>
+{% endblock %}

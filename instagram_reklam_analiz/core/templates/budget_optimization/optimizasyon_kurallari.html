@@ -1,0 +1,737 @@
+{% extends "base.html" %}
+{% load static tr_numbers l10n %}
+
+{% block title %}Bütçe Optimizasyonu | ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root{--ra-bg:#050816;--ra-panel:#0b1028;--ra-panel-2:#111936;--ra-border:rgba(255,255,255,.10);--ra-text:#f8fafc;--ra-muted:#9aa4bf;--ra-purple:#7c3aed;--ra-blue:#38bdf8;--ra-green:#22c55e;--ra-yellow:#f59e0b;--ra-red:#ef4444;}
+    .budget-shell{padding:24px;color:var(--ra-text)}
+    .budget-hero{position:relative;overflow:hidden;border-radius:26px;padding:26px 28px;background:radial-gradient(circle at 12% 20%,rgba(124,58,237,.38),transparent 30%),radial-gradient(circle at 88% 20%,rgba(56,189,248,.22),transparent 34%),linear-gradient(135deg,rgba(15,23,42,.98),rgba(10,15,35,.96));border:1px solid var(--ra-border);box-shadow:0 22px 70px rgba(0,0,0,.28);margin-bottom:20px}
+    .budget-hero h1{font-size:28px;font-weight:900;margin:0 0 8px;letter-spacing:-.03em}.budget-hero p{color:var(--ra-muted);margin:0;max-width:860px}.hero-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+    .ra-btn{min-height:42px;border-radius:14px;padding:0 16px;border:1px solid var(--ra-border);color:#fff;background:rgba(255,255,255,.07);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;transition:.18s ease}.ra-btn:hover{transform:translateY(-1px);color:#fff;background:rgba(255,255,255,.12)}.ra-btn-primary{background:linear-gradient(135deg,#7c3aed,#2563eb)}.ra-btn-success{background:linear-gradient(135deg,#16a34a,#22c55e)}.ra-btn-danger{background:linear-gradient(135deg,#dc2626,#f97316)}
+    .budget-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:18px}.kpi-card{border:1px solid var(--ra-border);border-radius:20px;background:rgba(255,255,255,.055);padding:18px;backdrop-filter:blur(16px);min-height:108px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.kpi-label{font-size:12px;color:var(--ra-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:900;text-align:center}.kpi-value{font-size:26px;font-weight:950;margin-top:8px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;text-align:center;width:100%}.kpi-sub{font-size:12px;color:var(--ra-muted);margin-top:3px;line-height:1.35;text-align:center}
+    .budget-panel{border:1px solid var(--ra-border);background:linear-gradient(180deg,rgba(17,25,54,.96),rgba(8,13,31,.96));border-radius:24px;box-shadow:0 18px 56px rgba(0,0,0,.23);overflow:hidden;margin-bottom:18px}.budget-panel-head{padding:18px 20px;border-bottom:1px solid var(--ra-border);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.budget-panel-title{font-size:17px;font-weight:900;margin:0}.budget-panel-sub{font-size:12px;color:var(--ra-muted);margin-top:2px}.budget-panel-body{padding:20px}.optimizer-layout{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:18px;align-items:start}.optimizer-aside{position:sticky;top:92px;align-self:start}
+    .optimizer-card{border:1px solid rgba(255,255,255,.12);border-radius:24px;background:radial-gradient(circle at 18% 0%,rgba(124,58,237,.28),transparent 36%),linear-gradient(180deg,rgba(17,25,54,.98),rgba(7,12,30,.98));box-shadow:0 22px 64px rgba(0,0,0,.30);overflow:hidden}.optimizer-card-head{padding:18px 18px 14px;border-bottom:1px solid var(--ra-border)}.optimizer-card-title{font-size:17px;font-weight:950;margin:0;letter-spacing:-.02em}.optimizer-card-sub{font-size:12px;color:var(--ra-muted);margin-top:4px;line-height:1.45}.optimizer-card-body{padding:18px;display:grid;gap:14px}.selected-box{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.selected-stat{border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.055);padding:14px 12px;text-align:center}.selected-stat small{display:block;font-size:10px;color:var(--ra-muted);font-weight:900;text-transform:uppercase;letter-spacing:.08em}.selected-stat strong{display:block;margin-top:6px;font-size:22px;color:#fff;font-weight:950;font-variant-numeric:tabular-nums}.side-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.mini-link{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.06);color:#dbeafe;border-radius:13px;padding:10px 12px;text-decoration:none;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:7px}.mini-link:hover{color:#fff;background:rgba(255,255,255,.11)}
+    .ra-label{font-size:11px;color:var(--ra-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:900;margin-bottom:8px}.ra-select{width:100%;height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);color:#fff;padding:0 13px;font-weight:800}.ra-select option{background:#fff;color:#111827}.pill{display:inline-flex;align-items:center;justify-content:center;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.09);font-size:11px;font-weight:900;color:#dbeafe}.pill.success{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.28);color:#86efac}.pill.warning{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.28);color:#fde68a}.pill.info{background:rgba(56,189,248,.14);border-color:rgba(56,189,248,.28);color:#bae6fd}.pill.muted{color:#cbd5e1}.pill.live-off{background:rgba(255,255,255,.08);color:#cbd5e1}.pill.live-on{background:rgba(59,130,246,.16);border-color:rgba(59,130,246,.32);color:#bfdbfe}
+    .ads-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.ad-card{position:relative;display:block;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.045);border-radius:22px;overflow:hidden;cursor:pointer;transition:.2s ease;min-height:100%;box-shadow:0 12px 34px rgba(0,0,0,.18);text-align:center}.ad-card:hover{transform:translateY(-2px);border-color:rgba(124,58,237,.42);box-shadow:0 18px 44px rgba(0,0,0,.24)}.ad-card.selected,.ad-card.locked{border-color:rgba(34,197,94,.72);box-shadow:0 0 0 3px rgba(34,197,94,.12),0 18px 44px rgba(0,0,0,.26)}.ad-card.locked:before{content:'Optimizasyon oluşturuldu';position:absolute;top:12px;right:12px;z-index:3;background:rgba(34,197,94,.92);color:#052e16;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:950}.ad-card.action-increase,.ad-card.action-decrease{border-color:rgba(255,255,255,.10)}.budget-action-box{position:relative;overflow:hidden}.budget-action-box.normal{border-color:rgba(56,189,248,.18);background:rgba(0,0,0,.18)}.budget-action-box.active{border-color:rgba(34,197,94,.42);background:rgba(34,197,94,.10)}.budget-action-box.increase{border-color:rgba(34,197,94,.86);background:linear-gradient(135deg,rgba(34,197,94,.42),rgba(34,197,94,.08));animation:budgetPulseGreen 1.05s ease-in-out infinite}.budget-action-box.decrease{border-color:rgba(239,68,68,.88);background:linear-gradient(135deg,rgba(239,68,68,.44),rgba(239,68,68,.08));animation:budgetPulseRed 1.05s ease-in-out infinite}.budget-action-box.increase small,.budget-action-box.increase strong{color:#dcfce7;text-shadow:0 0 14px rgba(34,197,94,.55)}.budget-action-box.decrease small,.budget-action-box.decrease strong{color:#fee2e2;text-shadow:0 0 14px rgba(239,68,68,.55)}@keyframes budgetPulseGreen{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.0),inset 0 0 0 rgba(34,197,94,.0);filter:brightness(1)}50%{box-shadow:0 0 0 5px rgba(34,197,94,.18),0 0 34px rgba(34,197,94,.34),inset 0 0 24px rgba(34,197,94,.14);filter:brightness(1.18)}}@keyframes budgetPulseRed{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.0),inset 0 0 0 rgba(239,68,68,.0);filter:brightness(1)}50%{box-shadow:0 0 0 5px rgba(239,68,68,.18),0 0 34px rgba(239,68,68,.34),inset 0 0 24px rgba(239,68,68,.14);filter:brightness(1.18)}}.budget-signal{font-size:10px;font-weight:950;border-radius:999px;padding:4px 8px;margin-top:6px;display:none;align-items:center;justify-content:center;background:rgba(255,255,255,.12);color:#fff}.budget-action-box.increase .budget-signal,.budget-action-box.decrease .budget-signal,.budget-action-box.active .budget-signal{display:inline-flex}.ad-check{position:absolute;top:14px;left:14px;z-index:3;width:20px;height:20px;accent-color:#22c55e}.ad-media{height:130px;background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(56,189,248,.12));display:flex;align-items:center;justify-content:center;font-size:38px;color:#fff}.ad-media img{width:100%;height:100%;object-fit:cover}.ad-body{padding:15px}.ad-title{font-size:15px;font-weight:900;color:#fff;line-height:1.25;min-height:38px;text-align:center;display:flex;align-items:center;justify-content:center}.ad-meta{display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;color:var(--ra-muted);font-size:12px;margin-top:10px;text-align:center}.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}.metric-box{border-radius:14px;padding:12px 8px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.07);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:72px}.metric-box small{display:block;color:var(--ra-muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:900;text-align:center}.metric-box strong{display:block;margin-top:6px;color:#fff;font-size:15px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}.no-revenue-text{font-size:18px;color:#fbbf24;letter-spacing:-.02em;line-height:1.15}.no-revenue-text.sm{font-size:12px;color:#fbbf24}.empty-state{text-align:center;padding:46px 20px;color:var(--ra-muted)}.empty-state .icon{font-size:44px;margin-bottom:10px}.modal-dark .modal-content{background:#0b1028;color:#fff;border:1px solid var(--ra-border);border-radius:22px}.modal-dark .form-control,.modal-dark .form-select{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff}.modal-dark .form-select option{background:#fff;color:#111827}
+    .rule-list-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.rule-card{border:1px solid rgba(255,255,255,.10);border-radius:20px;background:rgba(255,255,255,.05);padding:16px;display:flex;flex-direction:column;gap:12px}.rule-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.rule-card-title{font-size:15px;font-weight:950;color:#fff;line-height:1.25}.rule-card-platform{font-size:12px;color:var(--ra-muted);margin-top:4px}.rule-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.rule-stat{border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(0,0,0,.16);padding:10px;text-align:center}.rule-stat small{display:block;color:var(--ra-muted);font-size:10px;text-transform:uppercase;font-weight:900;letter-spacing:.06em}.rule-stat strong{display:block;margin-top:5px;color:#fff;font-weight:950;font-variant-numeric:tabular-nums}.rule-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}.rule-actions form{margin:0}.rule-actions .ra-btn{width:100%;min-height:38px;border-radius:12px;font-size:12px;padding:0 10px}.rule-empty{border:1px dashed rgba(255,255,255,.18);border-radius:20px;padding:22px;text-align:center;color:var(--ra-muted);background:rgba(255,255,255,.035)}
+    @media(max-width:1500px){.optimizer-layout{grid-template-columns:minmax(0,1fr) 380px}.ads-grid,.rule-list-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:1100px){.optimizer-layout{grid-template-columns:1fr}.optimizer-aside{position:static}.budget-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:720px){.budget-shell{padding:14px}.ads-grid,.rule-list-grid{grid-template-columns:1fr}.budget-kpis{grid-template-columns:1fr}.budget-hero{padding:20px}.budget-hero h1{font-size:22px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+    .how-work-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .how-work-item { display:flex; gap:12px; padding:14px; border-radius:18px; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.09); }
+    .how-step { width:38px; height:38px; flex:0 0 38px; display:flex; align-items:center; justify-content:center; border-radius:14px; background:linear-gradient(135deg,rgba(108,99,255,.95),rgba(22,184,255,.85)); color:#fff; font-weight:900; font-size:12px; box-shadow:0 14px 30px rgba(108,99,255,.24); }
+    .how-work-item h6 { margin:0 0 5px; color:#fff; font-size:13px; font-weight:800; }
+    .how-work-item p { margin:0; color:rgba(226,232,240,.78); font-size:12px; line-height:1.55; }
+    @media (max-width: 768px) { .how-work-grid { grid-template-columns:1fr; } }
+
+
+
+    /* Modal z-index fix: sidebar/topbar/backdrop katmanı modal inputlarını kilitlemesin */
+    .modal {
+        z-index: 50050 !important;
+    }
+    .modal-backdrop {
+        z-index: 50040 !important;
+    }
+    .modal-dialog,
+    .modal-content {
+        pointer-events: auto !important;
+    }
+    body.modal-open .app-sidebar,
+    body.modal-open .ra-sidebar,
+    body.modal-open .sidebar,
+    body.modal-open .topbar,
+    body.modal-open .ra-topbar,
+    body.modal-open header {
+        z-index: 1000 !important;
+    }
+    body.modal-open {
+        overflow: hidden;
+    }
+
+
+
+    /* Yeni Kural modal okunabilirlik fix */
+    .modal-dark.rule-modal .modal-content{
+        background:linear-gradient(180deg,#111827 0%,#0b1028 100%) !important;
+        color:#f8fafc !important;
+        border:1px solid rgba(255,255,255,.14) !important;
+        box-shadow:0 30px 90px rgba(0,0,0,.55);
+    }
+    .modal-dark.rule-modal .modal-header{
+        padding:22px 24px 14px;
+        border-bottom:1px solid rgba(255,255,255,.08) !important;
+    }
+    .modal-dark.rule-modal .modal-title{
+        color:#ffffff !important;
+        font-size:20px;
+        letter-spacing:-.02em;
+    }
+    .modal-dark.rule-modal .modal-subtitle{
+        color:#a7b0c8 !important;
+        font-size:12px;
+        margin-top:4px;
+    }
+    .rule-section{
+        margin-bottom:18px;
+        padding:16px;
+        border-radius:18px;
+        background:rgba(255,255,255,.045);
+        border:1px solid rgba(255,255,255,.09);
+    }
+    .rule-section-title{
+        display:flex;align-items:center;gap:8px;
+        color:#ffffff !important;
+        font-size:12px;
+        font-weight:900;
+        text-transform:uppercase;
+        letter-spacing:.08em;
+        margin-bottom:12px;
+    }
+    .modal-dark.rule-modal .form-label{
+        color:#e5e7eb !important;
+        font-weight:800;
+        font-size:12px;
+        margin-bottom:7px;
+        letter-spacing:.01em;
+    }
+    .modal-dark.rule-modal .form-control,
+    .modal-dark.rule-modal .form-select{
+        background:#1f2937 !important;
+        border:1px solid #3b465c !important;
+        color:#ffffff !important;
+        border-radius:13px;
+        min-height:44px;
+        box-shadow:none !important;
+    }
+    .modal-dark.rule-modal .form-control::placeholder{color:#9ca3af !important;}
+    .modal-dark.rule-modal .form-control:focus,
+    .modal-dark.rule-modal .form-select:focus{
+        background:#111827 !important;
+        border-color:#8b5cf6 !important;
+        color:#ffffff !important;
+        box-shadow:0 0 0 4px rgba(139,92,246,.16) !important;
+    }
+    .modal-dark.rule-modal .form-select option{
+        background:#ffffff !important;
+        color:#111827 !important;
+    }
+    .rule-help{
+        display:block;
+        margin-top:6px;
+        color:#a7b0c8 !important;
+        font-size:11px;
+        line-height:1.35;
+    }
+    .modal-dark.rule-modal .modal-footer{
+        padding:14px 24px 22px;
+        border-top:1px solid rgba(255,255,255,.08) !important;
+    }
+    .modal-dark.rule-modal .btn-close{
+        opacity:.9;
+        filter:invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* Bu sayfada base.html'den gelen üst mesajı gizle; başlık altındaki mesaj kalır. */
+    .ra-sidebar-backdrop + .container-fluid.mt-2.px-4{
+        display:none !important;
+    }
+
+    .cancel-card-optimization{position:absolute;z-index:4;right:12px;top:48px;width:auto!important;max-width:150px;border:1px solid rgba(248,113,113,.55);background:rgba(127,29,29,.92);color:#fee2e2;border-radius:10px;padding:6px 9px;font-size:10px;font-weight:900;line-height:1.1}.cancel-card-optimization:hover{background:#991b1b;color:#fff}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="budget-shell">
+    <div class="budget-hero">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <h1>{% if rules_page %}⚙️ Bütçe Optimizasyon Kuralları{% else %}💰 Bütçe Optimizasyonu{% endif %}</h1>
+                <p>{% if rules_page %}Bütçe sınırlarını, hedef ROAS'ı ve optimizasyon adımlarını yönet.{% else %}Reklam kartlarını seç, kural belirle ve bütçe optimizasyonlarını oluştur.{% endif %}</p>
+            </div>
+            <div class="col-lg-4">
+                <div class="hero-actions">
+                    {% if rules_page %}
+                    <a class="ra-btn" href="{% url 'budget_optimization' %}">Bütçe Optimizasyonuna Git</a>
+                    <button class="ra-btn ra-btn-primary" data-bs-toggle="modal" data-bs-target="#newRuleModal" type="button">+ Yeni Kural</button>
+                    {% else %}
+                    <button class="ra-btn" data-bs-toggle="modal" data-bs-target="#howItWorksModal" type="button">Nasıl Çalışır?</button>
+                    <a class="ra-btn" href="{% url 'optimizasyon_kurallari' %}">Kuralları Yönet</a>
+                    {% endif %}
+                    {% if not rules_page %}<form method="post" action="{% url 'budget_optimization' %}" id="cancelOptimizationForm" style="display:none">{% csrf_token %}</form>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not rules_page %}
+    {% if agency_scope.is_agency %}
+    <form method="get" action="{{ request.path }}" class="budget-panel" style="padding:16px 20px;margin-bottom:18px">
+        <label for="budgetAgencyClient" class="ra-label">Firma Filtresi</label>
+        <select id="budgetAgencyClient" name="agency_client" class="ra-select" onchange="this.form.submit()">
+            <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+            {% for agency_client in agency_scope.clients %}<option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>{% endfor %}
+        </select>
+    </form>
+    {% endif %}
+    <div class="budget-kpis">
+        <div class="kpi-card"><div class="kpi-label">Optimizasyona Açık Reklam</div><div class="kpi-value">{{ total_ads|tr_int }}</div><div class="kpi-sub">Aktif kendi reklamların</div></div>
+        <div class="kpi-card"><div class="kpi-label">Aksiyon Gereken</div><div class="kpi-value">{{ suggested_count|tr_int }}</div><div class="kpi-sub">Kural ve ROAS hesabına göre değişim bekleyenler</div></div>
+        <div class="kpi-card"><div class="kpi-label">Toplam Bütçe</div><div class="kpi-value">{{ total_budget|tr_money }}</div><div class="kpi-sub">Reklam grubu / kampanya bütçesi</div></div>
+        <div class="kpi-card"><div class="kpi-label">Toplam Harcama</div><div class="kpi-value">{{ total_spend|tr_money }}</div><div class="kpi-sub">Son 30 gün · {{ metric_start_date|date:"d.m.Y" }} – {{ metric_end_date|date:"d.m.Y" }}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Ortalama ROAS</div><div class="kpi-value">{% if avg_roas_available %}{{ avg_roas|tr_decimal }}x{% else %}<span class="no-revenue-text">Gelir verisi yok</span>{% endif %}</div><div class="kpi-sub">{% if avg_roas_available %}Dönüşüm değeri / harcama{% else %}conversion_value gelince otomatik hesaplanır{% endif %}</div></div>
+    </div>{% endif %}
+
+    {% if rules_page %}<div class="budget-panel">
+        <div class="budget-panel-head">
+            <div>
+                <h2 class="budget-panel-title">Mevcut Optimizasyon Kuralları</h2>
+                <div class="budget-panel-sub">Daha önce oluşturduğun bütçe kurallarını buradan düzenleyebilir veya silebilirsin.</div>
+            </div>
+            <button class="ra-btn ra-btn-primary" data-bs-toggle="modal" data-bs-target="#newRuleModal" type="button">+ Yeni Kural</button>
+        </div>
+        <div class="budget-panel-body">
+            {% if rules %}
+            <div class="rule-list-grid">
+                {% for rule in rules %}
+                <div class="rule-card">
+                    <div class="rule-card-head">
+                        <div>
+                            <div class="rule-card-title">{{ rule.name }}</div>
+                            <div class="rule-card-platform">{{ rule.platform.name }} · {{ rule.lookback_hours }} saat</div>
+                        </div>
+                        <span class="pill {% if rule.is_active %}success{% else %}muted{% endif %}">{% if rule.is_active %}Aktif{% else %}Pasif{% endif %}</span>
+                    </div>
+                    <div class="rule-stats">
+                        <div class="rule-stat"><small>Min</small><strong>{{ rule.min_budget|tr_money }}</strong></div>
+                        <div class="rule-stat"><small>Maks</small><strong>{{ rule.max_budget|tr_money }}</strong></div>
+                        <div class="rule-stat"><small>Adım</small><strong>{{ rule.adjustment_step|tr_decimal }}</strong></div>
+                        <div class="rule-stat"><small>ROAS</small><strong>{{ rule.roas_target|tr_decimal }}x</strong></div>
+                    </div>
+                    <div class="rule-actions">
+                        <button type="button"
+                                class="ra-btn edit-rule-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editRuleModal"
+                                data-rule-id="{{ rule.id }}"
+                                data-rule-name="{{ rule.name|escape }}"
+                                data-platform-id="{{ rule.platform_id }}"
+                                onclick="window.fillBudgetRuleModal && window.fillBudgetRuleModal(this)"
+                                data-min-budget="{{ rule.min_budget|unlocalize }}"
+                                data-max-budget="{{ rule.max_budget|unlocalize }}"
+                                data-adjustment-step="{{ rule.adjustment_step|unlocalize }}"
+                                data-roas-target="{{ rule.roas_target|unlocalize }}"
+                                data-lookback-hours="{{ rule.lookback_hours }}"
+                                data-is-active="{% if rule.is_active %}1{% else %}0{% endif %}">Düzenle</button>
+                        <form method="post" action="{% url 'optimizasyon_kurallari' %}" onsubmit="return confirm('Bu optimizasyon kuralı silinsin mi?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="rule_id" value="{{ rule.id }}">
+                            <button type="submit" name="delete_rule" value="1" class="ra-btn ra-btn-danger">Sil</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="rule-empty">Henüz optimizasyon kuralı yok. Yeni kural oluşturarak bu ekrandan yönetmeye başlayabilirsin.</div>
+            {% endif %}
+        </div>
+    </div>{% endif %}
+
+    {% if not rules_page %}<form method="post" action="{% url 'budget_optimization' %}" id="budgetOptimizeForm">
+        {% csrf_token %}
+        <div class="budget-panel">
+            <div class="budget-panel-head">
+                <div><h2 class="budget-panel-title">Reklam Seçimi ve Optimizasyon</h2><div class="budget-panel-sub">Kart seçimi, ROI/ROAS kuralı ve manuel uygulanacak bütçe aksiyonu tek ekranda.</div></div>
+                <div class="pill success"><span class="js-selected-count">0</span> reklam seçildi</div>
+            </div>
+            <div class="budget-panel-body">
+                <div class="optimizer-layout">
+                    <div class="optimizer-left">
+                        {% if ad_cards %}
+                        <div class="ads-grid" data-remove-url="{% url 'ajax_remove_reklam' %}">
+                            {% for ad in ad_cards %}
+                            <label class="ad-card action-{{ ad.action|lower }} {% if ad.is_locked %}locked selected{% endif %}" data-suggested="{% if ad.suggested %}1{% else %}0{% endif %}" data-ad-id="{{ ad.id }}" data-natural-rank="{{ ad.natural_rank }}">
+                                <input class="ad-check" type="checkbox" name="selected_ads" value="{{ ad.id }}" {% if ad.is_locked %}checked{% endif %}>
+                                {% if ad.is_locked %}<button type="button" class="cancel-card-optimization">Optimizasyonu İptal Et</button>{% endif %}
+                                <div class="ad-media">{% if ad.image %}<img src="{{ ad.image }}" alt="{{ ad.name }}">{% else %}📣{% endif %}</div>
+                                <div class="ad-body">
+                                    <div class="ad-title">{{ ad.name }}</div>
+                                    <div class="ad-meta"><span class="pill">{{ ad.platform_name }}</span><span class="pill">{{ ad.status }}</span><span class="pill {{ ad.health_class }}">{{ ad.health }}</span></div>
+                                    <div class="ad-meta"><span>{{ ad.campaign }}</span><span>•</span><span>{{ ad.ad_group }}</span></div>
+                                    <div class="metric-grid">
+                                        <div class="metric-box budget-action-box {{ ad.budget_pulse_class }}"><small>{% if ad.budget_type == 'lifetime' %}Toplam Bütçe{% else %}Günlük Bütçe{% endif %}</small><strong>{{ ad.budget|tr_money }}</strong><span class="budget-signal">{{ ad.budget_signal_label }}</span></div>
+                                        <div class="metric-box"><small>Harcama</small><strong>{{ ad.spend|tr_money }}</strong></div>
+                                        <div class="metric-box"><small>ROAS</small><strong>{% if ad.has_revenue_data %}{{ ad.roas|tr_decimal }}x{% else %}<span class="no-revenue-text sm">Gelir yok</span>{% endif %}</strong></div>
+                                        <div class="metric-box"><small>CTR</small><strong>{{ ad.ctr|tr_percent }}</strong></div>
+                                        <div class="metric-box"><small>Tıklama</small><strong>{{ ad.clicks|tr_int }}</strong></div>
+                                        <div class="metric-box"><small>Dönüşüm</small><strong>{{ ad.conversions|tr_decimal }}</strong></div>
+                                    </div>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state"><div class="icon">📭</div><h5>Optimizasyon yapılacak reklam bulunamadı</h5><p>Kendi reklam verilerin senkronize edildiğinde kartlar burada görünecek.</p></div>
+                        {% endif %}
+                    </div>
+
+                    <aside class="optimizer-aside">
+                        <div class="optimizer-card">
+                            <div class="optimizer-card-head"><h3 class="optimizer-card-title">🎯 Optimizasyon Seç</h3><div class="optimizer-card-sub">Reklamları seç, kuralı belirle ve hesaplamayı başlat. Bütçe lambası sadece optimizasyon sonrası yanar.</div></div>
+                            <div class="optimizer-card-body">
+                                <div class="selected-box"><div class="selected-stat"><small>Seçilen</small><strong class="js-selected-count">0</strong></div><div class="selected-stat"><small>Aksiyon</small><strong>{{ suggested_count|tr_int }}</strong></div></div>
+                                <div><div class="ra-label">Aktif Kural</div><select name="selected_rule" class="ra-select" required><option value="">Optimizasyon kuralı seç</option>{% for rule in rules %}{% if rule.is_active %}<option value="{{ rule.id }}" {% if active_rule and active_rule.id == rule.id %}selected{% endif %}>{{ rule.name }} · {{ rule.platform.name }} · ROAS {{ rule.roas_target|tr_decimal }}x</option>{% endif %}{% endfor %}</select></div>
+                                <div><div class="ra-label">Hızlı Seçim</div><div class="side-actions"><button type="button" class="mini-link" id="selectSuggested">Aksiyon Gerekenleri Seç</button><button type="button" class="mini-link" id="selectAll">Tümünü Seç</button><button type="button" class="mini-link" id="clearAll">Temizle</button><button type="button" class="mini-link" data-bs-toggle="modal" data-bs-target="#newRuleModal">+ Kural</button></div></div>
+                                <button type="submit" name="optimize_selected_ads" value="1" class="ra-btn ra-btn-success optimize-submit" id="optimizeBtn">🚀 Optimize Et</button>
+                                <button type="submit" form="cancelOptimizationForm" name="finish_optimization" value="1" class="ra-btn ra-btn-danger" id="cancelOptimizationBtn" style="{% if optimized_mode %}display:flex{% else %}display:none{% endif %};width:100%;justify-content:center">Optimizasyonu İptal Et</button>
+                                <a class="ra-btn" href="{% url 'optimization_history' %}" style="width:100%">Optimizasyon Geçmişi</a>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </form>{% endif %}
+</div>
+
+<div class="modal fade modal-dark rule-modal" id="newRuleModal" tabindex="-1" aria-labelledby="newRuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <div>
+                    <h5 class="modal-title fw-bold" id="newRuleModalLabel">Yeni Optimizasyon Kuralı</h5>
+                    <div class="modal-subtitle">ROAS hedefi ve bütçe sınırlarına göre manuel uygulanacak optimizasyon kuralı oluşturun.</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <form method="post" action="{% if rules_page %}{% url 'optimizasyon_kurallari' %}{% else %}{% url 'budget_optimization' %}{% endif %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="rule-section">
+                        <div class="rule-section-title">⚙️ Kural Bilgileri</div>
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Kural Adı</label>
+                                <input type="text" name="name" class="form-control" required placeholder="Örn: ROAS Odaklı Büyüme">
+                                <span class="rule-help">Bu isim, optimizasyon panelinde kural seçerken görünür.</span>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Platform</label>
+                                <select name="platform" class="form-select" required>
+                                    <option value="">Platform seçiniz</option>
+                                    {% for platform in platforms %}
+                                    <option value="{{ platform.id }}">{{ platform.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="rule-help">Kuralın uygulanacağı reklam platformu.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="rule-section-title">💰 Bütçe Limitleri</div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Min. Bütçe</label>
+                                <input type="number" name="min_budget" class="form-control" step="0.01" required placeholder="0,00">
+                                <span class="rule-help">Alt bütçe sınırı.</span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Maks. Bütçe</label>
+                                <input type="number" name="max_budget" class="form-control" step="0.01" required placeholder="0,00">
+                                <span class="rule-help">Üst bütçe sınırı.</span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Adım (%)</label>
+                                <input type="number" name="adjustment_step" class="form-control" step="0.01" value="5">
+                                <span class="rule-help">Artırma/azaltma yüzdesi.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rule-section mb-0">
+                        <div class="rule-section-title">📊 Performans Hedefleri</div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Hedef ROAS</label>
+                                <input type="number" name="roas_target" class="form-control" step="0.1" value="2.0">
+                                <span class="rule-help">ROAS hedefinin üstünde bütçe artırma, altında azaltma sinyali üretir.</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Geriye Dönük Süre (saat)</label>
+                                <input type="number" name="lookback_hours" class="form-control" value="24">
+                                <span class="rule-help">Hesaplamada dikkate alınacak performans süresi.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="ra-btn" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" name="create_rule" value="1" class="ra-btn ra-btn-primary">Kuralı Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-dark rule-modal" id="editRuleModal" tabindex="-1" aria-labelledby="editRuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <div>
+                    <h5 class="modal-title fw-bold" id="editRuleModalLabel">Optimizasyon Kuralını Düzenle</h5>
+                    <div class="modal-subtitle">Mevcut kuralın bütçe limitlerini, ROAS hedefini ve aktiflik durumunu güncelle.</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <form method="post" action="{% url 'optimizasyon_kurallari' %}">
+                {% csrf_token %}
+                <input type="hidden" name="rule_id" id="editRuleId">
+                <div class="modal-body">
+                    <div class="rule-section">
+                        <div class="rule-section-title">Kural Bilgileri</div>
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Kural Adı</label>
+                                <input type="text" name="name" id="editRuleName" class="form-control" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Platform</label>
+                                <select name="platform" id="editRulePlatform" class="form-select" required>
+                                    {% for platform in platforms %}
+                                    <option value="{{ platform.id }}">{{ platform.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rule-section">
+                        <div class="rule-section-title">Bütçe Limitleri</div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Min. Bütçe</label>
+                                <input type="number" name="min_budget" id="editRuleMinBudget" class="form-control" step="0.01" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Maks. Bütçe</label>
+                                <input type="number" name="max_budget" id="editRuleMaxBudget" class="form-control" step="0.01" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Adım</label>
+                                <input type="number" name="adjustment_step" id="editRuleAdjustmentStep" class="form-control" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rule-section mb-0">
+                        <div class="rule-section-title">Performans Hedefleri</div>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label class="form-label">Hedef ROAS</label>
+                                <input type="number" name="roas_target" id="editRuleRoasTarget" class="form-control" step="0.1" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label">Geriye Dönük Süre (saat)</label>
+                                <input type="number" name="lookback_hours" id="editRuleLookbackHours" class="form-control" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label d-flex align-items-center gap-2 mb-0">
+                                    <input type="checkbox" name="is_active" id="editRuleIsActive" checked>
+                                    Aktif
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="ra-btn" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" name="update_rule" value="1" class="ra-btn ra-btn-primary">Değişiklikleri Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-dark" id="howItWorksModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Bütçe Optimizasyonu Nasıl Çalışır?</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="how-work-grid">
+                    <div class="how-work-item">
+                        <span class="how-step">01</span>
+                        <div>
+                            <h6>Reklam verileri okunur</h6>
+                            <p>Octo AI; reklamların harcama, gösterim, tıklama, dönüşüm değeri ve ROAS sinyallerini inceler.</p>
+                        </div>
+                    </div>
+                    <div class="how-work-item">
+                        <span class="how-step">02</span>
+                        <div>
+                            <h6>Kural ve hedef ROAS uygulanır</h6>
+                            <p>Seçtiğiniz aktif kurala göre minimum bütçe, maksimum bütçe, artış/azalış adımı ve hedef ROAS dikkate alınır.</p>
+                        </div>
+                    </div>
+                    <div class="how-work-item">
+                        <span class="how-step">03</span>
+                        <div>
+                            <h6>Bütçe aksiyonu hesaplanır</h6>
+                            <p>Hedef ROAS üstündeki reklamlar için bütçe artırımı, hedef altında kalan reklamlar için bütçe azaltımı hesaplanır.</p>
+                        </div>
+                    </div>
+                    <div class="how-work-item">
+                        <span class="how-step">04</span>
+                        <div>
+                            <h6>Manuel uygulama için kayıt oluşur</h6>
+                            <p>Sistem platform bütçesini otomatik değiştirmez. Optimizasyon sonucu loglanır, bildirim oluşturulur ve üye kendi reklam panelinde manuel uygular.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+(function(){
+    function autoDismissBudgetMessages(){
+        document.querySelectorAll('.budget-shell > .alert').forEach(function(alertEl){
+            if(alertEl.dataset.autoDismissBound === '1') return;
+            alertEl.dataset.autoDismissBound = '1';
+            window.setTimeout(function(){
+                alertEl.style.transition = 'opacity .35s ease, transform .35s ease';
+                alertEl.style.opacity = '0';
+                alertEl.style.transform = 'translateY(-8px)';
+                window.setTimeout(function(){
+                    if(alertEl.parentNode){ alertEl.parentNode.removeChild(alertEl); }
+                }, 400);
+            }, 4500);
+        });
+    }
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', autoDismissBudgetMessages);
+    } else {
+        autoDismissBudgetMessages();
+    }
+})();
+</script>
+
+<script>
+(function(){
+    const cards = Array.from(document.querySelectorAll('.ad-card'));
+    const checks = Array.from(document.querySelectorAll('.ad-check'));
+    const countEls = Array.from(document.querySelectorAll('.js-selected-count'));
+    const form = document.getElementById('budgetOptimizeForm');
+    const adsGrid = document.querySelector('.ads-grid');
+    const originalOrder = new Map(cards.map((card, index) => [String(card.dataset.adId), Number(card.dataset.naturalRank || index)]));
+    const selectedOrder = checks.filter(ch => ch.checked).map(ch => String(ch.value));
+
+    function rememberSelection(check){
+        const id = String(check.value);
+        const index = selectedOrder.indexOf(id);
+        if(check.checked && index === -1) selectedOrder.push(id);
+        if(!check.checked && index !== -1) selectedOrder.splice(index, 1);
+    }
+
+    function sync(){
+        let count = 0;
+        cards.forEach(card => {
+            const check = card.querySelector('.ad-check');
+            card.classList.toggle('selected', check.checked);
+            if(check.checked) count++;
+        });
+        countEls.forEach(el => el.textContent = count);
+    }
+    checks.forEach(ch => ch.addEventListener('change', () => { rememberSelection(ch); sync(); }));
+    document.getElementById('selectAll')?.addEventListener('click', () => {checks.forEach(ch => { ch.checked = true; rememberSelection(ch); }); sync();});
+    document.getElementById('clearAll')?.addEventListener('click', () => {checks.forEach(ch => { ch.checked = false; rememberSelection(ch); }); sync();});
+    document.getElementById('selectSuggested')?.addEventListener('click', () => {
+        let selected = 0;
+        checks.forEach(ch => {
+            const shouldSelect = ch.closest('.ad-card').dataset.suggested === '1';
+            ch.checked = shouldSelect;
+            rememberSelection(ch);
+            if(shouldSelect) selected++;
+        });
+        sync();
+        if(!selected){ alert('Şu an bütçe değişimi gerektiren reklam yok. Harcama/ROAS verisi oluşunca bu buton aksiyon gereken kartları otomatik seçer.'); }
+    });
+    function showResult(message, type){
+        const box = document.createElement('div');
+        box.className = 'budget-toast';
+        box.textContent = message;
+        const failed = type === 'danger';
+        Object.assign(box.style, {position:'fixed',right:'24px',top:'88px',zIndex:'9999',width:'auto',maxWidth:'420px',padding:'11px 16px',borderRadius:'12px',fontWeight:'900',color:failed?'#fee2e2':'#dcfce7',background:failed?'#7f1d1d':'#14532d',border:failed?'1px solid #ef4444':'1px solid #22c55e',boxShadow:'0 16px 42px rgba(0,0,0,.35)'});
+        document.body.appendChild(box);
+        window.setTimeout(() => box.remove(), 4500);
+    }
+    form?.addEventListener('submit', async function(e){
+        if(e.submitter && e.submitter.name === 'optimize_selected_ads'){
+            e.preventDefault();
+            const selected = checks.filter(ch => ch.checked).length;
+            if(!selected){ alert('Optimizasyon için en az bir reklam seçmelisin.'); return; }
+            const button = e.submitter;
+            button.disabled = true;
+            try {
+                const payload = new FormData(form);
+                payload.append('optimize_selected_ads', '1');
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: payload,
+                    headers: {'X-Requested-With': 'XMLHttpRequest'}
+                });
+                const data = await response.json();
+                if(!response.ok || !data.success) throw new Error(data.message || 'Optimizasyon tamamlanamadı.');
+                (data.optimized_ids || []).forEach(id => {
+                    const card = document.querySelector('.ad-card[data-ad-id="' + id + '"]');
+                    if(card) {
+                        card.classList.add('locked', 'selected');
+                        if(!card.querySelector('.cancel-card-optimization')){
+                            const cancel = document.createElement('button');
+                            cancel.type = 'button';
+                            cancel.className = 'cancel-card-optimization';
+                            cancel.textContent = 'Optimizasyonu İptal Et';
+                            card.appendChild(cancel);
+                        }
+                    }
+                });
+                if(adsGrid){
+                    selectedOrder.filter(id => (data.optimized_ids || []).map(String).includes(id)).slice().reverse().forEach(id => {
+                        const card = adsGrid.querySelector('.ad-card[data-ad-id="' + id + '"]');
+                        if(card) adsGrid.prepend(card);
+                    });
+                    adsGrid.scrollIntoView({behavior:'smooth', block:'start'});
+                }
+                document.getElementById('cancelOptimizationBtn')?.style.setProperty('display', 'flex');
+                showResult(data.message, 'success');
+            } catch(error) {
+                showResult(error.message, 'danger');
+            } finally {
+                button.disabled = false;
+            }
+        }
+    });
+    document.getElementById('cancelOptimizationForm')?.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const cancelForm = this;
+        const button = document.getElementById('cancelOptimizationBtn');
+        button.disabled = true;
+        try {
+            const payload = new FormData(cancelForm);
+            payload.append('finish_optimization', '1');
+            const response = await fetch(cancelForm.action, {
+                method: 'POST',
+                body: payload,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await response.json();
+            if(!response.ok || !data.success) throw new Error(data.message || 'Optimizasyon iptal edilemedi.');
+            cards.forEach(card => card.classList.remove('locked'));
+            cards.forEach(card => card.querySelector('.cancel-card-optimization')?.remove());
+            button.style.display = 'none';
+            showResult(data.message, 'success');
+        } catch(error) {
+            showResult(error.message, 'danger');
+            button.disabled = false;
+        }
+    });
+    adsGrid?.addEventListener('click', async function(e){
+        const cancel = e.target.closest('.cancel-card-optimization');
+        if(!cancel) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const card = cancel.closest('.ad-card');
+        const check = card?.querySelector('.ad-check');
+        if(!card || !check) return;
+        cancel.disabled = true;
+        try {
+            const payload = new FormData();
+            payload.append('csrfmiddlewaretoken', form.querySelector('[name="csrfmiddlewaretoken"]').value);
+            payload.append('ad_id', card.dataset.adId);
+            const response = await fetch(adsGrid.dataset.removeUrl, {method:'POST', body:payload, headers:{'X-Requested-With':'XMLHttpRequest'}});
+            const data = await response.json();
+            if(!response.ok || !data.success) throw new Error(data.message || 'Optimizasyon iptal edilemedi.');
+            card.classList.remove('locked', 'selected');
+            check.checked = false;
+            rememberSelection(check);
+            cancel.remove();
+            if(adsGrid){
+                const ownIndex = originalOrder.get(String(card.dataset.adId));
+                const nextCard = Array.from(adsGrid.querySelectorAll('.ad-card:not(.locked)'))
+                    .filter(candidate => candidate !== card && originalOrder.get(String(candidate.dataset.adId)) > ownIndex)
+                    .sort((a, b) => originalOrder.get(String(a.dataset.adId)) - originalOrder.get(String(b.dataset.adId)))[0];
+                if(nextCard) adsGrid.insertBefore(card, nextCard);
+                else adsGrid.appendChild(card);
+            }
+            sync();
+            if(data.remaining_count === 0) document.getElementById('cancelOptimizationBtn')?.style.setProperty('display','none');
+            showResult(data.message, 'success');
+        } catch(error) {
+            cancel.disabled = false;
+            showResult(error.message, 'danger');
+        }
+    });
+    sync();
+})();
+</script>
+
+<script>
+(function(){
+    function setValue(id, value){
+        var el = document.getElementById(id);
+        if(el){ el.value = value === undefined || value === null ? '' : String(value); }
+    }
+    function read(btn, name){
+        return btn ? btn.getAttribute('data-' + name) : '';
+    }
+    window.fillBudgetRuleModal = function(btn){
+        setValue('editRuleId', read(btn, 'rule-id'));
+        setValue('editRuleName', read(btn, 'rule-name'));
+        setValue('editRulePlatform', read(btn, 'platform-id'));
+        setValue('editRuleMinBudget', read(btn, 'min-budget'));
+        setValue('editRuleMaxBudget', read(btn, 'max-budget'));
+        setValue('editRuleAdjustmentStep', read(btn, 'adjustment-step'));
+        setValue('editRuleRoasTarget', read(btn, 'roas-target'));
+        setValue('editRuleLookbackHours', read(btn, 'lookback-hours'));
+        var active = document.getElementById('editRuleIsActive');
+        if(active){ active.checked = read(btn, 'is-active') === '1'; }
+    };
+    document.addEventListener('click', function(event){
+        var btn = event.target.closest ? event.target.closest('.edit-rule-btn') : null;
+        if(btn){ window.fillBudgetRuleModal(btn); }
+    });
+    var editModal = document.getElementById('editRuleModal');
+    if(editModal){
+        editModal.addEventListener('show.bs.modal', function(event){
+            if(event.relatedTarget){ window.fillBudgetRuleModal(event.relatedTarget); }
+        });
+    }
+})();
+</script>
+
+<script>
+(function(){
+    function moveBudgetModalsToBody(){
+        ['newRuleModal', 'editRuleModal', 'howItWorksModal'].forEach(function(id){
+            var modal = document.getElementById(id);
+            if(modal && modal.parentElement !== document.body){
+                document.body.appendChild(modal);
+            }
+        });
+    }
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', moveBudgetModalsToBody);
+    } else {
+        moveBudgetModalsToBody();
+    }
+})();
+</script>
+{% endblock %}

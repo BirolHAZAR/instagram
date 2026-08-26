@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Eri&#351;imi Onayla{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>G&#252;venli Alan</h3>
+                <p>Bu i&#351;leme devam etmeden &#246;nce hesab&#305;n size ait oldu&#287;unu tekrar do&#287;ruluyoruz.</p>
+                <a href="{% url 'my_account' %}" class="allauth-side-link">
+                    <i class="fas fa-arrow-left"></i>Hesab&#305;ma Git
+                </a>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head">
+                    <span><i class="fas fa-lock"></i>Kimlik do&#287;rulama</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>Eri&#351;imi Onayla</h1>
+                    <p>&#350;ifrenizi girerek 2FA gibi hassas g&#252;venlik ayarlar&#305;na eri&#351;imi onaylay&#305;n.</p>
+                    {% url 'account_reauthenticate' as action_url %}
+                    <form method="post" action="{{ action_url }}" class="allauth-form">
+                        {% csrf_token %}
+                        {{ redirect_field }}
+                        {% if form.non_field_errors %}
+                            <div class="field-error">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        <div class="allauth-field">
+                            <label for="{{ form.password.id_for_label }}">&#350;ifre</label>
+                            <div class="password-toggle-field">
+                                {{ form.password }}
+                                <button type="button" class="password-toggle-btn" data-password-toggle aria-label="&#350;ifreyi g&#246;ster">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <span class="field-error">{{ form.password.errors }}</span>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="allauth-primary-btn">
+                            <i class="fas fa-check"></i>Onayla
+                        </button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var wrapper = button.closest('.password-toggle-field');
+            var input = wrapper ? wrapper.querySelector('input') : null;
+            var icon = button.querySelector('i');
+
+            if (!input) {
+                return;
+            }
+
+            var showPassword = input.type === 'password';
+            input.type = showPassword ? 'text' : 'password';
+            button.setAttribute('aria-label', showPassword ? 'Sifreyi gizle' : 'Sifreyi goster');
+
+            if (icon) {
+                icon.classList.toggle('fa-eye', !showPassword);
+                icon.classList.toggle('fa-eye-slash', showPassword);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

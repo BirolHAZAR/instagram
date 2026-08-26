@@ -1,0 +1,254 @@
+{% load static tr_numbers %}
+<link rel="stylesheet" href="{% static 'css/control_tower_task_center.css' %}?v=octo-task-columns-v3">
+
+<div class="ct-card ct-section ct-ai-panel ct-task-center-card ct-task-ops-card ct-equal-card octo-task-engine-v4">
+  <span class="octo-task-info-pill" data-tip="Octo Görev Motoru tarafından gerçek metrik koşullarına göre üretilen görevler. Kritik görevler, uyarılar ve fırsatlar kolonlara ayrılır.">
+    <i class="fas fa-circle-info"></i>
+    Görev Motoru
+  </span>
+
+  <div class="octo-task-head">
+    <div>
+      <h3>OCTO GÖREV MERKEZİ</h3>
+      <small>Kampanya görevleri ve rakip reklam görevleri ayrı gruplarda listelenir.</small>
+    </div>
+    <div class="octo-task-total">
+      <strong>{{ octo_task_center_stats.total_active|default:0|tr_int }}</strong>
+      <span>açık görev</span>
+    </div>
+  </div>
+
+  <div class="octo-task-section-list" aria-label="Octo görev merkezi kolonları">
+    {% for section in octo_task_center_sections %}
+      <section class="octo-task-section-card {{ section.state }}">
+        <div class="octo-task-section-header">
+          <div class="octo-task-section-icon">
+            <i class="fas {{ section.icon }}"></i>
+          </div>
+          <div class="octo-task-section-title">
+            <strong>{{ section.title }}</strong>
+            <span>{{ section.subtitle }}</span>
+          </div>
+          <div class="octo-task-section-count">
+            <strong>{{ section.count|default:0|tr_int }}</strong>
+            <span>görev</span>
+          </div>
+        </div>
+
+        <p class="octo-task-section-note">{{ section.note }}</p>
+
+        {% if section.rows %}
+          {% for group in section.task_groups %}
+            {% if group.rows %}
+              <div class="octo-task-source-group {{ group.key }}">
+                <div class="octo-task-source-head">
+                  <span><i class="fas {{ group.icon }}"></i> {{ group.label }}</span>
+                  <em>{{ group.count|default:0|tr_int }}</em>
+                </div>
+
+                <div class="octo-task-campaign-list" aria-label="{{ section.title }} - {{ group.label }}">
+                  {% for task in group.rows %}
+                    <a class="octo-task-campaign-card octo-task-campaign-open {% if task.is_competitor_task %}is-competitor-task{% endif %}"
+                       href="{{ task.target_url|default:task.campaign_url|default:'#' }}"
+                       data-campaign-id="{{ task.campaign_id|default:'' }}"
+                       data-ad-id="{{ task.ad_id|default:'' }}"
+                       data-source-label="{{ task.source_label|default:'Kampanya'|escape }}"
+                       data-campaign-name="{{ task.campaign|escape }}"
+                       data-campaign-url="{{ task.campaign_url|default:'#' }}"
+                       data-target-url="{{ task.target_url|default:task.campaign_url|default:'#' }}"
+                       data-analysis-url="{{ task.campaign_analysis_url|default:'' }}"
+                       data-task-title="{{ task.title|default:'Octo görevi'|escape }}"
+                       data-task-message="{{ task.message|default:''|escape }}"
+                       data-task-impact="{{ task.impact|default:''|escape }}"
+                       data-task-platform="{{ task.platform|default:'-'|escape }}"
+                       data-task-module="{{ task.module_label|default:'Genel'|escape }}"
+                       data-task-severity="{{ task.severity_label|default:'GÖREV'|escape }}"
+                       data-task-status="{{ task.status_label|default:'Açık'|escape }}"
+                       data-task-priority="{{ task.priority_score|default:50 }}"
+                       title="{{ task.source_label|default:'Kampanya' }} · {{ task.campaign }} · {{ task.impact }}">
+                        <div class="octo-task-campaign-left">
+                          <div class="octo-task-campaign-kicker">
+                            <i class="fas {% if task.is_competitor_task %}fa-binoculars{% else %}fa-bullseye{% endif %}"></i>
+                            <span>{{ task.source_label|default:'Kampanya' }} · {{ task.module_label|default:'Genel' }}</span>
+                          </div>
+                          <strong>{{ task.campaign|default:'Genel hesap görevi' }}</strong>
+                          <p>{{ task.title|default:'Octo görevi' }}</p>
+                        </div>
+
+                        <div class="octo-task-campaign-right">
+                          <em>{{ task.priority_score|default:50 }}</em>
+                          <span>öncelik</span>
+                        </div>
+                    </a>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <div class="octo-task-empty">
+            <i class="fas fa-circle-check"></i>
+            <span>Bu kategoride açık görev yok.</span>
+          </div>
+        {% endif %}
+      </section>
+    {% empty %}
+      <div class="octo-task-empty main">
+        <i class="fas fa-circle-check"></i>
+        <strong>Şu anda açık Octo görevi bulunmuyor.</strong>
+        <span>Aktif kampanyalarda veya rakip reklamlarda yeni sinyal oluştuğunda görevler burada görünür.</span>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="octo-task-campaign-modal" id="octoTaskCampaignModal" aria-hidden="true">
+  <div class="octo-task-campaign-modal-panel" role="dialog" aria-modal="true" aria-labelledby="octoTaskCampaignModalTitle">
+    <div class="octo-task-campaign-modal-head">
+      <div>
+        <span id="octoTaskCampaignModalSource">Kampanya Detayı</span>
+        <strong id="octoTaskCampaignModalTitle">Kampanya</strong>
+      </div>
+      <div class="octo-task-campaign-modal-actions">
+        <a id="octoTaskCampaignModalDirectLink" href="#" class="octo-task-campaign-modal-link">Campaign Center’da aç</a>
+        <button type="button" class="octo-task-campaign-modal-close" aria-label="Kapat">×</button>
+      </div>
+    </div>
+    <div class="octo-task-campaign-modal-body" id="octoTaskCampaignModalBody">
+      <div class="octo-task-campaign-loading">Kampanya verileri hazırlanıyor...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const modal = document.getElementById('octoTaskCampaignModal');
+  const body = document.getElementById('octoTaskCampaignModalBody');
+  const title = document.getElementById('octoTaskCampaignModalTitle');
+  const directLink = document.getElementById('octoTaskCampaignModalDirectLink');
+  const sourceTitle = document.getElementById('octoTaskCampaignModalSource');
+  if (!modal || !body || !title || !directLink || !sourceTitle) return;
+
+  function esc(value){
+    return String(value ?? '').replace(/[&<>'"]/g, function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch];
+    });
+  }
+
+  function formatNumberText(value){
+    const raw = String(value ?? '');
+    if (!raw) return '';
+    return raw.replace(/(^|[^\w])(-?\d{4,}|-?\d+\.\d+|-?\d+,\d+)(?=\s|$|[^\w])/g, function(match, prefix, numberText){
+      const hasCommaDecimal = /^-?\d+,\d+$/.test(numberText);
+      const normalized = hasCommaDecimal ? numberText.replace(',', '.') : numberText;
+      const number = Number(normalized);
+      if (!Number.isFinite(number)) return match;
+      const fractionDigits = 2;
+      return prefix + new Intl.NumberFormat('tr-TR', {
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits
+      }).format(number);
+    });
+  }
+
+  function sentenceItems(value){
+    const text = formatNumberText(String(value ?? '').trim());
+    if (!text) return [];
+    const normalized = text
+      .replace(/\r\n/g, '\n')
+      .replace(/[•●▪]+/g, '\n')
+      .replace(/\s+-\s+/g, '\n')
+      .replace(/\s*;\s*/g, '\n')
+      .replace(/\n+/g, '\n')
+      .trim();
+    const lines = normalized.split('\n').map(x => x.trim()).filter(Boolean);
+    if (lines.length > 1) return lines;
+    const sentences = normalized.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [normalized];
+    return sentences.map(x => x.trim()).filter(Boolean);
+  }
+
+  function renderBulletList(value, fallback){
+    const items = sentenceItems(value || fallback);
+    return `<ul>${items.map(item => `<li>${esc(item)}</li>`).join('')}</ul>`;
+  }
+
+  function openModal(name, directUrl, sourceLabel){
+    if (modal.parentElement !== document.body) {
+      document.body.appendChild(modal);
+    }
+    const label = sourceLabel || 'Kampanya';
+    title.textContent = name || label;
+    sourceTitle.textContent = label + ' Detayı';
+    directLink.textContent = (label === 'Rakip Reklamı') ? 'Rakip İstihbarat’ta aç' : 'Campaign Center’da aç';
+    directLink.href = directUrl || '#';
+    body.scrollTop = 0;
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.documentElement.classList.add('octo-task-modal-lock');
+    document.body.classList.add('octo-task-modal-lock');
+    const panel = modal.querySelector('.octo-task-campaign-modal-panel');
+    if (panel) panel.scrollTop = 0;
+  }
+
+  function closeModal(){
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.documentElement.classList.remove('octo-task-modal-lock');
+    document.body.classList.remove('octo-task-modal-lock');
+  }
+
+  function renderTaskCampaign(card){
+    const ds = card.dataset;
+    const sourceLabel = ds.sourceLabel || 'Kampanya';
+    const itemName = ds.campaignName || sourceLabel;
+    const directUrl = ds.targetUrl || ds.campaignUrl || card.getAttribute('href') || '#';
+    openModal(itemName, directUrl, sourceLabel);
+
+    body.innerHTML = `
+      <div class="octo-task-popup-score-row">
+        <div class="octo-task-popup-score"><strong>${esc(formatNumberText(ds.taskPriority || '50'))}</strong><span>Öncelik</span></div>
+        <div class="octo-task-popup-label">
+          <strong>${esc(ds.taskTitle || 'Octo görevi')}</strong>
+          <span>${esc(ds.taskSeverity || 'GÖREV')} · ${esc(ds.taskStatus || 'Açık')}</span>
+        </div>
+      </div>
+      <div class="octo-task-popup-kpis">
+        <div><span>${esc(sourceLabel)}</span><strong>${esc(itemName)}</strong></div>
+        <div><span>Platform</span><strong>${esc(ds.taskPlatform || '-')}</strong></div>
+        <div><span>Modül</span><strong>${esc(ds.taskModule || 'Genel')}</strong></div>
+        <div><span>ID</span><strong>${esc(ds.adId || ds.campaignId || '-')}</strong></div>
+      </div>
+        </div>
+      </div>
+      <div class="octo-task-popup-columns">
+        <div class="octo-task-popup-box">
+          <h4>Görev Detayı</h4>
+          ${renderBulletList(ds.taskMessage, 'Octo bu alanda aksiyon gerektiren bir sinyal yakaladı.')}
+        </div>
+        <div class="octo-task-popup-box">
+          <h4>Beklenen Etki</h4>
+          ${renderBulletList(ds.taskImpact, 'Görev uygulandıktan sonra performans etkisi takip edilir.')}
+        </div>
+      </div>
+      <div class="octo-task-popup-direct-note">
+        Detay sayfasına geçmek için üstteki bağlantıyı kullan. Kampanya görevleri Campaign Center’a, reklam görevleri ilgili reklam detayına, rakip reklam görevleri Rakip İstihbarat ekranına gider.
+      </div>`;
+  }
+
+  document.addEventListener('click', function(event){
+    const card = event.target.closest('.octo-task-campaign-open');
+    if (!card) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    event.preventDefault();
+    renderTaskCampaign(card);
+  });
+
+  modal.addEventListener('click', function(event){
+    if (event.target === modal || event.target.closest('.octo-task-campaign-modal-close')) closeModal();
+  });
+
+  document.addEventListener('keydown', function(event){
+    if (event.key === 'Escape' && modal.classList.contains('show')) closeModal();
+  });
+})();
+</script>

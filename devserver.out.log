@@ -1,0 +1,50 @@
+Sentry entegrasyonu aktif (Environment: development)
+PostgreSQL baglantisi hazir: postgres@127.0.0.1:5432/reklam_analiz
+Sentry entegrasyonu aktif (Environment: development)
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 29, 2026 - 14:32:33
+Django version 5.2.14, using settings 'config.settings'
+Starting ASGI/Daphne version 4.2.2 development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+Sentry entegrasyonu aktif (Environment: development)
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 29, 2026 - 14:39:39
+Django version 5.2.14, using settings 'config.settings'
+Starting ASGI/Daphne version 4.2.2 development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+Sentry entegrasyonu aktif (Environment: development)
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 29, 2026 - 14:39:53
+Django version 5.2.14, using settings 'config.settings'
+Starting ASGI/Daphne version 4.2.2 development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+Sentry entegrasyonu aktif (Environment: development)
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 29, 2026 - 14:52:40
+Django version 5.2.14, using settings 'config.settings'
+Starting ASGI/Daphne version 4.2.2 development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+Sentry entegrasyonu aktif (Environment: development)
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 29, 2026 - 14:54:25
+Django version 5.2.14, using settings 'config.settings'
+Starting ASGI/Daphne version 4.2.2 development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+Sentry entegrasyonu aktif (Environment: development)
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 29, 2026 - 15:07:50
+Django version 5.2.14, using settings 'config.settings'
+Starting ASGI/Daphne version 4.2.2 development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.

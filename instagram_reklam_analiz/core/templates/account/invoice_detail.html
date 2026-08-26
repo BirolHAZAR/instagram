@@ -1,0 +1,635 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tr_numbers %}
+
+{% block title %}Fatura Detay&#305; #{{ invoice.invoice_number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --invoice-ink: #1f2937;
+        --invoice-muted: #64748b;
+        --invoice-border: #e5e7eb;
+        --invoice-purple: #667eea;
+        --invoice-purple-dark: #764ba2;
+    }
+
+    .invoice-wrapper {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .invoice-top-link {
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .invoice-top-link:hover {
+        color: var(--invoice-purple);
+    }
+
+    .invoice-card {
+        background: #ffffff;
+        border: 1px solid rgba(102, 126, 234, 0.12);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12);
+        color: var(--invoice-ink);
+        margin: 0 auto;
+        max-width: 820px;
+        padding: 38px;
+    }
+
+    .invoice-card * {
+        color: inherit;
+    }
+
+    .invoice-header {
+        align-items: flex-start;
+        border-bottom: 2px solid #f1f2f6;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding-bottom: 24px;
+    }
+
+    .invoice-logo {
+        display: block;
+        height: auto;
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .invoice-brand-sub,
+    .invoice-brand-url,
+    .detail-muted {
+        color: var(--invoice-muted) !important;
+    }
+
+    .invoice-title {
+        text-align: right;
+    }
+
+    .invoice-title h2 {
+        color: var(--invoice-ink);
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .invoice-number {
+        color: var(--invoice-purple) !important;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .info-section {
+        display: grid;
+        gap: 22px;
+        grid-template-columns: 1fr 1fr;
+        margin-bottom: 28px;
+    }
+
+    .info-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 18px;
+    }
+
+    .info-box h6 {
+        color: #475569;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+    }
+
+    .info-box p {
+        color: var(--invoice-ink);
+        font-size: 14px;
+        line-height: 1.45;
+        margin-bottom: 5px;
+    }
+
+    .company-name {
+        color: #111827 !important;
+        font-size: 16px !important;
+        font-weight: 800;
+    }
+
+    .invoice-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    .invoice-table thead th {
+        background: #243041;
+        color: #ffffff !important;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.4px;
+        padding: 13px;
+        text-transform: uppercase;
+    }
+
+    .invoice-table thead th:first-child {
+        border-radius: 12px 0 0 0;
+    }
+
+    .invoice-table thead th:last-child {
+        border-radius: 0 12px 0 0;
+    }
+
+    .invoice-table tbody td {
+        background: #ffffff;
+        border-bottom: 1px solid var(--invoice-border);
+        color: var(--invoice-ink);
+        font-size: 14px;
+        padding: 14px 13px;
+        vertical-align: top;
+    }
+
+    .invoice-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .total-section {
+        background: linear-gradient(135deg, var(--invoice-purple), var(--invoice-purple-dark));
+        border-radius: 16px;
+        color: #ffffff;
+        margin-top: 18px;
+        padding: 22px;
+    }
+
+    .total-section * {
+        color: #ffffff !important;
+    }
+
+    .total-row {
+        align-items: center;
+        display: flex;
+        font-size: 14px;
+        justify-content: space-between;
+        padding: 7px 0;
+    }
+
+    .total-row.grand-total {
+        border-top: 2px solid rgba(255,255,255,0.32);
+        font-size: 22px;
+        font-weight: 800;
+        margin-top: 8px;
+        padding-top: 13px;
+    }
+
+    .invoice-meta {
+        color: var(--invoice-ink);
+    }
+
+    .invoice-meta small {
+        color: var(--invoice-muted) !important;
+        display: block;
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+
+    .status-badge-large {
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+        padding: 10px 24px;
+        text-transform: uppercase;
+    }
+
+    .status-paid {
+        background: #dcfce7;
+        color: #166534 !important;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e !important;
+    }
+
+    .footer-note {
+        border-top: 2px solid #f1f2f6;
+        color: var(--invoice-muted);
+        font-size: 13px;
+        line-height: 1.55;
+        margin-top: 24px;
+        padding-top: 18px;
+        text-align: center;
+    }
+
+    .footer-note * {
+        color: var(--invoice-muted) !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .btn-back,
+    .btn-print {
+        align-items: center;
+        border-radius: 12px;
+        display: inline-flex;
+        font-weight: 700;
+        gap: 8px;
+        justify-content: center;
+        padding: 12px 30px;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    .btn-back {
+        background: #ffffff;
+        border: 2px solid var(--invoice-purple);
+        color: var(--invoice-purple);
+    }
+
+    .btn-back:hover {
+        background: var(--invoice-purple);
+        color: #ffffff;
+    }
+
+    .btn-print {
+        background: linear-gradient(135deg, var(--invoice-purple), var(--invoice-purple-dark));
+        border: none;
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    .btn-print:hover {
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 8mm;
+    }
+
+    @media print {
+        html,
+        body {
+            background: #ffffff !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        body * {
+            visibility: hidden !important;
+        }
+
+        #invoice-print,
+        #invoice-print * {
+            visibility: visible !important;
+        }
+
+        .invoice-wrapper,
+        .invoice-wrapper .container {
+            background: #ffffff !important;
+            margin: 0 !important;
+            max-width: none !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+
+        .invoice-top-area,
+        .action-buttons,
+        .btn-back,
+        .btn-print {
+            display: none !important;
+        }
+
+        #invoice-print {
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            left: 0 !important;
+            margin: 0 !important;
+            max-width: none !important;
+            padding: 0 !important;
+            position: absolute !important;
+            top: 0 !important;
+            width: 100% !important;
+            zoom: 0.92 !important;
+            break-after: avoid !important;
+            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .invoice-header {
+            margin-bottom: 12px !important;
+            padding-bottom: 10px !important;
+        }
+
+        .invoice-logo {
+            max-width: 210px !important;
+        }
+
+        .invoice-brand-sub,
+        .invoice-brand-url {
+            font-size: 10px !important;
+            margin: 2px 0 0 !important;
+        }
+
+        .invoice-title h2 {
+            font-size: 22px !important;
+            margin: 0 !important;
+        }
+
+        .invoice-number {
+            font-size: 12px !important;
+        }
+
+        .info-section {
+            gap: 10px !important;
+            margin-bottom: 12px !important;
+        }
+
+        .info-box {
+            border-radius: 8px !important;
+            padding: 9px !important;
+        }
+
+        .info-box h6 {
+            font-size: 9px !important;
+            margin-bottom: 5px !important;
+        }
+
+        .info-box p {
+            font-size: 10px !important;
+            line-height: 1.25 !important;
+            margin-bottom: 2px !important;
+        }
+
+        .company-name {
+            font-size: 11px !important;
+        }
+
+        .invoice-table thead th,
+        .invoice-table tbody td {
+            font-size: 10px !important;
+            padding: 7px 8px !important;
+        }
+
+        .total-section {
+            border-radius: 8px !important;
+            margin-top: 8px !important;
+            padding: 9px 12px !important;
+        }
+
+        .total-row {
+            font-size: 10px !important;
+            padding: 3px 0 !important;
+        }
+
+        .total-row.grand-total {
+            font-size: 14px !important;
+            margin-top: 4px !important;
+            padding-top: 6px !important;
+        }
+
+        .invoice-meta {
+            margin-top: 9px !important;
+        }
+
+        .invoice-meta small,
+        .invoice-meta .fw-bold {
+            font-size: 10px !important;
+        }
+
+        .status-badge-large {
+            font-size: 9px !important;
+            padding: 6px 14px !important;
+        }
+
+        .footer-note {
+            font-size: 9px !important;
+            line-height: 1.25 !important;
+            margin-top: 10px !important;
+            padding-top: 8px !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .invoice-card {
+            padding: 22px;
+        }
+
+        .invoice-header {
+            flex-direction: column;
+            gap: 18px;
+            text-align: center;
+        }
+
+        .invoice-title {
+            text-align: center;
+            width: 100%;
+        }
+
+        .info-section {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-back,
+        .btn-print {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice-wrapper">
+    <div class="container">
+        <div class="mb-4 invoice-top-area">
+            <a href="{% url 'my_account' %}" class="invoice-top-link">
+                <i class="fas fa-arrow-left"></i>Hesab&#305;ma D&#246;n
+            </a>
+        </div>
+
+        <div class="invoice-card" id="invoice-print">
+            <div class="invoice-header">
+                <div>
+                    <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net" class="invoice-logo">
+                    <p class="invoice-brand-sub mt-2 mb-0">Reklamlar&#305;n&#305;z&#305; veriyle g&#252;&#231;lendirin</p>
+                    <small class="invoice-brand-url">www.reklamanaliz.com</small>
+                </div>
+                <div class="invoice-title">
+                    <h2>Fatura</h2>
+                    <div class="invoice-number">#{{ invoice.invoice_number }}</div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-box">
+                    <h6><i class="fas fa-building me-2"></i>Sat&#305;c&#305;</h6>
+                    <p class="company-name">HZR Bili&#351;im Yaz&#305;l&#305;m San. Tic. LTD &#350;T&#304;.</p>
+                    <p>Adres: Teknoloji Mah. &#304;novasyon Cad. No:42</p>
+                    <p>&#304;stanbul / T&#252;rkiye</p>
+                    <p>Vergi Dairesi: &#304;stanbul V.D.</p>
+                    <p>Vergi No: 1234567890</p>
+                    <p>Web: www.reklamanaliz.com</p>
+                    <p>E-posta: info@reklamanaliz.com</p>
+                </div>
+
+                <div class="info-box">
+                    <h6><i class="fas fa-user me-2"></i>M&#252;&#351;teri</h6>
+                    <p class="company-name">
+                        {% if invoice.billing_info %}
+                            {{ invoice.billing_info.first_name }} {{ invoice.billing_info.last_name }}
+                        {% else %}
+                            {{ invoice.user.get_full_name|default:invoice.user.username }}
+                        {% endif %}
+                    </p>
+                    {% if invoice.billing_info.company_name %}
+                        <p>{{ invoice.billing_info.company_name }}</p>
+                    {% endif %}
+                    {% if invoice.billing_info.address %}
+                        <p>{{ invoice.billing_info.address }}</p>
+                    {% endif %}
+                    {% if invoice.billing_info.city or invoice.billing_info.district %}
+                        <p>{{ invoice.billing_info.city }} / {{ invoice.billing_info.district }}</p>
+                    {% endif %}
+                    {% if invoice.billing_info.tax_office %}
+                        <p>Vergi Dairesi: {{ invoice.billing_info.tax_office }}</p>
+                    {% endif %}
+                    {% if invoice.billing_info.tax_number %}
+                        <p>Vergi No: {{ invoice.billing_info.tax_number }}</p>
+                    {% endif %}
+                    <p>E-posta: {{ invoice.user.email }}</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>A&#231;&#305;klama</th>
+                            <th class="text-right">KDV Oran&#305;</th>
+                            <th class="text-right">KDV Tutar&#305;</th>
+                            <th class="text-right">Tutar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>{% if invoice.description %}{{ invoice.description }}{% else %}Abonelik &#252;creti{% endif %}</strong><br>
+                                <small class="detail-muted">
+                                    {% if invoice.subscription and invoice.subscription.plan %}
+                                        {{ invoice.subscription.plan.display_name }} Paketi
+                                    {% else %}
+                                        Hizmet bedeli
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td class="text-right">%20</td>
+                            <td class="text-right">{{ invoice.kdv_amount|tr_decimal }} TL</td>
+                            <td class="text-right">{{ invoice.amount|tr_decimal }} TL</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Ara Toplam</span>
+                    <span>{{ invoice.amount|tr_decimal }} TL</span>
+                </div>
+                <div class="total-row">
+                    <span>KDV (%20)</span>
+                    <span>{{ invoice.kdv_amount|tr_decimal }} TL</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>Toplam</span>
+                    <span>{{ invoice.total_amount|tr_decimal }} TL</span>
+                </div>
+            </div>
+
+            <div class="row mt-4 invoice-meta">
+                <div class="col-md-6">
+                    <small>Fatura Tarihi</small>
+                    <div class="fw-bold">{{ invoice.created_at|date:"d.m.Y H:i" }}</div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small>&#214;deme Tarihi</small>
+                    <div class="fw-bold">{{ invoice.payment_date|date:"d.m.Y H:i"|default:"-" }}</div>
+                </div>
+                <div class="col-md-6 mt-2">
+                    <small>Son &#214;deme Tarihi</small>
+                    <div class="fw-bold">{{ invoice.due_date|date:"d.m.Y"|default:"-" }}</div>
+                </div>
+                <div class="col-md-6 text-md-end mt-2">
+                    <small>&#214;deme Y&#246;ntemi</small>
+                    <div class="fw-bold">
+                        {% if invoice.payment_method == 'credit_card' %}
+                            <i class="far fa-credit-card me-1"></i>Kredi Kart&#305;
+                        {% else %}
+                            <i class="fas fa-university me-1"></i>Havale/EFT
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 text-center mt-3">
+                    <span class="status-badge-large {% if invoice.status == 'paid' %}status-paid{% else %}status-pending{% endif %}">
+                        <i class="fas fa-check-circle"></i>
+                        {% if invoice.status == 'paid' %}
+                            &#214;dendi
+                        {% elif invoice.status == 'draft' %}
+                            Taslak
+                        {% elif invoice.status == 'cancelled' %}
+                            &#304;ptal Edildi
+                        {% else %}
+                            {{ invoice.get_status_display }}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="footer-note">
+                <i class="fas fa-shield-alt me-1"></i>
+                Bu fatura e-ar&#351;iv fatura olarak d&#252;zenlenmi&#351;tir. &#304;mza ve ka&#351;e gerektirmez.
+                <br>
+                <small>HZR Bili&#351;im Yaz&#305;l&#305;m San. Tic. LTD &#350;T&#304;. | www.reklamanaliz.com | info@reklamanaliz.com</small>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% url 'my_account' %}" class="btn-back">
+                <i class="fas fa-arrow-left"></i>Geri D&#246;n
+            </a>
+            <a href="{% url 'invoice_pdf' invoice.id %}" target="_blank" rel="noopener" class="btn-print">
+                <i class="fas fa-print"></i>Yazd&#305;r / PDF &#304;ndir
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% load tr_numbers %}
+<section class="ct-footer-grid">
+    <div class="ct-card ct-section" style="min-height:auto">
+      <span class="ct-tip info" data-tip="Bu bölüm seçilen dönemdeki reklam performans toplamlarını özetler."><i class="fas fa-circle-info"></i> Performans</span>
+      <div class="ct-section-title"><h3>REKLAM VERİ ÖZETİ</h3></div>
+      <div class="ct-analytics-row">
+        <div class="ct-analytics-item"><i class="fas fa-wallet"></i><span>Harcama</span><strong>{{ live_performance.spend|tr_int }} TL</strong><small class="ct-delta {{ summary.spend_delta_class }}">{{ summary.spend_delta_label }}</small></div>
+        <div class="ct-analytics-item"><i class="fas fa-sack-dollar"></i><span>Gelir</span><strong>{{ live_performance.revenue|tr_int }} TL</strong><small>{{ trend.revenue_label }}</small></div>
+        <div class="ct-analytics-item"><i class="fas fa-bullseye"></i><span>ROAS</span><strong>{{ live_performance.roas|tr_decimal }}</strong><small class="ct-delta {{ summary.roas_delta_class }}">{{ summary.roas_delta_label }}</small></div>
+        <div class="ct-analytics-item"><i class="fas fa-store"></i><span>Dönüşüm</span><strong>{{ live_performance.conversions|tr_int }}</strong><small class="ct-delta {{ summary.conversion_count_delta_class }}">{{ summary.conversion_count_delta_label }}</small></div>
+        <div class="ct-analytics-item"><i class="fas fa-computer-mouse"></i><span>Tıklama</span><strong>{{ live_performance.clicks|tr_int }}</strong><small class="ct-delta {{ summary.click_delta_class }}">{{ summary.click_delta_label }}</small></div>
+        <div class="ct-analytics-item"><i class="fas fa-eye"></i><span>Gösterim</span><strong>{{ live_performance.impressions|tr_int }}</strong><small class="ct-delta {{ summary.impression_delta_class }}">{{ summary.impression_delta_label }}</small></div>
+      </div>
+    </div>
+
+    <div class="ct-card ct-section" style="min-height:auto">
+      <span class="ct-tip good" data-tip="ROAS = reklam dönüşüm değeri / reklam harcaması. Sonuçlar reklam performans sinyallerine göre okunur."><i class="fas fa-circle-info"></i> ROAS</span>
+      <div class="ct-section-title"><h3>REKLAM ROAS HESAPLAYICI</h3></div>
+      <div class="ct-roas-calc">
+        <div class="ct-roas-box"><span>REKLAM HARCAMA</span><strong>{{ live_performance.spend|tr_int }} TL</strong></div>
+        <div class="ct-eq">÷</div>
+        <div class="ct-roas-box"><span>REKLAM GELİRİ</span><strong>{{ live_performance.revenue|tr_int }} TL</strong></div>
+        <div class="ct-eq">=</div>
+        <div class="ct-roas-box result"><span>ROAS</span><strong>{{ live_performance.roas|tr_decimal }}</strong></div>
+      </div>
+    </div>
+  </section>

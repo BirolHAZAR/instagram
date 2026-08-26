@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: A4; margin: 15mm; }
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .header { text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 10px; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 20px; }
+        
+        .score-card { text-align: center; padding: 20px; background: #1a1a2e; color: white; border-radius: 10px; margin-bottom: 20px; }
+        .score-value { font-size: 36px; font-weight: 800; color: #4CAF50; }
+        
+        .agent-card { background: #f8f9ff; border: 1px solid #e0e0ff; border-radius: 10px; padding: 15px; margin-bottom: 12px; }
+        .agent-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .agent-icon { font-size: 24px; }
+        .agent-name { font-weight: 700; font-size: 14px; }
+        .agent-score { margin-left: auto; font-weight: 800; font-size: 18px; }
+        
+        .progress-bar { background: #e0e0e0; border-radius: 5px; height: 8px; margin: 8px 0; }
+        .progress-fill { height: 8px; border-radius: 5px; background: #4CAF50; }
+        
+        .detail { font-size: 12px; color: #555; }
+    </style>
+</head>
+<body>
+    
+    <div class="header">
+        <h1>🤖 AI Reklam Analiz Raporu</h1>
+        <p>{{ ad_title }}</p>
+        <p style="font-size: 11px;">{{ generated_at }}</p>
+    </div>
+    
+    <div class="score-card">
+        <p style="margin: 0;">Genel Performans Skoru</p>
+        <div class="score-value">{{ overall_score }}/100</div>
+    </div>
+    
+    <h3>📊 Detaylı AI Analizleri</h3>
+    
+    {% for agent in agents %}
+    <div class="agent-card">
+        <div class="agent-header">
+            <span class="agent-icon">●</span>
+            <span class="agent-name">● Analiz sonucu</span>
+            <span class="agent-score">{{ agent.score }}%</span>
+        </div>
+        <div class="progress-bar">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background: #e0e0e0; border-radius: 5px; height: 8px; margin: 8px 0;">
+    <tr>
+        <td width="{{ agent.score }}%" style="height: 8px; border-radius: 5px; background: #4CAF50; font-size: 0; line-height: 0;"></td>
+        <td style="height: 8px; font-size: 0; line-height: 0;"></td>
+    </tr>
+</table>
+        </div>
+        <p style="margin: 5px 0; font-size: 12px; color: #888;">{{ agent.summary }}</p>
+        <p class="detail">{{ agent.details }}</p>
+    </div>
+    {% endfor %}
+    
+</body>
+</html>

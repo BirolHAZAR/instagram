@@ -1,0 +1,17 @@
+{% load tr_numbers %}{{ report.name }}
+{{ start_date|date:"d.m.Y" }} - {{ end_date|date:"d.m.Y" }}
+
+Ozet Metrikler
+Butce: {{ budget.total|tr_money }}
+Harcama: {{ totals.spend|tr_money }}
+Kalan Butce: {{ budget.remaining|tr_money }}
+Butce Kullanimi: {{ budget.usage_rate|tr_percent }}
+Gosterim: {{ totals.impressions|tr_int }}
+Tiklama: {{ totals.clicks|tr_int }}
+CTR: {{ totals.ctr|tr_percent }}
+CPC: {{ totals.cpc|tr_money }}
+Donusum: {{ totals.conversions|tr_int }}
+
+Kural Bazli Oneriler
+{% for item in recommendations %}- {{ item }}
+{% endfor %}

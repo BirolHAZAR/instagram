@@ -1,0 +1,471 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tr_numbers %}
+
+{% block title %}Hesabım{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/account_my_account.css' %}?v=20260706-referral-code-color">
+{% endblock %}
+
+{% block content %}
+<div class="account-wrapper">
+    <div class="container">
+        <!-- Başlık -->
+        <div class="account-header">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <div class="user-avatar">
+                        {% if request.user.first_name %}
+                            {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                        {% else %}
+                            {{ request.user.username|first|upper }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col">
+                    <h3 class="fw-bold mb-1">{{ request.user.get_full_name|default:request.user.username }}</h3>
+                    <p class="text-muted mb-0">{{ request.user.email }}</p>
+                    <small class="text-muted">Üyelik: {{ request.user.date_joined|date:"d.m.Y" }}</small>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'profile' %}" class="btn-outline-custom">
+                        <i class="fas fa-edit"></i> Profili Düzenle
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="security-summary-card">
+            <div class="security-summary-head">
+                <div>
+                    <h5 class="fw-bold mb-1">Hesap Güvenliği</h5>
+                    <p class="text-muted mb-0">E-posta doğrulama, sosyal girişler ve çift koruma durumunuz.</p>
+                </div>
+                <a href="{% url 'mfa_index' %}" class="btn-outline-custom">
+                    <i class="fas fa-shield-halved"></i> Güvenliği Yönet
+                </a>
+            </div>
+            <div class="security-summary-grid">
+                <a href="{% url 'account_email' %}" class="security-summary-item">
+                    <span class="security-summary-icon {% if security_summary.email_verified %}ok{% else %}warn{% endif %}">
+                        <i class="fas fa-envelope-circle-check"></i>
+                    </span>
+                    <span>
+                        <strong>E-posta</strong>
+                        {% if security_summary.email_verified %}
+                            <small>Doğrulandı: {{ security_summary.verified_email }}</small>
+                        {% else %}
+                            <small>Doğrulama bekliyor</small>
+                        {% endif %}
+                    </span>
+                </a>
+                <a href="{% url 'socialaccount_connections' %}" class="security-summary-item">
+                    <span class="security-summary-icon {% if security_summary.social_accounts_count %}ok{% else %}warn{% endif %}">
+                        <i class="fas fa-link"></i>
+                    </span>
+                    <span>
+                        <strong>Sosyal Giriş</strong>
+                        {% if security_summary.social_accounts_count %}
+                            <small>{{ security_summary.social_accounts_count }} bağlantı: {{ security_summary.social_providers|join:", " }}</small>
+                        {% else %}
+                            <small>Google, Facebook, Instagram veya TikTok bağlanabilir</small>
+                        {% endif %}
+                    </span>
+                </a>
+                <a href="{% url 'mfa_index' %}" class="security-summary-item">
+                    <span class="security-summary-icon {% if security_summary.mfa_enabled %}ok{% else %}warn{% endif %}">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <span>
+                        <strong>Çift Koruma</strong>
+                        {% if security_summary.mfa_enabled %}
+                            <small>Aktif: {{ security_summary.mfa_methods_count }} yöntem</small>
+                        {% else %}
+                            <small>2FA henüz aktif değil</small>
+                        {% endif %}
+                    </span>
+                </a>
+            </div>
+        </div>
+
+        <div class="ai-credit-card">
+            <div class="ai-credit-main">
+                <div class="ai-credit-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div>
+                    <span class="ai-credit-kicker">AI Kredi Bakiyesi</span>
+                    <h4>{{ ai_credit_balance.current_balance|default:0|tr_int }} kredi</h4>
+                    <p>
+                        {% if ai_credit_balance %}
+                            {{ ai_credit_balance.cycle_start|date:"d.m.Y" }} - {{ ai_credit_balance.cycle_end|date:"d.m.Y" }} d&#246;nemi
+                        {% else %}
+                            Hen&#252;z kredi hareketi bulunmuyor
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="ai-credit-meter">
+                <div class="ai-credit-meter-head">
+                    <span>Kullan&#305;lan</span>
+                    <strong>{{ ai_credit_usage_percent }}%</strong>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" style="width: {{ ai_credit_usage_percent }}%"></div>
+                </div>
+            </div>
+            <div class="ai-credit-breakdown">
+                <div>
+                    <span>Plan</span>
+                    <strong>{{ ai_credit_balance.plan_credits|default:0|tr_int }}</strong>
+                </div>
+                <div>
+                    <span>Ek Kredi</span>
+                    <strong>{{ ai_credit_balance.purchased_credits|default:0|tr_int }}</strong>
+                </div>
+                <div>
+                    <span>Kullan&#305;lan</span>
+                    <strong>{{ ai_credit_balance.used_credits|default:0|tr_int }}</strong>
+                </div>
+                <div>
+                    <span>Toplam Hak</span>
+                    <strong>{{ ai_credit_total|default:0|tr_int }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Sol Taraf - Ana Bilgiler -->
+            <div class="col-lg-8">
+                {% if referral_code %}
+                <div class="info-card referral-card">
+                    <div class="referral-head">
+                        <div>
+                            <h5 class="fw-bold mb-1">
+                                <i class="fas fa-gift me-2" style="color:#667eea;"></i>Promosyon Kodum
+                            </h5>
+                            <p class="text-muted mb-0">Bu kodla gelen yeni üyeler ilk abonelikte indirim alır; ödeme kesinleşince hakkınız tanımlanır.</p>
+                        </div>
+                    </div>
+                    <div class="referral-code-box">
+                        <span id="referralCodeValue">{{ referral_code.code }}</span>
+                        <button type="button" class="btn-outline-custom btn-sm" data-copy-target="referralCodeValue">
+                            <i class="fas fa-copy"></i> Kopyala
+                        </button>
+                    </div>
+                    <div class="referral-share-box">
+                        <small class="text-muted">Paylaşım linki</small>
+                        <div>
+                            <input id="referralShareUrl" value="{{ referral_share_url }}" readonly>
+                            <button type="button" class="btn-outline-custom btn-sm" data-copy-target="referralShareUrl">
+                                <i class="fas fa-link"></i> Linki Kopyala
+                            </button>
+                        </div>
+                    </div>
+                    <div class="referral-stats">
+                        <div><span>Bekleyen</span><strong>{{ referral_stats.pending }}</strong></div>
+                        <div><span>Tanımlanan</span><strong>{{ referral_stats.awarded }}</strong></div>
+                        <div><span>İptal</span><strong>{{ referral_stats.cancelled }}</strong></div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Aktif Abonelik -->
+                {% if active_subscription %}
+                <div class="subscription-card active">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1">Aktif Abonelik</h5>
+                            <p class="text-muted mb-0">{{ active_subscription.plan.display_name }}</p>
+                        </div>
+                        <span class="status-badge status-active">
+                            <i class="fas fa-check-circle me-1"></i>Aktif
+                        </span>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-2">
+                            <small class="text-muted">Başlangıç</small>
+                            <div class="fw-bold">{{ active_subscription.start_date|date:"d.m.Y" }}</div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <small class="text-muted">Bitiş</small>
+                            <div class="fw-bold">{{ active_subscription.end_date|date:"d.m.Y" }}</div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <small class="text-muted">Kalan Gün</small>
+                            <div class="fw-bold text-success">{{ active_subscription.days_remaining }} gün</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Kullanım Süresi</small>
+                            <small class="fw-bold">{{ active_subscription.days_remaining }} / 30 gün</small>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: {% widthratio active_subscription.days_remaining 30 100 %}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <a href="{% url 'pricing' %}" class="btn-outline-custom me-2">
+                            <i class="fas fa-sync-alt"></i> Yenile
+                        </a>
+                        <a href="{% url 'pricing' %}" class="btn-outline-custom">
+                            <i class="fas fa-arrow-up"></i> Yükselt
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="subscription-card expired">
+                    <div class="text-center py-4">
+                        <i class="fas fa-exclamation-circle fa-3x text-warning mb-3"></i>
+                        <h5 class="fw-bold">Aktif Abonelik Yok</h5>
+                        <p class="text-muted">Henüz bir pakete abone değilsiniz.</p>
+                        <a href="{% url 'pricing' %}" class="btn-primary-custom">
+                            <i class="fas fa-shopping-cart"></i> Paketleri İncele
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Son Ödemeler - DÜZELTİLDİ -->
+                <div class="info-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-credit-card me-2" style="color: #667eea;"></i>Son Ödemeler
+                        </h5>
+                        <a href="{% url 'my_payments' %}" class="btn-outline-custom btn-sm">Tümü</a>
+                    </div>
+                    
+                    {% if payments %}
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Tarih</th>
+                                    <th>Plan</th>
+                                    <th>Tutar</th>
+                                    <th>Yöntem</th>
+                                    <th>Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments|slice:":5" %}
+                                <tr>
+                                    <td>{{ payment.created_at|date:"d.m.Y" }}</td>
+                                    <td>{{ payment.plan.display_name|default:"-" }}</td>
+                                    <td class="fw-bold">{{ payment.amount }} TL</td>
+                                    <td>
+                                        {% if payment.payment_method == 'credit_card' %}
+                                            <i class="far fa-credit-card me-1"></i>Kredi Kartı
+                                        {% elif payment.payment_method == 'bank_transfer' %}
+                                            <i class="fas fa-university me-1"></i>Havale/EFT
+                                        {% else %}
+                                            <i class="fas fa-receipt me-1"></i>{{ payment.payment_method|default:"Diğer" }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-active">
+                                            <i class="fas fa-check me-1"></i>Tamamlandı
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="far fa-credit-card fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">Henüz ödeme kaydı bulunmuyor.</p>
+                        <small class="text-muted">
+                            İlk paketinizi satın almak için 
+                            <a href="{% url 'pricing' %}" class="text-decoration-none fw-bold" style="color: #667eea;">tıklayın</a>
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Son Faturalar -->
+                <div class="info-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-file-invoice me-2" style="color: #667eea;"></i>Son Faturalar
+                        </h5>
+                        <a href="{% url 'my_invoices' %}" class="btn-outline-custom btn-sm">Tümü</a>
+                    </div>
+                    
+                    {% if invoices %}
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Fatura No</th>
+                                    <th>Tarih</th>
+                                    <th>Tutar</th>
+                                    <th>Durum</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in invoices|slice:":5" %}
+                                <tr>
+                                    <td><code>{{ invoice.invoice_number }}</code></td>
+                                    <td>{{ invoice.created_at|date:"d.m.Y" }}</td>
+                                    <td class="fw-bold">{{ invoice.total_amount }} TL</td>
+                                    <td>
+                                        <span class="status-badge status-active">
+                                            <i class="fas fa-check me-1"></i>Ödendi
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'invoice_detail' invoice.id %}" class="btn-outline-custom btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-file-invoice fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">Henüz fatura oluşmamış.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Sağ Taraf - Hızlı Linkler -->
+            <div class="col-lg-4">
+                <div class="info-card">
+                    <h5 class="fw-bold mb-3">Hızlı Erişim</h5>
+                    
+                    <a href="{% url 'my_subscriptions' %}" class="quick-link">
+                        <div class="quick-link-item" style="background: #f8f9ff;">
+                            <div class="info-icon icon-purple me-3">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">Aboneliklerim</h6>
+                                <small class="text-muted">Tüm abonelik geçmişiniz</small>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'my_payments' %}" class="quick-link">
+                        <div class="quick-link-item" style="background: #f0fff4;">
+                            <div class="info-icon icon-green me-3">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">Ödemelerim</h6>
+                                <small class="text-muted">Ödeme geçmişiniz</small>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'my_invoices' %}" class="quick-link">
+                        <div class="quick-link-item" style="background: #fff7ed;">
+                            <div class="info-icon icon-orange me-3">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">Faturalarım</h6>
+                                <small class="text-muted">Fatura geçmişiniz</small>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'pricing' %}" class="quick-link">
+                        <div class="quick-link-item" style="background: #eff6ff;">
+                            <div class="info-icon icon-blue me-3">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">Planları İncele</h6>
+                                <small class="text-muted">Paketleri karşılaştırın</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'account_email' %}" class="quick-link">
+                        <div class="quick-link-item" style="background: #f8fafc;">
+                            <div class="info-icon icon-blue me-3">
+                                <i class="fas fa-envelope-circle-check"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">E-posta Güvenliği</h6>
+                                <small class="text-muted">Doğrulama ve e-posta yönetimi</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'socialaccount_connections' %}" class="quick-link">
+                        <div class="quick-link-item" style="background: #f0f9ff;">
+                            <div class="info-icon icon-purple me-3">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">Sosyal Girişler</h6>
+                                <small class="text-muted">Google, Facebook, Instagram, TikTok</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'mfa_index' %}" class="quick-link">
+                        <div class="quick-link-item" style="background: #ecfdf5;">
+                            <div class="info-icon icon-green me-3">
+                                <i class="fas fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-dark">Çift Koruma</h6>
+                                <small class="text-muted">2FA uygulaması ve kurtarma kodları</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                {% if active_subscription %}
+                <div class="info-card">
+                    <h5 class="fw-bold mb-3">Paket Özellikleriniz</h5>
+                    <ul class="list-unstyled mb-0">
+                        {% for feature in active_subscription.plan.feature_list %}
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            {{ feature }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('[data-copy-target]').forEach(function(button) {
+    button.addEventListener('click', function() {
+        var target = document.getElementById(button.dataset.copyTarget);
+        if (!target) return;
+        var value = target.value || target.textContent;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(value);
+        } else if (target.select) {
+            target.select();
+            document.execCommand('copy');
+        }
+        var original = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> Kopyalandı';
+        setTimeout(function() { button.innerHTML = original; }, 1600);
+    });
+});
+</script>
+{% endblock %}

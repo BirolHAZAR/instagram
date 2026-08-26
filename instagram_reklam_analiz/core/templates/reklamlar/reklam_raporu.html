@@ -1,0 +1,1360 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Ã‡oklu Platform Reklam Raporu{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/ads_ai_popup.css' %}">
+<style>
+    :root {
+        --primary: #6366f1;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --gray: #64748b;
+        --light: #f8fafc;
+        --border: #e2e8f0;
+    }
+
+    body { background: #f1f5f9; }
+
+    .rapor-container {
+        display: flex;
+        min-height: calc(100vh - 56px);
+        background: #f1f5f9;
+    }
+
+    .filter-sidebar {
+        width: 320px;
+        min-width: 320px;
+        background: white;
+        border-right: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .filter-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.2rem;
+        background: white;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .filter-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-title i { color: var(--primary); }
+
+    .toggle-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        border: none;
+        color: var(--dark);
+    }
+
+    .filter-body-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        max-height: calc(100vh - 60px);
+    }
+
+    .filter-body-inner {
+        padding: 1rem 1.2rem 1.5rem;
+        border-top: 1px solid var(--border);
+    }
+
+    .search-box-top {
+        position: relative;
+        margin-bottom: .9rem;
+    }
+
+    .search-box-top input {
+        width: 100%;
+        padding: 10px 12px 10px 38px;
+        border-radius: 10px;
+        border: 1.5px solid var(--border);
+        font-size: .85rem;
+        background: white;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray);
+    }
+
+    .date-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: .85rem;
+    }
+
+    .date-field { flex: 1; }
+
+    .date-field label,
+    .filter-group label {
+        display: block;
+        font-size: .65rem;
+        font-weight: 800;
+        color: var(--dark);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .date-field input,
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1.5px solid var(--border);
+        font-size: .82rem;
+        background: white;
+    }
+
+    .filter-group { margin-bottom: .8rem; }
+
+    .filter-separator {
+        border-top: 1px dashed var(--border);
+        margin: .9rem 0;
+    }
+
+    .btn-apply {
+        width: 100%;
+        padding: 10px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: .85rem;
+        margin-top: .3rem;
+    }
+
+    .btn-reset {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 8px;
+        background: var(--border);
+        color: var(--dark);
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: .8rem;
+        margin-top: .45rem;
+    }
+
+    .content-area {
+        flex: 1;
+        padding: 1.2rem;
+        overflow-y: auto;
+        min-width: 0;
+    }
+
+    .page-head {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .page-head h1 {
+        font-size: 1.15rem;
+        font-weight: 900;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .page-head p {
+        color: var(--gray);
+        margin: .25rem 0 0;
+        font-size: .82rem;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: .72rem .55rem;
+        text-align: center;
+        border: 1px solid var(--border);
+    }
+
+    .stat-card .icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .78rem;
+        margin: 0 auto 5px;
+    }
+
+    .icon.primary { background: #eef2ff; color: #6366f1; }
+    .icon.success { background: #d1fae5; color: #10b981; }
+    .icon.warning { background: #fef3c7; color: #f59e0b; }
+    .icon.danger { background: #fee2e2; color: #ef4444; }
+    .icon.info { background: #dbeafe; color: #3b82f6; }
+
+    .stat-card .value {
+        font-size: 1rem;
+        font-weight: 900;
+        color: var(--dark);
+    }
+
+    .stat-card .label {
+        font-size: .6rem;
+        color: var(--gray);
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    .organic-impact {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .organic-impact-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: .85rem;
+    }
+
+    .organic-impact-title {
+        font-weight: 900;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .organic-impact-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .organic-impact-item {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: .75rem;
+    }
+
+    .organic-impact-item strong {
+        display: block;
+        color: var(--dark);
+        font-size: 1rem;
+        font-weight: 900;
+    }
+
+    .organic-impact-item span {
+        color: var(--gray);
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .organic-impact-note {
+        color: var(--gray);
+        font-size: .8rem;
+        margin: .8rem 0 0;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        overflow-x: auto;
+    }
+
+    .table-container table {
+        width: 100%;
+        min-width: 1180px;
+        border-collapse: collapse;
+    }
+
+    .table-container thead th {
+        background: #fafafa;
+        font-size: .62rem;
+        text-transform: uppercase;
+        font-weight: 900;
+        color: var(--gray);
+        padding: .78rem;
+        border-bottom: 2px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .table-container tbody td {
+        padding: .7rem .78rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: .72rem;
+        color: var(--dark);
+    }
+
+    .table-container .metric-strong,
+    .table-container .metric-money {
+        white-space: nowrap;
+    }
+
+    .table-container tbody tr {
+        cursor: pointer;
+    }
+
+    .table-container tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .ad-thumb {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 2px solid var(--border);
+        background: #f1f5f9;
+    }
+
+    .clickable-name {
+        color: var(--dark);
+        font-weight: 800;
+        font-size: .82rem;
+    }
+
+    .muted-small {
+        color: var(--gray);
+        font-size: .7rem;
+    }
+
+    .badge-status {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: .7rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .badge-active { background: #d1fae5; color: #065f46; }
+    .badge-paused { background: #fef3c7; color: #92400e; }
+    .badge-completed { background: #dbeafe; color: #1e40af; }
+    .badge-archived { background: #e2e8f0; color: #475569; }
+    .badge-rejected { background: #fee2e2; color: #991b1b; }
+    .badge-default { background: #f1f5f9; color: #475569; }
+
+    .metric-strong {
+        font-weight: 900;
+        color: var(--dark);
+    }
+
+    .phone-popup-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, .7);
+        backdrop-filter: blur(4px);
+        z-index: 99999;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .phone-popup-overlay.active { display: flex; }
+
+    .phone-frame {
+        width: 390px;
+        max-width: 95vw;
+        height: 750px;
+        max-height: 90vh;
+        background: #0f172a;
+        border-radius: 40px;
+        padding: 12px;
+        box-shadow: 0 30px 60px rgba(0,0,0,.4);
+        position: relative;
+    }
+
+    .close-phone-popup {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        background: rgba(255,255,255,.15);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .phone-notch {
+        width: 140px;
+        height: 28px;
+        background: #0f172a;
+        border-radius: 0 0 18px 18px;
+        margin: 0 auto 6px;
+    }
+
+    .phone-screen {
+        background: white;
+        border-radius: 28px;
+        height: calc(100% - 40px);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .phone-app-header {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        padding: 14px 16px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 28px 28px 0 0;
+    }
+
+    .phone-app-header button {
+        background: transparent;
+        border: none;
+        color: white;
+    }
+
+    .phone-body {
+        padding: 14px;
+        flex: 1;
+        color: #0f172a;
+    }
+
+    .phone-media-area {
+        width: 100%;
+        aspect-ratio: 1/1;
+        background: #f1f5f9;
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .phone-media-area img,
+    .phone-media-area video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .phone-ad-title {
+        font-size: 1rem;
+        font-weight: 900;
+        margin-bottom: 4px;
+    }
+
+    .phone-ad-account {
+        font-size: .75rem;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .phone-status-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    .phone-metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+        margin-top: 10px;
+    }
+
+    .phone-metric-item,
+    .phone-metric-full {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .phone-metric-full {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 7px;
+    }
+
+    .pm-value {
+        font-weight: 900;
+        font-size: 1rem;
+    }
+
+    .pm-label {
+        color: #64748b;
+        font-size: .7rem;
+        margin-top: 2px;
+    }
+
+    @media (max-width: 1100px) {
+        .stats-row {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .organic-impact-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .rapor-container {
+            flex-direction: column;
+        }
+
+        .filter-sidebar {
+            width: 100%;
+            min-width: 100%;
+            height: auto;
+            position: relative;
+        }
+
+        .stats-row {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .organic-impact-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    /* Octo rapor merkezi - proje genelindeki koyu profesyonel tasarım dili */
+    :root {
+        --primary: #7468ff;
+        --success: #39dfa2;
+        --warning: #f6c453;
+        --danger: #ff607d;
+        --dark: #f8fafc;
+        --gray: #9ca8c7;
+        --light: #11182f;
+        --border: rgba(125, 139, 212, .22);
+        --report-panel: rgba(14, 22, 48, .94);
+        --report-panel-soft: rgba(19, 29, 59, .86);
+    }
+    body { background: #050817; color: #f8fafc; }
+    main { background: #050817; }
+    .rapor-container {
+        background:
+            radial-gradient(circle at 78% 0%, rgba(31, 164, 255, .14), transparent 32%),
+            radial-gradient(circle at 24% 5%, rgba(116, 104, 255, .16), transparent 31%),
+            #050817;
+        gap: 20px;
+        padding: 20px;
+    }
+    .filter-sidebar {
+        width: 330px;
+        min-width: 330px;
+        height: calc(100vh - 96px);
+        top: 76px;
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(15, 23, 50, .98), rgba(7, 12, 31, .98));
+        box-shadow: 0 28px 80px rgba(0, 0, 0, .38);
+    }
+    .filter-header-bar { background: transparent; border-color: var(--border); padding: 18px; }
+    .filter-title, .date-field label, .filter-group label { color: #eef2ff; }
+    .toggle-icon { background: rgba(255,255,255,.07); color: #dce4ff; }
+    .filter-body-inner { border-color: var(--border); padding: 18px; }
+    .search-box-top input,
+    .date-field input,
+    .filter-group select,
+    .filter-group input {
+        background: rgba(5, 9, 25, .78);
+        border-color: rgba(125, 139, 212, .28);
+        color: #f8fafc;
+        min-height: 42px;
+    }
+    .search-box-top input:focus,
+    .date-field input:focus,
+    .filter-group select:focus { border-color: #7468ff; box-shadow: 0 0 0 3px rgba(116,104,255,.14); outline: none; }
+    .filter-separator { border-color: rgba(125,139,212,.22); }
+    .agency-report-filter {
+        padding: 12px;
+        margin-bottom: 14px;
+        border: 1px solid rgba(57,223,162,.28);
+        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(57,223,162,.10), rgba(116,104,255,.10));
+    }
+    .agency-report-filter label { color: #bff8e3; }
+    .agency-report-filter small { display: block; margin-top: 6px; color: #9ca8c7; font-size: .66rem; line-height: 1.4; }
+    .btn-apply { min-height: 44px; background: linear-gradient(135deg, #665cff, #258ee9); box-shadow: 0 13px 28px rgba(74,73,255,.25); }
+    .btn-reset { background: rgba(255,255,255,.07); color: #dfe6ff; border: 1px solid var(--border); }
+    .content-area { padding: 0; }
+    .page-head {
+        min-height: 132px;
+        padding: 24px 26px;
+        border-color: rgba(116,104,255,.30);
+        border-radius: 22px;
+        background: linear-gradient(135deg, rgba(33, 42, 91, .96), rgba(12, 22, 48, .96));
+        box-shadow: 0 28px 75px rgba(0,0,0,.30);
+        overflow: hidden;
+        position: relative;
+    }
+    .page-head:after { content:""; position:absolute; width:230px; height:230px; right:-60px; top:-105px; border-radius:50%; background:rgba(57,223,162,.10); }
+    .page-head h1 { color: #fff; font-size: clamp(1.5rem, 2.2vw, 2.15rem); letter-spacing: -.035em; }
+    .page-head p { color: #b9c5e5; max-width: 720px; font-size: .86rem; }
+    .page-head .btn { position: relative; z-index: 1; border: 0; border-radius: 999px; padding: 11px 16px; font-weight: 850; background: linear-gradient(135deg,#7468ff,#39dfa2); color:#071022; }
+    .stats-row { grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 12px; }
+    .stat-card {
+        min-height: 126px;
+        padding: 16px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-color: var(--border);
+        border-radius: 18px;
+        background: linear-gradient(155deg, rgba(22,32,67,.96), rgba(10,16,38,.96));
+        box-shadow: 0 18px 44px rgba(0,0,0,.22);
+    }
+    .stat-card .icon { width: 38px; height: 38px; border-radius: 13px; margin-bottom: 10px; }
+    .stat-card .value { width: 100%; color: #fff; font-size: 1.12rem; line-height: 1.25; font-variant-numeric: tabular-nums lining-nums; }
+    .stat-card .label { margin-top: 5px; color: #99a6c8; letter-spacing: .045em; }
+    .organic-impact {
+        border-color: var(--border);
+        border-radius: 20px;
+        background: linear-gradient(145deg, rgba(16,26,55,.96), rgba(9,16,37,.96));
+        box-shadow: 0 20px 55px rgba(0,0,0,.23);
+    }
+    .organic-impact-title { color: #f4f7ff; }
+    .organic-impact-item {
+        min-height: 104px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: rgba(255,255,255,.035);
+        border-color: rgba(125,139,212,.18);
+    }
+    .organic-impact-item strong { color: #fff; font-variant-numeric: tabular-nums lining-nums; }
+    .organic-impact-item span, .organic-impact-note, .muted-small { color: #9ca8c7; }
+    .table-container {
+        border-color: var(--border);
+        border-radius: 20px;
+        background: rgba(11,18,41,.96);
+        box-shadow: 0 24px 64px rgba(0,0,0,.28);
+    }
+    .table-container thead th { background: #111a38; color: #aeb9d8; border-color: var(--border); padding: 14px 12px; }
+    .table-container tbody td { color: #dfe5f8; border-color: rgba(125,139,212,.12); padding: 12px; }
+    .table-container tbody tr:hover { background: rgba(116,104,255,.075); }
+    .clickable-name, .metric-strong { color: #f8fafc; }
+    .ad-thumb { border-color: rgba(116,104,255,.34); background: #111936; }
+    .table-container .table {
+        --bs-table-bg: transparent;
+        --bs-table-color: #f8fafc;
+        --bs-table-border-color: rgba(125,139,212,.15);
+        --bs-table-hover-bg: rgba(116,104,255,.10);
+        --bs-table-hover-color: #ffffff;
+        margin-bottom: 0;
+    }
+    .table-container .table > :not(caption) > * > * {
+        background-color: #080e20 !important;
+        color: #f8fafc !important;
+        border-bottom-color: rgba(125,139,212,.15) !important;
+        box-shadow: none !important;
+    }
+    .table-container .table > thead > tr > th {
+        background: #111a38 !important;
+        color: #cbd5ff !important;
+    }
+    .table-container .table > tbody > tr:nth-child(even) > td {
+        background-color: #0b1329 !important;
+    }
+    .table-container .table > tbody > tr:hover > td {
+        background-color: #151d43 !important;
+        color: #ffffff !important;
+    }
+    .table-container .table td *,
+    .table-container .table .clickable-name,
+    .table-container .table .metric-strong { color: inherit !important; }
+    .table-container .table .muted-small { color: #9eabd0 !important; }
+    .table-container .table .badge-active { color: #064e3b !important; }
+    .table-container .table .badge-paused { color: #78350f !important; }
+    .table-container .table .badge-completed { color: #1e3a8a !important; }
+    .table-container .table .badge-rejected { color: #7f1d1d !important; }
+    .phone-metric-item, .phone-metric-full { text-align: center; align-items: center; }
+    @media (max-width: 768px) {
+        .rapor-container { padding: 10px; }
+        .filter-sidebar { width: 100%; min-width: 100%; height: auto; top: 0; }
+        .page-head { align-items: flex-start; flex-direction: column; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rapor-container">
+
+    <div class="filter-sidebar open" id="filterSidebar">
+        <div class="filter-header-bar" id="filterToggle">
+            <span class="filter-title">
+                <i class="fas fa-sliders-h"></i>
+                GeliÅŸmiÅŸ Filtreler
+            </span>
+            <button class="toggle-icon" type="button">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        </div>
+
+        <div class="filter-body-wrapper" id="filterBody">
+            <div class="filter-body-inner">
+                <form method="GET" action="{% url 'reklam_raporu' %}" id="filterForm">
+                    {% csrf_token %}
+                    {% if agency_scope.is_agency %}
+                    <div class="agency-report-filter">
+                        <div class="filter-group" style="margin-bottom:0;">
+                            <label for="reportAgencyClient"><i class="fas fa-building-user me-1"></i> Ajans müşterisi</label>
+                            <select name="agency_client" id="reportAgencyClient" onchange="this.form.submit()">
+                                <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm müşteriler</option>
+                                {% for client in agency_scope.clients %}
+                                <option value="{{ client.id }}"{% if agency_scope.selected_client.id == client.id %} selected{% endif %}>{{ client.organization.name }} · {{ client.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small>{% if agency_scope.selected_client %}Rapor yalnız {{ agency_scope.selected_client.name }} verilerini gösteriyor.{% else %}Ajansınıza bağlı tüm firmalar raporlanıyor.{% endif %}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="search-box-top">
+                        <span class="search-icon"><i class="fas fa-search"></i></span>
+                        <input type="text" name="arama" value="{{ filtre_arama }}" placeholder="Reklam adÄ±, baÅŸlÄ±k, aÃ§Ä±klama veya kampanya ara...">
+                    </div>
+
+                    <div class="date-row">
+                        <div class="date-field">
+                            <label>BaÅŸlangÄ±Ã§</label>
+                            <input type="date" name="baslangic_tarih" value="{{ filtre_baslangic }}">
+                        </div>
+                        <div class="date-field">
+                            <label>BitiÅŸ</label>
+                            <input type="date" name="bitis_tarih" value="{{ filtre_bitis }}">
+                        </div>
+                    </div>
+
+                    <div class="filter-separator"></div>
+
+                    <div class="filter-group">
+                        <label>Platform</label>
+                        <select name="platform" id="platformSelect">
+                            <option value="">TÃ¼m Platformlar</option>
+                            {% for p in platforms %}
+                                <option value="{{ p.code }}" {% if filtre_platform == p.code %}selected{% endif %}>
+                                    {{ p.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Hesap</label>
+                        <select name="hesap" id="accountSelect">
+                            <option value="">TÃ¼m Hesaplar</option>
+                            {% for acc in platform_accounts %}
+                                <option value="{{ acc.id }}" data-platform="{{ acc.platform.code }}" {% if filtre_hesap == acc.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ acc.account_name|default:acc.account_id }} ({{ acc.platform.name }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Durum</label>
+                        <select name="durum">
+                            <option value="">TÃ¼mÃ¼</option>
+                            <option value="active" {% if filtre_durum == 'active' %}selected{% endif %}>Aktif</option>
+                            <option value="paused" {% if filtre_durum == 'paused' %}selected{% endif %}>DuraklatÄ±ldÄ±</option>
+                            <option value="ended" {% if filtre_durum == 'ended' %}selected{% endif %}>Bitti</option>
+                            <option value="archived" {% if filtre_durum == 'archived' %}selected{% endif %}>ArÅŸivlendi</option>
+                            <option value="unknown" {% if filtre_durum == 'unknown' %}selected{% endif %}>Bilinmiyor</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>SÄ±ralama</label>
+                        <select name="sirala">
+                            <option value="-created_at" {% if filtre_sirala == '-created_at' %}selected{% endif %}>En yeni</option>
+                            <option value="created_at" {% if filtre_sirala == 'created_at' %}selected{% endif %}>En eski</option>
+                            <option value="-total_impressions" {% if filtre_sirala == '-total_impressions' %}selected{% endif %}>En Ã§ok gÃ¶sterim</option>
+                            <option value="-total_clicks" {% if filtre_sirala == '-total_clicks' %}selected{% endif %}>En Ã§ok tÄ±klama</option>
+                            <option value="-total_spend" {% if filtre_sirala == '-total_spend' %}selected{% endif %}>En Ã§ok harcama</option>
+                            <option value="-avg_ctr" {% if filtre_sirala == '-avg_ctr' %}selected{% endif %}>En yÃ¼ksek CTR</option>
+                            <option value="-avg_engagement_rate" {% if filtre_sirala == '-avg_engagement_rate' %}selected{% endif %}>En yÃ¼ksek etkileÅŸim</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-apply">
+                        <i class="fas fa-filter"></i>
+                        Filtreleri Uygula
+                    </button>
+
+                    <a href="{% url 'reklam_raporu' %}{% if agency_scope.selected_client %}?agency_client={{ agency_scope.selected_client.id }}{% endif %}" class="btn-reset">
+                        <i class="fas fa-sync-alt"></i>
+                        SÄ±fÄ±rla
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="page-head">
+            <div>
+                <h1>Reklam Raporu</h1>
+                <p>Platform, hesap, kampanya, kreatif ve performans metriklerini tek bir profesyonel raporlama merkezinde inceleyin.</p>
+            </div>
+            <a href="{% url 'ads_center' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-chart-line"></i>
+                Hareketleri GÃ¶r
+            </a>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="icon primary"><i class="fas fa-ad"></i></div>
+                <div class="value">{{ stats.toplam_reklam|tr_int }}</div>
+                <div class="label">Reklam</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon info"><i class="fas fa-eye"></i></div>
+                <div class="value">{{ stats.toplam_gosterim|tr_int }}</div>
+                <div class="label">GÃ¶sterim</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon success"><i class="fas fa-mouse-pointer"></i></div>
+                <div class="value">{{ stats.toplam_tiklama|tr_int }}</div>
+                <div class="label">TÄ±klama</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon warning"><i class="fas fa-turkish-lira-sign"></i></div>
+                <div class="value">{{ stats.toplam_harcama|tr_decimal }} TL</div>
+                <div class="label">Harcama</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon primary"><i class="fas fa-bullseye"></i></div>
+                <div class="value">{{ stats.toplam_donusum|tr_decimal }}</div>
+                <div class="label">DÃ¶nÃ¼ÅŸÃ¼m</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon danger"><i class="fas fa-star"></i></div>
+                <div class="value">%{{ stats.ortalama_ctr|tr_decimal }}</div>
+                <div class="label">Ort. CTR</div>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="icon success"><i class="fas fa-heart"></i></div>
+                <div class="value">{{ stats.toplam_begeni|tr_int }}</div>
+                <div class="label">BeÄŸeni</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon info"><i class="fas fa-comment"></i></div>
+                <div class="value">{{ stats.toplam_yorum|tr_int }}</div>
+                <div class="label">Yorum</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon warning"><i class="fas fa-share"></i></div>
+                <div class="value">{{ stats.toplam_paylasim|tr_int }}</div>
+                <div class="label">PaylaÅŸÄ±m</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon primary"><i class="fas fa-bookmark"></i></div>
+                <div class="value">{{ stats.toplam_kaydetme|tr_int }}</div>
+                <div class="label">Kaydetme</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon danger"><i class="fas fa-chart-line"></i></div>
+                <div class="value">%{{ stats.ortalama_etkilesim|tr_decimal }}</div>
+                <div class="label">Ort. EtkileÅŸim</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon success"><i class="fas fa-video"></i></div>
+                <div class="value">{{ stats.toplam_video|tr_int }}</div>
+                <div class="label">Video View</div>
+            </div>
+        </div>
+
+        <div class="organic-impact">
+            <div class="organic-impact-head">
+                <div>
+                    <div class="organic-impact-title"><i class="fas fa-share-nodes"></i> Organik Icerik Etkisi</div>
+                    <div class="muted-small">Son 30 gunluk organik post metrikleri reklam raporunun yaninda okunur.</div>
+                </div>
+                <a href="{% url 'organic_content_center' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-calendar-days"></i>
+                    Organik Merkezi
+                </a>
+            </div>
+            <div class="organic-impact-grid">
+                <div class="organic-impact-item">
+                    <strong>{{ organic_stats.total_posts|tr_int }}</strong>
+                    <span>Organik Icerik</span>
+                </div>
+                <div class="organic-impact-item">
+                    <strong>{{ organic_stats.reach|tr_int }}</strong>
+                    <span>Organik Erisim</span>
+                </div>
+                <div class="organic-impact-item">
+                    <strong>{{ organic_stats.engagement|tr_int }}</strong>
+                    <span>Organik Etkilesim</span>
+                </div>
+                <div class="organic-impact-item">
+                    <strong>%{{ organic_report_impact.organic_engagement_share|tr_decimal }}</strong>
+                    <span>Etkilesim Payi</span>
+                </div>
+                <div class="organic-impact-item">
+                    <strong>%{{ organic_report_impact.organic_reach_share|tr_decimal }}</strong>
+                    <span>Erisim Katkisi</span>
+                </div>
+            </div>
+            <p class="organic-impact-note">{{ organic_report_impact.recommendation }}</p>
+        </div>
+
+        {% if reklamlar %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Reklam</th>
+                            <th>Platform</th>
+                            <th>Hesap</th>
+                            <th>Kampanya</th>
+                            <th>Reklam Grubu</th>
+                            <th>TÃ¼r</th>
+                            <th>Durum</th>
+                            <th>GÃ¶sterim</th>
+                            <th>TÄ±klama</th>
+                            <th>CTR</th>
+                            <th>Harcama</th>
+                            <th>DÃ¶nÃ¼ÅŸÃ¼m</th>
+                            <th>EtkileÅŸim</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reklam in reklamlar %}
+                            <tr onclick="openAIPopup('{{ reklam.id }}')">
+                                <td>
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        {% if reklam.preview_image_url %}
+                                            <img src="{{ reklam.preview_image_url }}" class="ad-thumb" alt="Reklam">
+                                        {% elif reklam.creative.image_url %}
+                                            <img src="{{ reklam.creative.image_url }}" class="ad-thumb" alt="Reklam">
+                                        {% elif reklam.creative.thumbnail_url %}
+                                            <img src="{{ reklam.creative.thumbnail_url }}" class="ad-thumb" alt="Reklam">
+                                        {% else %}
+                                            <div class="ad-thumb" style="display:flex;align-items:center;justify-content:center;">
+                                                <i class="fas fa-image" style="color:#94a3b8;"></i>
+                                            </div>
+                                        {% endif %}
+
+                                        <div>
+                                            <div class="clickable-name">
+                                                {{ reklam.name|default:reklam.headline|default:"Ä°simsiz Reklam"|truncatechars:38 }}
+                                            </div>
+                                            <div class="muted-small">
+                                                {{ reklam.created_at|date:"d.m.Y H:i" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if reklam.platform_account and reklam.platform_account.platform %}
+                                        {{ reklam.platform_account.platform.name }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if reklam.platform_account %}
+                                        {{ reklam.platform_account.account_name|default:reklam.platform_account.account_id }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if reklam.campaign %}
+                                        {{ reklam.campaign.name|truncatechars:30 }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if reklam.ad_group %}
+                                        {{ reklam.ad_group.name|truncatechars:30 }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ reklam.ad_format|default:reklam.creative.creative_type|default:"-" }}
+                                </td>
+
+                                <td>
+                                    {% with status_lower=reklam.status|lower %}
+                                        {% if status_lower == 'active' %}
+                                            <span class="badge-status badge-active">Aktif</span>
+                                        {% elif status_lower == 'paused' %}
+                                            <span class="badge-status badge-paused">DuraklatÄ±ldÄ±</span>
+                                        {% elif status_lower == 'ended' %}
+                                            <span class="badge-status badge-completed">Bitti</span>
+                                        {% elif status_lower == 'archived' %}
+                                            <span class="badge-status badge-archived">ArÅŸivlendi</span>
+                                        {% elif status_lower == 'deleted' %}
+                                            <span class="badge-status badge-rejected">Silindi</span>
+                                        {% else %}
+                                            <span class="badge-status badge-default">{{ reklam.status }}</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+
+                                <td class="metric-strong">{{ reklam.total_impressions|default:0|tr_int }}</td>
+                                <td class="metric-strong">{{ reklam.total_clicks|default:0|tr_int }}</td>
+                                <td class="metric-strong">%{{ reklam.avg_ctr|default:0|tr_decimal }}</td>
+                                <td class="metric-strong metric-money">{{ reklam.total_spend|default:0|tr_decimal }} TL</td>
+                                <td class="metric-strong">{{ reklam.total_conversions|default:0|tr_decimal }}</td>
+                                <td class="metric-strong">%{{ reklam.avg_engagement_rate|default:0|tr_decimal }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="table-container" style="text-align:center;padding:3rem;">
+                <i class="fas fa-search" style="font-size:3rem;color:#cbd5e1;margin-bottom:1rem;"></i>
+                <h5>Reklam BulunamadÄ±</h5>
+                <p style="color:var(--gray);">Filtreleri deÄŸiÅŸtirerek tekrar deneyin.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="phone-popup-overlay" id="phonePopup">
+    <div class="phone-frame">
+        <button class="close-phone-popup" type="button" onclick="closePhonePopup()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="phone-notch"></div>
+
+        <div class="phone-screen" id="phoneScreen">
+            <div class="phone-app-header">
+                <button type="button" onclick="closePhonePopup()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span>Reklam DetayÄ±</span>
+                <button type="button">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+
+            <div class="phone-body" id="phoneBody">
+                <div style="text-align:center;padding:40px;color:#94a3b8;">
+                    <i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i>
+                    <br>
+                    YÃ¼kleniyor...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.adsPanelAgencyClientScope = '{{ agency_scope.selected_client.id|default:""|escapejs }}';
+window.adsPanelAutoRuleScan = true;
+window.adsPanelCsrfToken = (document.cookie.match(/(?:^|; )csrftoken=([^;]*)/) || [])[1] ? decodeURIComponent((document.cookie.match(/(?:^|; )csrftoken=([^;]*)/) || [])[1]) : '';
+</script>
+<script src="{% static 'js/ads_ai_popup.js' %}"></script>
+<script>
+const reklamData = {
+    {% for reklam in reklamlar %}
+    "{{ reklam.id }}": {
+        id: "{{ reklam.id }}",
+        name: "{{ reklam.name|default:reklam.headline|default:'Ä°simsiz Reklam'|escapejs }}",
+        platform: "{% if reklam.platform_account and reklam.platform_account.platform %}{{ reklam.platform_account.platform.name|escapejs }}{% else %}-{% endif %}",
+        account: "{% if reklam.platform_account %}{{ reklam.platform_account.account_name|default:reklam.platform_account.account_id|escapejs }}{% else %}-{% endif %}",
+        campaign: "{% if reklam.campaign %}{{ reklam.campaign.name|escapejs }}{% else %}-{% endif %}",
+        adGroup: "{% if reklam.ad_group %}{{ reklam.ad_group.name|escapejs }}{% else %}-{% endif %}",
+        creativeType: "{{ reklam.ad_format|default:reklam.creative.creative_type|default:'-'|escapejs }}",
+        status: "{{ reklam.status|default:'UNKNOWN'|lower }}",
+        headline: "{{ reklam.headline|default:''|escapejs }}",
+        primaryText: "{{ reklam.primary_text|default:''|escapejs }}",
+        description: "{{ reklam.description|default:''|escapejs }}",
+        landingUrl: "{{ reklam.landing_url|default:''|escapejs }}",
+        imageUrl: "{{ reklam.preview_image_url|default:reklam.creative.image_url|default:reklam.creative.thumbnail_url|default:'' }}",
+        videoUrl: "{{ reklam.preview_video_url|default:reklam.creative.video_url|default:'' }}",
+        createdAt: "{{ reklam.created_at|date:'d.m.Y H:i' }}",
+        startedAt: "{{ reklam.started_at|date:'d.m.Y H:i' }}",
+        endedAt: "{{ reklam.ended_at|date:'d.m.Y H:i' }}",
+        impressions: "{{ reklam.total_impressions|default:'0' }}",
+        clicks: "{{ reklam.total_clicks|default:'0' }}",
+        ctr: "{{ reklam.avg_ctr|default:'0' }}",
+        spend: "{{ reklam.total_spend|default:'0' }}",
+        conversions: "{{ reklam.total_conversions|default:'0' }}",
+        cpc: "{{ reklam.avg_cpc|default:'0' }}",
+        cpm: "{{ reklam.avg_cpm|default:'0' }}",
+        engagementRate: "{{ reklam.avg_engagement_rate|default:'0' }}",
+        likes: "{{ reklam.total_likes|default:'0' }}",
+        comments: "{{ reklam.total_comments|default:'0' }}",
+        shares: "{{ reklam.total_shares|default:'0' }}",
+        saves: "{{ reklam.total_saves|default:'0' }}",
+        videoViews: "{{ reklam.total_video_views|default:'0' }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+function formatNumber(num, fractionDigits = 2) {
+    const number = Number.parseFloat(num);
+    const safeNumber = Number.isFinite(number) ? number : 0;
+    return new Intl.NumberFormat('tr-TR', {
+        minimumFractionDigits: fractionDigits,
+        maximumFractionDigits: fractionDigits
+    }).format(safeNumber);
+}
+
+function formatCurrency(num) {
+    return `${formatNumber(num, 2)} TL`;
+}
+
+function escapeHtml(value) {
+    const div = document.createElement("div");
+    div.textContent = value || "";
+    return div.innerHTML;
+}
+
+function statusBadge(status) {
+    const s = (status || "").toLowerCase();
+    if (s === "active") return '<span class="badge-status badge-active">Aktif</span>';
+    if (s === "paused") return '<span class="badge-status badge-paused">DuraklatÄ±ldÄ±</span>';
+    if (s === "ended") return '<span class="badge-status badge-completed">Bitti</span>';
+    if (s === "archived") return '<span class="badge-status badge-archived">ArÅŸivlendi</span>';
+    if (s === "deleted") return '<span class="badge-status badge-rejected">Silindi</span>';
+    return `<span class="badge-status badge-default">${escapeHtml(status || "Bilinmiyor")}</span>`;
+}
+
+function openPhonePopup(adId) {
+    const ad = reklamData[adId];
+    if (!ad) return;
+
+    let mediaHtml = "";
+    if (ad.videoUrl) {
+        mediaHtml = `
+            <div class="phone-media-area">
+                <video controls muted loop playsinline>
+                    <source src="${escapeHtml(ad.videoUrl)}" type="video/mp4">
+                </video>
+            </div>
+        `;
+    } else if (ad.imageUrl) {
+        mediaHtml = `
+            <div class="phone-media-area">
+                <img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.name)}">
+            </div>
+        `;
+    } else {
+        mediaHtml = `
+            <div class="phone-media-area">
+                <div style="padding:20px;text-align:center;color:#94a3b8;">
+                    <i class="fas fa-image" style="font-size:2rem;"></i>
+                    <br>
+                    GÃ¶rsel yok
+                </div>
+            </div>
+        `;
+    }
+
+    document.getElementById("phoneBody").innerHTML = `
+        ${mediaHtml}
+
+        <div class="phone-ad-title">${escapeHtml(ad.name)}</div>
+        <div class="phone-ad-account">
+            ${escapeHtml(ad.platform)} Â· ${escapeHtml(ad.account)} Â· ${escapeHtml(ad.createdAt)}
+        </div>
+
+        <div class="phone-status-row">
+            ${statusBadge(ad.status)}
+        </div>
+
+        ${ad.headline ? `<p style="font-weight:800;margin:4px 0;">${escapeHtml(ad.headline)}</p>` : ""}
+        ${ad.primaryText ? `<p style="font-size:.78rem;">${escapeHtml(ad.primaryText)}</p>` : ""}
+        ${ad.description ? `<p style="font-size:.74rem;color:#64748b;">${escapeHtml(ad.description)}</p>` : ""}
+
+        <div class="phone-metrics-grid">
+            <div class="phone-metric-item">
+                <div class="pm-value">${formatNumber(ad.impressions)}</div>
+                <div class="pm-label">GÃ¶sterim</div>
+            </div>
+            <div class="phone-metric-item">
+                <div class="pm-value">${formatNumber(ad.clicks)}</div>
+                <div class="pm-label">TÄ±klama</div>
+            </div>
+            <div class="phone-metric-item">
+                <div class="pm-value">%${formatNumber(ad.ctr, 2)}</div>
+                <div class="pm-label">CTR</div>
+            </div>
+            <div class="phone-metric-item">
+                <div class="pm-value">${formatNumber(ad.conversions)}</div>
+                <div class="pm-label">DÃ¶nÃ¼ÅŸÃ¼m</div>
+            </div>
+        </div>
+
+        <div class="phone-metric-full">
+            <span>Harcama</span>
+            <strong style="color:#ef4444;">${formatCurrency(ad.spend)}</strong>
+        </div>
+
+        <div class="phone-metric-full">
+            <span>CPC</span>
+            <strong>${formatCurrency(ad.cpc)}</strong>
+        </div>
+
+        <div class="phone-metric-full">
+            <span>CPM</span>
+            <strong>${formatCurrency(ad.cpm)}</strong>
+        </div>
+
+        <div class="phone-metric-full">
+            <span>EtkileÅŸim OranÄ±</span>
+            <strong>%${formatNumber(ad.engagementRate, 2)}</strong>
+        </div>
+
+        <div class="phone-metric-full">
+            <span>BeÄŸeni / Yorum / PaylaÅŸÄ±m</span>
+            <strong>${formatNumber(ad.likes)} / ${formatNumber(ad.comments)} / ${formatNumber(ad.shares)}</strong>
+        </div>
+
+        <div class="phone-metric-full">
+            <span>Kampanya</span>
+            <strong>${escapeHtml(ad.campaign)}</strong>
+        </div>
+
+        <div class="phone-metric-full">
+            <span>Reklam Grubu</span>
+            <strong>${escapeHtml(ad.adGroup)}</strong>
+        </div>
+
+        ${ad.landingUrl ? `
+            <div class="phone-metric-full">
+                <span>Landing URL</span>
+                <a href="${escapeHtml(ad.landingUrl)}" target="_blank" rel="noopener">AÃ§</a>
+            </div>
+        ` : ""}
+
+        <div style="text-align:center;margin-top:14px;">
+            <button class="btn btn-sm btn-secondary" onclick="closePhonePopup()">Kapat</button>
+        </div>
+    `;
+
+    document.getElementById("phonePopup").classList.add("active");
+    document.body.style.overflow = "hidden";
+
+    const screen = document.getElementById("phoneScreen");
+    if (screen) screen.scrollTop = 0;
+}
+
+function closePhonePopup() {
+    document.getElementById("phonePopup").classList.remove("active");
+    document.body.style.overflow = "";
+
+    const video = document.querySelector("#phoneBody video");
+    if (video) video.pause();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const filterSidebar = document.getElementById("filterSidebar");
+    const filterToggle = document.getElementById("filterToggle");
+
+    if (filterToggle && filterSidebar) {
+        filterToggle.addEventListener("click", function (event) {
+            event.stopPropagation();
+            filterSidebar.classList.toggle("open");
+        });
+    }
+
+    const platformSelect = document.getElementById("platformSelect");
+    const accountSelect = document.getElementById("accountSelect");
+
+    if (platformSelect && accountSelect) {
+        const allOptions = Array.from(accountSelect.options);
+
+        function filterAccounts() {
+            const selectedPlatform = platformSelect.value;
+            const currentValue = accountSelect.value;
+
+            accountSelect.innerHTML = '<option value="">TÃ¼m Hesaplar</option>';
+
+            allOptions.forEach(function (opt) {
+                if (opt.value === "") return;
+
+                if (!selectedPlatform || opt.getAttribute("data-platform") === selectedPlatform) {
+                    const cloned = opt.cloneNode(true);
+                    if (cloned.value === currentValue) cloned.selected = true;
+                    accountSelect.appendChild(cloned);
+                }
+            });
+        }
+
+        platformSelect.addEventListener("change", filterAccounts);
+        filterAccounts();
+    }
+});
+
+document.getElementById("phonePopup")?.addEventListener("click", function (event) {
+    if (event.target === this) closePhonePopup();
+});
+
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") closePhonePopup();
+});
+</script>
+{% endblock %}

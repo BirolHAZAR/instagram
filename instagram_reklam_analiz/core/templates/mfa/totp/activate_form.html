@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Authenticator Etkinle&#351;tir{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/allauth_account.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="allauth-wrapper entrance">
+    <div class="container">
+        <div class="allauth-shell compact">
+            <aside class="allauth-side">
+                <img src="{% static 'images/logo2.png' %}" alt="reklamanaliz.net">
+                <h3>Authenticator Kurulumu</h3>
+                <p>QR kodu do&#287;rulay&#305;c&#305; uygulaman&#305;zla taray&#305;n, ard&#305;ndan uygulamadaki kodu girin.</p>
+                <a href="{% url 'mfa_index' %}" class="allauth-side-link">
+                    <i class="fas fa-arrow-left"></i>2FA Ayarlar&#305;
+                </a>
+            </aside>
+            <main class="allauth-panel">
+                <div class="allauth-panel-head">
+                    <span><i class="fas fa-qrcode"></i>2FA kurulumu</span>
+                </div>
+                <div class="allauth-panel-body">
+                    <h1>Authenticator Etkinle&#351;tir</h1>
+                    <p>Google Authenticator, Microsoft Authenticator veya benzeri bir uygulama ile a&#351;a&#287;&#305;daki QR kodu okutun.</p>
+                    {% url 'mfa_activate_totp' as action_url %}
+                    <form method="post" action="{{ action_url }}" class="allauth-form" autocomplete="off">
+                        {% csrf_token %}
+                        <div class="totp-qr-box">
+                            <img src="{{ totp_svg_data_uri }}" alt="Authenticator QR kodu">
+                        </div>
+                        <label for="authenticator_secret">Kurulum anahtar&#305;</label>
+                        <input id="authenticator_secret" type="text" value="{{ form.secret }}" disabled>
+                        {% if form.non_field_errors %}
+                            <div class="errorlist">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        <p>
+                            <label for="{{ form.code.id_for_label }}">Authenticator kodu</label>
+                            {{ form.code }}
+                            {% if form.code.errors %}
+                                <span class="field-error">{{ form.code.errors }}</span>
+                            {% endif %}
+                        </p>
+                        <button type="submit" class="allauth-primary-btn">
+                            <i class="fas fa-shield-halved"></i>Etkinle&#351;tir
+                        </button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+{% endblock %}

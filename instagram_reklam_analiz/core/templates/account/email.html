@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}E-posta G&#252;venli&#287;i{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/account_email.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="email-wrapper">
+    <div class="container">
+        <div class="email-header">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'my_account' %}">
+                                    <i class="fas fa-home me-1"></i>Hesab&#305;m
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">E-posta G&#252;venli&#287;i</li>
+                        </ol>
+                    </nav>
+                    <h2 class="mt-2">
+                        <i class="fas fa-envelope-circle-check me-2"></i>E-posta G&#252;venli&#287;i
+                    </h2>
+                    <p>Hesab&#305;n&#305;za ba&#287;l&#305; e-posta adreslerini y&#246;netin ve do&#287;rulama durumunu takip edin.</p>
+                </div>
+                <div class="col-lg-5 mt-3 mt-lg-0">
+                    <div class="email-header-actions">
+                        <a href="{% url 'my_account' %}" class="btn-email-soft">
+                            <i class="fas fa-arrow-left"></i>Hesab&#305;ma Git
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="email-grid">
+            <section class="email-card email-list-card">
+                <div class="card-head">
+                    <div>
+                        <h5>Kay&#305;tl&#305; E-posta Adresleri</h5>
+                        <p>Birincil adresiniz oturum, bildirim ve g&#252;venlik i&#351;lemlerinde kullan&#305;l&#305;r.</p>
+                    </div>
+                    <span class="security-pill">
+                        <i class="fas fa-shield-alt"></i>Koruma aktif
+                    </span>
+                </div>
+
+                {% if emailaddresses %}
+                    {% url 'account_email' as email_url %}
+                    <form method="post" action="{{ email_url }}" class="email-manage-form" data-confirm-remove="Se&#231;ili e-posta adresini kald&#305;rmak istedi&#287;inizden emin misiniz?">
+                        {% csrf_token %}
+                        <div class="email-address-list">
+                            {% for radio in emailaddress_radios %}
+                                {% with emailaddress=radio.emailaddress %}
+                                <label class="email-address-item {% if emailaddress.primary %}primary{% endif %}">
+                                    <input type="radio" name="email" value="{{ emailaddress.email }}" id="{{ radio.id }}" {% if radio.checked %}checked{% endif %}>
+                                    <span class="email-radio"></span>
+                                    <span class="email-address-content">
+                                        <strong>{{ emailaddress.email }}</strong>
+                                        <span class="email-badges">
+                                            {% if emailaddress.verified %}
+                                                <span class="email-badge verified"><i class="fas fa-check"></i>Do&#287;ruland&#305;</span>
+                                            {% else %}
+                                                <span class="email-badge unverified"><i class="fas fa-clock"></i>Do&#287;rulanmad&#305;</span>
+                                            {% endif %}
+                                            {% if emailaddress.primary %}
+                                                <span class="email-badge primary"><i class="fas fa-star"></i>Birincil</span>
+                                            {% endif %}
+                                        </span>
+                                    </span>
+                                </label>
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="email-actions">
+                            <button type="submit" name="action_primary" class="btn-email-primary">
+                                <i class="fas fa-star"></i>Birincil Yap
+                            </button>
+                            <button type="submit" name="action_send" class="btn-email-outline">
+                                <i class="fas fa-paper-plane"></i>Do&#287;rulama G&#246;nder
+                            </button>
+                            <button type="submit" name="action_remove" class="btn-email-danger" data-remove-email>
+                                <i class="fas fa-trash"></i>Kald&#305;r
+                            </button>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="empty-email">
+                        <div class="empty-email-icon"><i class="fas fa-envelope-open"></i></div>
+                        <h5>E-posta adresi bulunamad&#305;</h5>
+                        <p>Hesab&#305;n&#305;zda hen&#252;z kay&#305;tl&#305; e-posta adresi yok.</p>
+                    </div>
+                {% endif %}
+            </section>
+
+            {% if can_add_email %}
+            <aside class="email-card add-email-card">
+                <div class="card-head compact">
+                    <div>
+                        <h5>Yeni E-posta Ekle</h5>
+                        <p>Ekledi&#287;iniz adrese do&#287;rulama ba&#287;lant&#305;s&#305; g&#246;nderilir.</p>
+                    </div>
+                </div>
+                {% url 'account_email' as action_url %}
+                <form method="post" action="{{ action_url }}" class="add-email-form">
+                    {% csrf_token %}
+                    <label for="{{ form.email.id_for_label }}">E-posta Adresi</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="field-errors">{{ form.email.errors }}</div>
+                    {% endif %}
+                    <button type="submit" name="action_add" class="btn-email-primary full">
+                        <i class="fas fa-plus"></i>E-posta Ekle
+                    </button>
+                </form>
+            </aside>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'account/js/account.js' %}"></script>
+<script src="{% static 'account/js/onload.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.email-manage-form');
+        if (!form) return;
+        const removeButton = form.querySelector('[data-remove-email]');
+        if (!removeButton) return;
+        removeButton.addEventListener('click', function(event) {
+            if (!window.confirm(form.dataset.confirmRemove)) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}
