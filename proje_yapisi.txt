@@ -1,6 +1,7 @@
 instagram/
 |-- requirements.txt                  # Ana bağımlılık giriş noktası
 |-- proje_yapisi.txt                  # Bu dosya
+|-- nixpacks.toml                     # Nixpacks kurulum ve web başlangıcı
 |-- ReklamAnaliz_Baslat.bat           # Windows başlatıcı
 |-- start_dev_server.{cmd,ps1}        # Geliştirme sunucusu
 |-- start_celery_worker.{cmd,ps1}     # Celery worker

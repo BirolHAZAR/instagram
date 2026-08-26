@@ -1,0 +1,4 @@
+# Nixpacks ana dizinden calisir; Django projesi bir alt klasordedir.
+# Python kurulumu ve requirements.txt algilamasi Nixpacks'e birakilir.
+[start]
+cmd = "cd instagram_reklam_analiz && python manage.py migrate --noinput && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p ${PORT:-8000} config.asgi:application"
