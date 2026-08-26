@@ -1,0 +1,3 @@
+# Python 3.12.13 ile doğrulanmış üretim bağımlılıkları.
+# Güncelleme: 2026-08-26 — `python -m pip check` sonucu temiz.
+-r instagram_reklam_analiz/requirements.txt

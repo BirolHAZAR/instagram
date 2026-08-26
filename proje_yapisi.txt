@@ -1,0 +1,73 @@
+instagram/
+|-- requirements.txt                  # Ana bağımlılık giriş noktası
+|-- proje_yapisi.txt                  # Bu dosya
+|-- ReklamAnaliz_Baslat.bat           # Windows başlatıcı
+|-- start_dev_server.{cmd,ps1}        # Geliştirme sunucusu
+|-- start_celery_worker.{cmd,ps1}     # Celery worker
+|-- start_celery_beat.{cmd,ps1}       # Celery beat
+`-- instagram_reklam_analiz/          # Django uygulama kökü
+    |-- manage.py
+    |-- requirements.txt              # Python 3.12 kilitli bağımlılıklar
+    |-- Dockerfile
+    |-- docker-compose.yml
+    |-- DOKPLOY.md
+    |-- .dockerignore
+    |-- .gitignore
+    |-- .env.docker.example
+    |-- .env.production.example
+    |-- config/                        # Django proje ayarları
+    |   |-- __init__.py
+    |   |-- settings.py
+    |   |-- urls.py
+    |   |-- asgi.py
+    |   |-- wsgi.py
+    |   `-- celery.py
+    |-- core/                          # Ana Django uygulaması
+    |   |-- admin.py
+    |   |-- apps.py
+    |   |-- checks.py
+    |   |-- consumers.py
+    |   |-- context_processors.py
+    |   |-- decorators.py
+    |   |-- fields.py
+    |   |-- forms.py
+    |   |-- routing.py
+    |   |-- signals.py
+    |   |-- urls*.py                   # Özellik bazlı URL yönlendirmeleri
+    |   |-- test_*.py / tests.py       # Testler
+    |   |-- adapters.py
+    |   |-- ai_analyzer.py
+    |   |-- instagram_api.py
+    |   |-- instagram_auth.py
+    |   |-- instagram_service.py
+    |   |-- ai_agents/                 # Yapay zekâ ajanları
+    |   |-- instagram/                 # Instagram API istemcisi
+    |   |-- management/commands/       # Django yönetim komutları
+    |   |-- middleware/                # Özel middleware bileşenleri
+    |   |-- migrations/                # 0001–0071 veritabanı migration'ları
+    |   |-- models/                    # Alan bazlı Django modelleri
+    |   |-- platforms/                 # Sosyal/reklam platform adaptörleri
+    |   |-- reports/                   # Rapor kaynakları
+    |   |-- seed_files/                # Başlangıç veri dosyaları
+    |   |-- services/                  # İş mantığı servisleri
+    |   |-- static/                    # Uygulamaya özel CSS/JS
+    |   |-- tasks/                     # Celery görevleri
+    |   |-- templates/                 # Django HTML/e-posta şablonları
+    |   |-- templatetags/              # Özel template tag'leri
+    |   |-- utils/                     # Yardımcı modüller
+    |   `-- views/                     # Özellik bazlı view modülleri
+    |-- docker/
+    |   |-- entrypoint.sh
+    |   `-- nginx.conf
+    `-- static/                        # Proje geneli statik varlıklar
+        |-- admin/css/
+        |-- css/
+        |-- images/
+        `-- js/
+
+Bilerek listelenmeyen yerel/üretilen içerikler:
+- .git/, .agents/, .venvs/
+- .env ve .env.docker (gizli değerler)
+- __pycache__/, *.pyc
+- media/, output/, runtime/, staticfiles/, tmp/
+- *.log
