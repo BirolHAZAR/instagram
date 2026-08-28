@@ -4,6 +4,7 @@ Django settings for config project.
 import os
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 from dotenv import load_dotenv
 
 # .env dosyasını yükle
@@ -475,7 +476,20 @@ RATE_LIMIT_RULES = [
     },
 ]
 # Web ve Celery ürün araştırma cache'ini aynı Redis alanında paylaşır.
+REDIS_URL = config("REDIS_URL", default="").strip()
+
+
+def _redis_url_for_db(base_url: str, db: int) -> str:
+    """Keep provider credentials/options and select a logical Redis database."""
+    parts = urlsplit(base_url)
+    if parts.scheme not in {"redis", "rediss"} or not parts.netloc:
+        raise ValueError("REDIS_URL must be a valid redis:// or rediss:// URL")
+    return urlunsplit((parts.scheme, parts.netloc, f"/{db}", parts.query, parts.fragment))
+
+
 CACHE_REDIS_URL = config("CACHE_REDIS_URL", default="")
+if not CACHE_REDIS_URL and REDIS_URL:
+    CACHE_REDIS_URL = _redis_url_for_db(REDIS_URL, 3)
 if not CACHE_REDIS_URL and not DEBUG:
     _cache_host = config("REDIS_HOST", default="127.0.0.1")
     _cache_port = config("REDIS_PORT", default="6379")
@@ -549,6 +563,8 @@ REDIS_PORT = config("REDIS_PORT", default="6379")
 REDIS_PASSWORD = config("REDIS_PASSWORD", default="")
 
 def _redis_url(db: int) -> str:
+    if REDIS_URL:
+        return _redis_url_for_db(REDIS_URL, db)
     auth = f":{REDIS_PASSWORD}@" if REDIS_PASSWORD else ""
     return f"redis://{auth}{REDIS_HOST}:{REDIS_PORT}/{db}"
 
