@@ -1,0 +1,31 @@
+﻿<div class="ad-card {% if ad.score >= 80 %}is-good{% elif ad.score < 60 or not ad.has_data %}is-risk{% endif %}">
+  <div class="ad-top">
+    <div>
+      <div class="ad-title">{{ ad.name }}</div>
+      <div class="ad-meta">
+        <span>{{ ad.platform }}</span>
+        <span>{{ ad.account }}</span>
+        <span>{{ ad.campaign }}</span>
+        <span>{{ ad.ad_group }}</span>
+        <span>{{ ad.creative_type }}</span>
+        <span>{{ ad.status }}</span>
+        {% if ad.last_metric_date %}<span>Son metrik {{ ad.last_metric_date|date:"d.m.Y" }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="ad-score"><div><b>{{ ad.score }}</b><span>{{ ad.status_text }}</span></div></div>
+  </div>
+  <div class="metrics-line">
+    <div class="metric-chip"><small>GÃ¶sterim</small><b>{{ ad.impressions|tr_decimal }}</b></div>
+    <div class="metric-chip"><small>CTR</small><b>%{{ ad.ctr|tr_decimal }}</b></div>
+    <div class="metric-chip"><small>CPC</small><b>â‚º{{ ad.cpc|tr_decimal }}</b></div>
+    <div class="metric-chip"><small>CPA</small><b>â‚º{{ ad.cpa|tr_decimal }}</b></div>
+    <div class="metric-chip"><small>ROAS</small><b>{{ ad.roas|tr_decimal }}x</b></div>
+    <div class="metric-chip"><small>Frekans</small><b>{{ ad.frequency|tr_decimal }}</b></div>
+    <div class="metric-chip"><small>Harcama</small><b>â‚º{{ ad.spend|tr_decimal }}</b></div>
+  </div>
+  <div class="explain-grid">
+    <div class="explain good"><strong>Neden saÄŸlÄ±klÄ±?</strong><p>{{ ad.reason }}</p></div>
+    <div class="explain risk"><strong>Neden riskli olabilir?</strong><p>{{ ad.risk_reason }}</p></div>
+    <div class="explain action"><strong>Ne yapÄ±lmalÄ±?</strong><p>{{ ad.action }}</p></div>
+  </div>
+</div>

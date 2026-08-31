@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load tr_numbers %}
+
+{% block title %}Rapor Önizleme{% endblock %}
+
+{% block content %}
+<style>
+  .preview-shell{max-width:1280px;margin:0 auto;color:#fff}
+  .preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:20px}
+  .preview-head-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:184px}
+  .preview-head h1{font-weight:950;letter-spacing:-.04em;margin:0 0 6px}
+  .preview-head p{color:#b8bed0;margin:0;max-width:760px}
+  .preview-layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;align-items:start}
+  .preview-panel{border:1px solid rgba(139,132,255,.24);background:rgba(15,20,41,.90);border-radius:8px;padding:18px;box-shadow:0 20px 52px rgba(0,0,0,.26)}
+  .preview-panel h3{font-size:1rem;font-weight:900;margin:0 0 12px}
+  .preview-meta{color:#b8bed0;font-size:.88rem;line-height:1.8}
+  .preview-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .preview-metric{border:1px solid rgba(139,132,255,.18);background:rgba(255,255,255,.035);border-radius:8px;padding:10px;text-align:center}
+  .preview-metric span{display:block;color:#8f9ab8;font-size:.76rem}
+  .preview-metric strong{display:block;margin-top:4px}
+  .preview-actions{display:grid;gap:9px;margin-top:16px}
+  .preview-actions form{margin:0}
+  .preview-btn,.preview-actions button{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;border-radius:10px;padding:11px 12px;font-weight:850;text-decoration:none;border:1px solid rgba(139,132,255,.24);background:rgba(255,255,255,.04);color:#fff;box-sizing:border-box}
+  .preview-btn.primary,.preview-actions button.primary{border:0;background:linear-gradient(135deg,#6C63FF,#00D4FF)}
+  .preview-btn.danger{border-color:rgba(248,113,113,.34);background:rgba(127,29,29,.28)}
+  .preview-note{margin-top:12px;border:1px solid rgba(34,197,94,.24);background:rgba(34,197,94,.08);border-radius:8px;padding:12px;color:#dcfce7;font-size:.88rem}
+
+  .mail-frame-wrap{background:#e5e7eb;border-radius:8px;padding:14px;min-height:650px}
+  .mail-preview{min-height:760px;border-radius:8px;background:#f4f7fb;color:#111827;font-family:Arial,sans-serif;overflow:auto}
+  .scheduled-report-document{max-width:760px;margin:0 auto;padding:24px}
+  .sr-panel{background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:22px;margin-bottom:14px}
+  .sr-panel h1{font-size:24px;margin:0 0 8px;color:#0f172a;letter-spacing:0}
+  .sr-panel h2{font-size:17px;margin:0 0 12px;color:#111827}
+  .sr-muted{color:#64748b;font-size:13px;line-height:1.5}
+  .sr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .sr-metric{border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center}
+  .sr-metric span{display:block;color:#64748b;font-size:12px}
+  .sr-metric strong{display:block;font-size:18px;margin-top:4px}
+  .sr-table{width:100%;border-collapse:collapse}
+  .sr-table th,.sr-table td{padding:9px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px}
+  .sr-table th{color:#475569;background:#f8fafc}
+  .sr-table-scroll{width:100%;overflow-x:auto}
+  .sr-campaign-table{min-width:980px;table-layout:auto}
+  .sr-campaign-table th,.sr-campaign-table td{white-space:nowrap;padding:9px 10px;font-size:12px}
+  .sr-campaign-table th:first-child,.sr-campaign-table td:first-child{min-width:230px}
+  .sr-campaign-table .sr-nowrap{white-space:nowrap}
+  .sr-list{padding-left:20px}
+  .sr-list li{margin-bottom:8px}
+  @media(max-width:960px){.preview-head,.preview-layout{display:grid;grid-template-columns:1fr}.preview-head-actions{grid-template-columns:1fr 1fr;width:100%}.mail-preview{min-height:680px}.sr-grid{grid-template-columns:1fr}}
+</style>
+
+<div class="preview-shell">
+  <div class="preview-head">
+    <div>
+      <h1><i class="fas fa-eye"></i> Rapor Önizleme</h1>
+      <p>Bu ekran, alıcılara gidecek e-postanın gerçek HTML görünümünü gösterir.</p>
+    </div>
+    <div class="preview-head-actions">
+      <a class="preview-btn" href="{% url 'report_list' %}"><i class="fas fa-arrow-left"></i> Geri</a>
+      <a class="preview-btn danger" href="{% url 'report_list' %}"><i class="fas fa-xmark"></i> Kapat</a>
+    </div>
+  </div>
+
+  <div class="preview-layout">
+    <aside class="preview-panel">
+      <h3>{{ scheduled_report.name }}</h3>
+      <div class="preview-meta">
+        <div><i class="fas fa-calendar-days"></i> {{ scheduled_report.get_frequency_display }}</div>
+        <div><i class="fas fa-envelope"></i> {{ scheduled_report.recipient_emails|join:", " }}</div>
+        <div><i class="fas fa-clock"></i> Saat {{ scheduled_report.send_hour|stringformat:"02d" }}:00</div>
+        <div><i class="fas fa-calendar-check"></i> {{ preview_context.start_date|date:"d.m.Y" }} - {{ preview_context.end_date|date:"d.m.Y" }}</div>
+      </div>
+
+      <div class="preview-metrics">
+        <div class="preview-metric"><span>Bütçe</span><strong>{{ preview_context.budget.total|tr_money }}</strong></div>
+        <div class="preview-metric"><span>Harcama</span><strong>{{ preview_context.totals.spend|tr_money }}</strong></div>
+        <div class="preview-metric"><span>Kalan</span><strong>{{ preview_context.budget.remaining|tr_money }}</strong></div>
+        <div class="preview-metric"><span>Tıklama</span><strong>{{ preview_context.totals.clicks|tr_int }}</strong></div>
+        <div class="preview-metric"><span>CTR</span><strong>{{ preview_context.totals.ctr|tr_percent }}</strong></div>
+        <div class="preview-metric"><span>Dönüşüm</span><strong>{{ preview_context.totals.conversions|tr_int }}</strong></div>
+      </div>
+
+      <div class="preview-note">
+        <i class="fas fa-circle-info"></i>
+        Önizleme mevcut verilerle oluşturulur. Rapor gönderiminde aynı şablon kullanılır.
+      </div>
+
+      <div class="preview-actions">
+        <a class="preview-btn primary" href="{% url 'scheduled_report_edit' scheduled_report.id %}"><i class="fas fa-pen"></i> Tasarımı Düzenle</a>
+        <a class="preview-btn" href="{% url 'scheduled_report_pdf' scheduled_report.id %}" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> PDF Aç</a>
+        <a class="preview-btn danger" href="{% url 'report_list' %}"><i class="fas fa-xmark"></i> Kapat</a>
+        <form method="post" action="{% url 'scheduled_report_send_now' scheduled_report.id %}">
+          {% csrf_token %}
+          <button class="primary" type="submit"><i class="fas fa-paper-plane"></i> Bu Önizlemeyi Gönder</button>
+        </form>
+      </div>
+    </aside>
+
+    <section class="mail-frame-wrap">
+      <div class="mail-preview" aria-label="Rapor e-posta önizlemesi">
+        {% include "reports/partials/scheduled_report_body.html" with report=preview_context.report start_date=preview_context.start_date end_date=preview_context.end_date budget=preview_context.budget totals=preview_context.totals recommendations=preview_context.recommendations campaign_rows=preview_context.campaign_rows top_ads=preview_context.top_ads %}
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

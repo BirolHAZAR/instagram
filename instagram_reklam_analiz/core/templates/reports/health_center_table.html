@@ -1,0 +1,24 @@
+﻿{% if rows %}
+<div class="hc-table-scroll">
+<div class="hc-table-wrap">
+<table class="hc-table">
+  <thead><tr><th>Reklam</th><th>Skor</th><th>Durum</th><th>CTR</th><th>CPA</th><th>ROAS</th><th>Frekans</th><th>Tespitler</th><th>Risk</th><th>Ne Yapmalı?</th></tr></thead>
+  <tbody>
+    {% for ad in rows %}
+    <tr>
+      <td><div class="hc-ad-name">{{ ad.name }}</div><div class="hc-meta">{{ ad.platform }} · {{ ad.account }}</div><div class="hc-meta">{{ ad.campaign }} / {{ ad.ad_group }}</div>{% if ad.rule_match_count %}<div class="hc-meta">{{ ad.rule_match_count }} kural eşleşmesi</div>{% endif %}</td>
+      <td><span class="hc-score-pill">{{ ad.score }}</span></td>
+      <td><span class="hc-status {% if ad.score >= 80 %}ok{% elif ad.score >= 60 %}watch{% else %}risk{% endif %}">{{ ad.status_text }}</span></td>
+      <td>{{ ad.ctr|tr_decimal }}%</td><td>{{ ad.cpa|tr_decimal }} TL</td><td>{{ ad.roas|tr_decimal }}x</td><td>{{ ad.frequency|tr_decimal }}</td>
+      <td><div class="hc-explain"><ul class="hc-point-list">{% for point in ad.reason_points %}<li>{{ point }}</li>{% endfor %}</ul></div></td>
+      <td><div class="hc-explain"><ul class="hc-point-list">{% for point in ad.risk_points %}<li>{{ point }}</li>{% endfor %}</ul></div></td>
+      <td><div class="hc-explain hc-action"><ul class="hc-point-list">{% for point in ad.action_points %}<li>{{ point }}</li>{% endfor %}</ul></div></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+</div>
+{% else %}
+<div class="hc-empty">Bu filtreye uygun reklam bulunamadı.</div>
+{% endif %}

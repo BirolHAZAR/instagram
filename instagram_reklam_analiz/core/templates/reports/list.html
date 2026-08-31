@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Otomatik Raporlar{% endblock %}
+
+{% block content %}
+<style>
+  .reports-shell{max-width:1180px;margin:0 auto;color:#fff}
+  .reports-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}
+  .reports-head h1{font-weight:950;letter-spacing:-.04em;margin:0 0 6px}
+  .reports-head p{color:#b8bed0;margin:0;max-width:760px}
+  .reports-btn{display:inline-flex;align-items:center;gap:9px;border:0;border-radius:12px;padding:12px 16px;font-weight:850;text-decoration:none;background:linear-gradient(135deg,#6C63FF,#00D4FF);color:#fff}
+  .reports-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .report-card{border:1px solid rgba(139,132,255,.24);background:rgba(15,20,41,.88);border-radius:8px;padding:18px;box-shadow:0 18px 46px rgba(0,0,0,.24)}
+  .report-card-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+  .report-card h3{font-size:1.08rem;font-weight:900;margin:0 0 8px}
+  .report-meta{color:#b8bed0;font-size:.88rem;line-height:1.7}
+  .report-chip{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:6px 10px;font-size:.74rem;font-weight:850;background:rgba(34,197,94,.13);color:#8dffbd;border:1px solid rgba(34,197,94,.25)}
+  .report-chip.off{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(148,163,184,.22)}
+  .report-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+  .report-actions a,.report-actions button{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(139,132,255,.24);background:rgba(255,255,255,.04);color:#fff;border-radius:10px;padding:9px 11px;text-decoration:none;font-weight:800;font-size:.82rem;transition:transform .12s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease,opacity .18s ease}
+  .report-actions button{cursor:pointer}
+  .reports-btn,.report-actions a,.report-actions button{transition:transform .12s ease,filter .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease,opacity .18s ease}
+  .reports-btn:hover,.report-actions a:hover,.report-actions button:hover{filter:brightness(1.12);border-color:rgba(139,132,255,.58)}
+  .reports-btn:active,.report-actions a:active,.report-actions button:active{transform:translateY(2px) scale(.97)}
+  .reports-btn.is-processing,.report-actions a.is-processing,.report-actions button.is-processing{pointer-events:none;cursor:wait;opacity:.82;transform:scale(.98);background:rgba(108,99,255,.22);border-color:#8b84ff;box-shadow:0 0 0 3px rgba(108,99,255,.14)}
+  .reports-btn.is-processing{background:linear-gradient(135deg,#554ce8,#00a9cc)}
+  .reports-btn .fa-spinner,.report-actions .fa-spinner{animation:report-spin .7s linear infinite}
+  @keyframes report-spin{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){.reports-btn,.report-actions a,.report-actions button{transition:none}.reports-btn .fa-spinner,.report-actions .fa-spinner{animation:none}}
+  .empty-report{border:1px dashed rgba(139,132,255,.35);background:rgba(15,20,41,.58);border-radius:8px;padding:38px;text-align:center;color:#b8bed0}
+  .legacy-title{margin:34px 0 14px;font-weight:900}
+  @media(max-width:820px){.reports-head,.reports-grid{grid-template-columns:1fr;display:grid}.reports-head{gap:14px}.reports-btn{justify-content:center}.reports-grid{grid-template-columns:1fr}}
+</style>
+
+<div class="reports-shell">
+  <div class="reports-head">
+    <div>
+      <h1><i class="fas fa-file-lines"></i> Otomatik Raporlar</h1>
+      <p>Uyelere ve ekiplere giden raporları buradan yönetin. Bu otomatik raporlar AI jetonu harcamaz; metriklerden kural bazlı özet üretir.</p>
+    </div>
+    <a href="{% url 'generate_report' %}" class="reports-btn js-report-action" data-loading-text="Açılıyor..."><i class="fas fa-plus"></i> <span>Rapor Ayarı Oluştur</span></a>
+  </div>
+
+  {% if scheduled_reports %}
+  <div class="reports-grid">
+    {% for report in scheduled_reports %}
+    <div class="report-card">
+      <div class="report-card-top">
+        <div>
+          <h3>{{ report.name }}</h3>
+          <div class="report-meta">
+            <div><i class="fas fa-calendar-days"></i> {{ report.get_frequency_display }} · Saat {{ report.send_hour|stringformat:"02d" }}:00</div>
+            <div><i class="fas fa-envelope"></i> {{ report.recipient_emails|join:", " }}</div>
+            <div><i class="fas fa-clock"></i> Sonraki gönderim: {{ report.next_run_at|date:"d.m.Y H:i"|default:"Planlanmadı" }}</div>
+            {% if report.campaigns.all %}<div><i class="fas fa-bullhorn"></i> {{ report.campaigns.all|join:", " }}</div>{% endif %}
+            {% if report.last_error %}<div class="text-warning"><i class="fas fa-triangle-exclamation"></i> {{ report.last_error|truncatechars:120 }}</div>{% endif %}
+          </div>
+        </div>
+        <span class="report-chip {% if not report.is_active %}off{% endif %}">{% if report.is_active %}Aktif{% else %}Pasif{% endif %}</span>
+      </div>
+      <div class="report-actions">
+        <a href="{% url 'scheduled_report_preview' report.id %}" class="js-report-action" data-loading-text="Açılıyor..."><i class="fas fa-eye"></i> <span>Önizle</span></a>
+        <a href="{% url 'scheduled_report_edit' report.id %}" class="js-report-action" data-loading-text="Açılıyor..."><i class="fas fa-pen"></i> <span>Düzenle</span></a>
+        <form method="post" action="{% url 'scheduled_report_send_now' report.id %}" class="js-report-form" data-loading-text="Gönderiliyor...">{% csrf_token %}<button type="submit"><i class="fas fa-paper-plane"></i> <span>Şimdi Gönder</span></button></form>
+        <form method="post" action="{% url 'scheduled_report_toggle' report.id %}" class="js-report-form" data-loading-text="Güncelleniyor...">{% csrf_token %}<button type="submit">{% if report.is_active %}<i class="fas fa-pause"></i> <span>Pasifleştir</span>{% else %}<i class="fas fa-play"></i> <span>Aktifleştir</span>{% endif %}</button></form>
+        <form method="post" action="{% url 'scheduled_report_delete' report.id %}" class="js-report-form" data-loading-text="Siliniyor..." data-confirm="Bu otomatik rapor ayarını silmek istiyor musunuz?">{% csrf_token %}<button type="submit"><i class="fas fa-trash"></i> <span>Sil</span></button></form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-report">
+    <h3>Henüz otomatik rapor ayarı yok</h3>
+    <p>Haftalık, 15 günlük, aylık veya günlük e-posta raporu oluşturabilirsiniz.</p>
+    <a href="{% url 'generate_report' %}" class="reports-btn js-report-action" data-loading-text="Açılıyor..."><i class="fas fa-plus"></i> <span>İlk Rapor Ayarını Oluştur</span></a>
+  </div>
+  {% endif %}
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function showProcessing(element, text) {
+      if (element.classList.contains('is-processing')) return false;
+      element.classList.add('is-processing');
+      element.setAttribute('aria-busy', 'true');
+      var icon = element.querySelector('i');
+      var label = element.querySelector('span');
+      if (icon) icon.className = 'fas fa-spinner';
+      if (label) label.textContent = text;
+      return true;
+    }
+
+    document.querySelectorAll('.js-report-action').forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        if (!showProcessing(link, link.dataset.loadingText || 'Açılıyor...')) {
+          event.preventDefault();
+        }
+      });
+    });
+
+    document.querySelectorAll('.js-report-form').forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) {
+          event.preventDefault();
+          return;
+        }
+        var button = form.querySelector('button[type="submit"]');
+        if (!button || !showProcessing(button, form.dataset.loadingText || 'İşleniyor...')) {
+          event.preventDefault();
+          return;
+        }
+        button.disabled = true;
+      });
+    });
+  });
+</script>
+{% endblock %}

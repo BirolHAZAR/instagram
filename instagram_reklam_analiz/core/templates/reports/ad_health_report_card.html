@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reklam Sağlık Karnesi | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{--rc-bg:#050814;--rc-panel:#0c1328;--rc-panel2:#101a34;--rc-line:rgba(148,163,184,.22);--rc-text:#f8fafc;--rc-soft:#aab7d6;--rc-blue:#38bdf8;--rc-green:#22c55e;--rc-yellow:#f59e0b;--rc-red:#fb5d72;--rc-ink:#111827}
+  .rc-page{min-height:100vh;margin:-18px auto 0;padding:28px 12px 60px;background:radial-gradient(circle at 18% 0%,rgba(56,189,248,.18),transparent 32%),radial-gradient(circle at 80% 12%,rgba(34,197,94,.12),transparent 28%),linear-gradient(180deg,#081024,#050814);color:var(--rc-text);overflow-x:hidden}
+  .rc-shell{width:100%;max-width:1720px;margin:0 auto;overflow-x:hidden}.rc-hero{display:grid;grid-template-columns:300px 2cm 860px;gap:0;align-items:end;margin-bottom:18px}.rc-hero-copy{grid-column:1 / 4}.rc-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid rgba(56,189,248,.28);border-radius:999px;background:rgba(56,189,248,.09);color:#bff2ff;font-size:12px;font-weight:900;text-transform:uppercase}.rc-title{font-size:clamp(32px,4vw,56px);line-height:1;margin:14px 0 10px;font-weight:950;letter-spacing:-.04em}.rc-copy{max-width:780px;color:#c7d2ea;line-height:1.65;margin:0}.rc-hero-actions{grid-column:3;justify-self:end;display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.rc-btn{border:0;border-radius:12px;padding:12px 15px;background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;font-weight:900;display:inline-flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer}.rc-btn.secondary{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+  .rc-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:0;align-items:start}.rc-left,.rc-preview-shell{border:1px solid var(--rc-line);background:linear-gradient(145deg,rgba(15,23,42,.94),rgba(8,13,31,.9));box-shadow:0 24px 70px rgba(0,0,0,.35)}.rc-left{position:sticky;top:92px;padding:14px;border-radius:20px 0 0 20px}.rc-left h2{font-size:16px;margin:0 0 4px}.rc-left p{font-size:12px;color:var(--rc-soft);margin:0 0 14px}.rc-field{margin-bottom:12px}.rc-field label{display:block;color:#8795b8;font-size:11px;font-weight:950;text-transform:uppercase;margin-bottom:6px}.rc-field select{width:100%;height:44px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:#081126;color:#fff;padding:0 12px;font-weight:800}.rc-ad-list{display:grid;gap:8px;max-height:calc(100vh - 360px);overflow:auto;padding-right:4px}.rc-ad-option{display:block;text-decoration:none;color:#dbe7ff;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px;background:rgba(255,255,255,.04)}.rc-ad-option.active{border-color:rgba(56,189,248,.58);background:rgba(56,189,248,.12)}.rc-ad-option strong{display:block;font-size:13px}.rc-ad-option span{display:block;color:#97a5c4;font-size:11px;margin-top:4px}
+  .rc-preview-shell{padding:0 0 18px 0;overflow-x:hidden;overflow-y:visible;border-left:0;border-radius:0 20px 20px 0}.rc-paper{width:860px;min-height:1216px;margin:0;background:#f7f9fc;color:var(--rc-ink);border-radius:4px;box-shadow:0 22px 90px rgba(0,0,0,.45);overflow:hidden}.rc-paper-head{display:grid;grid-template-columns:1fr 185px;gap:20px;padding:30px 38px 26px;background:linear-gradient(135deg,#0f172a,#123b63);color:#fff}.rc-paper-brand{display:flex;align-items:center;gap:12px}.rc-paper-logo{width:285px;max-height:86px;object-fit:contain;object-position:left center;filter:drop-shadow(0 12px 26px rgba(0,0,0,.26))}.rc-paper-title{font-size:36px;line-height:1.05;font-weight:950;margin:10px 0 0}.rc-grade-box{align-self:center;justify-self:end;width:160px;height:160px;border-radius:28px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;text-align:center}.rc-grade{font-size:66px;font-weight:950;line-height:.9}.rc-grade-box span{font-size:13px;color:#d7edff;font-weight:900}.rc-paper-body{padding:28px 38px 34px}.rc-ad-top{display:grid;grid-template-columns:190px 1fr;gap:22px;margin-bottom:22px}.rc-media{height:190px;border-radius:18px;background:linear-gradient(135deg,#dbeafe,#f8fafc);border:1px solid #d7deea;display:grid;place-items:center;overflow:hidden}.rc-media img{width:100%;height:100%;object-fit:cover}.rc-media i{font-size:44px;color:#64748b}.rc-ad-name{font-size:24px;font-weight:950;margin:0 0 10px}.rc-meta-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.rc-meta{border:1px solid #dbe2ee;border-radius:12px;padding:10px;background:#fff}.rc-meta small{display:block;color:#64748b;font-size:10px;text-transform:uppercase;font-weight:900}.rc-meta b{display:block;margin-top:4px;font-size:13px}
+  .rc-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}.rc-metric{background:#fff;border:1px solid #dbe2ee;border-radius:14px;padding:13px}.rc-metric span{display:block;color:#64748b;font-size:10px;text-transform:uppercase;font-weight:950}.rc-metric strong{display:block;font-size:20px;margin-top:6px}.rc-section-title{font-size:15px;font-weight:950;margin:20px 0 10px}.rc-bars{display:grid;gap:8px}.rc-bar{display:grid;grid-template-columns:145px 1fr 42px;gap:10px;align-items:center}.rc-bar label{font-size:12px;font-weight:850;color:#334155}.rc-track{height:9px;border-radius:999px;background:#e5eaf3;overflow:hidden}.rc-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#22c55e);width:var(--w)}.rc-notes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.rc-note{border-radius:15px;padding:14px;background:#fff;border:1px solid #dbe2ee;min-height:130px}.rc-note h4{margin:0 0 8px;font-size:13px}.rc-note p{margin:0;color:#475569;font-size:12px;line-height:1.55}.rc-footer{margin-top:24px;padding-top:16px;border-top:1px solid #dbe2ee;display:flex;justify-content:space-between;color:#64748b;font-size:11px}.rc-empty{padding:40px;text-align:center;color:#c7d2ea}
+  .rc-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:0 0 18px}.rc-detail{border:1px solid #dbe2ee;border-radius:12px;background:#fff;padding:10px;min-width:0}.rc-detail small{display:block;color:#64748b;font-size:9px;text-transform:uppercase;font-weight:950}.rc-detail b{display:block;margin-top:4px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rc-identity{display:grid;gap:9px;margin:-6px 0 18px}.rc-identity-row{border:1px solid #dbe2ee;border-radius:14px;background:#fff;padding:11px 12px}.rc-identity-row small{display:block;color:#64748b;font-size:10px;text-transform:uppercase;font-weight:950;margin-bottom:5px}.rc-identity-row p{margin:0;color:#334155;font-size:12px;line-height:1.45}
+  .rc-agency-filter{padding:11px;margin-bottom:12px;border:1px solid rgba(56,189,248,.28);border-radius:14px;background:rgba(56,189,248,.08)}.rc-agency-filter small{display:block;color:#93a6ca;font-size:10px;margin-top:6px;line-height:1.4}
+  .rc-note ul,.rc-detection ul{display:grid;gap:7px;margin:0;padding:0;list-style:none}.rc-note li,.rc-detection li{position:relative;padding-left:16px;color:#475569;font-size:12px;line-height:1.5}.rc-note li:before,.rc-detection li:before{content:"";position:absolute;left:1px;top:.58em;width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#22c55e)}
+  .rc-rule-summary{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 10px}.rc-rule-chip{padding:6px 9px;border-radius:999px;background:#e9f1ff;border:1px solid #cfdcf1;color:#334155;font-size:10px;font-weight:900}.rc-detections{display:grid;gap:8px}.rc-detection{border:1px solid #dbe2ee;border-radius:13px;background:#fff;padding:11px}.rc-detection-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.rc-detection-head strong{font-size:12px}.rc-severity{padding:4px 7px;border-radius:999px;background:#fff1c7;color:#8a5a00;font-size:9px;font-weight:950}.rc-severity.critical{background:#ffe2e8;color:#9f1239}.rc-severity.opportunity,.rc-severity.info{background:#dcfce7;color:#166534}
+  @media(max-width:1100px){.rc-layout{grid-template-columns:1fr}.rc-left{position:relative;top:0}.rc-paper{width:100%;min-height:auto}.rc-paper-head,.rc-ad-top{grid-template-columns:1fr}.rc-grade-box{justify-self:start}.rc-metrics{grid-template-columns:repeat(2,1fr)}.rc-notes{grid-template-columns:1fr}}
+  .rc-page .rc-layout{grid-template-columns:300px 860px!important;gap:2cm!important;column-gap:2cm!important;justify-content:start!important;align-items:start!important}
+  .rc-page .rc-preview-shell{width:860px!important;max-width:860px!important;margin-left:0!important;padding-left:0!important;padding-right:0!important;border-left:0!important;overflow-x:hidden!important}
+  .rc-page .rc-paper{margin-left:0!important;margin-right:0!important}
+  @page{size:A4;margin:0}
+  @media print{
+    html,body{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;background:#fff!important;overflow:hidden!important}
+    body *{visibility:hidden!important}
+    .rc-page,.rc-shell,.rc-layout,.rc-preview-shell,.rc-paper,.rc-paper *{visibility:visible!important}
+    .rc-page,.rc-shell,.rc-layout,.rc-preview-shell{display:block!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;background:#fff!important;overflow:visible!important}
+    .rc-paper{position:fixed!important;left:0!important;top:0!important;width:210mm!important;height:297mm!important;min-height:297mm!important;margin:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .rc-paper-head{display:grid!important;visibility:visible!important}
+    .rc-left,.rc-hero,.sidebar,.navbar,.ra-sidebar,footer:not(.rc-footer){display:none!important}
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rc-page">
+  <div class="rc-shell">
+    <section class="rc-hero">
+      <div class="rc-hero-copy">
+        <div class="rc-eyebrow"><i class="fas fa-clipboard-check"></i> Reklamınızın karnesini çıkarın</div>
+        <h1 class="rc-title">Reklam Sağlık Karnesi</h1>
+        <p class="rc-copy">Tek bir reklamı seçin; performans notu, temel metrikleri, güçlü tarafları, riskleri ve aksiyon önerileri A4 rapor düzeninde hazır olsun.</p>
+      </div>
+      <div class="rc-hero-actions">
+        {% if selected_ad %}<a class="rc-btn" href="?ad={{ selected_ad.id }}&gun={{ days }}&format=pdf{% if agency_scope.selected_client %}&agency_client={{ agency_scope.selected_client.id }}{% endif %}" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> PDF Çıktısı</a>{% endif %}
+        <a class="rc-btn secondary" href="{% url 'health_center' %}"><i class="fas fa-heart-pulse"></i> Sağlık Merkezi</a>
+      </div>
+    </section>
+
+    <section class="rc-layout">
+      <aside class="rc-left">
+        <h2>Reklam Seçimi</h2>
+        <p>Soldan reklamı seçin, sağda karne otomatik oluşur.</p>
+        <form method="get">
+          {% if agency_scope.is_agency %}
+          <div class="rc-agency-filter">
+            <div class="rc-field" style="margin-bottom:0;">
+              <label for="healthCardAgencyClient"><i class="fas fa-building-user"></i> Ajans Müşterisi</label>
+              <select id="healthCardAgencyClient" name="agency_client" onchange="if(this.form.elements.ad){this.form.elements.ad.value='';}this.form.submit()">
+                <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm müşteriler</option>
+                {% for client in agency_scope.clients %}<option value="{{ client.id }}"{% if agency_scope.selected_client.id == client.id %} selected{% endif %}>{{ client.organization.name }} · {{ client.name }}</option>{% endfor %}
+              </select>
+              <small>{% if agency_scope.selected_client %}Yalnız {{ agency_scope.selected_client.name }} reklamları gösteriliyor.{% else %}Ajans geneli gösteriliyor.{% endif %}</small>
+            </div>
+          </div>
+          {% endif %}
+          {% if selected_ad %}<input type="hidden" name="ad" value="{{ selected_ad.id }}">{% endif %}
+          <div class="rc-field">
+            <label>Dönem</label>
+            <select name="gun" onchange="this.form.submit()">
+              <option value="7" {% if days == 7 %}selected{% endif %}>Son 7 gün</option>
+              <option value="14" {% if days == 14 %}selected{% endif %}>Son 14 gün</option>
+              <option value="30" {% if days == 30 %}selected{% endif %}>Son 30 gün</option>
+              <option value="60" {% if days == 60 %}selected{% endif %}>Son 60 gün</option>
+              <option value="90" {% if days == 90 %}selected{% endif %}>Son 90 gün</option>
+            </select>
+          </div>
+        </form>
+        <div class="rc-ad-list">
+          {% for ad in ads %}
+          <a class="rc-ad-option {% if selected_ad and ad.id == selected_ad.id %}active{% endif %}" href="?ad={{ ad.id }}&gun={{ days }}{% if agency_scope.selected_client %}&agency_client={{ agency_scope.selected_client.id }}{% endif %}">
+            <strong>{{ ad.name|default:ad.headline|default:"Reklam" }}</strong>
+            <span>{{ ad.platform_account.platform.name|default:"Platform" }} · {{ ad.platform_account.account_name|default:ad.platform_account.account_id|default:"Hesap" }}</span>
+          </a>
+          {% empty %}
+          <div class="rc-empty">Henüz karne oluşturulacak reklam bulunamadı.</div>
+          {% endfor %}
+        </div>
+      </aside>
+
+      <main class="rc-preview-shell">
+        {% if empty %}
+        <div class="rc-empty">
+          {% if has_ads %}
+          Karnesini oluşturmak için soldaki listeden bir reklam seçin.
+          {% else %}
+          Bu kullanıcı için reklam verisi yok.
+          {% endif %}
+        </div>
+        {% else %}
+        <article class="rc-paper">
+          <header class="rc-paper-head">
+            <div>
+              <div class="rc-paper-brand"><img class="rc-paper-logo" src="{{ branding.logo_url|default:'/static/images/logo2.png' }}" alt="{{ branding.brand_name|default:'ReklamAnaliz.net' }}"></div>
+              <h2 class="rc-paper-title">Reklam Sağlık Karnesi</h2>
+            </div>
+            <div class="rc-grade-box">
+              <div><div class="rc-grade">{{ grade }}</div><span>{{ score }}/100 · {{ grade_label }}</span></div>
+            </div>
+          </header>
+          <div class="rc-paper-body">
+            <section class="rc-ad-top">
+              <div class="rc-media">{% if image_url %}<img src="{{ image_url }}" alt="Reklam görseli">{% else %}<i class="fas fa-rectangle-ad"></i>{% endif %}</div>
+              <div>
+                <h3 class="rc-ad-name">{{ selected_ad.name|default:selected_ad.headline|default:"Reklam" }}</h3>
+                <div class="rc-meta-grid">
+                  <div class="rc-meta"><small>Platform</small><b>{{ platform }}</b></div>
+                  <div class="rc-meta"><small>Hesap</small><b>{{ account }}</b></div>
+                  <div class="rc-meta"><small>Kampanya</small><b>{{ campaign }}</b></div>
+                  <div class="rc-meta"><small>Reklam Grubu</small><b>{{ ad_group }}</b></div>
+                </div>
+              </div>
+            </section>
+            <section class="rc-detail-grid">{% for label,value in ad_details.items %}<div class="rc-detail"><small>{{ label }}</small><b title="{{ value }}">{{ value }}</b></div>{% endfor %}</section>
+            <section class="rc-identity">{% for label,value in identity_details.items %}<div class="rc-identity-row"><small>{{ label }}</small><p>{{ value }}</p></div>{% endfor %}</section>
+            <section class="rc-metrics">{% for label,value in metrics.items %}<div class="rc-metric"><span>{{ label }}</span><strong>{{ value }}</strong></div>{% endfor %}</section>
+            <h3 class="rc-section-title">Tespitler</h3>
+            <div class="rc-rule-summary">
+              <span class="rc-rule-chip">{{ active_rule_count }} kural kataloğu</span>
+              <span class="rc-rule-chip">{{ matched_rule_count }} eşleşme</span>
+              <span class="rc-rule-chip">{% if rule_scan_queued %}Tarama kuyruğa alındı{% elif rule_engine.status == 'completed' %}Tarama tamamlandı{% elif rule_engine.status == 'running' %}Tarama sürüyor{% elif rule_engine.status == 'failed' %}Tarama hatası{% else %}Tarama bekleniyor{% endif %}</span>
+            </div>
+            <section class="rc-detections">
+              {% for match in rule_matches|slice:":6" %}
+              <article class="rc-detection"><div class="rc-detection-head"><strong>{{ match.title }}</strong><span class="rc-severity {{ match.severity }}">{{ match.severity_label }}</span></div><ul>{% for point in match.message_points %}<li>{{ point }}</li>{% endfor %}{% for point in match.action_points %}<li><b>Aksiyon:</b> {{ point }}</li>{% endfor %}</ul></article>
+              {% empty %}<article class="rc-detection"><ul><li>Tarama tamamlandığında eşleşen gerçek kural tespitleri burada gösterilir.</li></ul></article>{% endfor %}
+            </section>
+            <h3 class="rc-section-title">Performans Bileşenleri</h3>
+            <section class="rc-bars">{% for row in components %}<div class="rc-bar"><label>{{ row.label }}</label><div class="rc-track"><div class="rc-fill" style="--w:{{ row.score }}%"></div></div><strong>{{ row.score }}</strong></div>{% endfor %}</section>
+            <h3 class="rc-section-title">Karne Notları</h3>
+            <section class="rc-notes">
+              <div class="rc-note"><h4>Güçlü Taraf</h4><ul>{% for point in note_points.strength %}<li>{{ point }}</li>{% endfor %}</ul></div>
+              <div class="rc-note"><h4>Risk</h4><ul>{% for point in note_points.risk %}<li>{{ point }}</li>{% endfor %}</ul></div>
+              <div class="rc-note"><h4>Aksiyon</h4><ul>{% for point in note_points.action %}<li>{{ point }}</li>{% endfor %}</ul></div>
+            </section>
+            <footer class="rc-footer"><span>Reklam Sağlık Karnesi</span><span>{{ today|date:"d.m.Y" }}</span></footer>
+          </div>
+        </article>
+        {% endif %}
+      </main>
+    </section>
+  </div>
+</div>
+{% if selected_ad and rule_scan_queued or selected_ad and rule_engine.status == 'running' %}
+<script>
+(function () {
+  const adId = '{{ selected_ad.id|escapejs }}';
+  const agencyClient = '{{ agency_scope.selected_client.id|default:""|escapejs }}';
+  const previousRunAt = '{{ rule_engine.last_run_at|date:"c"|default:""|escapejs }}';
+  let attempts = 0;
+  const timer = setInterval(async function () {
+    attempts += 1;
+    try {
+      const params = new URLSearchParams();
+      if (agencyClient) params.set('agency_client', agencyClient);
+      const response = await fetch(`/api/reklamlar/${adId}/detail/?${params.toString()}`, {headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}});
+      const data = await response.json();
+      const engine = data.ad && data.ad.rule_engine ? data.ad.rule_engine : {};
+      if (engine.status === 'completed' && engine.last_run_at && engine.last_run_at !== previousRunAt) {
+        clearInterval(timer);
+        window.location.reload();
+      } else if (engine.status === 'failed' || attempts >= 12) {
+        clearInterval(timer);
+      }
+    } catch (error) {
+      if (attempts >= 12) clearInterval(timer);
+    }
+  }, 2500);
+})();
+</script>
+{% endif %}
+{% endblock %}

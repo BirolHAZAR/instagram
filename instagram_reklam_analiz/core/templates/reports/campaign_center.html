@@ -1,0 +1,613 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tr_numbers %}
+
+{% block title %}Kampanya Merkezi | ReklamAnaliz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/campaign_center.css' %}?v=campaign-modal-layer-20260720">
+{% endblock %}
+
+{% block content %}
+<div class="ra-campaign-shell">
+  <section class="ra-hero">
+    <div class="ra-hero-grid">
+      <div>
+        <span class="ra-kicker"><i class="fas fa-bullseye"></i> Octo Kampanya Merkezi</span>
+        <h1>Kampanyaları tek ekrandan yönet, riski ve fırsatı anında gör.</h1>
+        <p>Meta, Google, TikTok, LinkedIn ve diğer platformlardan gelen kampanya verilerini; bütçe, harcama, CTR, CPC, CPA, ROAS, gösterim, tıklama ve dönüşüm metrikleriyle profesyonel karar ekranına çevirir.</p>
+        <div class="ra-hero-actions">
+          <a class="ra-btn ra-btn-primary" href="{% url 'sync_center' %}"><i class="fas fa-rotate"></i> Verileri Senkronize Et</a>
+          <a class="ra-btn" href="{% url 'adgroup_center' %}"><i class="fas fa-sitemap"></i> Reklam Grupları</a>
+          <a class="ra-btn" href="{% url 'performance_center' %}"><i class="fas fa-chart-line"></i> Performans Merkezi</a>
+        </div>
+      </div>
+      <aside class="ra-octo-card">
+        <div class="ra-octo-top">
+          <div class="ra-octo-avatar"><i class="fas fa-robot"></i></div>
+          <div>
+            <div class="ra-octo-title">Octo AI kısa durum</div>
+            <div class="ra-octo-sub">{{ filters.period_label }} kampanya özeti</div>
+          </div>
+        </div>
+        <div class="ra-octo-metric">
+          <div class="ra-mini-stat ra-has-tip" data-tip="En yüksek ROAS değerine sahip kampanyayı gösterir. 14,29x demek, harcanan her 1 TL karşılığında yaklaşık 14,29 TL dönüşüm değeri oluştuğu anlamına gelir."><span>En iyi kampanya</span><strong>{% if top_campaign %}{{ top_campaign.roas|tr_decimal:2 }}x{% else %}0,00x{% endif %}</strong></div>
+          <div class="ra-mini-stat ra-has-tip" data-tip="Riskli kampanya sayısıdır. Şu an 0 görünüyorsa son 30 gün verisine göre düşüş/risk kriterine giren kampanya bulunmamıştır ya da risk eşiği henüz tetiklenmemiştir."><span>Riskli kampanya</span><strong>{{ summary.performance_down|tr_int }}</strong></div>
+          <div class="ra-mini-stat ra-has-tip" data-tip="Aktif durumda olan kampanya sayısıdır. Veritabanındaki kampanya durum alanına göre hesaplanır."><span>Aktif kampanya</span><strong>{{ summary.active_campaigns|tr_int }}</strong></div>
+          <div class="ra-mini-stat ra-has-tip" data-tip="Öğrenme/optimizasyon sürecinde olan kampanya sayısıdır. Kampanya durumu veya analiz etiketine göre hesaplanır."><span>Öğrenme</span><strong>{{ summary.learning_campaigns|tr_int }}</strong></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="ra-date-filter-card" aria-label="Kampanya tarihi ve dönem filtresi">
+    {% if agency_scope.is_agency %}
+    <form class="ra-agency-client-filter" method="get" action="{{ request.path }}">
+      <div class="ra-agency-client-copy">
+        <span><i class="fas fa-building-user"></i> Ajans müşterisi</span>
+        <small>Kampanyaları tek müşteriye göre süzün veya ajansın tüm müşterilerini görüntüleyin.</small>
+      </div>
+      <select id="campaignCenterAgencyClient" name="agency_client" onchange="this.form.submit()">
+        <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm müşteriler</option>
+        {% for client in agency_scope.clients %}
+        <option value="{{ client.id }}"{% if agency_scope.selected_client.id == client.id %} selected{% endif %}>{{ client.organization.name }} · {{ client.name }}</option>
+        {% endfor %}
+      </select>
+      <input type="hidden" name="period" value="{{ filters.active_period }}">
+      <input type="hidden" name="date_from" value="{{ filters.date_from }}">
+      <input type="hidden" name="date_to" value="{{ filters.date_to }}">
+      <input type="hidden" name="status" value="{{ selected_status }}">
+      <input type="hidden" name="platform" value="{{ selected_platform }}">
+      <input type="hidden" name="q" value="{{ q }}">
+      <input type="hidden" name="per_page" value="{{ per_page }}">
+    </form>
+    {% endif %}
+    <div class="ra-date-filter-inner">
+      <div class="ra-date-title">
+        <div class="ra-date-icon"><i class="fas fa-calendar-days"></i></div>
+        <div>
+          <strong>{{ filters.period_label }} kampanya görünümü</strong>
+          <span>{{ filters.date_label }} · {{ filters.selected_days }} gün</span>
+        </div>
+      </div>
+      <div class="ra-period-tabs">
+        <a class="ra-period-tab {% if filters.active_period == 'daily' %}active{% endif %}" href="{{ period_links.daily }}"><i class="fas fa-sun"></i> Günlük</a>
+        <a class="ra-period-tab {% if filters.active_period == 'weekly' %}active{% endif %}" href="{{ period_links.weekly }}"><i class="fas fa-calendar-week"></i> Haftalık</a>
+        <a class="ra-period-tab {% if filters.active_period == 'monthly' %}active{% endif %}" href="{{ period_links.monthly }}"><i class="fas fa-calendar-alt"></i> Aylık</a>
+        <a class="ra-period-tab {% if filters.active_period == 'quarterly' %}active{% endif %}" href="{{ period_links.quarterly }}"><i class="fas fa-chart-area"></i> 3 Aylık</a>
+      </div>
+      <form class="ra-date-form" method="get">
+        <input type="hidden" name="period" value="custom">
+        <input type="hidden" name="status" value="{{ selected_status }}">
+        <input type="hidden" name="platform" value="{{ selected_platform }}">
+        <input type="hidden" name="q" value="{{ q }}">
+        <input type="hidden" name="per_page" value="{{ per_page }}">
+        <label class="ra-date-field"><span>Başlangıç</span><input type="date" name="date_from" value="{{ filters.date_from }}" max="{{ filters.today }}"></label>
+        <label class="ra-date-field"><span>Bitiş</span><input type="date" name="date_to" value="{{ filters.date_to }}" max="{{ filters.today }}"></label>
+        <button class="ra-date-apply" type="submit"><i class="fas fa-filter"></i> Uygula</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="ra-kpi-grid">
+    <div class="ra-kpi ra-has-tip" data-tip="Seçili filtrelere göre listelenen toplam kampanya sayısıdır. Platform, durum veya arama filtresi değişirse bu sayı da değişir."><div class="ra-kpi-label"><span class="ra-dot"></span>Toplam Kampanya</div><div class="ra-kpi-value">{{ summary.total_campaigns|tr_int }}</div><div class="ra-kpi-note">Filtreye göre listelenen kampanyalar</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="Seçili platform, durum ve arama filtresine göre listelenen kampanyaların toplam bütçesidir. Her kampanya için lifetime bütçe varsa onu, yoksa günlük bütçe × seçili gün sayısı karşılığını toplar."><div class="ra-kpi-label"><span class="ra-dot yellow"></span>Toplam Bütçe</div><div class="ra-kpi-value">{{ summary.total_budget|tr_money }}</div><div class="ra-kpi-note">Seçili kampanyaların bütçe toplamı</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="Seçili platform, durum ve arama filtresine göre listelenen kampanyaların seçili tarih aralığındaki toplam harcamasıdır. CampaignMetricHistory kayıtlarından toplanır."><div class="ra-kpi-label"><span class="ra-dot green"></span>Toplam Harcama</div><div class="ra-kpi-value">{{ summary.spend|tr_money }}</div><div class="ra-kpi-note">Seçili kampanyaların harcama toplamı</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="CTR, tıklama sayısının gösterim sayısına oranıdır. Reklamın dikkat çekme gücünü gösterir; yüksek CTR genelde kreatif ve hedefleme uyumunun iyi olduğunu anlatır."><div class="ra-kpi-label"><span class="ra-dot blue"></span>CTR</div><div class="ra-kpi-value">{{ summary.ctr|tr_percent }}</div><div class="ra-kpi-note">Tıklama / gösterim oranı</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="CPC, ortalama tıklama maliyetidir. Harcama / tıklama formülüyle hesaplanır. Düşük CPC daha ucuz trafik anlamına gelir."><div class="ra-kpi-label"><span class="ra-dot yellow"></span>CPC</div><div class="ra-kpi-value">{{ summary.cpc|tr_money }}</div><div class="ra-kpi-note">Ortalama tıklama maliyeti</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="CPA, dönüşüm başı maliyettir. Harcama / dönüşüm formülüyle hesaplanır. Satış veya lead maliyetini izlemek için kullanılır."><div class="ra-kpi-label"><span class="ra-dot red"></span>CPA</div><div class="ra-kpi-value">{{ summary.cpa|tr_money }}</div><div class="ra-kpi-note">Dönüşüm başı maliyet</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="ROAS, reklam harcamasına karşılık oluşan dönüşüm değeridir. 4,00x demek, harcanan her 1 TL için yaklaşık 4 TL gelir/değer oluştuğu anlamına gelir."><div class="ra-kpi-label"><span class="ra-dot green"></span>ROAS</div><div class="ra-kpi-value">{{ summary.roas|tr_decimal:2 }}x</div><div class="ra-kpi-note">Gelir / harcama oranı</div></div>
+  </section>
+
+  <section class="ra-control-panel">
+    <div class="ra-platforms">
+      <div class="ra-section-title"><h2>Platform Dağılımı</h2><span>Çoklu seçim aktif</span></div>
+      <div class="ra-platform-grid">
+        {% for p in platform_cards %}
+        <a class="ra-platform-card {% if p.is_selected %}is-selected{% endif %}" href="{{ p.filter_url }}" data-platform-filter aria-pressed="{% if p.is_selected %}true{% else %}false{% endif %}" title="{% if p.is_selected %}Bu platform seçili. Kaldırmak için tıkla.{% else %}Bu platformu filtreye eklemek için tıkla.{% endif %}">
+          <div><div class="ra-platform-name">{{ p.name }}</div><div class="ra-platform-meta">{{ p.account_count }} hesap · {{ p.campaign_count }} kampanya</div></div>
+          <div class="ra-platform-count">{{ p.campaign_count }}</div>
+        </a>
+        {% empty %}
+        <div class="ra-platform-card"><div><div class="ra-platform-name">Platform yok</div><div class="ra-platform-meta">Önce hesap bağlantısı yapılmalı</div></div></div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="ra-filters">
+      <div class="ra-section-title"><h2>Filtreleme</h2><span>Aktif, duraklatılmış, öğrenme ve trend durumları</span></div>
+      <form class="ra-filter-form" method="get">
+        <input type="hidden" name="status" value="{{ selected_status }}">
+        <input type="hidden" name="platform" value="{{ selected_platform }}">
+        <input type="hidden" name="per_page" value="{{ per_page }}">
+        <input type="hidden" name="period" value="{{ filters.active_period }}">
+        <input type="hidden" name="date_from" value="{{ filters.date_from }}">
+        <input type="hidden" name="date_to" value="{{ filters.date_to }}">
+        <div class="ra-search-line">
+          <input class="ra-search" name="q" value="{{ q }}" placeholder="Kampanya adı veya platform kampanya ID ara...">
+          <button class="ra-search-btn" type="submit"><i class="fas fa-search"></i> Ara</button>
+        </div>
+        <div class="ra-tabs">
+          {% for key,label in status_tabs %}
+          <a class="ra-tab {% if selected_status == key %}active{% endif %}" href="?status={{ key }}&platform={{ selected_platform }}&q={{ q }}&per_page={{ per_page }}&period={{ filters.active_period }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">
+            {% if key == 'active' %}<i class="fas fa-play"></i>{% elif key == 'paused' %}<i class="fas fa-pause"></i>{% elif key == 'learning' %}<i class="fas fa-brain"></i>{% elif key == 'down' %}<i class="fas fa-arrow-trend-down"></i>{% elif key == 'up' %}<i class="fas fa-arrow-trend-up"></i>{% else %}<i class="fas fa-border-all"></i>{% endif %}
+            {{ label }}
+          </a>
+          {% endfor %}
+          {% if selected_platform != 'all' or q or selected_status != 'all' or filters.active_period != 'monthly' %}<a class="ra-tab" href="{% url 'campaign_center' %}"><i class="fas fa-xmark"></i> Filtreleri Temizle</a>{% endif %}
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="ra-table-panel">
+    <div class="ra-table-head">
+      <div><h2>Kampanya Performans Tablosu</h2><p>Toplam {{ all_campaigns_count|tr_int }} kampanyadan bu sayfada {{ campaigns|length|tr_int }} kayıt gösteriliyor.</p></div>
+      <div class="ra-table-tools">
+        <form class="ra-per-page" method="get">
+          <input type="hidden" name="status" value="{{ selected_status }}">
+          <input type="hidden" name="platform" value="{{ selected_platform }}">
+          <input type="hidden" name="q" value="{{ q }}">
+          <input type="hidden" name="period" value="{{ filters.active_period }}">
+          <input type="hidden" name="date_from" value="{{ filters.date_from }}">
+          <input type="hidden" name="date_to" value="{{ filters.date_to }}">
+          <span>Liste başına</span>
+          <select name="per_page" onchange="this.form.submit()">
+            <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+            <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+            <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+          </select>
+        </form>
+      </div>
+    </div>
+
+    {% if campaigns %}
+    <div class="ra-table-wrap">
+      <table class="ra-table">
+        <thead>
+          <tr>
+            <th class="ra-th-tip" data-tip="Kampanyanın adı, platform ID bilgisi, başlangıç tarihi ve altındaki reklam grubu/reklam sayısıdır.">Kampanya <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyanın platformdaki yayın durumudur. Aktif kampanyalar yayında, duraklatılmış kampanyalar ise harcama yapmaz.">Durum <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyanın bağlı olduğu reklam platformu ve hesap bilgisidir.">Platform <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Son 30 günlük harcama, günlük bütçe ve toplam bütçe bilgisidir. Toplam bütçe lifetime bütçe varsa onu, yoksa günlük bütçe × 30 olarak hesaplanır.">Bütçe / Harcama <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Reklamların toplam gösterim sayısıdır. Kampanyanın kaç kez ekrana geldiğini gösterir.">Gösterim <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyadan gelen toplam tıklama sayısıdır.">Tıklama <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="CTR = Tıklama / Gösterim. Yanındaki ok, seçili dönem ile aynı uzunluktaki önceki dönemin CTR farkını yüzde puan olarak gösterir.">CTR <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="CPC = Harcama / Tıklama. Ortalama tıklama maliyetidir.">CPC <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="CPA = Harcama / Dönüşüm. Bir dönüşümün ortalama maliyetidir.">CPA <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="ROAS = Dönüşüm değeri / Harcama. 3,00x demek 1 TL harcamaya karşılık 3 TL değer oluştuğu anlamına gelir.">ROAS <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyanın ürettiği dönüşüm adedi ve dönüşüm değeridir.">Dönüşüm <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Octo skoru; CTR, CPC, ROAS, durum ve trend sinyallerine göre hesaplanan kampanya sağlığıdır.">Octo <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyanın son performans trendi ve Octo AI analiz butonudur.">Trend / Analiz <span class="ra-tip-icon">i</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in campaigns %}
+          <tr class="{{ c.row_class }}">
+            <td>
+              <div class="ra-name">{{ c.name }}</div>
+              <div class="ra-sub">ID: {{ c.external_id }} · Başlangıç: {{ c.start_label }} · {{ c.adgroup_count }} grup / {{ c.ad_count }} reklam</div>
+              <div class="ra-success-pill {{ c.success_level }}" title="{{ c.success_reason }}"><i class="fas fa-circle-check"></i>{{ c.success_label }}</div>
+            </td>
+            <td><span class="ra-status {{ c.status_raw }}"><i class="fas fa-circle"></i>{{ c.status }}</span></td>
+            <td><div class="ra-number">{{ c.platform }}</div><div class="ra-sub">{{ c.account }}</div></td>
+            <td>
+              <div class="ra-money">{{ c.spend|tr_money }}</div>
+              <div class="ra-sub">Günlük: {{ c.daily_budget|tr_money }} · Toplam: {{ c.budget|tr_money }}</div>
+              <div class="ra-progress"><span style="width:{{ c.budget_usage }}%"></span></div>
+            </td>
+            <td><span class="ra-number">{{ c.impressions|tr_int }}</span></td>
+            <td><span class="ra-number">{{ c.clicks|tr_int }}</span></td>
+            <td class="ra-metric-cell"><span class="ra-number">{{ c.ctr|tr_percent }}</span>{% if c.has_period_comparison %}<span class="ra-delta {% if c.ctr_delta > 0 %}up{% elif c.ctr_delta < 0 %}down{% else %}flat{% endif %}" title="Önceki eş dönem CTR farkı">{% if c.ctr_delta > 0 %}↑{% elif c.ctr_delta < 0 %}↓{% else %}—{% endif %} {{ c.ctr_delta|tr_decimal:2 }}</span>{% else %}<span class="ra-delta unavailable" title="Önceki eş dönemde veritabanı kaydı yok">Karşılaştırma yok</span>{% endif %}</td>
+            <td><span class="ra-number">{{ c.cpc|tr_money }}</span></td>
+            <td><span class="ra-number">{{ c.cpa|tr_money }}</span></td>
+            <td><span class="ra-number">{{ c.roas|tr_decimal:2 }}x</span></td>
+            <td><span class="ra-number">{{ c.conversions|tr_decimal:0 }}</span><div class="ra-sub">Gelir {{ c.revenue|tr_money }}</div></td>
+            <td><div class="ra-health"><div class="ra-health-ring" style="--score:{{ c.health_score }}"><b>{{ c.health_score }}</b></div></div></td>
+            <td><span class="ra-badge {{ c.badge_class }}">{{ c.badge }}</span><br><button type="button"
+        class="ra-octo-action"
+        data-url="{% url 'octo_campaign_analysis_safe' c.id %}"
+        data-campaign="{{ c.name|escapejs }}">
+  <i class="fas fa-robot"></i> Octo Analiz
+</button>
+</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj and paginator.num_pages > 1 %}
+    <div class="ra-pagination-bar">
+      <div class="ra-pagination-info">
+        Sayfa {{ page_obj.number }} / {{ paginator.num_pages }} · Toplam {{ all_campaigns_count|tr_int }} kampanya
+      </div>
+
+      <div class="ra-pagination-actions">
+        {% if page_obj.has_previous %}
+          <a class="ra-page-link" href="?{{ pagination_query }}&page=1">İlk</a>
+          <a class="ra-page-link" href="?{{ pagination_query }}&page={{ page_obj.previous_page_number }}">Önceki</a>
+        {% else %}
+          <span class="ra-page-link disabled">İlk</span>
+          <span class="ra-page-link disabled">Önceki</span>
+        {% endif %}
+
+        {% for num in paginator.page_range %}
+          {% if num == page_obj.number %}
+            <span class="ra-page-link active">{{ num }}</span>
+          {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+            <a class="ra-page-link" href="?{{ pagination_query }}&page={{ num }}">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <a class="ra-page-link" href="?{{ pagination_query }}&page={{ page_obj.next_page_number }}">Sonraki</a>
+          <a class="ra-page-link" href="?{{ pagination_query }}&page={{ paginator.num_pages }}">Son</a>
+        {% else %}
+          <span class="ra-page-link disabled">Sonraki</span>
+          <span class="ra-page-link disabled">Son</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="ra-empty">
+      <div class="ra-empty-icon"><i class="fas fa-bullhorn"></i></div>
+      <h3>Henüz kampanya verisi bulunamadı.</h3>
+      <p>Kampanya Merkezi hazır. Platform hesaplarını senkronize ettiğinde kampanyalar burada; bütçe, harcama, CTR, CPC, CPA, ROAS, gösterim, tıklama ve dönüşüm metrikleriyle otomatik listelenecek.</p>
+      <div class="ra-hero-actions" style="justify-content:center"><a class="ra-btn ra-btn-primary" href="{% url 'sync_center' %}"><i class="fas fa-rotate"></i> Senkronizasyon Merkezine Git</a></div>
+    </div>
+    {% endif %}
+  </section>
+</div>
+<div class="ra-octo-modal-backdrop" id="octoCampaignModal">
+  <div class="ra-octo-modal" role="dialog" aria-modal="true" aria-labelledby="octoCampaignModalTitle">
+    <div class="ra-octo-modal-head">
+      <div class="ra-octo-head-left">
+        <div class="ra-octo-head-icon"><i class="fas fa-robot"></i></div>
+        <div class="ra-octo-head-copy">
+          <div class="ra-octo-eyebrow"><i class="fas fa-wand-magic-sparkles"></i> Octo AI Campaign Intelligence</div>
+          <h3 id="octoCampaignModalTitle">Octo Kampanya Analizi</h3>
+        </div>
+      </div>
+      <button type="button" class="ra-octo-close" onclick="closeOctoCampaignModal()" aria-label="Kapat">×</button>
+    </div>
+    <div class="ra-octo-modal-body">
+      <div class="ra-octo-loading" id="octoLoadingLine"><span class="ra-octo-spinner"></span><span id="octoLoadingText">Kampanya metrikleri hazırlanıyor...</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;"><button type="button" class="ra-btn ra-btn-primary" id="octoRunAnalysisBtn"><i class="fas fa-chart-line"></i> Octo Analiz</button><button type="button" class="ra-btn ra-btn-primary" id="octoRunRecommendationBtn"><i class="fas fa-lightbulb"></i> Octo Öneri</button></div>
+
+      <div class="ra-octo-exec-hero">
+        <aside class="ra-octo-score-panel">
+          <div class="ra-octo-score-ring" id="octoScoreRing" style="--score:0">
+            <div class="ra-octo-score-inner">
+              <div>
+                <span class="ra-octo-score-number" id="octoModalScore">--</span>
+                <span class="ra-octo-score-caption">Octo skor</span>
+              </div>
+            </div>
+          </div>
+          <span class="ra-octo-label" id="octoModalLabel">Analiz hazırlanıyor</span>
+          <div class="ra-octo-saved" id="octoModalSaved"></div>
+        </aside>
+
+        <section class="ra-octo-kpi-panel">
+          <div class="ra-octo-kpi-top">
+            <div class="ra-octo-kpi-title">
+              <strong>Analizde kullanılan kampanya KPI’ları</strong>
+              <span>Bu değerler seçili tarih aralığından hesaplanır.</span>
+            </div>
+            <div class="ra-octo-range-pill" id="octoDateRange"><i class="fas fa-calendar-days"></i> Tarih aralığı hazırlanıyor</div>
+          </div>
+          <div class="ra-octo-kpi-grid">
+            <div class="ra-octo-kpi-card"><small>ROAS</small><strong id="octoKpiRoas">-</strong><span>Gelir / harcama</span></div>
+            <div class="ra-octo-kpi-card"><small>CTR</small><strong id="octoKpiCtr">-</strong><span>Tıklama oranı</span></div>
+            <div class="ra-octo-kpi-card"><small>CPC</small><strong id="octoKpiCpc">-</strong><span>Tıklama maliyeti</span></div>
+            <div class="ra-octo-kpi-card"><small>Harcama</small><strong id="octoKpiSpend">-</strong><span>Toplam harcama</span></div>
+            <div class="ra-octo-kpi-card"><small>Dönüşüm</small><strong id="octoKpiConversions">-</strong><span>Toplam dönüşüm</span></div>
+            <div class="ra-octo-kpi-card"><small>Gösterim</small><strong id="octoKpiImpressions">-</strong><span>Erişim hacmi</span></div>
+            <div class="ra-octo-kpi-card"><small>Tıklama</small><strong id="octoKpiClicks">-</strong><span>Toplam tıklama</span></div>
+            <div class="ra-octo-kpi-card"><small>Gelir</small><strong id="octoKpiRevenue">-</strong><span>Dönüşüm değeri</span></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="ra-octo-section-title"><h4>Performans sinyalleri</h4><span>Güçlü yön, risk ve trend özeti</span></div>
+      <div class="ra-octo-box ra-rule-findings-box" style="margin-bottom:14px;">
+        <div class="ra-rule-findings-head">
+          <h4><i class="fas fa-list-check"></i> Kampanya Kural Tespitleri <span id="octoRuleCount"></span></h4>
+          <span id="octoRulePeriod">Tarih aralığı hazırlanıyor</span>
+        </div>
+        <div id="octoRuleFindings" class="ra-rule-findings"><div class="ra-rule-empty">Kural eşleşmeleri hazırlanıyor...</div></div>
+      </div>
+      <div class="ra-octo-v2-grid" id="octoV2InsightGrid">
+        <div class="ra-octo-v2-card"><small>Güçlü Alan</small><strong id="octoBestMetric">-</strong></div>
+        <div class="ra-octo-v2-card"><small>Zayıf / İzlenecek Alan</small><strong id="octoWorstMetric">-</strong></div>
+        <div class="ra-octo-v2-card"><small>Risk Skoru</small><strong id="octoRiskScore">-</strong></div>
+        <div class="ra-octo-v2-card"><small>7 Gün Trend</small><strong id="octoTrend7d">-</strong></div>
+        <div class="ra-octo-v2-card"><small>30 Gün Trend</small><strong id="octoTrend30d">-</strong></div>
+        <div class="ra-octo-v2-card"><small>Rakip Konumu</small><strong id="octoCompetitorPosition">-</strong></div>
+      </div>
+
+      <div class="ra-octo-section-title"><h4>Beklenen etki</h4><span>Öneriler uygulandığında tahmini sonuç</span></div>
+      <div class="ra-octo-v2-grid effects" id="octoV2EffectGrid">
+        <div class="ra-octo-v2-card"><small>Beklenen ROAS Etkisi</small><strong id="octoRoasGain">-</strong></div>
+        <div class="ra-octo-v2-card"><small>Beklenen CTR Etkisi</small><strong id="octoCtrGain">-</strong></div>
+        <div class="ra-octo-v2-card"><small>Zorluk</small><strong id="octoDifficulty">-</strong></div>
+        <div class="ra-octo-v2-card"><small>Uygulama Süresi</small><strong id="octoImplementationTime">-</strong></div>
+      </div>
+
+      <div class="ra-octo-columns">
+        <div class="ra-octo-box risk">
+          <h4><i class="fas fa-chart-line"></i> Octo Kampanya Analizi</h4>
+          <ul id="octoAnalysisList"><li>Analiz bekleniyor...</li></ul>
+        </div>
+        <div class="ra-octo-box">
+          <h4><i class="fas fa-lightbulb"></i> Octo Yorum & Öneri</h4>
+          <ul id="octoRecommendationList"><li>Öneriler bekleniyor...</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="ra-octo-processing-backdrop" id="octoProcessingOverlay" aria-hidden="true" aria-live="polite">
+  <div class="ra-octo-processing-card" role="status">
+    <span class="ra-octo-processing-spinner" aria-hidden="true"></span>
+    <strong id="octoProcessingTitle">Octo AI çalışıyor</strong>
+    <span id="octoProcessingMessage">Kampanya verileri işleniyor...</span>
+  </div>
+</div>
+<script id="octo-ai-executive-modal-js-v3">
+function getCampaignCsrfToken(){const match=document.cookie.match(/(^|;)\s*csrftoken\s*=\s*([^;]+)/);return match?decodeURIComponent(match.pop()):'';}
+function openOctoCampaignModal(){const modal=document.getElementById('octoCampaignModal');if(modal){if(modal.parentElement!==document.body){document.body.appendChild(modal);}modal.classList.add('show');modal.setAttribute('aria-hidden','false');document.documentElement.classList.add('ra-octo-lock');document.body.classList.add('ra-octo-lock');}}
+function closeOctoCampaignModal(){const modal=document.getElementById('octoCampaignModal');if(modal){modal.classList.remove('show');modal.setAttribute('aria-hidden','true');document.documentElement.classList.remove('ra-octo-lock');document.body.classList.remove('ra-octo-lock');}}
+function showOctoProcessing(mode){const overlay=document.getElementById('octoProcessingOverlay');if(!overlay)return;const title=document.getElementById('octoProcessingTitle');const message=document.getElementById('octoProcessingMessage');if(title)title.textContent=mode==='analysis'?'Octo kampanyayı analiz ediyor':'Octo önerileri hazırlıyor';if(message)message.textContent=mode==='analysis'?'Kampanya verileri ve performans sinyalleri inceleniyor...':'Analiz sonuçlarına göre uygulanabilir öneriler oluşturuluyor...';if(overlay.parentElement!==document.body)document.body.appendChild(overlay);overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');}
+function hideOctoProcessing(){const overlay=document.getElementById('octoProcessingOverlay');if(!overlay)return;overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');}
+function formatTRNumberFromParts(integerPart,decimalPart){const cleanInt=String(integerPart||'0').replace(/\D/g,'');const grouped=cleanInt.replace(/\B(?=(\d{3})+(?!\d))/g,'.');return decimalPart?grouped+','+decimalPart:grouped;}
+function formatOctoText(value){if(value===null||value===undefined)return'';let text=String(value);text=text.replace(/\b(\d{4,})(?:\.(\d{1,2}))?\s*TL\b/g,function(_,intPart,decPart){return formatTRNumberFromParts(intPart,(decPart||'00').padEnd(2,'0'))+' TL';});text=text.replace(/\b(\d+)\.(\d{1,2})x\b/g,function(_,intPart,decPart){return intPart+','+decPart.padEnd(2,'0')+'x';});text=text.replace(/\b(\d+)\.(\d{1,2})%/g,function(_,intPart,decPart){return intPart+','+decPart.padEnd(2,'0')+'%';});text=text.replace(/%(\d+)\.(\d{1,2})\b/g,function(_,intPart,decPart){return'%'+intPart+','+decPart.padEnd(2,'0');});return text;}
+function trNum(value,digits=2){const n=Number(value);if(!Number.isFinite(n))return'-';return n.toLocaleString('tr-TR',{minimumFractionDigits:digits,maximumFractionDigits:digits});}
+function trInt(value){const n=Number(value);if(!Number.isFinite(n))return'-';return Math.round(n).toLocaleString('tr-TR');}
+function trMoney(value){return trNum(value,2)+' TL';}
+function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=formatOctoText(value||'-');}
+function setLoading(show,text){const el=document.getElementById('octoLoadingLine');const tx=document.getElementById('octoLoadingText');if(tx&&text)tx.textContent=text;if(el)el.classList.toggle('show',!!show);}
+function fillList(id,items){const el=document.getElementById(id);if(!el)return;el.innerHTML='';const safeItems=Array.isArray(items)&&items.length?items:['İçerik bulunamadı.'];safeItems.forEach(function(item){const li=document.createElement('li');const clean=String(item??'').replace(/^.*?Ajan[ıi]:\s*/i,'').trim();li.textContent=formatOctoText(clean);el.appendChild(li);});}
+function fillRuleFindings(events,period){
+  const container=document.getElementById('octoRuleFindings');
+  const count=document.getElementById('octoRuleCount');
+  const periodEl=document.getElementById('octoRulePeriod');
+  if(!container)return;
+  const rows=Array.isArray(events)?events:[];
+  if(count)count.textContent='('+rows.length+')';
+  if(periodEl)periodEl.textContent=period?'İncelenen dönem: '+period:'İncelenen dönem belirtilmedi';
+  container.innerHTML='';
+  if(!rows.length){const empty=document.createElement('div');empty.className='ra-rule-empty';empty.textContent='Seçili dönemde kritik kural eşleşmesi bulunamadı.';container.appendChild(empty);return;}
+  rows.forEach(function(row){
+    const article=document.createElement('article');article.className='ra-rule-finding '+String(row.severity||'info');
+    const head=document.createElement('div');head.className='ra-rule-finding-head';
+    const title=document.createElement('strong');title.textContent=formatOctoText(row.event||'Kampanya tespiti');
+    const date=document.createElement('time');date.textContent=row.detected_at||period||'-';
+    head.append(title,date);article.appendChild(head);
+    const meta=document.createElement('div');meta.className='ra-rule-finding-meta';meta.textContent=[row.severity_label,row.module,row.source].filter(Boolean).join(' · ');article.appendChild(meta);
+    if(row.description){const description=document.createElement('p');description.textContent=formatOctoText(row.description);article.appendChild(description);}
+    if(row.solution){const solution=document.createElement('div');solution.className='ra-rule-solution';const label=document.createElement('b');label.textContent='Önerilen aksiyon: ';solution.append(label,document.createTextNode(formatOctoText(row.solution)));article.appendChild(solution);}
+    container.appendChild(article);
+  });
+}
+async function readJsonSafely(response){const text=await response.text();if(!text||!text.trim()){throw new Error('Sunucudan boş yanıt geldi. HTTP '+response.status+'.');}try{return JSON.parse(text);}catch(err){console.error('JSON olmayan Octo yanıtı:',text.substring(0,1500));throw new Error('Sunucu JSON dönmedi. HTTP '+response.status+'. Yanıt: '+text.substring(0,300));}}
+function getItems(data,primary,fallback){const value=data[primary]||data[fallback]||[];if(Array.isArray(value))return value;if(typeof value==='string'&&value.trim()){return value.split('\n').map(x=>x.replace(/^-\s*/,'').trim()).filter(Boolean);}return[];}
+function resetOctoModal(){['octoBestMetric','octoWorstMetric','octoRiskScore','octoTrend7d','octoTrend30d','octoCompetitorPosition','octoRoasGain','octoCtrGain','octoDifficulty','octoImplementationTime','octoKpiRoas','octoKpiCtr','octoKpiCpc','octoKpiSpend','octoKpiConversions','octoKpiImpressions','octoKpiClicks','octoKpiRevenue'].forEach(id=>setText(id,'-'));const ring=document.getElementById('octoScoreRing');if(ring)ring.style.setProperty('--score',0);document.getElementById('octoModalScore').textContent='--';document.getElementById('octoModalLabel').textContent='Analiz hazırlanıyor';document.getElementById('octoModalSaved').innerHTML='';document.getElementById('octoDateRange').innerHTML='<i class="fas fa-calendar-days"></i> Tarih aralığı hazırlanıyor';fillRuleFindings([], '');fillList('octoAnalysisList',['Kampanya verileri hazırlanıyor...']);fillList('octoRecommendationList',['Octo öneri motoru hazırlanıyor...']);}
+function fillMetricCards(metrics){metrics=metrics||{};document.getElementById('octoDateRange').innerHTML='<i class="fas fa-calendar-days"></i> '+(metrics.start_date||'-')+' - '+(metrics.end_date||'-')+' · '+(metrics.selected_days||'-')+' gün';setText('octoKpiRoas',trNum(metrics.roas,2)+'x');setText('octoKpiCtr','%'+trNum(metrics.ctr,2));setText('octoKpiCpc',trMoney(metrics.cpc));setText('octoKpiSpend',trMoney(metrics.spend));setText('octoKpiConversions',trNum(metrics.conversions,0));setText('octoKpiImpressions',trInt(metrics.impressions));setText('octoKpiClicks',trInt(metrics.clicks));setText('octoKpiRevenue',trMoney(metrics.conversion_value));}
+function setScore(score){const n=Number(score);document.getElementById('octoModalScore').textContent=Number.isFinite(n)?Math.round(n):'--';const ring=document.getElementById('octoScoreRing');if(ring)ring.style.setProperty('--score',Number.isFinite(n)?Math.max(0,Math.min(100,n)):0);}
+function setOctoSavedState(data,url){const saved=document.getElementById('octoModalSaved');if(!saved)return;const analysisId=data.analysis_id||data.id||null;const savedAt=data.saved_at||data.created_at||'';saved.innerHTML=`<span>${data.cached?'Kayıtlı sonuç':'Yeni sonuç'}${savedAt?' · '+savedAt:''}</span>${analysisId?`<a class="ra-octo-pdf-btn" href="/campaign-center/octo-analysis-pdf/${analysisId}/" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> PDF</a>`:''}`;}
+async function runOctoRequest(url,force=false){const params=new URLSearchParams();if(force)params.set('force','1');const currentParams=new URLSearchParams(window.location.search||'');['period','date_from','date_to'].forEach(function(key){const value=currentParams.get(key);if(value)params.set(key,value);});const requestUrl=url+(params.toString()?(url.indexOf('?')>=0?'&':'?')+params.toString():'');setLoading(true,force?'Octo yeniden analiz ediyor...':'Kampanya KPI’ları ve trendler hesaplanıyor...');document.getElementById('octoModalLabel').textContent=force?'Yeniden analiz ediliyor':'Analiz hazırlanıyor';try{const response=await fetch(requestUrl,{method:'GET',headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},credentials:'same-origin'});const data=await readJsonSafely(response);if(response.status===402){window.showUsageLimitModal?.(data);return;}if(!response.ok||!data.ok){throw new Error(data.message||data.error||'Analiz oluşturulamadı.');}const analysisItems=getItems(data,'analysis_items','analysis');const recommendationItems=getItems(data,'recommendation_items','recommendations');setScore(data.score);document.getElementById('octoModalLabel').textContent=data.cached?'Kayıtlı analiz gösteriliyor':(data.success_label||data.label||'Analiz tamamlandı');fillMetricCards(data.metrics||{});setText('octoBestMetric',data.best_metric||'-');setText('octoWorstMetric',data.worst_metric||'-');setText('octoRiskScore',(data.risk_score!==undefined&&data.risk_score!==null)?trNum(data.risk_score,0)+' / 100'+(data.risk_label?' · '+data.risk_label:''):'-');setText('octoTrend7d',data.trend_7d||'-');setText('octoTrend30d',data.trend_30d||'-');setText('octoCompetitorPosition',data.competitor_position||'-');setText('octoRoasGain',data.estimated_roas_gain?'+'+trNum(data.estimated_roas_gain,2)+'%':'-');setText('octoCtrGain',data.estimated_ctr_gain?'+'+trNum(data.estimated_ctr_gain,2)+'%':'-');setText('octoDifficulty',data.difficulty_level||'-');setText('octoImplementationTime',data.implementation_time||'-');fillList('octoAnalysisList',analysisItems);fillList('octoRecommendationList',recommendationItems);setOctoSavedState(data,url);}catch(err){console.error('Octo hata detayı:',err);setScore(null);document.getElementById('octoModalLabel').textContent='Hata';fillList('octoAnalysisList',['Hata: '+err.message]);fillList('octoRecommendationList',['Gerçek hata: '+err.message]);}finally{setLoading(false);}}
+document.addEventListener('click',function(e){const btn=e.target.closest('.ra-octo-action');if(!btn||btn.id==='octoForceRefreshBtn')return;e.preventDefault();const url=btn.dataset.url;const campaignName=btn.dataset.campaign||'Kampanya';document.getElementById('octoCampaignModalTitle').textContent=campaignName;resetOctoModal();openOctoCampaignModal();btn.disabled=true;runOctoRequest(url,false).finally(function(){btn.disabled=false;});});
+document.getElementById('octoCampaignModal')?.addEventListener('click',function(e){if(e.target.id==='octoCampaignModal')closeOctoCampaignModal();});document.addEventListener('keydown',function(e){if(e.key==='Escape')closeOctoCampaignModal();});
+
+let activeOctoCampaignUrl='';
+document.addEventListener('click',function(event){
+  const trigger=event.target.closest('.ra-octo-action[data-url]');
+  if(!trigger)return;
+  activeOctoCampaignUrl=trigger.dataset.url||'';
+  setTimeout(async function(){
+    if(!activeOctoCampaignUrl)return;
+    try{
+      const response=await fetch(activeOctoCampaignUrl+(activeOctoCampaignUrl.includes('?')?'&':'?')+'mode=metrics',{headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},credentials:'same-origin'});
+      const data=await readJsonSafely(response);
+      if(data.ok){fillMetricCards(data.metrics||{});fillRuleFindings(data.rule_events||[],data.rule_period||'');document.getElementById('octoModalLabel').textContent='Metrikler ve kural tespitleri hazır';}
+    }catch(error){fillList('octoRuleFindings',['Kural tespitleri yüklenemedi: '+error.message]);}
+  },0);
+},true);
+
+async function runSeparatedOctoMode(mode,button){
+  if(!activeOctoCampaignUrl)return;
+  showOctoProcessing(mode);
+  button.disabled=true;
+  const oldHtml=button.innerHTML;
+  button.innerHTML='<span class="ra-octo-spinner"></span> Çalışıyor...';
+  if(mode==='analysis')fillList('octoAnalysisList',['● Kampanya verileri analiz ediliyor...']);
+  else fillList('octoRecommendationList',['● Öneriler hazırlanıyor...']);
+  try{
+    const separator=activeOctoCampaignUrl.includes('?')?'&':'?';
+    const response=await fetch(activeOctoCampaignUrl+separator+'mode='+mode+'&force=1',{headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},credentials:'same-origin'});
+    const data=await readJsonSafely(response);
+    if(response.status===402){window.showUsageLimitModal?.(data);return;}
+    if(!response.ok||!data.ok)throw new Error(data.message||data.error||'İşlem tamamlanamadı.');
+    fillMetricCards(data.metrics||{});setScore(data.score);
+    if(mode==='analysis')fillList('octoAnalysisList',getItems(data,'analysis_items','analysis'));
+    else fillList('octoRecommendationList',getItems(data,'recommendation_items','recommendations'));
+    setOctoSavedState(data,activeOctoCampaignUrl);
+    document.getElementById('octoModalLabel').textContent=mode==='analysis'?'Derin analiz tamamlandı':'Derin öneriler tamamlandı';
+  }catch(error){
+    const target=mode==='analysis'?'octoAnalysisList':'octoRecommendationList';
+    fillList(target,['Hata: '+error.message]);
+  }finally{hideOctoProcessing();button.disabled=false;button.innerHTML=oldHtml;}
+}
+document.getElementById('octoRunAnalysisBtn')?.addEventListener('click',function(){runSeparatedOctoMode('analysis',this);});
+document.getElementById('octoRunRecommendationBtn')?.addEventListener('click',function(){runSeparatedOctoMode('recommendation',this);});
+
+function autoOpenOctoFromQuery(){
+  const params = new URLSearchParams(window.location.search || '');
+  const campaignId = params.get('open_octo');
+  if(!campaignId) return;
+  const safeId = String(campaignId).replace(/[^0-9]/g, '');
+  if(!safeId) return;
+  const campaignName = params.get('campaign_name') || 'Kampanya';
+  const titleEl = document.getElementById('octoCampaignModalTitle');
+  if(titleEl) titleEl.textContent = 'Octo Kampanya Analizi · ' + campaignName;
+  resetOctoModal();
+  openOctoCampaignModal();
+  runOctoRequest('/campaign-center/octo-analysis-safe/' + safeId + '/', false);
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', autoOpenOctoFromQuery);
+}else{
+  autoOpenOctoFromQuery();
+}
+
+</script>
+
+
+<script id="octo-score-level-class-patch">
+(function(){
+  window.setOctoScoreLevelClass = function(score){
+    const el = document.getElementById('octoModalScore');
+    if(!el) return;
+    el.classList.remove('score-success','score-info','score-warning','score-danger');
+    const n = Number(score || 0);
+    if(n >= 90){ el.classList.add('score-success'); }
+    else if(n >= 70){ el.classList.add('score-info'); }
+    else if(n >= 50){ el.classList.add('score-warning'); }
+    else { el.classList.add('score-danger'); }
+  };
+})();
+</script>
+
+
+
+<script id="campaign-table-top-scrollbar-sync">
+(function(){
+  window.setupCampaignTopScrollbar = function setupCampaignTopScrollbar(){
+    const tableWrap = document.querySelector('.ra-table-wrap');
+    const table = document.querySelector('.ra-table');
+
+    if(!tableWrap || !table) return;
+
+    let topScroll = document.querySelector('.ra-table-top-scroll');
+
+    if(!topScroll){
+      topScroll = document.createElement('div');
+      topScroll.className = 'ra-table-top-scroll';
+      topScroll.innerHTML = '<div class="ra-table-top-scroll-inner"></div>';
+      tableWrap.parentNode.insertBefore(topScroll, tableWrap);
+    }
+
+    const topInner = topScroll.querySelector('.ra-table-top-scroll-inner');
+
+    function syncWidth(){
+      topInner.style.width = table.scrollWidth + 'px';
+
+      if(table.scrollWidth <= tableWrap.clientWidth + 2){
+        topScroll.style.display = 'none';
+      }else{
+        topScroll.style.display = 'block';
+      }
+    }
+
+    let lock = false;
+
+    topScroll.addEventListener('scroll', function(){
+      if(lock) return;
+      lock = true;
+      tableWrap.scrollLeft = topScroll.scrollLeft;
+      lock = false;
+    });
+
+    tableWrap.addEventListener('scroll', function(){
+      if(lock) return;
+      lock = true;
+      topScroll.scrollLeft = tableWrap.scrollLeft;
+      lock = false;
+    });
+
+    syncWidth();
+    window.addEventListener('resize', syncWidth);
+
+    if(window.ResizeObserver){
+      const observer = new ResizeObserver(syncWidth);
+      observer.observe(table);
+      observer.observe(tableWrap);
+    }
+  };
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', setupCampaignTopScrollbar);
+  }else{
+    setupCampaignTopScrollbar();
+  }
+})();
+</script>
+
+<script id="campaign-platform-ajax-filter">
+(function(){
+  const replaceSelectors = ['.ra-octo-card','.ra-kpi-grid','.ra-control-panel','.ra-table-panel'];
+  let activeController = null;
+
+  function setFiltering(isFiltering){
+    const shell = document.querySelector('.ra-campaign-shell');
+    if(!shell) return;
+    shell.classList.toggle('is-filtering', isFiltering);
+    shell.setAttribute('aria-busy', isFiltering ? 'true' : 'false');
+  }
+
+  async function updateCampaignCenter(url, pushState){
+    if(activeController) activeController.abort();
+    const controller = new AbortController();
+    activeController = controller;
+    setFiltering(true);
+    try{
+      const response = await fetch(url, {
+        headers: {'X-Requested-With':'XMLHttpRequest', 'Accept':'text/html'},
+        credentials: 'same-origin',
+        signal: controller.signal
+      });
+      if(!response.ok) throw new Error('Filtre sonucu alınamadı. HTTP ' + response.status);
+      const nextDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
+      for(const selector of replaceSelectors){
+        const current = document.querySelector(selector);
+        const next = nextDocument.querySelector(selector);
+        if(!current || !next) throw new Error('Güncellenecek bölüm bulunamadı: ' + selector);
+        current.replaceWith(next);
+      }
+      if(pushState) history.pushState({campaignCenterFilter:true}, '', url);
+      if(typeof window.setupCampaignTopScrollbar === 'function') window.setupCampaignTopScrollbar();
+    }catch(error){
+      if(error.name === 'AbortError') return;
+      console.error('Platform filtresi güncellenemedi:', error);
+      window.location.assign(url);
+    }finally{
+      if(activeController === controller){
+        activeController = null;
+        setFiltering(false);
+      }
+    }
+  }
+
+  document.addEventListener('click', function(event){
+    const link = event.target.closest('a[data-platform-filter]');
+    if(!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    updateCampaignCenter(new URL(link.href, window.location.href).href, true);
+  });
+
+  window.addEventListener('popstate', function(){
+    updateCampaignCenter(window.location.href, false);
+  });
+})();
+</script>
+
+
+
+
+
+
+{% endblock %}

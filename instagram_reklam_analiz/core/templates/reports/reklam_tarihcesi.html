@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<style>
+    .filter-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 1.25rem; margin-bottom: 1.5rem; }
+    .reklam-item { cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; }
+    .reklam-item:hover { background-color: #f8f9fa; transform: translateX(3px); }
+    .reklam-item.active { background-color: #e7f1ff; border-left-color: #0d6efd; }
+    .metric-box { background: #f8f9fc; border-radius: 20px; padding: 1rem; margin-bottom: 1rem; transition: 0.2s; }
+    .metric-box:hover { background: #eef2ff; transform: translateY(-2px); }
+    .comparison-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; padding: 1.2rem; margin-bottom: 1rem; }
+    .trend-up { color: #28a745; font-weight: bold; }
+    .trend-down { color: #dc3545; font-weight: bold; }
+    .trend-stable { color: #6c757d; }
+    .badge-score { font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 30px; }
+    .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; border-left: 4px solid #0d6efd; padding-left: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="fw-bold">📊 Reklam Performans Analizi</h2>
+            <p class="text-muted">Reklamlarınızın detaylı metriklerini inceleyin, dün-bugün karşılaştırması yapın.</p>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Sol Panel: Filtreler + Reklam Listesi (genişlik %25) -->
+        <div class="col-lg-3 col-md-4">
+            <div class="filter-card">
+                <h6 class="mb-3">🔍 Filtreler</h6>
+                <div class="mb-3">
+                    <label class="form-label">Instagram Hesabı</label>
+                    <select id="accountSelect" class="form-select">
+                        <option value="">-- Hesap Seçin --</option>
+                        {% for account in accounts %}
+                            <option value="{{ account.id }}">{{ account.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Reklam Adında Ara</label>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Reklam adı girin...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Durum</label>
+                    <select id="statusFilter" class="form-select">
+                        <option value="all">Tümü</option>
+                        <option value="ACTIVE">Aktif</option>
+                        <option value="PAUSED">Pasif</option>
+                        <option value="DELETED">Silinmiş</option>
+                    </select>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input type="text" id="startDate" class="form-control" placeholder="GG.AA.YYYY">
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Bitiş Tarihi</label>
+                        <input type="text" id="endDate" class="form-control" placeholder="GG.AA.YYYY">
+                    </div>
+                </div>
+                <button id="applyFiltersBtn" class="btn btn-primary w-100">📅 Filtreleri Uygula</button>
+            </div>
+
+            <div class="filter-card">
+                <h6 class="mb-3">📋 Reklam Listesi</h6>
+                <div id="reklamListesi" style="max-height: 500px; overflow-y: auto;">
+                    <div class="text-muted text-center py-3">Lütfen bir hesap seçin.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Panel: Detay ve Karşılaştırma (genişlik %75) -->
+        <div class="col-lg-9 col-md-8">
+            <div class="filter-card" style="min-height: 600px;">
+                <div id="detayIcerik">
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <p>Analizini görmek için sol taraftan bir reklam seçin.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentChart = null;
+let currentReklamId = null;
+
+// Tarih seçicileri başlat
+flatpickr("#startDate", { dateFormat: "d.m.Y", maxDate: new Date() });
+flatpickr("#endDate", { dateFormat: "d.m.Y", maxDate: new Date() });
+
+// Filtreleri uygula butonu
+document.getElementById('applyFiltersBtn').addEventListener('click', function() {
+    const accountId = document.getElementById('accountSelect').value;
+    if (!accountId) {
+        alert('Lütfen bir Instagram hesabı seçin.');
+        return;
+    }
+    loadReklamListesi(accountId);
+});
+
+// Hesap değişince otomatik filtreleri sıfırla ve listeyi getir
+document.getElementById('accountSelect').addEventListener('change', function() {
+    // Filtreleri sıfırla
+    document.getElementById('searchInput').value = '';
+    document.getElementById('statusFilter').value = 'all';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+    const accountId = this.value;
+    if (accountId) loadReklamListesi(accountId);
+    else document.getElementById('reklamListesi').innerHTML = '<div class="text-muted text-center py-3">Lütfen bir hesap seçin.</div>';
+});
+
+function loadReklamListesi(accountId) {
+    const search = document.getElementById('searchInput').value;
+    const status = document.getElementById('statusFilter').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    let url = `/api/reklam-listesi/?account_id=${accountId}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (status !== 'all') url += `&status=${status}`;
+    if (startDate) url += `&start_date=${startDate}`;
+    if (endDate) url += `&end_date=${endDate}`;
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('reklamListesi');
+            if (!data.reklamlar || data.reklamlar.length === 0) {
+                container.innerHTML = '<div class="text-muted text-center py-3">Hiç reklam bulunamadı.</div>';
+                return;
+            }
+            container.innerHTML = '';
+            data.reklamlar.forEach(ad => {
+                const el = document.createElement('div');
+                el.className = 'reklam-item list-group-item list-group-item-action';
+                el.setAttribute('data-id', ad.id);
+                el.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${escapeHtml(ad.name)}</strong><br>
+                            <small class="text-muted">💰 ${ad.spend.toFixed(2)} ₺ | CTR: ${(ad.ctr * 100).toFixed(2)}%</small>
+                        </div>
+                        <span class="badge bg-${ad.status === 'ACTIVE' ? 'success' : 'secondary'} badge-score">${ad.status === 'ACTIVE' ? 'Aktif' : 'Pasif'}</span>
+                    </div>
+                `;
+                el.onclick = () => {
+                    document.querySelectorAll('.reklam-item').forEach(item => item.classList.remove('active'));
+                    el.classList.add('active');
+                    currentReklamId = ad.id;
+                    loadReklamDetay(ad.id, accountId);
+                };
+                container.appendChild(el);
+            });
+            // İlk reklamı seç (isteğe bağlı)
+            if (data.reklamlar.length && !currentReklamId) {
+                document.querySelector('.reklam-item')?.click();
+            }
+        });
+}
+
+function loadReklamDetay(reklamId, accountId) {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    let url = `/api/reklam-detay/${reklamId}/`;
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (params.toString()) url += '?' + params.toString();
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            renderDetay(data);
+        });
+}
+
+function renderDetay(data) {
+    const reklam = data.reklam;
+    const stats = data.stats;
+    const chartData = data.chart_data;
+    const comparison = data.comparison; // dün vs bugün karşılaştırması
+
+    let html = `
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h4 class="mb-1">${escapeHtml(reklam.name)}</h4>
+                <span class="badge bg-${reklam.status === 'ACTIVE' ? 'success' : 'secondary'}">${reklam.status}</span>
+                <span class="badge bg-info ms-1">⭐ Skor: ${reklam.performance_score}</span>
+            </div>
+            <small class="text-muted">Oluşturma: ${reklam.created_at}</small>
+        </div>
+    `;
+
+    // Özet Metrik Kartları
+    html += `<div class="row g-3 mb-4">`;
+    html += `
+        <div class="col-md-3">
+            <div class="metric-box text-center">
+                <small class="text-muted">CTR (Ort)</small>
+                <h3 class="mb-0">${stats.avg_ctr}%</h3>
+                <span class="${stats.ctr_trend === 'up' ? 'trend-up' : (stats.ctr_trend === 'down' ? 'trend-down' : 'trend-stable')}">
+                    ${stats.ctr_trend === 'up' ? '▲' : (stats.ctr_trend === 'down' ? '▼' : '●')} Son 7 gün
+                </span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-box text-center">
+                <small class="text-muted">Toplam Harcama</small>
+                <h3 class="mb-0">${stats.total_spend.toFixed(2)} ₺</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-box text-center">
+                <small class="text-muted">Gösterim</small>
+                <h4>${formatNumber(stats.total_impressions)}</h4>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-box text-center">
+                <small class="text-muted">Tıklanma</small>
+                <h4>${formatNumber(stats.total_clicks)}</h4>
+            </div>
+        </div>
+    `;
+    html += `</div>`;
+
+    // Gelişmiş Metrikler
+    html += `<div class="row g-3 mb-4">`;
+    html += `
+        <div class="col-md-4">
+            <div class="metric-box">
+                <small>Dönüşüm</small>
+                <h4>${formatNumber(stats.total_conversions)}</h4>
+                <small class="text-muted">${stats.conversion_rate}% dönüşüm oranı</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-box">
+                <small>Ort. TBM (CPC)</small>
+                <h4>${stats.avg_cpc} ₺</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-box">
+                <small>Ort. BGBM (CPM)</small>
+                <h4>${stats.avg_cpm} ₺</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-box">
+                <small>Etkileşim Oranı</small>
+                <h4>${stats.avg_engagement_rate}%</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-box">
+                <small>YG (ROI)</small>
+                <h4>${stats.avg_roi}%</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-box">
+                <small>Performans Skoru</small>
+                <h4>${reklam.performance_score}</h4>
+            </div>
+        </div>
+    `;
+    html += `</div>`;
+
+    // Dün vs Bugün Karşılaştırması
+    if (comparison) {
+        html += `<div class="row g-3 mb-4">
+            <div class="col-12">
+                <div class="section-title">📆 Günlük Karşılaştırma (Dün ↔ Bugün)</div>
+            </div>
+            <div class="col-md-3">
+                <div class="comparison-card text-center">
+                    <small>Harcama</small>
+                    <h4>${comparison.today_spend.toFixed(2)} ₺</h4>
+                    <span class="${comparison.spend_change > 0 ? 'trend-up' : 'trend-down'}">
+                        ${comparison.spend_change > 0 ? '▲' : '▼'} ${Math.abs(comparison.spend_change)}%
+                    </span>
+                    <small class="d-block">(önceki gün: ${comparison.yesterday_spend.toFixed(2)} ₺)</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="comparison-card text-center">
+                    <small>Gösterim</small>
+                    <h4>${formatNumber(comparison.today_impressions)}</h4>
+                    <span class="${comparison.impressions_change > 0 ? 'trend-up' : 'trend-down'}">
+                        ${comparison.impressions_change > 0 ? '▲' : '▼'} ${Math.abs(comparison.impressions_change)}%
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="comparison-card text-center">
+                    <small>CTR</small>
+                    <h4>${comparison.today_ctr}%</h4>
+                    <span class="${comparison.ctr_change > 0 ? 'trend-up' : 'trend-down'}">
+                        ${comparison.ctr_change > 0 ? '▲' : '▼'} ${Math.abs(comparison.ctr_change)}%
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="comparison-card text-center">
+                    <small>Tıklanma</small>
+                    <h4>${formatNumber(comparison.today_clicks)}</h4>
+                    <span class="${comparison.clicks_change > 0 ? 'trend-up' : 'trend-down'}">
+                        ${comparison.clicks_change > 0 ? '▲' : '▼'} ${Math.abs(comparison.clicks_change)}%
+                    </span>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // Grafik
+    html += `<div class="section-title">📈 Son 7 Gün Trend (Günlük Harcama & CTR)</div>
+    <canvas id="trendChart" style="max-height: 280px; margin-bottom: 1.5rem;"></canvas>`;
+
+    document.getElementById('detayIcerik').innerHTML = html;
+
+    // Chart.js grafiği
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    if (currentChart) currentChart.destroy();
+    currentChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.dates,
+            datasets: [
+                {
+                    label: 'Günlük Harcama (₺)',
+                    data: chartData.daily_spend,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13,110,253,0.1)',
+                    yAxisID: 'y',
+                    tension: 0.3,
+                    fill: true
+                },
+                {
+                    label: 'CTR (%)',
+                    data: chartData.ctr.map(v => v * 100),
+                    borderColor: '#dc3545',
+                    backgroundColor: 'transparent',
+                    yAxisID: 'y1',
+                    tension: 0.3,
+                    borderDash: [5, 5]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y: { title: { display: true, text: 'Harcama (₺)' }, beginAtZero: true },
+                y1: { title: { display: true, text: 'CTR (%)' }, position: 'right', beginAtZero: true, grid: { drawOnChartArea: false } }
+            }
+        }
+    });
+}
+
+function formatNumber(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+</script>
+{% endblock %}

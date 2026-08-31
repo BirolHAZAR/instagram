@@ -1,0 +1,96 @@
+﻿{% extends "base.html" %}
+{% load static %}
+{% load tr_numbers %}
+
+{% block title %}Octo Ad Group Center{% endblock %}
+
+{% block content %}
+<style>
+.octo-shell{max-width:1500px;margin:0 auto;padding:2rem 1rem;color:#fff}
+.octo-hero{border:1px solid rgba(139,132,255,.25);border-radius:34px;padding:1.5rem;background:radial-gradient(circle at 12% 0,rgba(53,213,255,.18),transparent 34%),linear-gradient(135deg,#0F1633,#050816);box-shadow:0 30px 90px rgba(0,0,0,.38)}
+.octo-kicker{display:inline-flex;align-items:center;gap:.45rem;padding:.42rem .75rem;border-radius:999px;background:rgba(108,99,255,.16);border:1px solid rgba(139,132,255,.32);font-size:.76rem;font-weight:900;color:#DAD8FF}
+.octo-hero h1{font-size:clamp(1.7rem,3vw,3rem);font-weight:950;letter-spacing:-.05em;margin:.7rem 0 .4rem}
+.octo-hero p{max-width:850px;color:#B8BED0;line-height:1.7;margin:0}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.2rem 0}
+.metric-card,.table-panel{border:1px solid rgba(139,132,255,.18);background:rgba(15,22,51,.82);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.22);backdrop-filter:blur(18px)}
+.metric-card{padding:1rem}.metric-label{font-size:.74rem;color:#B8BED0;font-weight:850}.metric-value{font-size:1.9rem;font-weight:950}
+.table-panel{padding:1rem;overflow:auto}.table-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.2rem .35rem .6rem}.table-heading h2{font-size:1rem;margin:0;font-weight:950}.table-heading span{color:#8F9BBE;font-size:.75rem;font-weight:800}
+.octo-table{width:100%;min-width:1260px;table-layout:fixed;border-collapse:separate;border-spacing:0 .55rem}
+.octo-table th{color:#B8BED0;font-size:.7rem;text-transform:uppercase;letter-spacing:.045em;padding:.5rem .7rem;white-space:nowrap;text-align:left}
+.octo-table td{background:rgba(255,255,255,.055);border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:.8rem .7rem;vertical-align:middle;font-size:.82rem;line-height:1.3}
+.octo-table td:first-child{border-left:1px solid rgba(255,255,255,.08);border-radius:16px 0 0 16px}
+.octo-table td:last-child{border-right:1px solid rgba(255,255,255,.08);border-radius:0 16px 16px 0}
+.name{font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{color:#8F9BBE;font-size:.7rem;margin-top:.18rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cell-main{display:block;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.platform-pill,.strategy-pill{display:inline-flex;align-items:center;max-width:100%;border-radius:999px;padding:.34rem .58rem;font-size:.7rem;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.platform-pill{background:rgba(71,181,255,.12);border:1px solid rgba(71,181,255,.20);color:#BFE8FF}.strategy-pill{background:rgba(139,132,255,.13);border:1px solid rgba(139,132,255,.22);color:#DAD8FF}.status{display:inline-flex;border-radius:999px;padding:.34rem .6rem;font-weight:900;font-size:.68rem;background:rgba(184,190,208,.13);color:#D5DAEA;white-space:nowrap}.status.active,.status.enabled{background:#DCFCE7;color:#166534}.status.paused{background:#FEF3C7;color:#92400E}.status.deleted,.status.archived,.status.disabled{background:#FEE2E2;color:#991B1B}.number-cell{font-variant-numeric:tabular-nums;font-weight:900;white-space:nowrap}.date-cell{font-variant-numeric:tabular-nums;white-space:nowrap}.date-cell strong,.date-cell small{display:block}.date-cell small{color:#8F9BBE;margin-top:.1rem}.agency-filter{display:flex;align-items:center;gap:.85rem;margin-top:1.15rem;padding:.85rem 1rem;border-radius:18px;background:linear-gradient(135deg,rgba(108,99,255,.22),rgba(53,213,255,.09));border:1px solid rgba(139,132,255,.4);position:relative;z-index:2}.agency-filter label{font-size:.78rem;font-weight:950;white-space:nowrap}.agency-filter select{margin-left:auto;width:min(410px,100%);height:42px;border-radius:13px;border:1px solid rgba(255,255,255,.2);background:#0b1230;color:#fff;padding:0 .8rem;font-weight:900}.agency-filter small{color:#B8BED0;font-size:.7rem;font-weight:800}
+.btn-octo{display:inline-flex;align-items:center;gap:.45rem;padding:.68rem .9rem;border-radius:999px;background:linear-gradient(135deg,#6C63FF,#8B84FF);color:#fff;text-decoration:none;font-weight:900;margin-top:1rem}
+@media(max-width:700px){.metric-grid{grid-template-columns:1fr}.agency-filter{align-items:stretch;flex-direction:column}.agency-filter select{margin-left:0;width:100%}}
+</style>
+
+<div class="octo-shell">
+    <section class="octo-hero">
+        <span class="octo-kicker"><i class="fas fa-sitemap"></i> Octo Ad Group Center</span>
+        <h1>Reklam gruplarÄ± ve ad set yapÄ±sÄ±.</h1>
+        <p>Yeni AdGroup modeli Ã¼zerinden tÃ¼m reklam gruplarÄ±nÄ±, kampanya baÄŸlantÄ±larÄ±nÄ±, platformlarÄ±nÄ± ve baÄŸlÄ± reklam adetlerini izleyin.</p>
+        <a href="{% url 'campaign_center' %}" class="btn-octo"><i class="fas fa-layer-group"></i> Kampanyalara Git</a>
+        {% if agency_scope.is_agency %}
+        <form class="agency-filter" method="get" action="{{ request.path }}">
+            <label for="adgroupAgencyClient"><i class="fas fa-building-user"></i> Ajans müşterisi</label>
+            <select id="adgroupAgencyClient" name="agency_client" onchange="this.form.submit()">
+                <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm müşteriler</option>
+                {% for client in agency_scope.clients %}
+                <option value="{{ client.id }}"{% if agency_scope.selected_client.id == client.id %} selected{% endif %}>{{ client.organization.name }} · {{ client.name }}</option>
+                {% endfor %}
+            </select>
+            <small>Reklam grupları, kampanyalar ve reklam adetleri seçime göre yenilenir.</small>
+        </form>
+        {% endif %}
+    </section>
+
+    <div class="metric-grid">
+        <div class="metric-card"><div class="metric-label">Toplam Reklam Grubu</div><div class="metric-value">{{ total_adgroups }}</div></div>
+        <div class="metric-card"><div class="metric-label">Toplam Kampanya</div><div class="metric-value">{{ total_campaigns }}</div></div>
+        <div class="metric-card"><div class="metric-label">Toplam Reklam</div><div class="metric-value">{{ total_ads }}</div></div>
+    </div>
+
+    <div class="table-panel">
+        <div class="table-heading"><h2>Reklam Grubu Listesi</h2><span>{{ total_adgroups|tr_int }} kayıt</span></div>
+        <table class="octo-table">
+            <colgroup>
+                <col style="width:19%"><col style="width:22%"><col style="width:7%"><col style="width:17%"><col style="width:7%"><col style="width:7%"><col style="width:9%"><col style="width:5%"><col style="width:7%">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Reklam Grubu</th>
+                    <th>Kampanya</th>
+                    <th>Platform</th>
+                    <th>Hesap</th>
+                    <th>Durum</th>
+                    <th>BÃ¼tÃ§e</th>
+                    <th>Strateji</th>
+                    <th>Reklam</th>
+                    <th>Tarih</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in adgroups %}
+                <tr>
+                    <td>
+                        <div class="name">{{ g.name }}</div>
+                        <div class="sub">ID: {{ g.external_id }}</div>
+                    </td>
+                    <td><span class="cell-main" title="{{ g.campaign_name }}">{{ g.campaign_name }}</span></td>
+                    <td><span class="platform-pill">{{ g.platform_name }}</span></td>
+                    <td><span class="cell-main" title="{{ g.account_name }}">{{ g.account_name }}</span></td>
+                    <td><span class="status {{ g.status_key }}">{{ g.status }}</span></td>
+                    <td class="number-cell">₺{{ g.budget|tr_decimal:2 }}</td>
+                    <td><span class="strategy-pill" title="{{ g.bid_strategy }}">{{ g.bid_strategy }}</span></td>
+                    <td class="number-cell">{{ g.ad_count|tr_int }}</td>
+                    <td class="date-cell">{% if g.created_at %}<strong>{{ g.created_at|date:"d.m.Y" }}</strong><small>{{ g.created_at|date:"H:i" }}</small>{% else %}—{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9">HenÃ¼z reklam grubu verisi bulunamadÄ±.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

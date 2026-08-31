@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if scheduled_report %}Rapor Ayarını Düzenle{% else %}Rapor Ayarı Oluştur{% endif %}{% endblock %}
+
+{% block content %}
+<style>
+  .report-form-shell{max-width:1040px;margin:0 auto;color:#fff}
+  .report-form-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:22px}
+  .report-form-head h1{font-weight:950;letter-spacing:-.04em;margin:0 0 6px}
+  .report-form-head p{color:#b8bed0;margin:0;max-width:760px}
+  .report-panel{border:1px solid rgba(139,132,255,.24);background:rgba(15,20,41,.90);border-radius:8px;padding:22px;box-shadow:0 20px 52px rgba(0,0,0,.26)}
+  .report-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .report-field.full{grid-column:1/-1}
+  .report-field label{font-weight:850;margin-bottom:7px;color:#eef2ff}
+  .report-field .helptext,.report-help{display:block;color:#8f9ab8;font-size:.82rem;margin-top:6px}
+  .report-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:8px}
+  .report-check{border:1px solid rgba(139,132,255,.20);border-radius:8px;padding:12px;background:rgba(255,255,255,.035)}
+  .report-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+  .report-btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:12px 16px;font-weight:850;text-decoration:none}
+  .report-btn.primary{background:linear-gradient(135deg,#6C63FF,#00D4FF);color:#fff}
+  .report-btn.ghost{background:rgba(255,255,255,.04);border:1px solid rgba(139,132,255,.25);color:#fff}
+  .report-errors{color:#fecaca;font-size:.84rem;margin-top:6px}
+  .ai-note{margin-top:16px;border:1px solid rgba(34,197,94,.25);background:rgba(34,197,94,.08);border-radius:8px;padding:12px;color:#dcfce7}
+  @media(max-width:780px){.report-form-grid,.report-checks{grid-template-columns:1fr}.report-form-head{display:block}.report-actions{flex-direction:column}.report-btn{justify-content:center}}
+</style>
+
+<div class="report-form-shell">
+  <div class="report-form-head">
+    <div>
+      <h1>{% if scheduled_report %}Rapor Ayarını Düzenle{% else %}Rapor Ayarı Oluştur{% endif %}</h1>
+      <p>Raporlar e-posta ile birden fazla alıcıya gönderilebilir. Otomatik gönderim AI jetonu kullanmaz.</p>
+    </div>
+    <a class="report-btn ghost" href="{% url 'report_list' %}"><i class="fas fa-arrow-left"></i> Geri</a>
+  </div>
+
+  <form method="post" class="report-panel">
+    {% csrf_token %}
+    <div class="report-form-grid">
+      {% if form.agency_client %}
+      <div class="report-field full">
+        {{ form.agency_client.label_tag }}
+        {{ form.agency_client }}
+        <span class="helptext">{{ form.agency_client.help_text }}</span>
+        <div class="report-errors">{{ form.agency_client.errors }}</div>
+      </div>
+      {% endif %}
+      <div class="report-field">
+        {{ form.name.label_tag }}
+        {{ form.name }}
+        <div class="report-errors">{{ form.name.errors }}</div>
+      </div>
+      <div class="report-field">
+        {{ form.frequency.label_tag }}
+        {{ form.frequency }}
+        <div class="report-errors">{{ form.frequency.errors }}</div>
+      </div>
+      <div class="report-field full">
+        {{ form.recipient_emails_input.label_tag }}
+        {{ form.recipient_emails_input }}
+        <span class="helptext">{{ form.recipient_emails_input.help_text }}</span>
+        <div class="report-errors">{{ form.recipient_emails_input.errors }}</div>
+      </div>
+      <div class="report-field">
+        {{ form.campaigns.label_tag }}
+        {{ form.campaigns }}
+        <span class="helptext">{{ form.campaigns.help_text }}</span>
+        <div class="report-errors">{{ form.campaigns.errors }}</div>
+      </div>
+      <div class="report-field">
+        {{ form.send_hour.label_tag }}
+        {{ form.send_hour }}
+        <span class="report-help">0-23 arası saat girin. Örn: 9, 18.</span>
+        <div class="report-errors">{{ form.send_hour.errors }}</div>
+        <div class="report-checks">
+          <label class="report-check">{{ form.include_campaign_summary }} Kampanya özeti</label>
+          <label class="report-check">{{ form.include_ad_performance }} Reklam performansı</label>
+          <label class="report-check">{{ form.include_rule_recommendations }} Kural bazlı öneriler</label>
+          <label class="report-check">{{ form.is_active }} Aktif gönderim</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-note">
+      <i class="fas fa-circle-info"></i>
+      AI önerisi otomatik çalıştırılmaz. Bu rapor metrik kurallarıyla hazırlanır ve kullanıcı jetonu harcamaz.
+    </div>
+
+    <div class="report-actions">
+      <a class="report-btn ghost" href="{% url 'report_list' %}">Vazgeç</a>
+      <button class="report-btn primary" type="submit"><i class="fas fa-floppy-disk"></i> Kaydet</button>
+    </div>
+  </form>
+</div>
+{% if form.agency_client %}
+<script>
+(() => {
+  const clientSelect = document.getElementById('id_agency_client');
+  const campaignSelect = document.getElementById('id_campaigns');
+  if (!clientSelect || !campaignSelect) return;
+
+  const endpoint = "{% url 'report_client_campaigns' %}";
+  clientSelect.addEventListener('change', async () => {
+    campaignSelect.disabled = true;
+    campaignSelect.replaceChildren();
+    if (!clientSelect.value) {
+      campaignSelect.disabled = false;
+      return;
+    }
+    try {
+      const response = await fetch(`${endpoint}?agency_client=${encodeURIComponent(clientSelect.value)}`, {
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+      });
+      if (!response.ok) throw new Error('Kampanyalar alınamadı');
+      const data = await response.json();
+      for (const campaign of data.campaigns) {
+        const option = document.createElement('option');
+        option.value = campaign.id;
+        option.textContent = campaign.name;
+        campaignSelect.appendChild(option);
+      }
+    } finally {
+      campaignSelect.disabled = false;
+    }
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

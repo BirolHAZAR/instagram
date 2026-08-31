@@ -1,0 +1,181 @@
+﻿{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Reklam Sağlık Merkezi | ReklamAnaliz.net{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root{
+        --hc-bg:#050816;--hc-card:rgba(12,18,42,.78);--hc-card-2:rgba(15,23,52,.92);--hc-border:rgba(139,132,255,.22);
+        --hc-border-strong:rgba(0,212,255,.34);--hc-text:#fff;--hc-muted:#9aa6c7;--hc-soft:#cdd5ee;
+        --hc-primary:#6c63ff;--hc-cyan:#00d4ff;--hc-green:#22c55e;--hc-yellow:#f59e0b;--hc-red:#ff4d6d;
+        --hc-glow:0 22px 80px rgba(0,0,0,.42),0 0 42px rgba(108,99,255,.14)
+    }
+    .hc-page{position:relative;min-height:100vh;margin:-18px auto 0;padding:30px clamp(16px,2vw,28px) 70px;color:var(--hc-text);overflow:hidden}
+    .hc-page:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at 8% 4%,rgba(108,99,255,.36),transparent 28%),radial-gradient(circle at 88% 8%,rgba(0,212,255,.18),transparent 25%),radial-gradient(circle at 60% 90%,rgba(34,197,94,.08),transparent 32%)}
+    .hc-page:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.032) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.032) 1px,transparent 1px);background-size:46px 46px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.85),transparent 80%)}
+    .hc-shell{position:relative;z-index:1;max-width:1540px;margin:0 auto}.hc-glass{background:linear-gradient(145deg,rgba(14,22,51,.86),rgba(9,14,33,.72));border:1px solid var(--hc-border);border-radius:28px;box-shadow:var(--hc-glow);backdrop-filter:blur(18px)}
+    .hc-hero{position:relative;display:grid;grid-template-columns:1.25fr .75fr;gap:22px;align-items:stretch;padding:26px;margin-bottom:18px;overflow:hidden}.hc-hero:before{content:"";position:absolute;right:22%;top:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,.22),transparent 68%)}
+    .hc-badge{display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(0,212,255,.28);background:rgba(0,212,255,.08);color:#bff4ff;border-radius:999px;padding:8px 13px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.hc-title{font-size:clamp(34px,4vw,58px);line-height:1.02;font-weight:900;letter-spacing:-.055em;margin:16px 0 12px}.hc-title span{background:linear-gradient(90deg,#fff,#aab7ff,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}.hc-sub{max-width:850px;color:var(--hc-soft);font-size:15px;line-height:1.75;margin:0}.hc-hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}.hc-btn{border:0;border-radius:16px;padding:12px 16px;font-weight:850;font-size:13px;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--hc-primary),#8b84ff);box-shadow:0 14px 36px rgba(108,99,255,.28)}.hc-btn.secondary{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);box-shadow:none;color:#dce5ff}
+    .hc-octo-panel{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px;min-height:250px;background:linear-gradient(145deg,rgba(108,99,255,.16),rgba(0,212,255,.08));border-radius:24px;border:1px solid rgba(139,132,255,.24);overflow:hidden}.hc-octo-panel:after{content:"";position:absolute;right:-80px;bottom:-120px;width:300px;height:300px;border-radius:50%;background:rgba(0,212,255,.12);filter:blur(8px)}.hc-octo-copy{position:relative;z-index:2}.hc-octo-label{font-size:12px;color:#bff4ff;font-weight:800;text-transform:uppercase;letter-spacing:.12em}.hc-octo-score{font-size:64px;font-weight:950;letter-spacing:-.07em;line-height:1;margin:8px 0;background:linear-gradient(180deg,#fff,#9df3ff);-webkit-background-clip:text;background-clip:text;color:transparent}.hc-octo-score small{font-size:24px;color:var(--hc-muted)}.hc-octo-status{display:inline-flex;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:850;background:rgba(34,197,94,.12);color:#9ff2b9;border:1px solid rgba(34,197,94,.26)}.hc-octo-img{position:relative;z-index:2;width:clamp(190px,18vw,245px);max-height:235px;object-fit:contain;filter:drop-shadow(0 28px 48px rgba(0,0,0,.55))}.hc-delta{margin-top:12px;color:var(--hc-muted);font-size:13px}.hc-delta strong{color:#fff}
+    .hc-filter{padding:18px 20px;margin-bottom:18px}.hc-filter form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:end}.hc-field label{font-size:11px;text-transform:uppercase;letter-spacing:.11em;color:#7f8bad;font-weight:900;margin:0 0 7px;display:block}.hc-field select{width:100%;height:48px;border-radius:15px;border:1px solid rgba(255,255,255,.11);background:rgba(6,10,26,.82);color:#fff;padding:0 13px;font-weight:750;outline:none}.hc-field select:focus{border-color:var(--hc-cyan);box-shadow:0 0 0 4px rgba(0,212,255,.08)}.hc-agency-field{padding:9px;border-radius:17px;border:1px solid rgba(0,212,255,.25);background:rgba(0,212,255,.065)}
+    .hc-submit-cell{display:flex;flex-direction:column;align-items:flex-start;gap:6px}.hc-submit-cell .hc-btn{min-height:48px}.hc-analysis-meta{display:flex;align-items:center;gap:6px;color:#aab5d3;font-size:11px;font-weight:750;line-height:1.25}.hc-analysis-meta i{color:#67e8f9;font-size:10px}.hc-analysis-meta strong{color:#fff}.hc-analysis-meta.muted strong{color:#cdd5ee}
+    .hc-kpi-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:18px}.hc-kpi{position:relative;isolation:isolate;padding:18px;border-radius:22px;background:linear-gradient(150deg,rgba(17,25,58,.88),rgba(10,15,35,.72));border:1px solid rgba(255,255,255,.09);box-shadow:0 18px 48px rgba(0,0,0,.26);overflow:hidden}.hc-kpi:before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:linear-gradient(90deg,var(--hc-primary),var(--hc-cyan));opacity:.82;z-index:0}.hc-kpi>*{position:relative;z-index:1}.hc-kpi-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.hc-kpi-label{color:var(--hc-muted);font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}.hc-kpi-icon{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:rgba(108,99,255,.13);color:#c6c2ff}.hc-kpi-value{display:block;min-height:36px;color:#fff;font-size:30px;font-weight:950;line-height:1.15;letter-spacing:0;margin:12px 0 4px;text-shadow:0 8px 24px rgba(0,0,0,.4);overflow-wrap:anywhere}.hc-kpi-hint{color:var(--hc-muted);font-size:12px}.hc-kpi-bar{height:5px;border-radius:999px;background:rgba(255,255,255,.08);margin-top:13px;overflow:hidden}.hc-kpi-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--hc-primary),var(--hc-cyan));width:var(--w,0%)}
+    .hc-main-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-bottom:18px}.hc-card{padding:20px;border-radius:26px;background:linear-gradient(145deg,rgba(13,20,46,.84),rgba(8,13,31,.72));border:1px solid rgba(255,255,255,.09);box-shadow:0 20px 64px rgba(0,0,0,.26)}.hc-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}.hc-card-title{font-size:18px;font-weight:950;letter-spacing:-.025em;margin:0}.hc-card-sub{font-size:12px;color:var(--hc-muted);margin-top:5px}.hc-rule-state{display:flex;gap:9px;flex-wrap:wrap;margin:-4px 0 18px}.hc-rule-chip{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;border:1px solid rgba(0,212,255,.2);background:rgba(0,212,255,.07);color:#c9f7ff;font-size:12px;font-weight:850}.hc-rule-chip i{font-size:8px;color:var(--hc-cyan)}.hc-chart{height:310px;min-height:310px}.hc-insights{display:grid;gap:12px;max-height:390px;overflow-y:auto;overflow-x:hidden;padding-right:6px;scrollbar-width:thin;scrollbar-color:rgba(0,212,255,.55) rgba(255,255,255,.06)}.hc-insights::-webkit-scrollbar,.hc-table-scroll::-webkit-scrollbar{width:8px;height:8px}.hc-insights::-webkit-scrollbar-track,.hc-table-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,.05);border-radius:999px}.hc-insights::-webkit-scrollbar-thumb,.hc-table-scroll::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--hc-cyan),var(--hc-primary));border-radius:999px}.hc-insight{padding:14px 15px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}.hc-insight-title{font-size:13px;font-weight:900;margin-bottom:5px;color:#fff}.hc-insight-text{font-size:13px;color:#c7d1ed;line-height:1.55}.hc-insight.critical{border-color:rgba(255,77,109,.24);background:rgba(255,77,109,.07)}.hc-insight.warning{border-color:rgba(245,158,11,.24);background:rgba(245,158,11,.07)}.hc-insight.success{border-color:rgba(34,197,94,.24);background:rgba(34,197,94,.07)}
+    .hc-btn.loading{pointer-events:none;opacity:.86}.hc-btn .hc-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.28);border-top-color:#fff;border-radius:50%;animation:hcSpin .75s linear infinite}@keyframes hcSpin{to{transform:rotate(360deg)}}.hc-ai-summary{padding:14px 15px;border-radius:18px;border:1px solid rgba(0,212,255,.18);background:rgba(0,212,255,.06);color:#dff8ff;font-size:13px;line-height:1.6}.hc-ai-source{display:inline-flex;align-items:center;gap:7px;margin-top:7px;padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.07);color:#bff4ff;font-size:11px;font-weight:900;text-transform:uppercase}.hc-agent-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.hc-agent{padding:11px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04)}.hc-agent strong{display:block;font-size:12px;color:#fff;margin-bottom:5px}.hc-agent span{position:relative;display:block;padding-left:15px;font-size:12px;color:#c7d1ed;line-height:1.45}.hc-agent span:before{content:"";position:absolute;left:0;top:.48em;width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--hc-cyan),var(--hc-primary))}.hc-agent.success{border-color:rgba(34,197,94,.22)}.hc-agent.watch{border-color:rgba(245,158,11,.22)}.hc-agent.risk,.hc-agent.critical{border-color:rgba(255,77,109,.24)}
+    .hc-tabs{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}.hc-tab{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.055);color:#cbd5f0;border-radius:999px;padding:10px 14px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}.hc-tab.active{background:linear-gradient(135deg,var(--hc-primary),#00a8ff);color:#fff;border-color:transparent}.hc-table-scroll{max-height:760px;overflow:auto;border-radius:22px;border:1px solid rgba(255,255,255,.08)}.hc-table-wrap{min-width:1180px}.hc-table{width:100%;border-collapse:separate;border-spacing:0;background:rgba(5,8,22,.28)}.hc-table th{position:sticky;top:0;z-index:2;background:rgba(10,16,40,.96);padding:14px;color:#91a0c4;font-size:11px;text-transform:uppercase;letter-spacing:.09em;font-weight:950;border-bottom:1px solid rgba(255,255,255,.08)}.hc-table td{padding:15px 14px;border-bottom:1px solid rgba(255,255,255,.07);vertical-align:top}.hc-table tr:hover td{background:rgba(108,99,255,.055)}.hc-ad-name{font-size:14px;font-weight:950;color:#fff;max-width:280px}.hc-meta{font-size:12px;color:var(--hc-muted);margin-top:5px}.hc-score-pill{display:inline-flex;align-items:center;justify-content:center;min-width:56px;height:36px;border-radius:14px;font-weight:950;background:rgba(108,99,255,.12);border:1px solid rgba(139,132,255,.26);color:#dcd9ff}.hc-status{display:inline-flex;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:950}.hc-status.ok{background:rgba(34,197,94,.12);color:#9ff2b9}.hc-status.watch{background:rgba(245,158,11,.12);color:#ffd79b}.hc-status.risk{background:rgba(255,77,109,.12);color:#ffb2bf}.hc-explain{max-width:390px;font-size:12.5px;line-height:1.55;color:#cad4ef}.hc-action{color:#bff4ff}.hc-point-list{list-style:none;margin:0;padding:0;display:grid;gap:7px}.hc-point-list li{position:relative;padding-left:16px;line-height:1.5}.hc-point-list li:before{content:"";position:absolute;left:0;top:.58em;width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--hc-cyan),var(--hc-primary));box-shadow:0 0 10px rgba(0,212,255,.38)}.hc-empty{padding:36px;text-align:center;color:#aab5d3}.hc-section{display:none}.hc-section.active{display:block}
+    .hc-kpi .hc-kpi-value{display:block!important;visibility:visible!important;opacity:1!important;color:#fff!important;position:relative;z-index:3;min-height:36px;text-shadow:0 8px 24px rgba(0,0,0,.42)}
+    .hc-kpi .hc-kpi-hint,.hc-table td,.hc-table th{visibility:visible!important;opacity:1!important}
+    @media(max-width:1200px){.hc-hero,.hc-main-grid{grid-template-columns:1fr}.hc-kpi-grid{grid-template-columns:repeat(3,1fr)}.hc-filter form{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.hc-page{padding-inline:12px}.hc-hero{padding:18px}.hc-octo-panel{flex-direction:column;text-align:center}.hc-kpi-grid{grid-template-columns:1fr}.hc-filter form{grid-template-columns:1fr}.hc-title{font-size:34px}.hc-octo-score{font-size:52px}.hc-agent-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hc-page">
+  <div class="hc-shell">
+    {% if empty %}
+    <div class="hc-glass hc-empty">
+      <h2>Reklam Sağlık Merkezi hazır değil</h2>
+      <p>Ad ve AdMetricHistory modelleri bulunamadı. Model isimlerini kontrol etmeliyiz.</p>
+    </div>
+    {% else %}
+
+    <section class="hc-glass hc-hero">
+      <div>
+        <div class="hc-badge"><i class="fa-solid fa-heart-pulse"></i> Octo Health Center · ULTRA v3</div>
+        <h1 class="hc-title">Reklam Sağlık <span>Merkezi</span></h1>
+        <p class="hc-sub">Aktif reklamlarını gerçek metrik geçmişinden analiz eder; CTR, CPA, ROAS, frekans, dönüşüm ve etkileşim sinyallerini tek Octo Sağlık Skoru altında toplar. Müşteri sadece skor değil, her reklam için neden sağlıklı veya neden riskli olduğunu da görür.</p>
+        <div class="hc-hero-actions">
+          <a class="hc-btn" href="#tum-reklamlar"><i class="fa-solid fa-list-check"></i> Tüm reklamları incele</a>
+          <a class="hc-btn secondary" href="#riskli"><i class="fa-solid fa-triangle-exclamation"></i> Riskli reklamları gör</a>
+        </div>
+      </div>
+      <div class="hc-octo-panel">
+        <div class="hc-octo-copy">
+          <div class="hc-octo-label">Genel Octo Sağlık Skoru</div>
+          {% if has_health_data %}
+          <div class="hc-octo-score">{{ score }}<small>/100</small></div>
+          <span class="hc-octo-status">{{ score_status }}</span>
+          <div class="hc-delta">Önceki döneme göre <strong>{% if score_delta > 0 %}+{% endif %}{{ score_delta }}</strong> puan</div>
+          {% endif %}
+        </div>
+        <img class="hc-octo-img" src="{% static 'images/octo-analyst.png' %}" alt="Octo Analyst" onerror="this.src='{% static 'images/reko/reko-thinking.png' %}'">
+      </div>
+    </section>
+
+    <section class="hc-glass hc-filter">
+      <form method="get" id="healthFilterForm">
+        {% if agency_scope.is_agency %}
+        <div class="hc-field hc-agency-field"><label>Ajans müşterisi</label><select name="agency_client" id="agencyClientSelect"><option value="" {% if not agency_scope.selected_client %}selected{% endif %}>Tüm müşteriler</option>{% for client in agency_scope.clients %}<option value="{{ client.id }}" {% if agency_scope.selected_client.id == client.id %}selected{% endif %}>{{ client.organization.name }} · {{ client.name }}</option>{% endfor %}</select></div>
+        {% endif %}
+        <div class="hc-field"><label>Gün aralığı</label><select name="gun"><option value="1" {% if days == 1 %}selected{% endif %}>Bugün</option><option value="3" {% if days == 3 %}selected{% endif %}>Son 3 gün</option><option value="7" {% if days == 7 %}selected{% endif %}>Son 7 gün</option><option value="14" {% if days == 14 %}selected{% endif %}>Son 14 gün</option><option value="30" {% if days == 30 %}selected{% endif %}>Son 30 gün</option><option value="60" {% if days == 60 %}selected{% endif %}>Son 60 gün</option><option value="90" {% if days == 90 %}selected{% endif %}>Son 90 gün</option><option value="180" {% if days == 180 %}selected{% endif %}>Son 180 gün</option></select></div>
+        <div class="hc-field"><label>Platform</label><select name="platform" id="platformSelect"><option value="">Tüm platformlar</option>{% for p in platforms %}<option value="{{ p.code }}" {% if filtre_platform == p.code %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select></div>
+        <div class="hc-field"><label>Hesap</label><select name="hesap" id="accountSelect"><option value="">Tüm hesaplar</option>{% for acc in platform_accounts %}<option value="{{ acc.id }}" data-platform="{{ acc.platform.code }}" {% if filtre_hesap|stringformat:'s' == acc.id|stringformat:'s' %}selected{% endif %}>{{ acc.platform.name }} · {{ acc.account_name|default:acc.account_id }}</option>{% endfor %}</select></div>
+        <div class="hc-field"><label>Durum</label><select name="durum"><option value="ACTIVE" {% if filtre_durum == 'ACTIVE' %}selected{% endif %}>Aktif reklamlar</option><option value="ALL" {% if filtre_durum == 'ALL' %}selected{% endif %}>Tüm durumlar</option><option value="PAUSED" {% if filtre_durum == 'PAUSED' %}selected{% endif %}>Duraklatılmış</option></select></div>
+        <div class="hc-field"><label>Sırala</label><select name="sirala"><option value="date_desc" {% if sirala == 'date_desc' %}selected{% endif %}>Son metrik tarihi</option><option value="score_desc" {% if sirala == 'score_desc' %}selected{% endif %}>En sağlıklı</option><option value="score_asc" {% if sirala == 'score_asc' %}selected{% endif %}>En riskli</option><option value="spend_desc" {% if sirala == 'spend_desc' %}selected{% endif %}>En çok harcayan</option></select></div>
+        <div class="hc-submit-cell">
+          <button class="hc-btn secondary" type="submit"><i class="fa-solid fa-filter"></i> Filtreyi Uygula</button>
+          {% if has_health_data %}
+          <button class="hc-btn" type="submit" name="ai" value="1" id="healthAnalyzeBtn" title="Derin AI analizi"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Analiz Et</button>
+          <div class="hc-analysis-meta {% if not last_health_analysis_at %}muted{% endif %}">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            {% if last_health_analysis_at %}
+              <span>Son AI analiz: <strong>{{ last_health_analysis_at|date:"d.m.Y H:i" }}</strong></span>
+            {% else %}
+              <span>Henüz kayıtlı AI analiz yok.</span>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </form>
+    </section>
+
+    <div class="hc-rule-state">
+      <span class="hc-rule-chip"><i class="fa-solid fa-circle"></i>{{ active_rule_count|intcomma }} aktif kural</span>
+      <span class="hc-rule-chip"><i class="fa-solid fa-circle"></i>{{ matched_rule_count|intcomma }} veritabanı tespiti</span>
+      <span class="hc-rule-chip"><i class="fa-solid fa-circle"></i>{% if rule_engine.status == 'queued' or rule_engine.status == 'pending' %}Kural taraması sırada{% elif rule_engine.status == 'running' %}Kural taraması çalışıyor{% elif rule_engine.error %}Kural tarama hatası{% else %}Kural taraması güncel{% endif %}</span>
+    </div>
+
+    {% if has_health_data %}
+    <section class="hc-kpi-grid">
+      {% for kpi in kpis %}
+      <article class="hc-kpi">
+        <div class="hc-kpi-top"><div class="hc-kpi-label">{{ kpi.label }}</div><div class="hc-kpi-icon"><i class="fa-solid fa-chart-simple"></i></div></div>
+        <div class="hc-kpi-value">{{ kpi.prefix }}{{ kpi.value|tr_decimal }}{{ kpi.suffix }}</div>
+        <div class="hc-kpi-hint">{{ kpi.hint }} · Skor {{ kpi.score }}/100</div>
+        <div class="hc-kpi-bar" style="--w:{{ kpi.score }}%"><span></span></div>
+      </article>
+      {% endfor %}
+    </section>
+
+    <section class="hc-main-grid">
+      <div class="hc-card">
+        <div class="hc-card-head"><div><h3 class="hc-card-title">Performans Nabzı</h3><div class="hc-card-sub">{{ start|date:'d.m.Y' }} - {{ today|date:'d.m.Y' }} arası günlük sağlık trendi</div></div></div>
+        <div class="hc-chart"><canvas id="healthTrendChart"></canvas></div>
+      </div>
+      {% if has_health_data %}
+      <div class="hc-card">
+        <div class="hc-card-head"><div><h3 class="hc-card-title">Octo AI Karar Notları</h3><div class="hc-card-sub">{% if ai_result %}Derin hesap analizi{% else %}Yerel metrik motorundan özet sinyaller{% endif %}</div></div></div>
+        <div class="hc-insights">
+          {% if ai_result %}
+          <div class="hc-ai-summary">
+            <strong>{{ ai_result.headline|default:"Octo AI hesap analizini tamamladı." }}</strong><br>
+            {{ ai_result.summary }}
+          </div>
+          {% for rec in ai_result.decision_notes %}
+          <div class="hc-insight {{ rec.level|default:'info' }}"><div class="hc-insight-title">{{ rec.title }}</div><div class="hc-insight-text"><ul class="hc-point-list">{% for point in rec.points %}<li>{{ point }}</li>{% endfor %}</ul></div></div>
+          {% endfor %}
+          <div class="hc-agent-grid">
+            {% for agent in ai_result.agents %}
+            <div class="hc-agent {{ agent.severity|default:'watch' }}"><strong aria-hidden="true">●</strong><span>{{ agent.finding }}{% if agent.recommendation %}<br><b>{{ agent.recommendation }}</b>{% endif %}</span></div>
+            {% endfor %}
+          </div>
+          {% else %}
+          {% for rec in recommendations %}
+          <div class="hc-insight {{ rec.level }}"><div class="hc-insight-title">{{ rec.title }}</div><div class="hc-insight-text"><ul class="hc-point-list">{% for point in rec.points %}<li>{{ point }}</li>{% endfor %}</ul></div></div>
+          {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </section>
+
+    <section id="tum-reklamlar" class="hc-card">
+      <div class="hc-card-head"><div><h3 class="hc-card-title">Reklam Bazlı Sağlık Analizi</h3><div class="hc-card-sub">{{ active_count }} reklam bulundu · {{ measured_count }} reklamda seçilen dönemde metrik var</div></div></div>
+      <div class="hc-tabs"><button class="hc-tab active" data-target="all">Tüm Reklamlar</button><button class="hc-tab" data-target="healthy">Sağlıklı Reklamlar</button><button class="hc-tab" data-target="risk">Riskli Reklamlar</button></div>
+      <div class="hc-section active" id="section-all">{% include "reports/health_center_table.html" with rows=all_ads %}</div>
+      <div class="hc-section" id="section-healthy">{% include "reports/health_center_table.html" with rows=healthy_ads %}</div>
+      <div class="hc-section" id="section-risk">{% include "reports/health_center_table.html" with rows=risky_ads %}</div>
+    </section>
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+(function(){
+  const platformSelect=document.getElementById('platformSelect'); const accountSelect=document.getElementById('accountSelect');
+  function filterAccounts(){ if(!platformSelect||!accountSelect)return; const selected=platformSelect.value; [...accountSelect.options].forEach((opt,i)=>{ if(i===0)return; const ok=!selected||opt.dataset.platform===selected; opt.hidden=!ok; if(!ok&&opt.selected) accountSelect.value=''; }); }
+  filterAccounts(); if(platformSelect) platformSelect.addEventListener('change', filterAccounts);
+  const form=document.getElementById('healthFilterForm'); const analyzeBtn=document.getElementById('healthAnalyzeBtn');
+  if(analyzeBtn){analyzeBtn.addEventListener('click',()=>{analyzeBtn.classList.add('loading');analyzeBtn.innerHTML='<span class="hc-spinner"></span> Analiz hazırlanıyor';});}
+  document.querySelectorAll('.hc-tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.hc-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.hc-section').forEach(s=>s.classList.remove('active'));btn.classList.add('active');document.getElementById('section-'+btn.dataset.target).classList.add('active');}));
+  if(window.Chart && document.querySelector('#healthTrendChart')){
+    const labels={{ chart_labels_json|safe }}; const scores={{ chart_score_json|safe }}; const ctr={{ chart_ctr_json|safe }}; const roas={{ chart_roas_json|safe }}; const cpa={{ chart_cpa_json|safe }};
+    const ctx=document.querySelector('#healthTrendChart').getContext('2d');
+    new Chart(ctx,{type:'line',data:{labels,datasets:[
+      {label:'Octo Skor',data:scores,borderColor:'#6c63ff',backgroundColor:'rgba(108,99,255,.12)',borderWidth:3,tension:.35,fill:true,yAxisID:'score'},
+      {label:'CTR %',data:ctr,borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,.08)',borderWidth:2,tension:.35,yAxisID:'metric'},
+      {label:'ROAS x',data:roas,borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,.08)',borderWidth:2,tension:.35,yAxisID:'metric'},
+      {label:'CPA TL',data:cpa,borderColor:'#ff4d6d',backgroundColor:'rgba(255,77,109,.08)',borderWidth:2,tension:.35,yAxisID:'metric'}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#cbd5f0',boxWidth:12,boxHeight:12}},tooltip:{mode:'index',intersect:false}},interaction:{mode:'index',intersect:false},scales:{x:{ticks:{color:'#8b96b6'},grid:{color:'rgba(255,255,255,.05)'}},score:{position:'left',beginAtZero:true,max:100,ticks:{color:'#8b96b6'},grid:{color:'rgba(255,255,255,.07)'}},metric:{position:'right',beginAtZero:true,ticks:{color:'#8b96b6'},grid:{drawOnChartArea:false}}}}});
+  }
+  {% if rule_engine.status == 'queued' or rule_engine.status == 'pending' or rule_engine.status == 'running' %}
+  window.setTimeout(()=>window.location.reload(), 3500);
+  {% endif %}
+})();
+</script>
+{% endblock %}

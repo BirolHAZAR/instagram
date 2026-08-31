@@ -1,0 +1,400 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kampanya Paneli - Tüm Platformlar{% endblock %}
+
+{% block extra_css %}
+<style>
+:root{
+  --cp-bg:#050816;--cp-panel:#0F1633;--cp-panel2:#111A3D;--cp-line:rgba(139,132,255,.18);
+  --cp-soft:#B8BED0;--cp-muted:#8791B2;--cp-text:#FFFFFF;--cp-accent:#6C63FF;--cp-accent2:#8B84FF;
+  --cp-cyan:#35D5FF;--cp-green:#22C55E;--cp-orange:#F59E0B;--cp-red:#EF4444;--cp-card:#FFFFFF;--cp-dark:#0F172A;
+}
+.cp-sync-btn{min-width:auto;width:auto;height:30px;padding:0 14px;font-size:12px;line-height:30px;gap:0;border:1px solid rgba(255,255,255,.16);box-shadow:0 6px 14px rgba(108,99,255,.16);background:linear-gradient(135deg,#665CFF,#817BFF)}.cp-sync-btn.is-syncing{opacity:.82}@keyframes cpSyncSpin{to{transform:rotate(360deg)}}
+body{background:radial-gradient(circle at 12% 0%,rgba(108,99,255,.26),transparent 32%),radial-gradient(circle at 88% 10%,rgba(53,213,255,.12),transparent 28%),linear-gradient(180deg,var(--cp-bg),#070B1D 58%,#050816);color:var(--cp-text)}
+.cp-shell{max-width:1480px;margin:0 auto;padding:28px 22px 44px}.cp-hero{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(15,22,51,.97),rgba(10,16,40,.94));border:1px solid var(--cp-line);border-radius:32px;padding:24px 26px;margin-bottom:18px;box-shadow:0 28px 70px rgba(0,0,0,.35)}
+.cp-hero:before{content:"";position:absolute;right:-130px;top:-150px;width:390px;height:390px;border-radius:999px;background:radial-gradient(circle,rgba(108,99,255,.34),transparent 68%)}.cp-hero-inner{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}.cp-kicker{display:inline-flex;gap:8px;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(108,99,255,.14);border:1px solid rgba(139,132,255,.34);color:#DAD8FF;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.cp-hero h1{font-weight:950;letter-spacing:-.045em;font-size:clamp(26px,3vw,42px);margin:12px 0 6px}.cp-hero p{max-width:900px;color:var(--cp-soft);line-height:1.6;margin:0;font-size:14px}.cp-actions{display:flex;gap:10px;flex-wrap:wrap}.cp-btn{border:0;border-radius:999px;padding:11px 15px;font-weight:900;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer}.cp-btn.primary{color:#fff;background:linear-gradient(135deg,var(--cp-accent),var(--cp-accent2));box-shadow:0 14px 26px rgba(108,99,255,.25)}.cp-btn.soft{color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14)}.cp-btn:disabled{opacity:.55;cursor:not-allowed}.cp-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;align-items:start}.cp-panel{background:rgba(15,22,51,.86);border:1px solid var(--cp-line);border-radius:26px;box-shadow:0 18px 46px rgba(0,0,0,.24);backdrop-filter:blur(16px)}.cp-sidebar{padding:15px;position:sticky;top:16px}.cp-sidebar h3,.cp-main-head h3{margin:0;font-size:15px;font-weight:950;display:flex;align-items:center;gap:9px}.cp-sidebar h3{justify-content:center;margin-bottom:13px}.cp-platform{margin-bottom:8px}.cp-platform-btn{width:100%;min-height:45px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.06);color:#fff;border-radius:15px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 10px;font-weight:900}.cp-platform-btn.active{background:linear-gradient(135deg,rgba(108,99,255,.95),rgba(139,132,255,.82));border-color:rgba(139,132,255,.6)}.cp-platform-main{display:flex;align-items:center;gap:8px;min-width:0}.cp-platform-main span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cp-count{background:#fff;color:#111827;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:950}.cp-accounts{display:none;margin:8px 0 12px;padding:7px;border-radius:16px;background:rgba(5,8,22,.36);border:1px solid rgba(139,132,255,.16)}.cp-platform.open .cp-accounts{display:block}.cp-account{width:100%;text-align:left;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.06);color:#fff;border-radius:13px;padding:9px 10px;margin-bottom:7px;cursor:pointer}.cp-account.active,.cp-account:hover{border-color:var(--cp-accent2);background:rgba(108,99,255,.20)}.cp-account strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cp-account small{display:block;color:var(--cp-soft);font-size:10px;margin-top:2px}.cp-sidebar-note{margin-top:14px;padding:12px;border-radius:18px;background:linear-gradient(135deg,rgba(108,99,255,.16),rgba(53,213,255,.08));border:1px solid rgba(139,132,255,.18);color:var(--cp-soft);font-size:12px;line-height:1.45}.cp-main{padding:15px}.cp-main-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.cp-datebar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cp-datebar input,.cp-datebar select{height:38px;border-radius:12px;border:1px solid rgba(139,132,255,.22);background:rgba(5,8,22,.70);color:#fff;padding:0 10px;font-size:12px;font-weight:800}.cp-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}.cp-stat{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:18px;padding:13px}.cp-stat span{display:block;color:var(--cp-soft);font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.06em}.cp-stat strong{display:block;margin-top:5px;font-size:22px;font-weight:950;color:#fff}.cp-campaign-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.cp-campaign{background:#fff;color:#111827;border:1px solid rgba(15,23,42,.08);border-radius:24px;padding:15px;box-shadow:0 18px 44px rgba(0,0,0,.22);transition:.18s ease}.cp-campaign:hover{transform:translateY(-3px);box-shadow:0 26px 58px rgba(0,0,0,.28)}.cp-card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.cp-card-title{min-width:0}.cp-card-title h4{margin:0;font-size:17px;font-weight:950;line-height:1.25;color:#0f172a}.cp-card-title p{margin:5px 0 0;color:#64748b;font-size:12px;font-weight:800}.cp-status{display:inline-flex;white-space:nowrap;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:950;text-transform:uppercase}.cp-status.active,.cp-status.enabled{background:#DCFCE7;color:#166534}.cp-status.paused{background:#FEF3C7;color:#92400E}.cp-status.deleted,.cp-status.archived,.cp-status.ended{background:#FEE2E2;color:#991B1B}.cp-status.unknown{background:#E0E7FF;color:#3730A3}.cp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:13px}.cp-mini{background:#F8FAFF;border:1px solid #E5E9F7;border-radius:13px;padding:9px;min-height:58px}.cp-mini span{display:block;color:#667085;font-size:10px;font-weight:950;text-transform:uppercase}.cp-mini strong{display:block;color:#111827;font-size:13px;font-weight:950;margin-top:5px}.cp-structure{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.cp-structure div{background:#F1F5F9;border-radius:13px;padding:9px;text-align:center}.cp-structure strong{display:block;font-size:18px;font-weight:950}.cp-structure span{font-size:10px;color:#64748b;font-weight:900}.cp-card-actions{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:13px;padding-top:12px;border-top:1px solid #EEF2F7}.cp-link{border:0;border-radius:999px;padding:9px 12px;text-decoration:none;font-size:12px;font-weight:950;display:inline-flex;align-items:center;gap:7px;cursor:pointer}.cp-link.dark{background:#111827;color:#fff}.cp-link.soft{background:#F1F5F9;color:#111827}.cp-empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--cp-soft)}.cp-empty i{display:block;font-size:38px;color:var(--cp-accent2);margin-bottom:10px}.cp-loading{display:grid;place-items:center;min-height:240px;color:var(--cp-soft)}.cp-spinner{width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,.14);border-top-color:var(--cp-accent2);animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.cp-modal-backdrop{position:fixed;inset:0;z-index:99980;background:rgba(2,6,23,.70);backdrop-filter:blur(10px);display:none}.cp-modal{position:fixed;inset:26px;z-index:99990;background:#0B1220;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:28px;display:none;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.55)}.cp-modal.show,.cp-modal-backdrop.show{display:block}.cp-modal-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:20px 22px;border-bottom:1px solid rgba(255,255,255,.08);background:linear-gradient(135deg,#111827,#1E293B)}.cp-modal-head h3{margin:0;font-size:22px;font-weight:950}.cp-modal-head p{margin:6px 0 0;color:#CBD5E1}.cp-modal-close{width:40px;height:40px;border-radius:13px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff}.cp-modal-body{height:calc(100% - 86px);overflow:auto;padding:18px 22px}.cp-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}.cp-detail-box{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);border-radius:17px;padding:12px}.cp-detail-box span{display:block;color:#94A3B8;font-size:10px;text-transform:uppercase;font-weight:950}.cp-detail-box strong{display:block;margin-top:6px;font-size:16px;font-weight:950}.cp-tree{display:grid;gap:12px}.cp-group{background:#fff;color:#111827;border-radius:20px;padding:13px;border:1px solid #E5E7EB}.cp-group-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.cp-group-head h4{margin:0;font-size:15px;font-weight:950}.cp-ad-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.cp-ad{background:#F8FAFC;border:1px solid #E5E7EB;border-radius:16px;padding:11px}.cp-ad-top{display:flex;gap:10px}.cp-ad-media{width:74px;height:74px;border-radius:13px;background:#E5E7EB;overflow:hidden;flex:0 0 74px;display:grid;place-items:center;color:#64748b}.cp-ad-media img{width:100%;height:100%;object-fit:cover}.cp-ad h5{margin:0;font-size:13px;font-weight:950}.cp-ad p{margin:4px 0 0;font-size:11px;color:#64748b;line-height:1.35}.cp-ad-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.cp-ad-metrics div{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:6px}.cp-ad-metrics span{display:block;color:#64748b;font-size:9px;font-weight:950}.cp-ad-metrics strong{display:block;font-size:11px;font-weight:950;color:#0f172a;margin-top:3px}.cp-history{margin-top:14px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);border-radius:18px;overflow:hidden}.cp-history h4{margin:0;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.08);font-size:14px;font-weight:950}.cp-history-table{width:100%;border-collapse:collapse}.cp-history-table th,.cp-history-table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;text-align:left}.cp-history-table th{color:#CBD5E1;background:rgba(255,255,255,.04)}
+@media(max-width:1180px){.cp-layout{grid-template-columns:1fr}.cp-sidebar{position:relative;top:0}.cp-campaign-grid{grid-template-columns:1fr}.cp-stats,.cp-detail-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.cp-shell{padding:16px}.cp-stats,.cp-detail-grid,.cp-metrics,.cp-ad-list{grid-template-columns:1fr}.cp-modal{inset:10px}.cp-modal-body{padding:14px}.cp-structure{grid-template-columns:1fr}}
+.cp-link.primary{background:linear-gradient(135deg,var(--cp-accent),var(--cp-accent2));color:#fff}.cp-meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}.cp-meta{background:#F8FAFF;border:1px solid #E5E9F7;border-radius:12px;padding:8px}.cp-meta span{display:block;color:#667085;font-size:9px;font-weight:950;text-transform:uppercase}.cp-meta strong{display:block;color:#111827;font-size:11px;font-weight:950;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cp-raw-keys{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}.cp-raw-keys span{font-size:9px;font-weight:900;color:#475569;background:#EEF2FF;border:1px solid #E0E7FF;border-radius:999px;padding:4px 7px}.cp-info-panel{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:14px;margin-bottom:14px}.cp-info-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.cp-info-item{background:rgba(0,0,0,.14);border:1px solid rgba(255,255,255,.07);border-radius:13px;padding:9px}.cp-info-item span{display:block;color:#94A3B8;font-size:9px;font-weight:950;text-transform:uppercase}.cp-info-item strong{display:block;color:#fff;font-size:12px;font-weight:900;margin-top:4px;overflow-wrap:anywhere}.cp-modal-actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.cp-ai-modal{position:fixed;right:28px;top:28px;bottom:28px;width:min(620px,calc(100vw - 56px));z-index:100000;background:#fff;color:#111827;border-radius:24px;border:1px solid #E5E7EB;box-shadow:0 40px 100px rgba(0,0,0,.45);display:none;overflow:hidden}.cp-ai-modal.show{display:block}.cp-ai-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:17px 18px;border-bottom:1px solid #EEF2F7;background:linear-gradient(135deg,#F8FAFF,#EEF2FF)}.cp-ai-head h3{margin:0;font-size:18px;font-weight:950;color:#111827}.cp-ai-head p{margin:4px 0 0;color:#64748b;font-size:12px;font-weight:800}.cp-ai-body{height:calc(100% - 76px);overflow:auto;padding:16px 18px}.cp-ai-score{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;margin-bottom:14px}.cp-ai-scorebox{border-radius:18px;background:#111827;color:#fff;display:grid;place-items:center;padding:16px}.cp-ai-scorebox strong{font-size:34px;font-weight:950}.cp-ai-section{border:1px solid #E5E7EB;border-radius:18px;padding:13px;margin-bottom:12px;background:#F8FAFC}.cp-ai-section h4{margin:0 0 8px;font-size:13px;font-weight:950}.cp-ai-section p,.cp-ai-section li{font-size:12px;line-height:1.5;color:#334155}.cp-agent-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.cp-agent{background:#fff;border:1px solid #E5E7EB;border-radius:14px;padding:10px}.cp-agent strong{display:block;font-size:12px}.cp-agent span{display:block;color:#64748b;font-size:11px;margin-top:3px;line-height:1.35}@media(max-width:760px){.cp-meta-grid,.cp-info-grid,.cp-agent-grid{grid-template-columns:1fr}.cp-ai-modal{right:10px;left:10px;top:10px;bottom:10px;width:auto}}
+.cp-rule-events{margin-top:12px;border-top:1px solid #EEF2F7;padding-top:12px;display:grid;gap:8px}.cp-rule-title{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#0f172a;font-size:12px;font-weight:950}.cp-rule-title small{color:#64748b;font-size:10px;font-weight:900}.cp-rule-item{display:grid;grid-template-columns:78px minmax(0,1fr);gap:9px;border:1px solid #E5E7EB;background:#F8FAFC;border-radius:13px;padding:9px}.cp-rule-badge{height:25px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;padding:0 8px;font-size:9px;font-weight:950;text-transform:uppercase}.cp-rule-badge.critical,.cp-rule-badge.high{background:#FEE2E2;color:#991B1B}.cp-rule-badge.warning,.cp-rule-badge.medium{background:#FEF3C7;color:#92400E}.cp-rule-badge.opportunity{background:#DCFCE7;color:#166534}.cp-rule-badge.info,.cp-rule-badge.low{background:#E0E7FF;color:#3730A3}.cp-rule-copy{min-width:0}.cp-rule-copy strong{display:block;color:#111827;font-size:12px;font-weight:950;line-height:1.25}.cp-rule-copy p{margin:4px 0 0;color:#475569;font-size:11px;line-height:1.35}.cp-rule-copy em{display:block;margin-top:5px;color:#166534;font-size:11px;font-style:normal;font-weight:900;line-height:1.35}.cp-rule-copy small{display:block;margin-top:5px;color:#64748b;font-size:10px;font-weight:800}
+body:has(.cp-shell)>main{padding-left:0!important;padding-right:8px!important}.cp-shell{max-width:none!important;margin:0!important;padding:12px 10px 34px 0!important}.cp-layout{grid-template-columns:278px minmax(0,1fr)!important;gap:10px!important}.cp-hero{border-radius:20px!important;margin-bottom:10px!important;padding:20px 22px!important}.cp-campaign-grid{grid-template-columns:repeat(2,minmax(420px,1fr))!important}.cp-card-actions{flex-wrap:wrap!important;justify-content:flex-start!important}.cp-card-actions .cp-date-range{margin-left:auto}.cp-card-actions.ai-row{border-top:0;margin-top:8px;padding-top:0}.cp-card-actions.ai-row .cp-link{border-radius:12px;padding:9px 10px}.cp-main{padding:12px!important}.cp-sidebar{padding:12px!important}@media(max-width:1180px){body:has(.cp-shell)>main{padding-right:0!important}.cp-shell{padding:12px!important}.cp-layout{grid-template-columns:1fr!important}.cp-campaign-grid{grid-template-columns:1fr!important}}
+.cp-ai-backdrop{position:fixed!important;inset:0!important;z-index:2147483646!important;background:rgba(2,6,23,.72)!important;backdrop-filter:blur(20px) saturate(.7)!important;-webkit-backdrop-filter:blur(20px) saturate(.7)!important;display:none!important}.cp-ai-backdrop.show{display:block!important}.cp-ai-modal{position:fixed!important;left:50vw!important;top:50vh!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(760px,calc(100vw - 36px))!important;height:min(820px,calc(100vh - 36px))!important;max-height:calc(100vh - 36px)!important;z-index:2147483647!important;border-radius:22px!important;display:none!important}.cp-ai-modal.show{display:block!important}.cp-ai-body{height:calc(100% - 76px)!important}.cp-ai-open{overflow:hidden!important}@media(max-width:760px){.cp-ai-modal{left:50vw!important;top:50vh!important;right:auto!important;bottom:auto!important;width:calc(100vw - 18px)!important;height:calc(100vh - 18px)!important;max-height:calc(100vh - 18px)!important;border-radius:18px!important}}
+.cp-agency-filter{position:relative;z-index:3;display:flex;align-items:center;gap:12px;margin-top:18px;padding:13px 15px;border-radius:18px;background:linear-gradient(135deg,rgba(108,99,255,.22),rgba(53,213,255,.09));border:1px solid rgba(139,132,255,.42);box-shadow:0 14px 32px rgba(0,0,0,.18)}.cp-agency-filter label{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;font-weight:950;white-space:nowrap}.cp-agency-filter select{width:min(380px,100%);height:42px;border-radius:13px;border:1px solid rgba(255,255,255,.22);background:#0b1230;color:#fff;padding:0 13px;font-weight:900}.cp-agency-filter small{color:var(--cp-soft);font-size:11px;font-weight:800}@media(max-width:760px){.cp-agency-filter{align-items:stretch;flex-direction:column}.cp-agency-filter select{width:100%}}
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="cp-shell">
+  <section class="cp-hero">
+    <div class="cp-hero-inner">
+      <div>
+        <span class="cp-kicker"><i class="fas fa-layer-group"></i> Kampanya Komuta Paneli</span>
+        <h1>Kampanyalar, reklam grupları, reklamlar ve kreatifler tek hiyerarşide.</h1>
+        <p>Bağlı hesapların kampanyalarını, kampanyaya bağlı reklam gruplarını, reklamları, kreatifleri ve geçmiş performans metriklerini tek panelde incele.</p>
+      </div>
+      <div class="cp-actions">
+        <a class="cp-btn soft" href="{% url 'reklam_panel' %}"><i class="fas fa-ad"></i> Reklam Paneli</a>
+        <button id="syncBtn" class="cp-btn primary cp-sync-btn" disabled>Kampanyaları Çek</button>
+      </div>
+    </div>
+    {% if agency_scope.is_agency %}
+    <form class="cp-agency-filter" method="get" action="{{ request.path }}">
+      <label for="campaignPanelAgencyClient"><i class="fas fa-building-user"></i> Ajans müşterisi</label>
+      <select id="campaignPanelAgencyClient" name="agency_client" onchange="this.form.submit()">
+        <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm müşteriler</option>
+        {% for client in agency_scope.clients %}
+        <option value="{{ client.id }}"{% if agency_scope.selected_client.id == client.id %} selected{% endif %}>{{ client.organization.name }} · {{ client.name }}</option>
+        {% endfor %}
+      </select>
+      <small>Platform hesapları ve kampanyalar seçime göre otomatik yenilenir.</small>
+    </form>
+    {% endif %}
+  </section>
+
+  <section class="cp-layout">
+    <aside class="cp-panel cp-sidebar">
+      <h3><i class="fas fa-plug-circle-check"></i> Platformlar</h3>
+      <div id="platformList"><div class="cp-loading"><div class="cp-spinner"></div></div></div>
+      <div class="cp-sidebar-note"><strong>Octo notu:</strong><br>Platformu aç, hesabı seç; kampanyalar, reklam grupları, reklamlar ve kreatifler otomatik listelensin.</div>
+    </aside>
+
+    <section class="cp-panel cp-main">
+      <div class="cp-main-head">
+        <div>
+          <h3><i class="fas fa-bullseye"></i> Kampanyalar</h3>
+          <small id="accountLabel" style="color:var(--cp-soft);font-weight:800">Bir hesap seçin</small>
+        </div>
+        <div class="cp-datebar">
+          <select id="daysBack">
+            <option value="">Tüm geçmiş</option>
+            <option value="30">Son 30 gün</option>
+            <option value="90">Son 90 gün</option>
+            <option value="365">Son 365 gün</option>
+          </select>
+          <input type="date" id="dateFrom">
+          <input type="date" id="dateTo">
+          <button class="cp-btn soft" type="button" onclick="reloadCampaigns()"><i class="fas fa-filter"></i> Uygula</button>
+        </div>
+      </div>
+
+      <div class="cp-stats">
+        <div class="cp-stat"><span>Kampanya</span><strong id="statCampaigns">0</strong></div>
+        <div class="cp-stat"><span>Reklam Grubu</span><strong id="statAdGroups">0</strong></div>
+        <div class="cp-stat"><span>Reklam</span><strong id="statAds">0</strong></div>
+        <div class="cp-stat"><span>Kreatif</span><strong id="statCreatives">0</strong></div>
+      </div>
+
+      <div id="syncStatus" style="display:none;margin-bottom:12px;border:1px solid rgba(139,132,255,.22);background:rgba(5,8,22,.58);border-radius:16px;padding:11px 13px;color:var(--cp-soft);font-size:12px;font-weight:800"></div>
+      <div id="campaignContainer" class="cp-campaign-grid">
+        <div class="cp-empty"><i class="fas fa-hand-pointer"></i><strong>Başlamak için soldan bir hesap seçin.</strong><br>Kampanya hiyerarşisi burada açılacak.</div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<div id="cpModalBackdrop" class="cp-modal-backdrop" onclick="closeCampaignModal()"></div>
+<div id="cpModal" class="cp-modal" role="dialog" aria-modal="true">
+  <div class="cp-modal-head">
+    <div>
+      <h3 id="modalTitle">Kampanya Detayı</h3>
+      <p id="modalSubtitle">Reklam grupları, reklamlar, kreatifler ve geçmiş metrikler</p>
+    </div>
+    <button class="cp-modal-close" onclick="closeCampaignModal()"><i class="fas fa-times"></i></button>
+  </div>
+  <div id="modalBody" class="cp-modal-body"></div>
+</div>
+
+<div id="cpAiBackdrop" class="cp-ai-backdrop" onclick="closeAiModal()"></div>
+<div id="cpAiModal" class="cp-ai-modal" role="dialog" aria-modal="true">
+  <div class="cp-ai-head">
+    <div>
+      <h3 id="aiModalTitle">Octo AI Raporu</h3>
+      <p id="aiModalSubtitle">Kampanya analizi ve uygulanabilir öneriler</p>
+    </div>
+    <button class="cp-modal-close" onclick="closeAiModal()"><i class="fas fa-times"></i></button>
+  </div>
+  <div id="aiModalBody" class="cp-ai-body"></div>
+</div>
+
+<script>
+let currentAccountId = null;
+let currentAccountName = '';
+let currentCampaignId = null;
+const agencyClientScope = '{{ agency_scope.selected_client.id|default:""|escapejs }}';
+const csrftoken = getCookie('csrftoken');
+
+function getCookie(name){let cookieValue=null;if(document.cookie&&document.cookie!==''){const cookies=document.cookie.split(';');for(let i=0;i<cookies.length;i++){const cookie=cookies[i].trim();if(cookie.substring(0,name.length+1)===(name+'=')){cookieValue=decodeURIComponent(cookie.substring(name.length+1));break;}}}return cookieValue;}
+function escapeHtml(value){return String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));}
+function platformIcon(code){code=(code||'').toLowerCase();return {'facebook':'fab fa-facebook-f','meta':'fab fa-meta','instagram':'fab fa-instagram','google_ads':'fab fa-google','google':'fab fa-google','tiktok':'fab fa-tiktok','linkedin':'fab fa-linkedin-in','x':'fab fa-x-twitter','youtube':'fab fa-youtube'}[code] || 'fas fa-plug';}
+function statusClass(status){return String(status || 'unknown').toLowerCase();}
+function queryParams(){const params=new URLSearchParams();if(agencyClientScope)params.set('agency_client',agencyClientScope);if(currentAccountId)params.set('account_id',currentAccountId);const days=document.getElementById('daysBack').value;if(days)params.set('days_back',days);const dateFrom=document.getElementById('dateFrom').value;const dateTo=document.getElementById('dateTo').value;if(dateFrom)params.set('date_from',dateFrom);if(dateTo)params.set('date_to',dateTo);return params.toString();}
+
+async function loadPlatforms(){
+  const container=document.getElementById('platformList');
+  try{
+    const accountParams=new URLSearchParams();if(agencyClientScope)accountParams.set('agency_client',agencyClientScope);
+    const resp=await fetch('/api/campaign-panel/accounts/'+(accountParams.toString()?'?'+accountParams.toString():''),{headers:{'X-Requested-With':'XMLHttpRequest'}});
+    const data=await resp.json();
+    if(!data.success){throw new Error('Platformlar yüklenemedi');}
+    const platforms=data.platforms || [];
+    if(!platforms.length){container.innerHTML='<div class="cp-empty">Bağlı platform hesabı yok.</div>';return;}
+    container.innerHTML=platforms.map(p=>`
+      <div class="cp-platform" data-platform="${escapeHtml(p.code)}">
+        <button class="cp-platform-btn" type="button" onclick="togglePlatform(this)">
+          <span class="cp-platform-main"><i class="${platformIcon(p.code)}"></i><span>${escapeHtml(p.name)}</span></span>
+          <span class="cp-count">${p.account_count || 0}</span>
+        </button>
+        <div class="cp-accounts">
+          ${(p.accounts||[]).length ? (p.accounts||[]).map(acc=>`
+            <button class="cp-account" type="button" data-id="${acc.id}" data-name="${escapeHtml(acc.account_name)}" onclick="selectAccount(this)">
+              <strong>${escapeHtml(acc.account_name)}</strong>
+              <small>${escapeHtml(acc.platform_name)} · ${acc.campaign_count || 0} kampanya · ${acc.ad_count || 0} reklam</small>
+            </button>`).join('') : '<div style="color:#B8BED0;font-size:12px;padding:8px">Bu platformda bağlı hesap yok.</div>'}
+        </div>
+      </div>`).join('');
+  }catch(error){container.innerHTML='<div class="cp-empty">Platformlar yüklenirken hata oluştu.</div>';console.error(error);}
+}
+function togglePlatform(btn){const wrap=btn.closest('.cp-platform');const open=wrap.classList.contains('open');document.querySelectorAll('.cp-platform').forEach(x=>x.classList.remove('open'));document.querySelectorAll('.cp-platform-btn').forEach(x=>x.classList.remove('active'));if(!open){wrap.classList.add('open');btn.classList.add('active');}}
+function selectAccount(btn){document.querySelectorAll('.cp-account').forEach(x=>x.classList.remove('active'));btn.classList.add('active');currentAccountId=btn.dataset.id;currentAccountName=btn.dataset.name;document.getElementById('accountLabel').textContent=currentAccountName;document.getElementById('syncBtn').disabled=false;loadCampaigns();}
+function reloadCampaigns(){if(currentAccountId)loadCampaigns();}
+async function loadCampaigns(){
+  const container=document.getElementById('campaignContainer');
+  container.innerHTML='<div class="cp-loading" style="grid-column:1/-1"><div class="cp-spinner"></div></div>';
+  try{
+    const resp=await fetch(`/api/campaign-panel/campaigns/?${queryParams()}`,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+    const data=await resp.json();
+    if(!data.success){throw new Error(data.error || 'Kampanyalar yüklenemedi');}
+    const campaigns=data.campaigns || [];
+    const totals=campaigns.reduce((acc,c)=>{acc.adGroups += c.ad_group_count || 0;acc.ads += c.ad_count || 0;acc.creatives += c.creative_count || 0;return acc;},{adGroups:0,ads:0,creatives:0});
+    document.getElementById('statCampaigns').textContent=campaigns.length;
+    document.getElementById('statAdGroups').textContent=totals.adGroups;
+    document.getElementById('statAds').textContent=totals.ads;
+    document.getElementById('statCreatives').textContent=totals.creatives;
+    if(!campaigns.length){container.innerHTML='<div class="cp-empty"><i class="fas fa-bullseye"></i><strong>Bu hesaba ait kampanya bulunamadı.</strong><br>Ustteki Kampanyalari Cek butonuyla bu hesabin kampanya verilerini senkronize edebilirsin.<div style="margin-top:14px"><button class="cp-btn primary cp-sync-btn" type="button" onclick="startCampaignSync()">Kampanyalari Cek</button></div></div>';return;}
+    container.innerHTML=campaigns.map(createCampaignCard).join('');
+  }catch(error){container.innerHTML='<div class="cp-empty"><i class="fas fa-triangle-exclamation"></i>Kampanyalar yüklenirken hata oluştu.</div>';console.error(error);}
+}
+function createCampaignCard(c){const m=c.metrics || {};return `
+  <article class="cp-campaign">
+    <div class="cp-card-head">
+      <div class="cp-card-title"><h4>${escapeHtml(c.name)}</h4><p>${escapeHtml(c.platform)} · ${escapeHtml(c.account_name || '-')} · ${escapeHtml(c.objective_label || c.objective)} · ${escapeHtml(c.platform_campaign_id)}</p></div>
+      <span class="cp-status ${statusClass(c.status)}">${escapeHtml(c.status_label)}</span>
+    </div>
+    <div class="cp-metrics">
+      <div class="cp-mini"><span>ROAS</span><strong>${m.roas_label || '0,00'}</strong></div>
+      <div class="cp-mini"><span>CTR</span><strong>${m.ctr_label || '%0,00'}</strong></div>
+      <div class="cp-mini"><span>Harcama</span><strong>${m.spend_label || '0,00 TL'}</strong></div>
+      <div class="cp-mini"><span>Gelir</span><strong>${m.revenue_label || '0,00 TL'}</strong></div>
+      <div class="cp-mini"><span>CPC</span><strong>${m.cpc_label || '0,00 TL'}</strong></div>
+      <div class="cp-mini"><span>CPM</span><strong>${m.cpm_label || '0,00 TL'}</strong></div>
+      <div class="cp-mini"><span>Dönüşüm</span><strong>${m.conversions_label || '0,00'}</strong></div>
+      <div class="cp-mini"><span>Son Veri</span><strong>${m.last_metric_date || '-'}</strong></div>
+    </div>
+    <div class="cp-meta-grid">
+      <div class="cp-meta"><span>Günlük Bütçe</span><strong>${escapeHtml(c.daily_budget_label || '-')}</strong></div>
+      <div class="cp-meta"><span>Yaşam Boyu</span><strong>${escapeHtml(c.lifetime_budget_label || '-')}</strong></div>
+      <div class="cp-meta"><span>Son Sync</span><strong>${escapeHtml(c.last_synced_at || '-')}</strong></div>
+    </div>
+    <div class="cp-structure"><div><strong>${c.ad_group_count||0}</strong><span>Reklam Grubu</span></div><div><strong>${c.ad_count||0}</strong><span>Reklam</span></div><div><strong>${c.creative_count||0}</strong><span>Kreatif</span></div></div>
+    <div class="cp-card-actions">
+      <span class="cp-date-range" style="font-size:11px;color:#64748b;font-weight:800">${escapeHtml(c.start_time)} → ${escapeHtml(c.end_time)}</span>
+    </div>
+    ${createRuleEvents(c.rule_events || [])}
+    <div class="cp-card-actions ai-row">
+      <button class="cp-link dark cp-ai-open-btn" type="button" data-campaign-id="${c.id}" data-report-type="analysis"><i class="fas fa-chart-line"></i> AI Analiz</button>
+      <button class="cp-link dark cp-ai-open-btn" type="button" data-campaign-id="${c.id}" data-report-type="recommendation"><i class="fas fa-lightbulb"></i> AI Yorum ve Öneri</button>
+    </div>
+  </article>`;}
+function createRuleEvents(events){
+  const list=(events||[]).slice(0,5);
+  if(!list.length)return '';
+  return `<section class="cp-rule-events">
+    <div class="cp-rule-title"><span><i class="fas fa-list-check"></i> Olaylar ve Çözümler</span><small>Octo kuralları</small></div>
+    ${list.map(item=>`<div class="cp-rule-item">
+      <span class="cp-rule-badge ${escapeHtml(item.severity || 'info')}">${escapeHtml(item.severity_label || 'Bilgi')}</span>
+      <div class="cp-rule-copy">
+        <strong>${escapeHtml(item.event || 'Kural olayı')}</strong>
+        ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ''}
+        <em>Çözüm: ${escapeHtml(item.solution || 'Kampanya metriklerini kontrol et.')}</em>
+        <small>${escapeHtml(item.source || 'Kural')} · ${escapeHtml(item.module || '-')} · ${escapeHtml(item.detected_at || '-')}</small>
+      </div>
+    </div>`).join('')}
+  </section>`;
+}
+async function openCampaignDetail(campaignId){
+  const backdrop=document.getElementById('cpModalBackdrop');const modal=document.getElementById('cpModal');const body=document.getElementById('modalBody');
+  currentCampaignId=campaignId;
+  backdrop.classList.add('show');modal.classList.add('show');body.innerHTML='<div class="cp-loading"><div class="cp-spinner"></div></div>';
+  try{
+    const params=queryParams();
+    const resp=await fetch(`/api/campaign-panel/campaign/${campaignId}/?${params}`,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+    const data=await resp.json();
+    if(!data.success){throw new Error('Detay yüklenemedi');}
+    renderCampaignDetail(data.campaign);
+  }catch(error){body.innerHTML='<div class="cp-empty">Kampanya detayı yüklenirken hata oluştu.</div>';console.error(error);}
+}
+function renderCampaignDetail(c){const m=c.metrics || {};document.getElementById('modalTitle').textContent=c.name;document.getElementById('modalSubtitle').textContent=`${c.platform} · ${c.account_name || '-'} · ${c.objective_label || c.objective} · ${c.status_label}`;document.getElementById('modalBody').innerHTML=`
+  <div class="cp-modal-actions">
+    <button class="cp-link dark cp-ai-open-btn" type="button" data-campaign-id="${c.id}" data-report-type="analysis"><i class="fas fa-chart-line"></i> AI Analiz</button>
+    <button class="cp-link dark cp-ai-open-btn" type="button" data-campaign-id="${c.id}" data-report-type="recommendation"><i class="fas fa-lightbulb"></i> AI Yorum ve Öneri</button>
+  </div>
+  <section class="cp-info-panel">
+    <div class="cp-info-grid">${(c.info_rows||[]).map(row=>`<div class="cp-info-item"><span>${escapeHtml(row.label)}</span><strong>${escapeHtml(row.value)}</strong></div>`).join('')}</div>
+    ${(c.raw_data_keys||[]).length ? `<div class="cp-raw-keys">${c.raw_data_keys.map(k=>`<span>${escapeHtml(k)}</span>`).join('')}</div>` : ''}
+  </section>
+  <div class="cp-detail-grid">
+    ${detailBox('ROAS',m.roas_label)}${detailBox('CTR',m.ctr_label)}${detailBox('Harcama',m.spend_label)}${detailBox('Gelir',m.revenue_label)}
+    ${detailBox('Gösterim',m.impressions_label)}${detailBox('Erişim',m.reach_label)}${detailBox('Tıklama',m.clicks_label)}${detailBox('Link Tıklama',m.link_clicks_label)}
+    ${detailBox('Dönüşüm',m.conversions_label)}${detailBox('Satın Alma',m.purchases_label)}${detailBox('Sepete Ekleme',m.add_to_cart_label)}${detailBox('Lead',m.leads_label)}
+    ${detailBox('CPC',m.cpc_label)}${detailBox('CPM',m.cpm_label)}${detailBox('CPA',m.cpa_label)}${detailBox('Frekans',m.frequency_label)}
+    ${detailBox('Beğeni',m.likes_label)}${detailBox('Yorum',m.comments_label)}${detailBox('Paylaşım',m.shares_label)}${detailBox('Kaydetme',m.saves_label)}
+    ${detailBox('Reklam Grubu',c.ad_group_count)}${detailBox('Reklam',c.ad_count)}${detailBox('Kreatif',c.creative_count)}${detailBox('Metrik Satırı',m.metric_rows)}
+  </div>
+  <div class="cp-tree">${(c.ad_groups||[]).map(createAdGroupBlock).join('') || '<div class="cp-empty">Bu kampanyaya bağlı reklam grubu yok.</div>'}</div>
+  ${createHistory(c.history||[])}
+`;}
+function detailBox(label,value){return `<div class="cp-detail-box"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value ?? '-')}</strong></div>`;}
+function createAdGroupBlock(g){const m=g.metrics || {};return `<section class="cp-group"><div class="cp-group-head"><div><h4>${escapeHtml(g.name)}</h4><small>${escapeHtml(g.status_label)} · ${escapeHtml(g.optimization_goal)} · ${g.ad_count||0} reklam</small></div><span class="cp-status ${statusClass(g.status)}">${escapeHtml(g.status_label)}</span></div><div class="cp-detail-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:10px">${detailBox('ROAS',m.roas_label)}${detailBox('CTR',m.ctr_label)}${detailBox('Harcama',m.spend_label)}${detailBox('Gelir',m.revenue_label)}</div><div class="cp-ad-list">${(g.ads||[]).map(createAdBlock).join('') || '<div style="color:#64748b">Bu reklam grubunda reklam yok.</div>'}</div></section>`;}
+function createAdBlock(ad){const m=ad.metrics || {};const creative=ad.creative || null;const image=ad.media_url ? `<img src="${escapeHtml(ad.media_url)}" alt="">` : '<i class="fas fa-image"></i>';return `<article class="cp-ad"><div class="cp-ad-top"><div class="cp-ad-media">${image}</div><div><h5>${escapeHtml(ad.name)}</h5><p>${escapeHtml(ad.headline || ad.primary_text || ad.format || 'Reklam')}</p>${creative ? `<p><strong>Kreatif:</strong> ${escapeHtml(creative.name)} · ${escapeHtml(creative.type)}</p>` : ''}</div></div><div class="cp-ad-metrics"><div><span>ROAS</span><strong>${m.roas_label}</strong></div><div><span>CTR</span><strong>${m.ctr_label}</strong></div><div><span>CPC</span><strong>${m.cpc_label}</strong></div><div><span>Har.</span><strong>${m.spend_label}</strong></div></div>${creative ? `<div class="cp-ad-metrics"><div><span>Kreatif ROAS</span><strong>${creative.metrics.roas_label}</strong></div><div><span>Kreatif CTR</span><strong>${creative.metrics.ctr_label}</strong></div><div><span>Video</span><strong>${creative.metrics.video_views_label}</strong></div><div><span>Etkileşim</span><strong>${creative.metrics.engagement_label}</strong></div></div>` : ''}</article>`;}
+function createHistory(rows){if(!rows.length)return '';return `<section class="cp-history"><h4><i class="fas fa-clock-rotate-left"></i> Kampanya Metrik Geçmişi</h4><table class="cp-history-table"><thead><tr><th>Tarih</th><th>ROAS</th><th>CTR</th><th>Harcama</th><th>Gelir</th><th>Dönüşüm</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.date}</td><td>${r.roas_label}</td><td>${r.ctr_label}</td><td>${r.spend_label}</td><td>${r.revenue_label}</td><td>${r.conversions_label}</td></tr>`).join('')}</tbody></table></section>`;}
+async function openAiReport(campaignId,type){
+  const modal=document.getElementById('cpAiModal');const backdrop=document.getElementById('cpAiBackdrop');const body=document.getElementById('aiModalBody');
+  type=(type==='analysis')?'analysis':'recommendation';
+  if(backdrop&&backdrop.parentElement!==document.body)document.body.appendChild(backdrop);
+  if(modal&&modal.parentElement!==document.body)document.body.appendChild(modal);
+  document.body.classList.add('cp-ai-open');
+  if(backdrop){backdrop.classList.add('show');backdrop.style.display='block';}
+  modal.classList.add('show');modal.style.display='block';body.innerHTML='<div class="cp-loading"><div class="cp-spinner"></div></div>';
+  document.getElementById('aiModalTitle').textContent=type==='analysis'?'AI Analiz':'AI Yorum ve Öneri';
+  document.getElementById('aiModalSubtitle').textContent=type==='analysis'?'Kampanya metrikleri, kreatif ve performans sinyalleri.':'Kampanya metriklerine göre uygulanabilir aksiyon planı.';
+  try{
+    const params=queryParams();
+    const url=`/api/campaign-panel/campaign/${campaignId}/ai/?type=${encodeURIComponent(type)}${params ? `&${params}` : ''}`;
+    const resp=await fetch(url,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+    const report=await resp.json();
+    if(resp.status===402 || resp.status===429 || report.error==='ai_limit'){
+      closeAiModal();
+      if(window.showUsageLimitModal)window.showUsageLimitModal({...report,usage_type:'ai'});
+      return;
+    }
+    if(!resp.ok || !report.success){throw new Error(report.error||'AI raporu üretilemedi');}
+    body.innerHTML=createAiReportHtml(report,campaignId,type);
+  }catch(error){body.innerHTML=`<div class="cp-empty" style="color:#64748b"><strong>AI raporu oluşturulurken hata oluştu.</strong><br>${escapeHtml(error.message || 'Bilinmeyen hata')}</div>`;console.error(error);}
+}
+function createAiReportHtml(report,campaignId,type){
+  const metrics=report.metrics||{};
+  const recs=report.recommendations||[];
+  const findings=report.findings||[];
+  const summaryItems=report.summary_items||[];
+  const ruleEvents=report.rule_events||[];
+  const isRecommendation=type==='recommendation';
+  return `
+    <div class="cp-ai-score">
+      <div class="cp-ai-scorebox"><strong>${escapeHtml(report.score)}</strong><span>${escapeHtml(report.score_label)}</span></div>
+      <div class="cp-ai-section" style="margin:0">
+        <h4>${escapeHtml(report.campaign.name)}</h4>
+        <p>${escapeHtml(report.campaign.platform)} · ${escapeHtml(report.campaign.account)} · ${escapeHtml(report.campaign.objective)}</p>
+        <button class="cp-link primary" type="button" onclick="downloadAiPdf(${campaignId}, '${type}')"><i class="fas fa-file-pdf"></i> PDF Çıktı Al</button>
+      </div>
+    </div>
+    <div class="cp-detail-grid" style="grid-template-columns:repeat(4,1fr)">
+      ${detailBox('ROAS',metrics.roas_label)}${detailBox('CTR',metrics.ctr_label)}${detailBox('Harcama',metrics.spend_label)}${detailBox('Gelir',metrics.revenue_label)}
+    </div>
+    <section class="cp-ai-section"><h4>${isRecommendation ? 'Yorum ve Öncelikli Aksiyonlar' : 'Performans Analizi'}</h4>${summaryItems.length ? `<ul>${summaryItems.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul>` : `<p>${escapeHtml(report.summary).replaceAll('\\n','<br>')}</p>`}</section>
+    ${!isRecommendation && findings.length ? `<section class="cp-ai-section"><h4>Bulgular</h4><ul>${findings.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></section>` : ''}
+    ${!isRecommendation && ruleEvents.length ? `<section class="cp-ai-section"><h4>Kontrol Edilecek Noktalar</h4>${ruleEvents.map(x=>`<p><strong>${escapeHtml(x.event)}</strong><br>${escapeHtml(x.description||'')}<br><em>Çözüm: ${escapeHtml(x.solution||'')}</em></p>`).join('')}</section>` : ''}
+    ${isRecommendation && recs.length ? `<section class="cp-ai-section"><h4>Uygulanacaklar</h4>${recs.map(x=>`<p><strong>${escapeHtml(x.title)}</strong><br>${escapeHtml(x.detail)} <em>${escapeHtml(x.priority||'')}</em></p>`).join('')}</section>` : ''}
+    ${!isRecommendation && (report.strengths||[]).length ? `<section class="cp-ai-section"><h4>Güçlü Alanlar</h4><ul>${report.strengths.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></section>` : ''}
+    ${!isRecommendation && (report.weaknesses||[]).length ? `<section class="cp-ai-section"><h4>Riskler</h4><ul>${report.weaknesses.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></section>` : ''}
+    ${(report.top_ads||[]).length ? `<section class="cp-ai-section"><h4>En Verimli Reklamlar</h4>${report.top_ads.map(a=>`<p><strong>${escapeHtml(a.name)}</strong> · ROAS ${escapeHtml(a.roas_label)} · CTR ${escapeHtml(a.ctr_label)} · ${escapeHtml(a.spend_label)}</p>`).join('')}</section>` : ''}
+  `;
+}
+async function downloadAiPdf(campaignId,type){
+  type=(type==='analysis')?'analysis':'recommendation';
+  const params=queryParams();
+  const url=`/api/campaign-panel/campaign/${campaignId}/ai/pdf/?type=${encodeURIComponent(type)}${params ? `&${params}` : ''}`;
+  try{
+    const resp=await fetch(url,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+    if(!resp.ok){
+      const text=await resp.text();
+      throw new Error(text.slice(0,180)||'PDF üretilemedi');
+    }
+    const blob=await resp.blob();
+    const downloadUrl=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=downloadUrl;
+    a.download=`octo-kampanya-${campaignId}-${type}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(downloadUrl),3000);
+  }catch(error){
+    const modal=document.getElementById('cpAiModal');const backdrop=document.getElementById('cpAiBackdrop');const body=document.getElementById('aiModalBody');
+    document.body.classList.add('cp-ai-open');
+    if(backdrop){backdrop.classList.add('show');backdrop.style.display='block';}
+    modal.classList.add('show');modal.style.display='block';
+    document.getElementById('aiModalTitle').textContent='PDF Hatası';
+    document.getElementById('aiModalSubtitle').textContent='Rapor çıktısı oluşturulamadı.';
+    body.innerHTML=`<div class="cp-empty" style="color:#64748b"><strong>PDF oluşturulurken hata oluştu.</strong><br>${escapeHtml(error.message || 'Bilinmeyen hata')}</div>`;
+    console.error(error);
+  }
+}
+function closeAiModal(){const modal=document.getElementById('cpAiModal');const backdrop=document.getElementById('cpAiBackdrop');if(modal){modal.classList.remove('show');modal.style.display='none';}if(backdrop){backdrop.classList.remove('show');backdrop.style.display='none';}document.body.classList.remove('cp-ai-open');}
+document.addEventListener('click', function(event){
+  const btn=event.target.closest('.cp-ai-open-btn');
+  if(!btn)return;
+  const campaignId=btn.getAttribute('data-campaign-id');
+  const reportType=btn.getAttribute('data-report-type') || 'recommendation';
+  if(!campaignId)return;
+  event.preventDefault();
+  event.stopPropagation();
+  openAiReport(campaignId,reportType);
+});
+function closeCampaignModal(){document.getElementById('cpModalBackdrop').classList.remove('show');document.getElementById('cpModal').classList.remove('show');closeAiModal();}
+function setSyncStatus(title,message,visible=true){const el=document.getElementById('syncStatus');if(!el)return;el.style.display=visible?'block':'none';el.innerHTML=visible?`<strong style="display:block;color:#fff;margin-bottom:4px">${escapeHtml(title)}</strong>${escapeHtml(message||'')}`:'';}
+async function pollCampaignSync(jobId){
+  for(let i=0;i<90;i++){
+    await new Promise(resolve=>setTimeout(resolve,2000));
+    const resp=await fetch(`/api/campaign-panel/sync-job/${jobId}/`,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+    const data=await resp.json();
+    if(!data.success)continue;
+    const job=data.job||{};
+    const status=String(job.status||'').toLowerCase();
+    setSyncStatus(`Senkronizasyon: ${job.status||'bekleniyor'}`, `${job.progress||0}% - ${job.message||''}`);
+    if(['completed','success','finished'].includes(status)){
+      setSyncStatus('Senkronizasyon tamamlandi','Kampanya listesi yenileniyor...');
+      await loadPlatforms();
+      await loadCampaigns();
+      setTimeout(()=>setSyncStatus('','',false),3500);
+      return;
+    }
+    if(['failed','error','cancelled'].includes(status)){
+      setSyncStatus('Senkronizasyon tamamlanamadi', job.error_message || job.message || 'Platform baglantisini ve arka plan task durumunu kontrol edin.');
+      return;
+    }
+  }
+  setSyncStatus('Senkronizasyon devam ediyor','Veri cekme islemi arka planda suruyor. Biraz sonra sayfayi yenileyebilirsin.');
+}
+async function startCampaignSync(){
+  if(!currentAccountId){setSyncStatus('Once hesap secin','Soldaki platform listesinden bir hesap secmeden kampanya cekilemez.');return;}
+  const btn=document.getElementById('syncBtn');
+  if(btn){btn.disabled=true;btn.classList.add('is-syncing');btn.innerHTML='Cekiliyor...';}
+  setSyncStatus('Senkronizasyon baslatiliyor','Octo kampanya, reklam grubu, reklam, kreatif ve metrikleri cekecek.');
+  try{
+    const resp=await fetch(`/api/campaign-panel/sync/${currentAccountId}/`,{method:'POST',headers:{'X-CSRFToken':csrftoken,'X-Requested-With':'XMLHttpRequest'}});
+    const data=await resp.json();
+    if(!data.success){throw new Error(data.error||'Senkronizasyon baslatilamadi.');}
+    setSyncStatus('Senkronizasyon basladi',data.message||'Veriler kuyruga alindi.');
+    if(data.job_id){await pollCampaignSync(data.job_id);}else{await loadCampaigns();}
+  }catch(e){
+    setSyncStatus('Senkronizasyon baslatilamadi',e.message||'Platform baglantisini kontrol edin.');
+  }finally{
+    if(btn){btn.disabled=false;btn.classList.remove('is-syncing');btn.innerHTML='Kampanyaları Çek';}
+  }
+}
+
+document.getElementById('syncBtn').addEventListener('click', startCampaignSync);
+loadPlatforms();
+</script>
+{% endblock %}

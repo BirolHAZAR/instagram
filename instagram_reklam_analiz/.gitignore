@@ -1,21 +1,35 @@
 # ============================================================
+
 # reklamanaliz.net / Django Project .gitignore
+
 # Django + PostgreSQL + Redis + Celery + Channels
+
+# Docker + Dokploy
+
 # ============================================================
 
 # ------------------------------------------------------------
+
 # Environment / secrets
+
 # ------------------------------------------------------------
+
 .env
 .env.*
 !.env.example
 !.env.docker.example
+
 *.env
+
+# Secret / credential files
 
 secret_key.txt
 credentials.json
 client_secret.json
 service-account.json
+
+# Certificates / private keys
+
 *.pem
 *.key
 *.crt
@@ -23,153 +37,287 @@ service-account.json
 *.pfx
 
 # ------------------------------------------------------------
+
 # Python cache / compiled files
+
 # ------------------------------------------------------------
-__pycache__/
-**/__pycache__/
+
+**pycache**/
+**/**pycache**/
+
 *.py[cod]
 *$py.class
+
 *.so
 *.pyd
 
 # ------------------------------------------------------------
+
 # Virtual environments
+
 # ------------------------------------------------------------
+
 venv/
 env/
 ENV/
 .venv/
 
 # ------------------------------------------------------------
+
 # Django local files
+
 # ------------------------------------------------------------
+
 *.log
+
 db.sqlite3
 *.sqlite3
+
 local_settings.py
 
-# User uploaded/generated files - do not commit
+# ------------------------------------------------------------
+
+# Django media / uploaded files
+
+# ------------------------------------------------------------
+
 media/
 staticfiles/
 
-# Keep source static files tracked
-# static/ should NOT be ignored
+# NOTE:
+
+# static/ is intentionally NOT ignored.
+
+# It contains source static files required by the application.
 
 # ------------------------------------------------------------
+
 # Celery / Celery Beat
+
 # ------------------------------------------------------------
-runtime/
-runtime/celerybeat/
+
 celerybeat-schedule*
-*.dat
-*.dir
-*.bak
 celerybeat-schedule
 celerybeat.pid
 celerybeat.pid.lock
+
 *.pid
 
+runtime/
+runtime/celerybeat/
+
 # ------------------------------------------------------------
+
 # Redis
+
 # ------------------------------------------------------------
+
 dump.rdb
 *.rdb
 
 # ------------------------------------------------------------
-# Reports / generated documents
+
+# Generated reports / exports
+
 # ------------------------------------------------------------
+
+# Generated document files
+
 *.pdf
 *.docx
 *.xlsx
 *.csv
-reports/
+
+# Generated export directories
+
 exports/
 media/reports/
 
+# IMPORTANT:
+
+# Do NOT use:
+
+# reports/
+
+#
+
+# because Django templates may exist under:
+
+# core/templates/reports/
+
+#
+
+# Django source templates MUST remain tracked by Git.
+
 # ------------------------------------------------------------
+
 # Test / coverage / quality tools
+
 # ------------------------------------------------------------
+
 .coverage
 .coverage.*
+
 htmlcov/
+
 .pytest_cache/
 .tox/
 .nox/
+
 .mypy_cache/
 .ruff_cache/
+
 .cache/
 
 # ------------------------------------------------------------
+
 # IDE / editor
+
 # ------------------------------------------------------------
+
 .vscode/
 .idea/
+
 *.sublime-project
 *.sublime-workspace
 
 # ------------------------------------------------------------
+
 # OS files
+
 # ------------------------------------------------------------
+
 .DS_Store
 Thumbs.db
 desktop.ini
 
 # ------------------------------------------------------------
+
 # Build / package files
+
 # ------------------------------------------------------------
+
 build/
 dist/
+
 downloads/
+
 eggs/
 .eggs/
+
 parts/
 sdist/
 wheels/
+
 *.egg-info/
 .installed.cfg
 *.egg
 
 # ------------------------------------------------------------
-# Archives / backups / temporary files
+
+# Archives / compressed files
+
 # ------------------------------------------------------------
+
 *.zip
 *.rar
 *.7z
 *.tar
 *.gz
+
+# ------------------------------------------------------------
+
+# Backup / temporary files
+
+# ------------------------------------------------------------
+
 *.bak
 *.old
 *.tmp
 *.temp
 *.backup
 
+# Database backups should NOT normally be committed.
+
+*.sql
+
+# If a specific SQL seed/migration is intentionally required,
+
+# force-add it with:
+
+# git add -f path/to/file.sql
+
 # ------------------------------------------------------------
+
 # Project-specific backup archives
+
 # ------------------------------------------------------------
+
 instagram_reklam_analiz.zip
+
 apps.zip
 apps.rar
+
 models.zip
 models.rar
+
 views.zip
 views.rar
+
 services.zip
 services.rar
 
 # ------------------------------------------------------------
-# Node / frontend tools, if added later
+
+# Node / frontend tools
+
 # ------------------------------------------------------------
+
 node_modules/
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
 .vite/
 .next/
 
 # ------------------------------------------------------------
+
 # Local development markers
+
 # ------------------------------------------------------------
+
 *.local
 *.dev
 *.development
+
+# ------------------------------------------------------------
+
+# Docker local files
+
+# ------------------------------------------------------------
+
+docker-compose.override.yml
+docker-compose.local.yml
+
+.docker/
+
+# ------------------------------------------------------------
+
+# Temporary development files
+
+# ------------------------------------------------------------
+
+*.swp
+*.swo
+*~
+
+.DS_Store
+
+# ============================================================
+
+# END
+
+# ============================================================

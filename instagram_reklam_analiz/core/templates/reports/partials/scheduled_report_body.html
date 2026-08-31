@@ -1,0 +1,85 @@
+{% load tr_numbers %}
+<div class="scheduled-report-document">
+  <div class="sr-panel">
+    <h1>{{ report.name }}</h1>
+    <div class="sr-muted">{{ start_date|date:"d.m.Y" }} - {{ end_date|date:"d.m.Y" }} performans özeti</div>
+  </div>
+
+  <div class="sr-panel">
+    <h2>Özet Metrikler</h2>
+    <div class="sr-grid">
+      <div class="sr-metric"><span>Bütçe</span><strong>{{ budget.total|tr_money }}</strong></div>
+      <div class="sr-metric"><span>Harcama</span><strong>{{ totals.spend|tr_money }}</strong></div>
+      <div class="sr-metric"><span>Kalan Bütçe</span><strong>{{ budget.remaining|tr_money }}</strong></div>
+      <div class="sr-metric"><span>Gösterim</span><strong>{{ totals.impressions|tr_int }}</strong></div>
+      <div class="sr-metric"><span>Tıklama</span><strong>{{ totals.clicks|tr_int }}</strong></div>
+      <div class="sr-metric"><span>CTR</span><strong>{{ totals.ctr|tr_percent }}</strong></div>
+      <div class="sr-metric"><span>CPC</span><strong>{{ totals.cpc|tr_money }}</strong></div>
+      <div class="sr-metric"><span>Dönüşüm</span><strong>{{ totals.conversions|tr_int }}</strong></div>
+      <div class="sr-metric"><span>Bütçe Kullanımı</span><strong>{{ budget.usage_rate|tr_percent }}</strong></div>
+    </div>
+  </div>
+
+  {% if report.include_rule_recommendations %}
+  <div class="sr-panel">
+    <h2>Kural Bazlı Öneriler</h2>
+    <ul class="sr-list">
+      {% for item in recommendations %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if report.include_campaign_summary and campaign_rows %}
+  <div class="sr-panel">
+    <h2>Kampanya Özeti</h2>
+    <div class="sr-table-scroll">
+    <table class="sr-table sr-campaign-table">
+      <thead>
+        <tr>
+          <th>Kampanya</th>
+          <th>Bütçe</th>
+          <th>Harcama</th>
+          <th>Gösterim</th>
+          <th>Tıklama</th>
+          <th>CTR</th>
+          <th>CPC</th>
+          <th>Dönüşüm</th>
+          <th>ROAS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in campaign_rows %}
+        <tr>
+          <td>{{ row.campaign__name|default:"Kampanyasız" }}</td>
+          <td class="sr-nowrap">{{ row.budget|tr_money }}</td>
+          <td class="sr-nowrap">{{ row.spend|tr_money }}</td>
+          <td class="sr-nowrap">{{ row.impressions|tr_int }}</td>
+          <td class="sr-nowrap">{{ row.clicks|tr_int }}</td>
+          <td class="sr-nowrap">{{ row.ctr|tr_percent }}</td>
+          <td class="sr-nowrap">{{ row.cpc|tr_money }}</td>
+          <td class="sr-nowrap">{{ row.conversions|tr_int }}</td>
+          <td class="sr-nowrap">{{ row.roas|tr_number:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if report.include_ad_performance and top_ads %}
+  <div class="sr-panel">
+    <h2>Öne Çıkan Reklamlar</h2>
+    <table class="sr-table">
+      <thead><tr><th>Reklam</th><th>Harcama</th><th>Tıklama</th><th>Dönüşüm</th></tr></thead>
+      <tbody>
+        {% for row in top_ads %}
+        <tr><td>{{ row.ad__name|default:row.ad__headline|default:"Reklam" }}</td><td>{{ row.spend|tr_money }}</td><td>{{ row.clicks|tr_int }}</td><td>{{ row.conversions|tr_int }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="sr-muted">Bu rapor ReklamAnaliz.net otomatik raporlama sistemi tarafından oluşturuldu.</div>
+</div>

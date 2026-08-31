@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Octo Creative Center{% endblock %}
+
+{% block content %}
+<style>
+.octo-shell{max-width:1440px;margin:0 auto;padding:2rem 1rem;color:#fff}
+.hero{border:1px solid rgba(139,132,255,.24);border-radius:34px;padding:1.5rem;background:radial-gradient(circle at 12% 0,rgba(108,99,255,.30),transparent 32%),linear-gradient(135deg,#0F1633,#070B1D);box-shadow:0 30px 90px rgba(0,0,0,.38)}
+.kicker{display:inline-flex;gap:.45rem;align-items:center;padding:.42rem .75rem;border-radius:999px;background:rgba(108,99,255,.16);border:1px solid rgba(139,132,255,.32);font-size:.76rem;font-weight:900;color:#DAD8FF}
+.hero h1{font-size:clamp(1.7rem,3vw,3rem);font-weight:950;letter-spacing:-.05em;margin:.7rem 0 .4rem}
+.hero p{max-width:850px;color:#B8BED0;line-height:1.7;margin:0}
+.agency-filter{display:flex;align-items:end;gap:1rem;margin:1.2rem 0;padding:1rem;border:1px solid rgba(0,212,255,.24);border-radius:20px;background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(108,99,255,.08))}.agency-filter label{display:block;margin-bottom:.42rem;color:#9defff;font-size:.72rem;font-weight:950;text-transform:uppercase;letter-spacing:.08em}.agency-filter select{min-width:300px;max-width:100%;height:46px;padding:0 .9rem;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:#0b1230;color:#fff;font-weight:850;outline:none}.agency-filter small{display:block;margin-top:.4rem;color:#9aa6c7;font-size:.72rem}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.2rem 0}
+.box,.creative-card{border:1px solid rgba(139,132,255,.18);background:rgba(15,22,51,.82);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.22);backdrop-filter:blur(18px)}
+.box{padding:1rem}.box span{color:#B8BED0;font-size:.75rem;font-weight:850}.box strong{display:block;font-size:1.8rem;font-weight:950}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.creative-scroll{max-height:980px;overflow-y:auto;overflow-x:hidden;padding:0 .65rem .5rem 0;scrollbar-width:thin;scrollbar-color:#6c63ff rgba(255,255,255,.07)}.creative-scroll::-webkit-scrollbar{width:10px}.creative-scroll::-webkit-scrollbar-track{background:rgba(255,255,255,.06);border-radius:999px}.creative-scroll::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#00d4ff,#6c63ff);border-radius:999px;border:2px solid #0b1027}.creative-scroll::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#67e8f9,#8b84ff)}
+.creative-card{overflow:hidden}
+.media{height:180px;background:#111827;display:flex;align-items:center;justify-content:center}
+.media img{width:100%;height:100%;object-fit:cover}
+.card-body{padding:1rem}.type{font-size:.68rem;font-weight:950;border-radius:999px;background:rgba(108,99,255,.18);color:#DAD8FF;padding:.32rem .5rem;display:inline-flex}
+.name{font-weight:950;margin:.65rem 0 .35rem}.score{font-size:.8rem;color:#B8BED0}
+.success-head{display:flex;align-items:center;justify-content:space-between;gap:.65rem;margin:.8rem 0 .65rem}
+.success-head strong{font-size:.82rem;color:#fff}.success-head span{font-size:.7rem;color:#8ee8ff;border:1px solid rgba(0,212,255,.22);background:rgba(0,212,255,.08);border-radius:999px;padding:.26rem .48rem;font-weight:900}
+.creative-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem;margin:.75rem 0}
+.creative-metric{border:1px solid rgba(139,132,255,.16);background:rgba(255,255,255,.045);border-radius:13px;padding:.55rem;min-width:0}
+.creative-metric span{display:block;color:#8f9bb8;font-size:.64rem;font-weight:950;text-transform:uppercase}
+.creative-metric b{display:block;color:#fff;font-size:.9rem;margin-top:.18rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reason-list{display:grid;gap:.42rem;margin:.7rem 0 0;padding:0;list-style:none}
+.reason-list li{display:flex;gap:.45rem;color:#c7d2ea;font-size:.76rem;line-height:1.45}
+.reason-list i{color:#62f36d;margin-top:.18rem;flex:0 0 auto}
+.metric-date{margin-top:.7rem;color:#8795b8;font-size:.7rem;font-weight:800}
+@media(max-width:1200px){.grid,.summary{grid-template-columns:repeat(2,1fr)}}@media(max-width:700px){.grid,.summary{grid-template-columns:1fr}.agency-filter{display:block}.agency-filter select{width:100%;min-width:0}}
+</style>
+
+<div class="octo-shell">
+    <section class="hero">
+        <span class="kicker"><i class="fas fa-wand-magic-sparkles"></i> Octo Creative Center</span>
+        <h1>Video, görsel ve carousel kreatif performans merkezi.</h1>
+        <p>Yeni Creative modeli üzerinden kreatif tiplerini izleyin, en iyi kreatifleri ve AI skorlarını tek ekranda yönetin.</p>
+    </section>
+
+    {% if agency_scope.is_agency %}
+    <form method="get" class="agency-filter" id="creativeAgencyFilter">
+        <div>
+            <label for="creativeAgencyClient">Ajans müşterisi</label>
+            <select name="agency_client" id="creativeAgencyClient" onchange="this.form.submit()">
+                <option value="" {% if not agency_scope.selected_client %}selected{% endif %}>Tüm müşteriler</option>
+                {% for client in agency_scope.clients %}
+                <option value="{{ client.id }}" {% if agency_scope.selected_client.id == client.id %}selected{% endif %}>{{ client.organization.name }} · {{ client.name }}</option>
+                {% endfor %}
+            </select>
+            <small>{% if agency_scope.selected_client %}Yalnız {{ agency_scope.selected_client.name }} kreatifleri gösteriliyor.{% else %}Ajans kapsamındaki tüm kreatifler gösteriliyor.{% endif %}</small>
+        </div>
+    </form>
+    {% endif %}
+
+    <div class="summary">
+        <div class="box"><span>Görsel Kreatif</span><strong>{{ totals.image }}</strong></div>
+        <div class="box"><span>Video Kreatif</span><strong>{{ totals.video }}</strong></div>
+        <div class="box"><span>Carousel Kreatif</span><strong>{{ totals.carousel }}</strong></div>
+        <div class="box"><span>Diğer</span><strong>{{ totals.other }}</strong></div>
+    </div>
+
+    <h3 style="font-weight:950;margin:1rem 0">Tüm Kreatifler <small style="color:#8f9bb8;font-size:.75rem">· {{ creatives|length }} kreatif</small></h3>
+    <div class="creative-scroll">
+    <div class="grid">
+        {% for c in top_creatives %}
+        <div class="creative-card">
+            <div class="media">
+                {% if c.media_url %}
+                    <img src="{{ c.media_url }}" alt="{{ c.name }}">
+                {% else %}
+                    <img src="{% static 'images/octo-analyst.png' %}" alt="Octo">
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <span class="type">{{ c.type|upper }}</span>
+                <div class="name">{{ c.name|default:"Kreatif" }}</div>
+                <div class="score">Başarı Skoru: {{ c.score|default:0 }}</div>
+                <div class="metric-date">Metrik puanı: {{ c.metric_score|default:0 }} · Kural etkisi: {{ c.rule_adjustment|default:0 }} · Eşleşen kreatif kuralı: {{ c.rule_match_count|default:0 }}</div>
+                <div class="success-head">
+                    <strong>Neden başarılı?</strong>
+                    <span>{{ c.metric_source }}</span>
+                </div>
+                <div class="creative-metrics">
+                    <div class="creative-metric"><span>Gösterim</span><b>{{ c.metrics.impressions }}</b></div>
+                    <div class="creative-metric"><span>CTR</span><b>{{ c.metrics.ctr }}</b></div>
+                    <div class="creative-metric"><span>ROAS</span><b>{{ c.metrics.roas }}</b></div>
+                    <div class="creative-metric"><span>Dönüşüm</span><b>{{ c.metrics.conversions }}</b></div>
+                    <div class="creative-metric"><span>Etkileşim</span><b>{{ c.metrics.engagement }}</b></div>
+                    <div class="creative-metric"><span>Harcama</span><b>{{ c.metrics.spend }}</b></div>
+                </div>
+                <ul class="reason-list">
+                    {% for reason in c.success_reasons %}
+                    <li><i class="fas fa-circle-check"></i><span>{{ reason }}</span></li>
+                    {% endfor %}
+                </ul>
+                {% if c.last_metric_date %}
+                <div class="metric-date">Son metrik tarihi: {{ c.last_metric_date|date:"d.m.Y" }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="creative-card" style="grid-column:1/-1;padding:1.2rem">Henüz kreatif verisi bulunamadı.</div>
+        {% endfor %}
+    </div>
+    </div>
+</div>
+{% endblock %}

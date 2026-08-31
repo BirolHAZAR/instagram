@@ -1,0 +1,298 @@
+﻿{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Performans Merkezi | ReklamAnaliz.net{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+.pc-shell{max-width:1440px;margin:0 auto;padding:2rem 1rem;color:#fff}
+.pc-hero{border:1px solid rgba(139,132,255,.24);border-radius:24px;padding:1.35rem;background:linear-gradient(135deg,#0f1633,#070b1d);box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.pc-kicker{display:inline-flex;gap:.45rem;align-items:center;padding:.4rem .72rem;border-radius:999px;background:rgba(56,189,248,.13);border:1px solid rgba(56,189,248,.28);font-size:.76rem;font-weight:900;color:#bae6fd}
+.pc-hero h1{font-size:clamp(1.65rem,2.5vw,2.55rem);font-weight:950;margin:.7rem 0 .4rem;letter-spacing:0}
+.pc-hero p{max-width:900px;color:#b8bed0;line-height:1.65;margin:0}
+.pc-filter{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
+.pc-filter select,.pc-filter button,.pc-filter a{height:42px;border-radius:12px;border:1px solid rgba(139,132,255,.24);background:#0f1429;color:#fff;padding:0 .9rem}
+.pc-filter button{background:#38bdf8;color:#06111f;font-weight:900;border-color:#38bdf8}
+.pc-filter a{display:inline-flex;align-items:center;text-decoration:none;color:#cbd5e1}
+.pc-meta{margin-top:.85rem;color:#8fa0c7;font-size:.82rem}
+.pc-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin:1.15rem 0}
+.pc-card,.pc-chart,.pc-platform-panel{border:1px solid rgba(139,132,255,.18);background:rgba(15,22,51,.84);border-radius:18px;box-shadow:0 16px 44px rgba(0,0,0,.2)}
+.pc-card{padding:1rem}
+.pc-card h3{font-size:1.02rem;font-weight:950;margin:0 0 .75rem}
+.pc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.pc-mini{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.72rem;min-width:0}
+.pc-label{font-size:.68rem;color:#b8bed0;font-weight:850}.pc-value{font-size:1.02rem;font-weight:950;word-break:break-word}
+.pc-chart{padding:1rem;margin-top:1rem}
+.pc-empty{padding:2rem;text-align:center;color:#b8bed0}
+.pc-platform-panel{padding:1rem;margin:0 0 1rem}
+.pc-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.85rem}
+.pc-panel-head span{display:block;color:#8fa0c7;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.pc-panel-head h2{font-size:1.08rem;font-weight:950;margin:.22rem 0 0;color:#fff}
+.pc-controls{display:flex;gap:.45rem;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.pc-period-tabs,.pc-metric-tabs{display:flex;gap:.35rem;flex-wrap:wrap}
+.pc-period-tab,.pc-metric-tab{height:34px;border-radius:999px;border:1px solid rgba(139,132,255,.25);background:rgba(255,255,255,.055);color:#cbd5e1;padding:0 .74rem;font-size:.74rem;font-weight:900}
+.pc-period-tab.active,.pc-metric-tab.active{background:linear-gradient(135deg,#38bdf8,#818cf8);border-color:transparent;color:#06111f}
+.pc-analytics-board{display:grid;grid-template-columns:minmax(250px,330px) minmax(0,1fr);gap:1rem;align-items:stretch}
+.pc-summary{border:1px solid rgba(255,255,255,.09);background:rgba(2,6,23,.28);border-radius:14px;padding:.9rem;display:grid;grid-template-rows:auto 1fr;gap:.7rem}
+.pc-summary-head strong{display:block;font-size:.95rem;font-weight:950}.pc-summary-head small{display:block;color:#8fa0c7;font-size:.72rem;margin-top:.2rem}
+.pc-summary-list{display:grid;gap:.55rem}
+.pc-summary-item{display:flex;align-items:center;justify-content:space-between;gap:.75rem;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045);border-radius:12px;padding:.72rem}
+.pc-summary-item span{color:#9aa8c7;font-size:.72rem;font-weight:850}.pc-summary-item strong{font-size:1rem;font-weight:950;text-align:right}
+.pc-insight{border-radius:12px;border:1px solid rgba(56,189,248,.18);background:rgba(56,189,248,.08);padding:.75rem;color:#bfefff;font-size:.78rem;line-height:1.45;font-weight:750}
+.pc-chart-box{min-width:0;border:1px solid rgba(255,255,255,.09);background:rgba(2,6,23,.26);border-radius:14px;padding:.85rem;height:388px}
+.pc-chart-title{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.45rem}
+.pc-chart-title strong{font-size:.9rem;font-weight:950;color:#f8fafc}
+.pc-chart-title small{color:#8fa0c7;font-size:.7rem;font-weight:800}
+.pc-chart-box canvas{width:100%!important;height:320px!important}
+@media(max-width:1200px){.pc-cards{grid-template-columns:repeat(2,1fr)}.pc-analytics-board{grid-template-columns:1fr}.pc-chart-box{height:360px}}@media(max-width:720px){.pc-cards{grid-template-columns:1fr}.pc-filter select,.pc-filter button,.pc-filter a{width:100%}.pc-controls{justify-content:flex-start}.pc-chart-box canvas{height:280px!important}}
+</style>
+
+<div class="pc-shell">
+    <section class="pc-hero">
+        <span class="pc-kicker"><i class="fas fa-chart-line"></i> Performans Merkezi</span>
+        <h1>Reklam performansını dönem, platform ve hesap bazında izleyin.</h1>
+        <p>Bu ekran yalnızca giriş yapan kullanıcıya ait kendi reklam metriklerini okur. Rakip metrikleri bu merkeze dahil edilmez; ROAS, CTR, CPC ve CPA merkezi metrik servisiyle aynı formülden hesaplanır.</p>
+
+        <form class="pc-filter" method="get">
+            {% if agency_scope.is_agency %}
+            <select name="agency_client" id="performanceAgencyClient" onchange="this.form.submit()">
+                <option value=""{% if not agency_scope.selected_client %} selected{% endif %}>Tüm firmalar</option>
+                {% for agency_client in agency_scope.clients %}<option value="{{ agency_client.id }}"{% if agency_scope.selected_client.id == agency_client.id %} selected{% endif %}>{{ agency_client.organization.name }} · {{ agency_client.name }}</option>{% endfor %}
+            </select>
+            {% endif %}
+            <select name="platform" id="pcPlatformSelect">
+                <option value="">Tüm platformlar</option>
+                {% for platform in platforms %}
+                <option value="{{ platform.code }}" {% if selected_platform == platform.code %}selected{% endif %}>{{ platform.name }}</option>
+                {% endfor %}
+            </select>
+            <select name="account" id="pcAccountSelect">
+                <option value="">Tüm hesaplar</option>
+                {% for account in platform_accounts %}
+                <option value="{{ account.id }}" {% if selected_account == account.id|stringformat:"s" %}selected{% endif %}>
+                    {% if account.agency_client %}{{ account.agency_client.name }} · {% endif %}{{ account.platform.name }} - {{ account.account_name|default:account.account_id }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit"><i class="fas fa-filter"></i> Filtrele</button>
+            <a href="{% url 'performance_center' %}">Temizle</a>
+        </form>
+
+        <div class="pc-meta">
+            {% if latest_metric %}Son metrik tarihi: {{ latest_metric|date:"d.m.Y" }}{% else %}Henüz metrik verisi yok.{% endif %}
+        </div>
+    </section>
+
+    {% if empty %}
+    <div class="pc-chart pc-empty">Seçilen filtrelerde performans metriği bulunamadı.</div>
+    {% endif %}
+
+    <div class="pc-cards">
+        {% for p in period_cards %}
+        <div class="pc-card">
+            <h3>Son {{ p.days }} Gün</h3>
+            <div class="pc-grid">
+                <div class="pc-mini"><div class="pc-label">Gösterim</div><div class="pc-value">{{ p.impressions|tr_decimal }}</div></div>
+                <div class="pc-mini"><div class="pc-label">Tıklama</div><div class="pc-value">{{ p.clicks|tr_decimal }}</div></div>
+                <div class="pc-mini"><div class="pc-label">Harcama</div><div class="pc-value">₺{{ p.spend|tr_decimal }}</div></div>
+                <div class="pc-mini"><div class="pc-label">Gelir</div><div class="pc-value">₺{{ p.revenue|tr_decimal }}</div></div>
+                <div class="pc-mini"><div class="pc-label">ROAS</div><div class="pc-value">{{ p.roas|tr_decimal }}x</div></div>
+                <div class="pc-mini"><div class="pc-label">CTR</div><div class="pc-value">%{{ p.ctr|tr_decimal }}</div></div>
+                <div class="pc-mini"><div class="pc-label">CPC</div><div class="pc-value">₺{{ p.cpc|tr_decimal }}</div></div>
+                <div class="pc-mini"><div class="pc-label">CPA</div><div class="pc-value">₺{{ p.cpa|tr_decimal }}</div></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <section class="pc-platform-panel">
+        <div class="pc-panel-head">
+            <div>
+                <span>Platform kırılımı</span>
+                <h2>Özet bilgi ve kullanılabilir sütun grafik</h2>
+            </div>
+            <div class="pc-controls">
+                <div class="pc-period-tabs" aria-label="Grafik dönemi">
+                    <button type="button" class="pc-period-tab" data-period="7">7 gün</button>
+                    <button type="button" class="pc-period-tab active" data-period="30">30 gün</button>
+                    <button type="button" class="pc-period-tab" data-period="90">3 ay</button>
+                    <button type="button" class="pc-period-tab" data-period="180">180 gün</button>
+                </div>
+                <div class="pc-metric-tabs" aria-label="Grafik metriği">
+                    <button type="button" class="pc-metric-tab active" data-metric="spend">Harcama</button>
+                    <button type="button" class="pc-metric-tab" data-metric="revenue">Gelir</button>
+                    <button type="button" class="pc-metric-tab" data-metric="roas">ROAS</button>
+                    <button type="button" class="pc-metric-tab" data-metric="ctr">CTR</button>
+                </div>
+            </div>
+        </div>
+        <div class="pc-analytics-board">
+            <aside class="pc-summary">
+                <div class="pc-summary-head">
+                    <strong id="pcSummaryTitle">Son 30 gün özeti</strong>
+                    <small id="pcSummarySubtitle">Platformların seçili metriğe göre karşılaştırması</small>
+                </div>
+                <div class="pc-summary-list">
+                    <div class="pc-summary-item"><span>Toplam Harcama</span><strong id="pcTotalSpend">₺0,00</strong></div>
+                    <div class="pc-summary-item"><span>Toplam Gelir</span><strong id="pcTotalRevenue">₺0,00</strong></div>
+                    <div class="pc-summary-item"><span>Ortalama ROAS</span><strong id="pcAvgRoas">0,00x</strong></div>
+                    <div class="pc-summary-item"><span>Lider Platform</span><strong id="pcTopPlatform">-</strong></div>
+                </div>
+                <div class="pc-insight" id="pcInsight">Seçili dönem için platform performansı hazırlanıyor.</div>
+            </aside>
+            <div class="pc-chart-box">
+                <div class="pc-chart-title"><strong id="pcBarTitle">Harcama</strong><small id="pcBarHint">Platform bazında toplam harcama</small></div>
+                <canvas id="pcPlatformBars"></canvas>
+            </div>
+        </div>
+    </section>
+</div>
+
+{{ account_options|json_script:"pc-account-options" }}
+{{ platform_breakdown|json_script:"pc-platform-breakdown" }}
+<script>
+const accountOptions = JSON.parse(document.getElementById('pc-account-options').textContent || '[]');
+const platformBreakdown = JSON.parse(document.getElementById('pc-platform-breakdown').textContent || '{}');
+const platformSelect = document.getElementById('pcPlatformSelect');
+const accountSelect = document.getElementById('pcAccountSelect');
+
+function renderAccountOptions(selectedAccount = '') {
+    const selectedPlatform = platformSelect.value;
+    const visibleAccounts = selectedPlatform
+        ? accountOptions.filter(account => account.platform_code === selectedPlatform)
+        : accountOptions;
+
+    accountSelect.innerHTML = '';
+    const allOption = document.createElement('option');
+    allOption.value = '';
+    allOption.textContent = selectedPlatform ? 'Bu platformdaki tüm hesaplar' : 'Tüm hesaplar';
+    accountSelect.appendChild(allOption);
+
+    visibleAccounts.forEach(account => {
+        const option = document.createElement('option');
+        option.value = account.id;
+        option.textContent = account.label;
+        option.selected = account.id === selectedAccount;
+        accountSelect.appendChild(option);
+    });
+}
+
+if (platformSelect && accountSelect) {
+    platformSelect.addEventListener('change', () => renderAccountOptions(''));
+}
+
+const barPalette = ['#38bdf8', '#818cf8', '#22c55e', '#f59e0b', '#f43f5e', '#14b8a6', '#e879f9'];
+const metricConfig = {
+    spend: {label: 'Harcama', hint: 'Platform bazında toplam harcama', formatter: value => window.raFormatMoney(value), color: '#38bdf8'},
+    revenue: {label: 'Gelir', hint: 'Platform bazında toplam gelir', formatter: value => window.raFormatMoney(value), color: '#22c55e'},
+    roas: {label: 'ROAS', hint: 'Harcamaya göre gelir verimliliği', formatter: value => `${window.raFormatNumber(value)}x`, color: '#818cf8'},
+    ctr: {label: 'CTR', hint: 'Gösterimden tıklamaya dönüşüm oranı', formatter: value => `%${window.raFormatNumber(value)}`, color: '#f59e0b'}
+};
+const periodLabels = {'7': 'Son 7 gün', '30': 'Son 30 gün', '90': 'Son 3 ay', '180': 'Son 180 gün'};
+let selectedPeriod = '30';
+let selectedMetric = 'spend';
+let platformChart = null;
+
+function sumRows(rows, key) {
+    return rows.reduce((total, row) => total + (Number(row[key]) || 0), 0);
+}
+
+function weightedAverage(rows, key, weightKey) {
+    const weightTotal = sumRows(rows, weightKey);
+    if (!weightTotal) return 0;
+    return rows.reduce((total, row) => total + ((Number(row[key]) || 0) * (Number(row[weightKey]) || 0)), 0) / weightTotal;
+}
+
+function updateSummary(rows, config) {
+    const totalSpend = sumRows(rows, 'spend');
+    const totalRevenue = sumRows(rows, 'revenue');
+    const avgRoas = totalSpend > 0 ? totalRevenue / totalSpend : 0;
+    const topRow = [...rows].sort((a, b) => (Number(b[selectedMetric]) || 0) - (Number(a[selectedMetric]) || 0))[0];
+
+    document.getElementById('pcSummaryTitle').textContent = `${periodLabels[selectedPeriod]} özeti`;
+    document.getElementById('pcSummarySubtitle').textContent = `${config.label} metriğine göre platform karşılaştırması`;
+    document.getElementById('pcTotalSpend').textContent = window.raFormatMoney(totalSpend);
+    document.getElementById('pcTotalRevenue').textContent = window.raFormatMoney(totalRevenue);
+    document.getElementById('pcAvgRoas').textContent = `${window.raFormatNumber(avgRoas)}x`;
+    document.getElementById('pcTopPlatform').textContent = topRow ? topRow.name : '-';
+
+    const ctrAvg = weightedAverage(rows, 'ctr', 'impressions');
+    const insight = rows.length
+        ? `${periodLabels[selectedPeriod]} içinde ${topRow.name}, ${config.label} metriğinde öne çıkıyor. Toplam harcama ${window.raFormatMoney(totalSpend)}, ortalama ROAS ${window.raFormatNumber(avgRoas)}x ve ağırlıklı CTR %${window.raFormatNumber(ctrAvg)}.`
+        : 'Seçili filtrede grafik oluşturacak platform metriği bulunamadı.';
+    document.getElementById('pcInsight').textContent = insight;
+}
+
+function renderPlatformChart() {
+    const rows = platformBreakdown[selectedPeriod] || [];
+    const config = metricConfig[selectedMetric];
+    const labels = rows.map(row => row.name);
+    const values = rows.map(row => Number(row[selectedMetric]) || 0);
+    const canvas = document.getElementById('pcPlatformBars');
+
+    document.getElementById('pcBarTitle').textContent = config.label;
+    document.getElementById('pcBarHint').textContent = config.hint;
+    updateSummary(rows, config);
+
+    if (platformChart) {
+        platformChart.destroy();
+    }
+    platformChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: config.label,
+                data: values,
+                backgroundColor: values.map((_, index) => barPalette[index % barPalette.length]),
+                borderColor: config.color,
+                borderWidth: 1,
+                borderRadius: 10,
+                borderSkipped: false,
+                barPercentage: .62,
+                categoryPercentage: .58
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {display: false},
+                tooltip: {
+                    backgroundColor: 'rgba(2,6,23,.94)',
+                    borderColor: 'rgba(148,163,184,.22)',
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {label: ctx => `${config.label}: ${config.formatter(ctx.parsed.y)}`}
+                }
+            },
+            scales: {
+                x: {ticks: {color: '#B8BED0', font: {weight: 800}}, grid: {display: false}},
+                y: {beginAtZero: true, ticks: {color: '#8fa0c7', callback: value => config.formatter(value)}, grid: {color: 'rgba(255,255,255,.06)'}}
+            }
+        }
+    });
+}
+
+document.querySelectorAll('.pc-period-tab').forEach(button => {
+    button.addEventListener('click', () => {
+        document.querySelectorAll('.pc-period-tab').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+        selectedPeriod = button.dataset.period;
+        renderPlatformChart();
+    });
+});
+
+document.querySelectorAll('.pc-metric-tab').forEach(button => {
+    button.addEventListener('click', () => {
+        document.querySelectorAll('.pc-metric-tab').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+        selectedMetric = button.dataset.metric;
+        renderPlatformChart();
+    });
+});
+
+renderPlatformChart();
+</script>
+{% endblock %}

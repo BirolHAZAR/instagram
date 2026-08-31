@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Octo Tavsiye Merkezi{% endblock %}
+
+{% block content %}
+<style>
+:root{--octo-bg:#0f172a;--octo-card:#ffffff;--octo-soft:#f8fafc;--octo-line:#e5e7eb;--octo-text:#0f172a;--octo-muted:#64748b;--octo-primary:#ff7a18;--octo-primary-2:#ff9f43;--octo-green:#16a34a;--octo-red:#dc2626;--octo-blue:#2563eb;--octo-purple:#7c3aed;}
+.octo-page{padding:28px;max-width:1480px;margin:0 auto;color:var(--octo-text)}
+.octo-hero{position:relative;overflow:hidden;border-radius:30px;padding:28px;background:linear-gradient(135deg,#111827 0%,#1e293b 54%,#3b1b08 100%);box-shadow:0 28px 70px rgba(15,23,42,.22);color:#fff;margin-bottom:22px}
+.octo-hero:before{content:"";position:absolute;right:-120px;top:-140px;width:360px;height:360px;border-radius:999px;background:radial-gradient(circle,rgba(255,122,24,.42),rgba(255,122,24,0) 68%)}
+.octo-hero:after{content:"";position:absolute;left:42%;bottom:-180px;width:420px;height:420px;border-radius:999px;background:radial-gradient(circle,rgba(37,99,235,.22),rgba(37,99,235,0) 65%)}
+.octo-hero-inner{position:relative;z-index:2;display:flex;align-items:flex-end;justify-content:space-between;gap:22px;flex-wrap:wrap}
+.octo-kicker{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#fed7aa;margin-bottom:8px}
+.octo-hero h1{font-size:34px;line-height:1.1;font-weight:900;margin:0 0 8px}
+.octo-hero p{max-width:760px;margin:0;color:#cbd5e1;font-size:14px;line-height:1.65}
+.octo-hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.octo-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;text-decoration:none;border-radius:999px;padding:11px 16px;font-weight:800;font-size:13px;transition:.18s ease;white-space:nowrap}
+.octo-btn-primary{background:linear-gradient(135deg,var(--octo-primary),var(--octo-primary-2));color:white;box-shadow:0 14px 26px rgba(255,122,24,.22)}
+.octo-btn-soft{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.18)}
+.octo-btn:hover{transform:translateY(-1px);filter:brightness(1.02)}
+.octo-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.octo-stat{background:#fff;border:1px solid var(--octo-line);border-radius:22px;padding:18px;box-shadow:0 16px 40px rgba(15,23,42,.06)}
+.octo-stat span{display:block;color:var(--octo-muted);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}.octo-stat strong{font-size:30px;font-weight:900}.octo-stat i{float:right;font-size:22px;color:var(--octo-primary)}
+.octo-strategy{background:#fff7ed;border:1px solid #fed7aa;border-radius:24px;padding:16px 18px;margin-bottom:18px;box-shadow:0 14px 34px rgba(255,122,24,.08)}.octo-strategy b{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:900;color:#9a3412;margin-bottom:6px}.octo-strategy p{margin:0;color:#7c2d12;font-size:13px;line-height:1.55;font-weight:700}.octo-strategy small{display:block;margin-top:8px;color:#c2410c;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.07em}.octo-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid var(--octo-line);border-radius:24px;padding:14px;margin-bottom:18px;box-shadow:0 14px 36px rgba(15,23,42,.05)}
+.octo-tabs,.octo-priorities{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.octo-tab{padding:10px 14px;border-radius:999px;border:1px solid var(--octo-line);background:#fff;color:#334155;text-decoration:none;font-size:13px;font-weight:800}.octo-tab.active{background:#111827;color:#fff;border-color:#111827}.octo-tab.critical.active{background:#991b1b;border-color:#991b1b}.octo-search{display:flex;gap:8px;align-items:center;min-width:min(420px,100%)}.octo-search input{width:100%;border:1px solid var(--octo-line);border-radius:999px;padding:11px 14px;font-weight:700;outline:none}.octo-search button{border:0;border-radius:999px;background:var(--octo-primary);color:#fff;padding:11px 15px;font-weight:900}
+.octo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.octo-rec{position:relative;background:#fff;border:1px solid var(--octo-line);border-radius:26px;padding:18px;box-shadow:0 16px 42px rgba(15,23,42,.065);transition:.18s ease}.octo-rec:hover{transform:translateY(-2px);box-shadow:0 26px 58px rgba(15,23,42,.1);border-color:#fed7aa}.octo-rec-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:13px}.octo-rec-title{display:flex;gap:12px;align-items:flex-start}.octo-icon{width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,#fff7ed,#ffedd5);display:flex;align-items:center;justify-content:center;color:var(--octo-primary);font-size:19px;flex:0 0 auto}.octo-rec h3{font-size:17px;line-height:1.3;margin:0 0 6px;font-weight:900}.octo-campaign{color:var(--octo-muted);font-size:13px;font-weight:700}.octo-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:900;text-transform:uppercase;white-space:nowrap}.octo-badge.urgent{background:#fee2e2;color:#991b1b}.octo-badge.high{background:#ffedd5;color:#9a3412}.octo-badge.medium{background:#dbeafe;color:#1d4ed8}.octo-badge.low{background:#dcfce7;color:#166534}.octo-detail{color:#475569;font-size:14px;line-height:1.62;margin:12px 0 14px}.octo-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}.octo-mini{background:var(--octo-soft);border:1px solid #eef2f7;border-radius:16px;padding:11px}.octo-mini span{display:block;font-size:11px;color:var(--octo-muted);font-weight:900;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}.octo-mini strong{font-size:13px;font-weight:900;color:#0f172a}.octo-rec-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #eef2f7;padding-top:14px}.octo-action-group{display:flex;gap:8px;flex-wrap:wrap}.octo-link{display:inline-flex;gap:7px;align-items:center;text-decoration:none;border-radius:999px;padding:9px 12px;font-size:12px;font-weight:900;background:#f1f5f9;color:#0f172a}.octo-link.dark{background:#111827;color:#fff}.octo-link.green{background:#dcfce7;color:#166534;border:0}.octo-applied{font-size:12px;color:#16a34a;font-weight:900;display:inline-flex;align-items:center;gap:6px}.octo-empty{background:#fff;border:1px dashed #cbd5e1;border-radius:26px;padding:38px;text-align:center;color:#64748b;grid-column:1/-1}.octo-empty i{display:block;font-size:36px;color:var(--octo-primary);margin-bottom:12px}.octo-legacy{grid-column:1/-1;background:#fffbeb;border:1px solid #fde68a;border-radius:24px;padding:16px}.octo-legacy h3{margin:0 0 8px;font-size:16px}.octo-legacy-row{padding:12px 0;border-top:1px solid #fde68a}.octo-legacy-row:first-of-type{border-top:0}
+@media(max-width:1100px){.octo-stats,.octo-grid{grid-template-columns:1fr 1fr}.octo-meta{grid-template-columns:1fr}}@media(max-width:760px){.octo-page{padding:16px}.octo-stats,.octo-grid{grid-template-columns:1fr}.octo-hero h1{font-size:28px}.octo-toolbar{align-items:stretch}.octo-search{width:100%}}
+
+/* Octo rapor detay alanı: başlık altları da madde madde okunur. */
+.octo-report{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.octo-report-section{border:1px solid #eef2f7;background:#fff;border-radius:18px;padding:13px 14px}
+.octo-report-section.problem{background:#fff7f7;border-color:#fecaca}.octo-report-section.why{background:#eff6ff;border-color:#bfdbfe}.octo-report-section.action{background:#f7fee7;border-color:#d9f99d}.octo-report-section.impact{background:#fff7ed;border-color:#fed7aa}
+.octo-report-title{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:#0f172a;font-size:13px;font-weight:950}
+.octo-report-title i{width:24px;height:24px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#f1f5f9;color:#334155;font-size:11px}.octo-report-section.problem .octo-report-title i{background:#fee2e2;color:#991b1b}.octo-report-section.why .octo-report-title i{background:#dbeafe;color:#1d4ed8}.octo-report-section.action .octo-report-title i{background:#dcfce7;color:#166534}.octo-report-section.impact .octo-report-title i{background:#ffedd5;color:#9a3412}
+.octo-report-list{margin:0;padding:0;list-style:none;display:grid;gap:7px}
+.octo-report-list li{position:relative;padding-left:18px;color:#475569;font-size:13px;line-height:1.55;font-weight:700;margin:0}
+.octo-report-list li:before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;border-radius:999px;background:#94a3b8}
+.octo-report-section.problem .octo-report-list li:before{background:#dc2626}.octo-report-section.why .octo-report-list li:before{background:#2563eb}.octo-report-section.action .octo-report-list li:before{background:#16a34a}.octo-report-section.impact .octo-report-list li:before{background:#f97316}
+@media(max-width:900px){.octo-report{grid-template-columns:1fr}}
+
+</style>
+
+<main class="octo-page">
+  <section class="octo-hero">
+    <div class="octo-hero-inner">
+      <div>
+        <div class="octo-kicker"><i class="fas fa-robot"></i> Octo AI karar merkezi</div>
+        <h1>Octo Tavsiye Merkezi</h1>
+        <p>Octo Görev Merkezi’nde oluşan gerçek görevler burada yapay zekâ yorumuna dönüşür. Öncelikli sorunları, nedeni, önerilen aksiyonu ve beklenen etkiyi tek merkezden takip et.</p>
+      </div>
+      <div class="octo-hero-actions">
+        <a class="octo-btn octo-btn-soft" href="{% url 'control_tower' %}"><i class="fas fa-gauge-high"></i> Kontrol Kulesi</a>
+        <a class="octo-btn octo-btn-primary" href="{% url 'octo_task_center' %}"><i class="fas fa-list-check"></i> Octo Görev Merkezi</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="octo-stats">
+    <div class="octo-stat"><i class="fas fa-list-check"></i><span>Toplam görev sinyali</span><strong>{{ stats.total }}</strong></div>
+    <div class="octo-stat"><i class="fas fa-hourglass-half"></i><span>Yorum bekleyen</span><strong>{{ stats.pending }}</strong></div>
+    <div class="octo-stat"><i class="fas fa-circle-check"></i><span>Tamamlanan</span><strong>{{ stats.applied }}</strong></div>
+    <div class="octo-stat"><i class="fas fa-fire"></i><span>Kritik</span><strong>{{ stats.critical }}</strong></div>
+  </section>
+
+
+  {% if strategy_summary %}
+    <section class="octo-strategy">
+      <b><i class="fas fa-brain"></i> {{ strategy_summary.title }}</b>
+      <p>{{ strategy_summary.text }}</p>
+      <small>{{ strategy_summary.source_label }}</small>
+    </section>
+  {% endif %}
+
+  <form class="octo-toolbar" method="get">
+    <div class="octo-tabs">
+      <a class="octo-tab {% if selected_status == 'pending' %}active{% endif %}" href="?status=pending&priority={{ selected_priority }}&q={{ q }}">Bekleyen</a>
+      <a class="octo-tab {% if selected_status == 'applied' %}active{% endif %}" href="?status=applied&priority={{ selected_priority }}&q={{ q }}">Uygulanan</a>
+      <a class="octo-tab critical {% if selected_status == 'critical' %}active{% endif %}" href="?status=critical&priority={{ selected_priority }}&q={{ q }}">Kritik</a>
+      <a class="octo-tab {% if selected_status == 'all' %}active{% endif %}" href="?status=all&priority={{ selected_priority }}&q={{ q }}">Tümü</a>
+    </div>
+    <div class="octo-priorities">
+      <a class="octo-tab {% if selected_priority == 'all' %}active{% endif %}" href="?status={{ selected_status }}&priority=all&q={{ q }}">Tüm öncelikler</a>
+      <a class="octo-tab {% if selected_priority == 'urgent' %}active{% endif %}" href="?status={{ selected_status }}&priority=urgent&q={{ q }}">Acil</a>
+      <a class="octo-tab {% if selected_priority == 'high' %}active{% endif %}" href="?status={{ selected_status }}&priority=high&q={{ q }}">Yüksek</a>
+    </div>
+    <div class="octo-search">
+      <input type="hidden" name="status" value="{{ selected_status }}">
+      <input type="hidden" name="priority" value="{{ selected_priority }}">
+      <input name="q" value="{{ q }}" placeholder="Kampanya veya öneri ara...">
+      <button type="submit"><i class="fas fa-search"></i></button>
+    </div>
+  </form>
+
+  <section class="octo-grid">
+    {% for rec in rows %}
+      <article class="octo-rec" title="{{ rec.detail }}">
+        <div class="octo-rec-head">
+          <div class="octo-rec-title">
+            <div class="octo-icon"><i class="fas fa-sparkles"></i></div>
+            <div>
+              <h3>{{ rec.title }}</h3>
+              <div class="octo-campaign">{{ rec.campaign_name }} · {{ rec.platform_name }}{% if rec.account_name %} · {{ rec.account_name }}{% endif %}</div>
+            </div>
+          </div>
+          <span class="octo-badge {{ rec.priority_class }}"><i class="fas fa-bolt"></i> {{ rec.priority_label }}</span>
+        </div>
+        {% if rec.report_sections %}
+          <div class="octo-report">
+            {% for section in rec.report_sections %}
+              <section class="octo-report-section {{ section.key }}">
+                <div class="octo-report-title"><i class="fas {{ section.icon }}"></i> {{ section.title }}</div>
+                <ul class="octo-report-list">
+                  {% for item in section.items %}
+                    <li>{{ item }}</li>
+                  {% endfor %}
+                </ul>
+              </section>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="octo-detail">{{ rec.detail }}</p>
+        {% endif %}
+        <div class="octo-meta">
+          <div class="octo-mini"><span>Beklenen etki</span><strong>{{ rec.impact }}</strong></div>
+          <div class="octo-mini"><span>Zorluk</span><strong>{{ rec.difficulty_level }}</strong></div>
+          <div class="octo-mini"><span>Süre</span><strong>{{ rec.implementation_time }}</strong></div>
+        </div>
+        <div class="octo-rec-actions">
+          <div class="octo-action-group">
+            {% if rec.target_url %}
+              <a class="octo-link dark" href="{{ rec.target_url }}"><i class="fas fa-arrow-up-right-from-square"></i> İlgili Kaydı Aç</a>
+            {% elif rec.campaign_id %}
+              <a class="octo-link dark" href="{% url 'campaign_center' %}?open_octo={{ rec.campaign_id }}&campaign_name={{ rec.campaign_name|urlencode }}&period=monthly"><i class="fas fa-arrow-up-right-from-square"></i> Kampanyayı Aç</a>
+            {% endif %}
+            {% if rec.task_url %}
+              <a class="octo-link" href="{{ rec.task_url }}"><i class="fas fa-list-check"></i> Görev Detayı</a>
+            {% else %}
+              <a class="octo-link" href="{% url 'octo_task_center' %}"><i class="fas fa-list-check"></i> Görev Merkezi</a>
+            {% endif %}
+          </div>
+          {% if rec.is_applied %}
+            <span class="octo-applied"><i class="fas fa-check-circle"></i> {{ rec.status_label|default:"Tamamlandı" }}{% if rec.applied_at %} · {{ rec.applied_at }}{% endif %}</span>
+          {% elif rec.source_type == "legacy_recommendation" %}
+            <form method="post" action="{% url 'mark_campaign_octo_recommendation_applied' rec.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="is_applied" value="1">
+              <button class="octo-link green" type="submit"><i class="fas fa-check"></i> Uygulandı</button>
+            </form>
+          {% else %}
+            <span class="octo-applied" style="color:#f97316"><i class="fas fa-clock"></i> {{ rec.status_label|default:"Bekliyor" }}</span>
+          {% endif %}
+        </div>
+      </article>
+    {% empty %}
+      {% if legacy_analysis_rows %}
+        <div class="octo-legacy">
+          <h3><i class="fas fa-circle-info"></i> Eski Octo analiz önerileri bulundu</h3>
+          <p>Bu kayıtlar CampaignOctoAnalysis içinde duruyor. Yeni analiz yaptığında CampaignOctoRecommendation görev listesine otomatik düşer.</p>
+          {% for item in legacy_analysis_rows %}
+            <div class="octo-legacy-row"><strong>{{ item.campaign_name }}</strong> · {{ item.platform_name }} · Skor {{ item.score }}<br><span>{{ item.detail }}</span></div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="octo-empty"><i class="fas fa-octopus-deploy"></i><strong>Kayıtlı Octo AI tavsiyesi bulunmuyor.</strong><br>Octo Görev Merkezi’nde gerçek görev oluştuğunda burada stratejik tavsiye olarak görünecek.</div>
+      {% endif %}
+    {% endfor %}
+  </section>
+</main>
+{% endblock %}
