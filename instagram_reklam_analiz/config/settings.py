@@ -293,7 +293,7 @@ LOCALE_PATHS = [
 
 # Static files
 STATIC_URL = '/static/'
-SITE_URL = config("SITE_URL", default="https://reklamanaliz.net").rstrip("/")
+SITE_URL = config("SITE_URL", default="https://www.reklamanaliz.net").rstrip("/")
 PUBLIC_MEDIA_BASE_URL = config("PUBLIC_MEDIA_BASE_URL", default=SITE_URL).rstrip("/")
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'

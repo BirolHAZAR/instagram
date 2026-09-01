@@ -1,0 +1,1444 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tr_numbers %}
+
+{% block title %}Kampanya Merkezi | ReklamAnaliz{% endblock %}
+
+{% block content %}
+<style>
+:root{
+  --ra-bg:#050816;
+  --ra-panel:#0B1028;
+  --ra-panel-2:#101936;
+  --ra-border:rgba(139,132,255,.22);
+  --ra-border-soft:rgba(255,255,255,.08);
+  --ra-text:#FFFFFF;
+  --ra-muted:#B8BED0;
+  --ra-dim:#7F8AA8;
+  --ra-accent:#6C63FF;
+  --ra-accent-2:#8B84FF;
+  --ra-green:#23D18B;
+  --ra-red:#FF5C7A;
+  --ra-yellow:#F7C948;
+  --ra-blue:#47B5FF;
+}
+.ra-campaign-shell{max-width:1540px;margin:0 auto;padding:26px 18px 46px;color:var(--ra-text)}
+.ra-hero{position:relative;overflow:hidden;border:1px solid var(--ra-border);border-radius:34px;padding:26px;background:radial-gradient(circle at 10% 5%,rgba(108,99,255,.35),transparent 28%),radial-gradient(circle at 88% 10%,rgba(71,181,255,.20),transparent 26%),linear-gradient(135deg,#0F1633,#050816 72%);box-shadow:0 32px 100px rgba(0,0,0,.42)}
+.ra-hero:after{content:"";position:absolute;right:-120px;top:-150px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(139,132,255,.22),transparent 64%);filter:blur(2px)}
+.ra-hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.7fr .9fr;gap:22px;align-items:stretch}
+.ra-kicker{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(108,99,255,.16);border:1px solid rgba(139,132,255,.35);color:#E6E4FF;font-size:12px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.ra-hero h1{margin:14px 0 9px;font-size:clamp(28px,3.2vw,48px);line-height:1.02;letter-spacing:-.055em;font-weight:950;color:#fff}
+.ra-hero p{max-width:850px;margin:0;color:var(--ra-muted);font-size:15px;line-height:1.75}
+.ra-hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.ra-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:11px 15px;color:#fff;text-decoration:none;font-weight:900;font-size:13px;background:rgba(255,255,255,.06);transition:.2s}.ra-btn:hover{transform:translateY(-1px);color:#fff;border-color:rgba(139,132,255,.55)}.ra-btn-primary{background:linear-gradient(135deg,var(--ra-accent),var(--ra-accent-2));box-shadow:0 16px 40px rgba(108,99,255,.28);border-color:transparent}
+.ra-octo-card{border:1px solid rgba(255,255,255,.10);border-radius:26px;background:rgba(255,255,255,.055);padding:18px;backdrop-filter:blur(18px)}
+.ra-octo-top{display:flex;gap:12px;align-items:center}.ra-octo-avatar{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(108,99,255,.35),rgba(71,181,255,.18));border:1px solid rgba(255,255,255,.12);font-size:25px}.ra-octo-title{font-weight:950}.ra-octo-sub{font-size:12px;color:var(--ra-muted);margin-top:2px}.ra-octo-metric{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px}.ra-mini-stat{position:relative;border-radius:18px;background:rgba(5,8,22,.52);border:1px solid rgba(255,255,255,.08);padding:12px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:82px}.ra-mini-stat span{display:block;width:100%;color:var(--ra-muted);font-size:11px;font-weight:800;text-align:center}.ra-mini-stat strong{display:block;width:100%;font-size:21px;margin-top:4px;letter-spacing:-.03em;text-align:center;font-variant-numeric:tabular-nums}.ra-has-tip{position:relative;cursor:help}.ra-has-tip::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%) translateY(6px);width:min(260px,70vw);padding:10px 12px;border-radius:14px;background:#fff;color:#111827;border:1px solid rgba(17,24,39,.08);box-shadow:0 18px 45px rgba(0,0,0,.34);font-size:11px;font-weight:800;line-height:1.45;text-align:left;opacity:0;visibility:hidden;pointer-events:none;transition:.16s ease;z-index:20}.ra-has-tip::before{content:"";position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%) translateY(6px);border:7px solid transparent;border-top-color:#fff;opacity:0;visibility:hidden;pointer-events:none;transition:.16s ease;z-index:21}.ra-has-tip:hover::after,.ra-has-tip:hover::before{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+.ra-kpi-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;margin:18px 0}.ra-kpi{border:1px solid var(--ra-border-soft);background:linear-gradient(180deg,rgba(16,25,54,.92),rgba(11,16,40,.92));border-radius:24px;padding:17px;box-shadow:0 20px 58px rgba(0,0,0,.22);min-height:132px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.ra-kpi-label{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ra-muted);font-size:12px;font-weight:850;text-align:center;width:100%}.ra-kpi-value{display:block;width:100%;font-size:27px;font-weight:950;letter-spacing:-.04em;margin-top:8px;text-align:center;font-variant-numeric:tabular-nums}.ra-kpi-note{font-size:11px;color:var(--ra-dim);margin-top:5px;text-align:center;line-height:1.35}.ra-dot{width:8px;height:8px;border-radius:50%;background:var(--ra-accent-2);flex:0 0 8px}.ra-dot.green{background:var(--ra-green)}.ra-dot.red{background:var(--ra-red)}.ra-dot.yellow{background:var(--ra-yellow)}.ra-dot.blue{background:var(--ra-blue)}
+.ra-control-panel{display:grid;grid-template-columns:1.1fr 1.7fr;gap:14px;margin-bottom:16px}.ra-platforms,.ra-filters{border:1px solid var(--ra-border-soft);background:rgba(11,16,40,.86);border-radius:26px;padding:15px;box-shadow:0 20px 60px rgba(0,0,0,.20)}.ra-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.ra-section-title h2{font-size:16px;margin:0;font-weight:950;letter-spacing:-.02em}.ra-section-title span{font-size:12px;color:var(--ra-muted)}
+.ra-platform-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.ra-platform-card{display:flex;justify-content:space-between;gap:10px;align-items:center;border-radius:18px;padding:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);text-decoration:none;color:#fff;position:relative;transition:.18s ease}.ra-platform-card:hover{color:#fff;border-color:rgba(139,132,255,.46);transform:translateY(-1px)}.ra-platform-card.is-selected{background:linear-gradient(135deg,rgba(108,99,255,.92),rgba(0,212,255,.34));border-color:rgba(255,255,255,.35);box-shadow:0 14px 34px rgba(108,99,255,.26),inset 0 1px 0 rgba(255,255,255,.14)}.ra-platform-card.is-selected::after{content:"✓";position:absolute;right:9px;top:8px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#4f46e5;font-size:11px;font-weight:950}.ra-platform-name{font-weight:900;font-size:13px}.ra-platform-meta{font-size:11px;color:var(--ra-muted);margin-top:2px}.ra-platform-card.is-selected .ra-platform-meta{color:rgba(255,255,255,.82)}.ra-platform-count{min-width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:rgba(108,99,255,.16);font-weight:950}.ra-platform-card.is-selected .ra-platform-count{background:rgba(255,255,255,.20);color:#fff}
+.ra-filter-form{display:flex;flex-direction:column;gap:13px}.ra-search-line{display:flex;gap:10px}.ra-search{flex:1;border:1px solid rgba(255,255,255,.10);background:rgba(5,8,22,.62);color:#fff;border-radius:16px;padding:12px 14px;outline:none}.ra-search::placeholder{color:#7783A3}.ra-search-btn{border:0;border-radius:16px;background:linear-gradient(135deg,var(--ra-accent),var(--ra-accent-2));color:#fff;font-weight:950;padding:0 18px}.ra-tabs{display:flex;gap:9px;flex-wrap:wrap}.ra-tab{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--ra-muted);text-decoration:none;font-size:12px;font-weight:900}.ra-tab:hover,.ra-tab.active{color:#fff;border-color:rgba(139,132,255,.56);background:rgba(108,99,255,.18)}
+.ra-date-filter-card{margin:16px 0 18px;border:1px solid rgba(139,132,255,.22);border-radius:30px;padding:15px;background:linear-gradient(135deg,rgba(16,25,54,.92),rgba(7,11,30,.92));box-shadow:0 24px 72px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05)}.ra-date-filter-inner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.ra-date-title{display:flex;align-items:center;gap:10px;min-width:240px}.ra-date-icon{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(108,99,255,.32),rgba(71,181,255,.16));border:1px solid rgba(139,132,255,.26);color:#fff}.ra-date-title strong{display:block;font-size:14px;font-weight:950;color:#fff}.ra-date-title span{display:block;margin-top:2px;font-size:12px;font-weight:800;color:var(--ra-muted)}.ra-period-tabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.ra-period-tab{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:10px 13px;border-radius:999px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.055);color:#cbd3ef;text-decoration:none;font-size:12px;font-weight:950;transition:.18s ease}.ra-period-tab:hover{transform:translateY(-1px);color:#fff;border-color:rgba(139,132,255,.54);background:rgba(108,99,255,.16)}.ra-period-tab.active{color:#fff;background:linear-gradient(135deg,rgba(108,99,255,.95),rgba(71,181,255,.35));border-color:rgba(255,255,255,.26);box-shadow:0 14px 32px rgba(108,99,255,.22)}.ra-date-form{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.ra-date-field{display:flex;align-items:center;gap:8px;min-height:42px;padding:0 12px;border-radius:999px;background:rgba(5,8,22,.64);border:1px solid rgba(255,255,255,.10);color:#fff}.ra-date-field span{font-size:11px;font-weight:900;color:var(--ra-muted);white-space:nowrap}.ra-date-field input{height:40px;border:0;outline:none;background:transparent;color:#fff;font-size:12px;font-weight:900;color-scheme:dark}.ra-date-apply{height:42px;border:0;border-radius:999px;padding:0 17px;background:linear-gradient(135deg,var(--ra-accent),var(--ra-accent-2));color:#fff;font-size:12px;font-weight:950;box-shadow:0 14px 32px rgba(108,99,255,.25);display:inline-flex;align-items:center;gap:8px}.ra-date-apply:hover{filter:brightness(1.06);transform:translateY(-1px)}@media(max-width:980px){.ra-date-filter-inner{align-items:flex-start}.ra-date-form{width:100%}.ra-date-field{flex:1;min-width:180px}.ra-date-apply{flex:1;justify-content:center}}@media(max-width:620px){.ra-period-tab{flex:1;justify-content:center}.ra-date-field{width:100%;flex:1 1 100%}.ra-date-apply{width:100%}}
+.ra-table-panel{border:1px solid var(--ra-border-soft);background:rgba(11,16,40,.90);border-radius:30px;padding:16px;box-shadow:0 28px 80px rgba(0,0,0,.28);overflow:hidden}.ra-table-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.ra-table-head h2{font-size:17px;margin:0;font-weight:950}.ra-table-head p{margin:3px 0 0;color:var(--ra-muted);font-size:12px}.ra-table-wrap{overflow:auto}.ra-table{width:100%;border-collapse:separate;border-spacing:0 10px;min-width:1240px}.ra-table th{text-align:left;color:#9EA8C8;font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:0 12px 5px;font-weight:950;white-space:nowrap}.ra-table td{background:rgba(255,255,255,.052);border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:14px 12px;vertical-align:middle;font-size:13px}.ra-table td:first-child{border-left:1px solid rgba(255,255,255,.08);border-radius:20px 0 0 20px}.ra-table td:last-child{border-right:1px solid rgba(255,255,255,.08);border-radius:0 20px 20px 0}.ra-name{font-weight:950;font-size:14px;max-width:310px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ra-sub{color:var(--ra-dim);font-size:11px;margin-top:4px}.ra-status,.ra-badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:950;white-space:nowrap}.ra-status.active{background:rgba(35,209,139,.13);color:#A9F6D6}.ra-status.paused{background:rgba(247,201,72,.13);color:#FFE394}.ra-status.unknown,.ra-status.deleted,.ra-status.archived{background:rgba(184,190,208,.13);color:#D5DAEA}.ra-badge.stable{background:rgba(71,181,255,.12);color:#BFE8FF}.ra-badge.learning{background:rgba(247,201,72,.13);color:#FFE394}.ra-badge.up{background:rgba(35,209,139,.13);color:#A9F6D6}.ra-badge.down{background:rgba(255,92,122,.13);color:#FFC2CE}.ra-money{font-weight:950}.ra-number{font-weight:900}.ra-muted{color:var(--ra-muted)}.ra-progress{width:112px;height:8px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin-top:7px}.ra-progress span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--ra-accent),var(--ra-accent-2));min-width:4px}.ra-health{display:flex;align-items:center;gap:9px}.ra-health-ring{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--ra-green) calc(var(--score)*1%),rgba(255,255,255,.12) 0);font-size:11px;font-weight:950;position:relative}.ra-health-ring:before{content:"";position:absolute;inset:5px;border-radius:50%;background:#0B1028}.ra-health-ring b{position:relative;z-index:1}.ra-empty{border:1px dashed rgba(139,132,255,.36);border-radius:24px;padding:34px;text-align:center;background:rgba(108,99,255,.06)}.ra-empty h3{font-size:22px;font-weight:950;margin:10px 0 6px}.ra-empty p{color:var(--ra-muted);margin:0 auto;max-width:620px;line-height:1.7}.ra-empty-icon{width:62px;height:62px;border-radius:22px;display:grid;place-items:center;margin:0 auto;background:rgba(108,99,255,.16);font-size:28px}
+@media(max-width:1250px){.ra-kpi-grid{grid-template-columns:repeat(3,1fr)}.ra-hero-grid,.ra-control-panel{grid-template-columns:1fr}.ra-platform-grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:850px){.ra-kpi-grid,.ra-platform-grid{grid-template-columns:repeat(2,1fr)}.ra-search-line{flex-direction:column}.ra-search-btn{padding:12px 18px}}@media(max-width:560px){.ra-kpi-grid,.ra-platform-grid,.ra-octo-metric{grid-template-columns:1fr}.ra-hero{padding:20px}.ra-campaign-shell{padding:18px 12px 36px}}
+
+.ra-tip-icon{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;background:rgba(139,132,255,.18);border:1px solid rgba(139,132,255,.35);color:#dfe3ff;font-size:10px;margin-left:5px;vertical-align:middle;cursor:help}.ra-table th.ra-th-tip{position:relative}.ra-table th.ra-th-tip:hover:after{content:attr(data-tip);position:absolute;left:10px;top:22px;z-index:50;width:245px;padding:10px 12px;border-radius:14px;background:#fff;color:#111827;border:1px solid rgba(17,24,39,.08);box-shadow:0 18px 45px rgba(0,0,0,.26);font-size:11px;font-weight:800;line-height:1.45;text-transform:none;letter-spacing:0;white-space:normal}.ra-table tbody tr{transition:.18s ease}.ra-table tbody tr.ra-row-success td{background:rgba(35,209,139,.105);border-color:rgba(35,209,139,.24)}.ra-table tbody tr.ra-row-success .ra-name{color:#b9ffdf}.ra-table tbody tr.ra-row-success .ra-health-ring{background:conic-gradient(var(--ra-green) calc(var(--score)*1%),rgba(35,209,139,.16) 0)}.ra-success-pill{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:950;background:rgba(35,209,139,.13);color:#a9f6d6;border:1px solid rgba(35,209,139,.20)}.ra-success-pill.warning{background:rgba(247,201,72,.13);color:#ffe394;border-color:rgba(247,201,72,.22)}.ra-success-pill.danger{background:rgba(255,92,122,.13);color:#ffc2ce;border-color:rgba(255,92,122,.22)}.ra-success-pill.learning{background:rgba(71,181,255,.12);color:#bfe8ff;border-color:rgba(71,181,255,.20)}.ra-success-pill.neutral{background:rgba(184,190,208,.12);color:#d5daea;border-color:rgba(184,190,208,.18)}.ra-octo-action{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid rgba(139,132,255,.30);border-radius:999px;background:linear-gradient(135deg,rgba(108,99,255,.28),rgba(0,212,255,.12));color:#fff;font-size:11px;font-weight:950;padding:8px 10px;cursor:pointer;white-space:nowrap;transition:.18s}.ra-octo-action:hover{transform:translateY(-1px);border-color:rgba(0,212,255,.55);box-shadow:0 12px 26px rgba(108,99,255,.18)}.ra-octo-action:disabled{opacity:.65;cursor:wait;transform:none}.ra-octo-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(5px);z-index:5000;display:none;align-items:center;justify-content:center;padding:18px}.ra-octo-modal-backdrop.show{display:flex}.ra-octo-modal{width:min(920px,96vw);max-height:88vh;overflow:auto;border-radius:28px;background:linear-gradient(180deg,#101936,#070b1e);border:1px solid rgba(139,132,255,.28);box-shadow:0 38px 110px rgba(0,0,0,.58);color:#fff}.ra-octo-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid rgba(139,132,255,.18);background:rgba(255,255,255,.035)}.ra-octo-modal-head h3{margin:0;font-weight:950;font-size:18px}.ra-octo-close{width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-weight:950}.ra-octo-modal-body{padding:20px}.ra-octo-score-line{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}.ra-octo-score{display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--ra-accent),var(--ra-blue));font-weight:950;font-size:18px}.ra-octo-label{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:950;background:rgba(35,209,139,.12);color:#a9f6d6;border:1px solid rgba(35,209,139,.20)}.ra-octo-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}.ra-octo-box{border:1px solid rgba(255,255,255,.09);border-radius:20px;background:rgba(255,255,255,.045);padding:15px}.ra-octo-box h4{font-size:14px;font-weight:950;margin:0 0 10px;color:#fff}.ra-octo-box ul{margin:0;padding-left:18px;color:var(--ra-muted);line-height:1.65;font-size:13px}.ra-octo-saved{margin-top:14px;color:var(--ra-dim);font-size:12px;font-weight:800}@media(max-width:760px){.ra-octo-columns{grid-template-columns:1fr}.ra-table th.ra-th-tip:hover:after{left:0;width:210px}}
+
+.ra-octo-v2-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.ra-octo-v2-grid.effects{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ra-octo-v2-card{border:1px solid rgba(139,132,255,.18);background:rgba(255,255,255,.045);border-radius:16px;padding:12px;min-height:74px}
+.ra-octo-v2-card small{display:block;color:var(--ra-muted);font-size:11px;font-weight:850;margin-bottom:6px}
+.ra-octo-v2-card strong{display:block;color:#fff;font-size:14px;font-weight:950;line-height:1.25}
+@media(max-width:900px){.ra-octo-v2-grid,.ra-octo-v2-grid.effects{grid-template-columns:1fr!important}}
+
+
+
+/* OCTO MODAL PROFESSIONAL FIT FIX */
+html.ra-octo-lock,
+body.ra-octo-lock{
+  overflow:hidden!important;
+}
+body.ra-octo-lock{
+  padding-right:0!important;
+}
+.ra-octo-modal-backdrop{
+  position:fixed!important;
+  inset:0!important;
+  z-index:99999!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  padding:clamp(12px,2vh,22px) 14px!important;
+  overflow:hidden!important;
+}
+.ra-octo-modal-backdrop.show{
+  display:flex!important;
+}
+.ra-octo-modal{
+  width:min(980px,calc(100vw - 28px))!important;
+  max-width:980px!important;
+  height:min(88vh,calc(100vh - 28px))!important;
+  max-height:calc(100vh - 28px)!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  margin:0 auto!important;
+  border-radius:24px!important;
+}
+.ra-octo-modal-head{
+  position:sticky!important;
+  top:0!important;
+  z-index:3!important;
+  flex:0 0 auto!important;
+  padding:14px 18px!important;
+  min-height:62px!important;
+}
+.ra-octo-modal-head h3{
+  font-size:16px!important;
+  line-height:1.25!important;
+  max-width:calc(100% - 48px)!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.ra-octo-close{
+  flex:0 0 36px!important;
+  cursor:pointer!important;
+}
+.ra-octo-modal-body{
+  flex:1 1 auto!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding:16px 18px 20px!important;
+  scrollbar-width:thin;
+}
+.ra-octo-score-line{
+  align-items:center!important;
+  gap:10px!important;
+}
+.ra-octo-saved{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  flex-wrap:wrap!important;
+  max-width:100%!important;
+  line-height:1.45!important;
+}
+.ra-octo-v2-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.ra-octo-v2-grid.effects{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+.ra-octo-v2-card{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.ra-octo-v2-card strong,
+.ra-octo-v2-card small{
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.ra-octo-columns{
+  grid-template-columns:1fr 1fr!important;
+  gap:12px!important;
+  min-width:0!important;
+}
+.ra-octo-box{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.ra-octo-box ul{
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+}
+.ra-octo-box li{
+  margin-bottom:6px!important;
+}
+@media(max-width:900px){
+  .ra-octo-modal-backdrop{padding:10px!important;}
+  .ra-octo-modal{width:calc(100vw - 20px)!important;height:calc(100vh - 20px)!important;max-height:calc(100vh - 20px)!important;border-radius:20px!important;}
+  .ra-octo-v2-grid,.ra-octo-v2-grid.effects{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .ra-octo-columns{grid-template-columns:1fr!important;}
+}
+@media(max-width:560px){
+  .ra-octo-modal-head h3{font-size:14px!important;}
+  .ra-octo-v2-grid,.ra-octo-v2-grid.effects{grid-template-columns:1fr!important;}
+  .ra-octo-score{width:46px!important;height:46px!important;border-radius:15px!important;font-size:16px!important;}
+  .ra-octo-label{font-size:11px!important;padding:7px 10px!important;}
+}
+
+</style>
+
+<div class="ra-campaign-shell">
+  <section class="ra-hero">
+    <div class="ra-hero-grid">
+      <div>
+        <span class="ra-kicker"><i class="fas fa-bullseye"></i> Octo Kampanya Merkezi</span>
+        <h1>Kampanyaları tek ekrandan yönet, riski ve fırsatı anında gör.</h1>
+        <p>Meta, Google, TikTok, LinkedIn ve diğer platformlardan gelen kampanya verilerini; bütçe, harcama, CTR, CPC, CPA, ROAS, gösterim, tıklama ve dönüşüm metrikleriyle profesyonel karar ekranına çevirir.</p>
+        <div class="ra-hero-actions">
+          <a class="ra-btn ra-btn-primary" href="{% url 'sync_center' %}"><i class="fas fa-rotate"></i> Verileri Senkronize Et</a>
+          <a class="ra-btn" href="{% url 'adgroup_center' %}"><i class="fas fa-sitemap"></i> Reklam Grupları</a>
+          <a class="ra-btn" href="{% url 'performance_center' %}"><i class="fas fa-chart-line"></i> Performans Merkezi</a>
+        </div>
+      </div>
+      <aside class="ra-octo-card">
+        <div class="ra-octo-top">
+          <div class="ra-octo-avatar"><i class="fas fa-robot"></i></div>
+          <div>
+            <div class="ra-octo-title">Octo AI kısa durum</div>
+            <div class="ra-octo-sub">{{ filters.period_label }} kampanya özeti</div>
+          </div>
+        </div>
+        <div class="ra-octo-metric">
+          <div class="ra-mini-stat ra-has-tip" data-tip="En yüksek ROAS değerine sahip kampanyayı gösterir. 14,29x demek, harcanan her 1 TL karşılığında yaklaşık 14,29 TL dönüşüm değeri oluştuğu anlamına gelir."><span>En iyi kampanya</span><strong>{% if top_campaign %}{{ top_campaign.roas|tr_decimal:2 }}x{% else %}0,00x{% endif %}</strong></div>
+          <div class="ra-mini-stat ra-has-tip" data-tip="Riskli kampanya sayısıdır. Şu an 0 görünüyorsa son 30 gün verisine göre düşüş/risk kriterine giren kampanya bulunmamıştır ya da risk eşiği henüz tetiklenmemiştir."><span>Riskli kampanya</span><strong>{{ summary.performance_down|tr_int }}</strong></div>
+          <div class="ra-mini-stat ra-has-tip" data-tip="Aktif durumda olan kampanya sayısıdır. Veritabanındaki kampanya durum alanına göre hesaplanır."><span>Aktif kampanya</span><strong>{{ summary.active_campaigns|tr_int }}</strong></div>
+          <div class="ra-mini-stat ra-has-tip" data-tip="Öğrenme/optimizasyon sürecinde olan kampanya sayısıdır. Kampanya durumu veya analiz etiketine göre hesaplanır."><span>Öğrenme</span><strong>{{ summary.learning_campaigns|tr_int }}</strong></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="ra-date-filter-card" aria-label="Kampanya tarihi ve dönem filtresi">
+    <div class="ra-date-filter-inner">
+      <div class="ra-date-title">
+        <div class="ra-date-icon"><i class="fas fa-calendar-days"></i></div>
+        <div>
+          <strong>{{ filters.period_label }} kampanya görünümü</strong>
+          <span>{{ filters.date_label }} · {{ filters.selected_days }} gün</span>
+        </div>
+      </div>
+      <div class="ra-period-tabs">
+        <a class="ra-period-tab {% if filters.active_period == 'daily' %}active{% endif %}" href="{{ period_links.daily }}"><i class="fas fa-sun"></i> Günlük</a>
+        <a class="ra-period-tab {% if filters.active_period == 'weekly' %}active{% endif %}" href="{{ period_links.weekly }}"><i class="fas fa-calendar-week"></i> Haftalık</a>
+        <a class="ra-period-tab {% if filters.active_period == 'monthly' %}active{% endif %}" href="{{ period_links.monthly }}"><i class="fas fa-calendar-alt"></i> Aylık</a>
+        <a class="ra-period-tab {% if filters.active_period == 'quarterly' %}active{% endif %}" href="{{ period_links.quarterly }}"><i class="fas fa-chart-area"></i> 3 Aylık</a>
+      </div>
+      <form class="ra-date-form" method="get">
+        <input type="hidden" name="period" value="custom">
+        <input type="hidden" name="status" value="{{ selected_status }}">
+        <input type="hidden" name="platform" value="{{ selected_platform }}">
+        <input type="hidden" name="q" value="{{ q }}">
+        <input type="hidden" name="per_page" value="{{ per_page }}">
+        <label class="ra-date-field"><span>Başlangıç</span><input type="date" name="date_from" value="{{ filters.date_from }}" max="{{ filters.today }}"></label>
+        <label class="ra-date-field"><span>Bitiş</span><input type="date" name="date_to" value="{{ filters.date_to }}" max="{{ filters.today }}"></label>
+        <button class="ra-date-apply" type="submit"><i class="fas fa-filter"></i> Uygula</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="ra-kpi-grid">
+    <div class="ra-kpi ra-has-tip" data-tip="Seçili filtrelere göre listelenen toplam kampanya sayısıdır. Platform, durum veya arama filtresi değişirse bu sayı da değişir."><div class="ra-kpi-label"><span class="ra-dot"></span>Toplam Kampanya</div><div class="ra-kpi-value">{{ summary.total_campaigns|tr_int }}</div><div class="ra-kpi-note">Filtreye göre listelenen kampanyalar</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="Seçili platform, durum ve arama filtresine göre listelenen kampanyaların toplam bütçesidir. Her kampanya için lifetime bütçe varsa onu, yoksa günlük bütçe × seçili gün sayısı karşılığını toplar."><div class="ra-kpi-label"><span class="ra-dot yellow"></span>Toplam Bütçe</div><div class="ra-kpi-value">{{ summary.total_budget|tr_money }}</div><div class="ra-kpi-note">Seçili kampanyaların bütçe toplamı</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="Seçili platform, durum ve arama filtresine göre listelenen kampanyaların seçili tarih aralığındaki toplam harcamasıdır. CampaignMetricHistory kayıtlarından toplanır."><div class="ra-kpi-label"><span class="ra-dot green"></span>Toplam Harcama</div><div class="ra-kpi-value">{{ summary.spend|tr_money }}</div><div class="ra-kpi-note">Seçili kampanyaların harcama toplamı</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="CTR, tıklama sayısının gösterim sayısına oranıdır. Reklamın dikkat çekme gücünü gösterir; yüksek CTR genelde kreatif ve hedefleme uyumunun iyi olduğunu anlatır."><div class="ra-kpi-label"><span class="ra-dot blue"></span>CTR</div><div class="ra-kpi-value">{{ summary.ctr|tr_percent }}</div><div class="ra-kpi-note">Tıklama / gösterim oranı</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="CPC, ortalama tıklama maliyetidir. Harcama / tıklama formülüyle hesaplanır. Düşük CPC daha ucuz trafik anlamına gelir."><div class="ra-kpi-label"><span class="ra-dot yellow"></span>CPC</div><div class="ra-kpi-value">{{ summary.cpc|tr_money }}</div><div class="ra-kpi-note">Ortalama tıklama maliyeti</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="CPA, dönüşüm başı maliyettir. Harcama / dönüşüm formülüyle hesaplanır. Satış veya lead maliyetini izlemek için kullanılır."><div class="ra-kpi-label"><span class="ra-dot red"></span>CPA</div><div class="ra-kpi-value">{{ summary.cpa|tr_money }}</div><div class="ra-kpi-note">Dönüşüm başı maliyet</div></div>
+    <div class="ra-kpi ra-has-tip" data-tip="ROAS, reklam harcamasına karşılık oluşan dönüşüm değeridir. 4,00x demek, harcanan her 1 TL için yaklaşık 4 TL gelir/değer oluştuğu anlamına gelir."><div class="ra-kpi-label"><span class="ra-dot green"></span>ROAS</div><div class="ra-kpi-value">{{ summary.roas|tr_decimal:2 }}x</div><div class="ra-kpi-note">Gelir / harcama oranı</div></div>
+  </section>
+
+  <section class="ra-control-panel">
+    <div class="ra-platforms">
+      <div class="ra-section-title"><h2>Platform Dağılımı</h2><span>Çoklu seçim aktif</span></div>
+      <div class="ra-platform-grid">
+        {% for p in platform_cards %}
+        <a class="ra-platform-card {% if p.is_selected %}is-selected{% endif %}" href="{{ p.filter_url }}" title="{% if p.is_selected %}Bu platform seçili. Kaldırmak için tıkla.{% else %}Bu platformu filtreye eklemek için tıkla.{% endif %}">
+          <div><div class="ra-platform-name">{{ p.name }}</div><div class="ra-platform-meta">{{ p.account_count }} hesap · {{ p.campaign_count }} kampanya</div></div>
+          <div class="ra-platform-count">{{ p.campaign_count }}</div>
+        </a>
+        {% empty %}
+        <div class="ra-platform-card"><div><div class="ra-platform-name">Platform yok</div><div class="ra-platform-meta">Önce hesap bağlantısı yapılmalı</div></div></div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="ra-filters">
+      <div class="ra-section-title"><h2>Filtreleme</h2><span>Aktif, duraklatılmış, öğrenme ve trend durumları</span></div>
+      <form class="ra-filter-form" method="get">
+        <input type="hidden" name="status" value="{{ selected_status }}">
+        <input type="hidden" name="platform" value="{{ selected_platform }}">
+        <input type="hidden" name="per_page" value="{{ per_page }}">
+        <input type="hidden" name="period" value="{{ filters.active_period }}">
+        <input type="hidden" name="date_from" value="{{ filters.date_from }}">
+        <input type="hidden" name="date_to" value="{{ filters.date_to }}">
+        <div class="ra-search-line">
+          <input class="ra-search" name="q" value="{{ q }}" placeholder="Kampanya adı veya platform kampanya ID ara...">
+          <button class="ra-search-btn" type="submit"><i class="fas fa-search"></i> Ara</button>
+        </div>
+        <div class="ra-tabs">
+          {% for key,label in status_tabs %}
+          <a class="ra-tab {% if selected_status == key %}active{% endif %}" href="?status={{ key }}&platform={{ selected_platform }}&q={{ q }}&per_page={{ per_page }}&period={{ filters.active_period }}&date_from={{ filters.date_from }}&date_to={{ filters.date_to }}">
+            {% if key == 'active' %}<i class="fas fa-play"></i>{% elif key == 'paused' %}<i class="fas fa-pause"></i>{% elif key == 'learning' %}<i class="fas fa-brain"></i>{% elif key == 'down' %}<i class="fas fa-arrow-trend-down"></i>{% elif key == 'up' %}<i class="fas fa-arrow-trend-up"></i>{% else %}<i class="fas fa-border-all"></i>{% endif %}
+            {{ label }}
+          </a>
+          {% endfor %}
+          {% if selected_platform != 'all' or q or selected_status != 'all' or filters.active_period != 'monthly' %}<a class="ra-tab" href="{% url 'campaign_center' %}"><i class="fas fa-xmark"></i> Filtreleri Temizle</a>{% endif %}
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="ra-table-panel">
+    <div class="ra-table-head">
+      <div><h2>Kampanya Performans Tablosu</h2><p>Toplam {{ all_campaigns_count|tr_int }} kampanyadan bu sayfada {{ campaigns|length|tr_int }} kayıt gösteriliyor.</p></div>
+      <div class="ra-table-tools">
+        <form class="ra-per-page" method="get">
+          <input type="hidden" name="status" value="{{ selected_status }}">
+          <input type="hidden" name="platform" value="{{ selected_platform }}">
+          <input type="hidden" name="q" value="{{ q }}">
+          <input type="hidden" name="period" value="{{ filters.active_period }}">
+          <input type="hidden" name="date_from" value="{{ filters.date_from }}">
+          <input type="hidden" name="date_to" value="{{ filters.date_to }}">
+          <span>Liste başına</span>
+          <select name="per_page" onchange="this.form.submit()">
+            <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+            <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+            <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+          </select>
+        </form>
+      </div>
+    </div>
+
+    {% if campaigns %}
+    <div class="ra-table-wrap">
+      <table class="ra-table">
+        <thead>
+          <tr>
+            <th class="ra-th-tip" data-tip="Kampanyanın adı, platform ID bilgisi, başlangıç tarihi ve altındaki reklam grubu/reklam sayısıdır.">Kampanya <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyanın platformdaki yayın durumudur. Aktif kampanyalar yayında, duraklatılmış kampanyalar ise harcama yapmaz.">Durum <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyanın bağlı olduğu reklam platformu ve hesap bilgisidir.">Platform <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Son 30 günlük harcama, günlük bütçe ve toplam bütçe bilgisidir. Toplam bütçe lifetime bütçe varsa onu, yoksa günlük bütçe × 30 olarak hesaplanır.">Bütçe / Harcama <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Reklamların toplam gösterim sayısıdır. Kampanyanın kaç kez ekrana geldiğini gösterir.">Gösterim <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyadan gelen toplam tıklama sayısıdır.">Tıklama <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="CTR = Tıklama / Gösterim. Kreatif ve hedefleme uyumunu gösterir.">CTR <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="CPC = Harcama / Tıklama. Ortalama tıklama maliyetidir.">CPC <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="CPA = Harcama / Dönüşüm. Bir dönüşümün ortalama maliyetidir.">CPA <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="ROAS = Dönüşüm değeri / Harcama. 3,00x demek 1 TL harcamaya karşılık 3 TL değer oluştuğu anlamına gelir.">ROAS <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyanın ürettiği dönüşüm adedi ve dönüşüm değeridir.">Dönüşüm <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Octo skoru; CTR, CPC, ROAS, durum ve trend sinyallerine göre hesaplanan kampanya sağlığıdır.">Octo <span class="ra-tip-icon">i</span></th>
+            <th class="ra-th-tip" data-tip="Kampanyanın son performans trendi ve Octo AI analiz butonudur.">Trend / Analiz <span class="ra-tip-icon">i</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in campaigns %}
+          <tr class="{{ c.row_class }}">
+            <td>
+              <div class="ra-name">{{ c.name }}</div>
+              <div class="ra-sub">ID: {{ c.external_id }} · Başlangıç: {{ c.start_label }} · {{ c.adgroup_count }} grup / {{ c.ad_count }} reklam</div>
+              <div class="ra-success-pill {{ c.success_level }}" title="{{ c.success_reason }}"><i class="fas fa-circle-check"></i>{{ c.success_label }}</div>
+            </td>
+            <td><span class="ra-status {{ c.status_raw }}"><i class="fas fa-circle"></i>{{ c.status }}</span></td>
+            <td><div class="ra-number">{{ c.platform }}</div><div class="ra-sub">{{ c.account }}</div></td>
+            <td>
+              <div class="ra-money">{{ c.spend|tr_money }}</div>
+              <div class="ra-sub">Günlük: {{ c.daily_budget|tr_money }} · Toplam: {{ c.budget|tr_money }}</div>
+              <div class="ra-progress"><span style="width:{{ c.budget_usage }}%"></span></div>
+            </td>
+            <td><span class="ra-number">{{ c.impressions|tr_int }}</span></td>
+            <td><span class="ra-number">{{ c.clicks|tr_int }}</span></td>
+            <td><span class="ra-number">{{ c.ctr|tr_percent }}</span><div class="ra-sub">Δ {{ c.ctr_delta|tr_decimal:2 }}</div></td>
+            <td><span class="ra-number">{{ c.cpc|tr_money }}</span></td>
+            <td><span class="ra-number">{{ c.cpa|tr_money }}</span></td>
+            <td><span class="ra-number">{{ c.roas|tr_decimal:2 }}x</span></td>
+            <td><span class="ra-number">{{ c.conversions|tr_decimal:0 }}</span><div class="ra-sub">Gelir {{ c.revenue|tr_money }}</div></td>
+            <td><div class="ra-health"><div class="ra-health-ring" style="--score:{{ c.health_score }}"><b>{{ c.health_score }}</b></div></div></td>
+            <td><span class="ra-badge {{ c.badge_class }}">{{ c.badge }}</span><br><button type="button"
+        class="ra-octo-action"
+        data-url="{% url 'octo_campaign_analysis_safe' c.id %}"
+        data-campaign="{{ c.name|escapejs }}">
+  <i class="fas fa-robot"></i> Octo Analiz
+</button>
+</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj and paginator.num_pages > 1 %}
+    <div class="ra-pagination-bar">
+      <div class="ra-pagination-info">
+        Sayfa {{ page_obj.number }} / {{ paginator.num_pages }} · Toplam {{ all_campaigns_count|tr_int }} kampanya
+      </div>
+
+      <div class="ra-pagination-actions">
+        {% if page_obj.has_previous %}
+          <a class="ra-page-link" href="?{{ pagination_query }}&page=1">İlk</a>
+          <a class="ra-page-link" href="?{{ pagination_query }}&page={{ page_obj.previous_page_number }}">Önceki</a>
+        {% else %}
+          <span class="ra-page-link disabled">İlk</span>
+          <span class="ra-page-link disabled">Önceki</span>
+        {% endif %}
+
+        {% for num in paginator.page_range %}
+          {% if num == page_obj.number %}
+            <span class="ra-page-link active">{{ num }}</span>
+          {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+            <a class="ra-page-link" href="?{{ pagination_query }}&page={{ num }}">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <a class="ra-page-link" href="?{{ pagination_query }}&page={{ page_obj.next_page_number }}">Sonraki</a>
+          <a class="ra-page-link" href="?{{ pagination_query }}&page={{ paginator.num_pages }}">Son</a>
+        {% else %}
+          <span class="ra-page-link disabled">Sonraki</span>
+          <span class="ra-page-link disabled">Son</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="ra-empty">
+      <div class="ra-empty-icon"><i class="fas fa-bullhorn"></i></div>
+      <h3>Henüz kampanya verisi bulunamadı.</h3>
+      <p>Kampanya Merkezi hazır. Platform hesaplarını senkronize ettiğinde kampanyalar burada; bütçe, harcama, CTR, CPC, CPA, ROAS, gösterim, tıklama ve dönüşüm metrikleriyle otomatik listelenecek.</p>
+      <div class="ra-hero-actions" style="justify-content:center"><a class="ra-btn ra-btn-primary" href="{% url 'sync_center' %}"><i class="fas fa-rotate"></i> Senkronizasyon Merkezine Git</a></div>
+    </div>
+    {% endif %}
+  </section>
+</div>
+<div class="ra-octo-modal-backdrop" id="octoCampaignModal">
+  <div class="ra-octo-modal" role="dialog" aria-modal="true" aria-labelledby="octoCampaignModalTitle">
+    <div class="ra-octo-modal-head">
+      <h3 id="octoCampaignModalTitle"><i class="fas fa-robot"></i> Octo Kampanya Analizi</h3>
+      <button type="button" class="ra-octo-close" onclick="closeOctoCampaignModal()">×</button>
+    </div>
+    <div class="ra-octo-modal-body">
+      <div class="ra-octo-score-line">
+        <span class="ra-octo-score" id="octoModalScore">--</span>
+        <span class="ra-octo-label" id="octoModalLabel">Analiz hazırlanıyor</span>
+        <span class="ra-octo-saved" id="octoModalSaved"></span>
+      </div>
+
+      <div class="ra-octo-v2-grid" id="octoV2InsightGrid">
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="Kampanyanın en güçlü performans sinyalidir. ROAS, CTR, CPC, CPA, dönüşüm veya harcama verimliliği arasından en iyi skor seçilir.">
+          <small>Güçlü Alan</small>
+          <strong id="octoBestMetric">-</strong>
+        </div>
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="Kampanyada geliştirilmesi veya yakından takip edilmesi gereken ana sinyaldir. Bu alan artık Risk düşük gibi genel ifade değil, CTR/CPC/CPA/Dönüşüm gibi gerçek metriklerden seçilir.">
+          <small>Zayıf / İzlenecek Alan</small>
+          <strong id="octoWorstMetric">-</strong>
+        </div>
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="0-100 arası risk puanıdır. 0-20 düşük risk, 21-40 kontrollü, 41-60 izlenmeli, 61-80 riskli, 81-100 kritik kabul edilir.">
+          <small>Risk Skoru</small>
+          <strong id="octoRiskScore">-</strong>
+        </div>
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="Son 7 günün önceki 7 güne göre ROAS ve CTR yönünü gösterir. Yükseliş, düşüş veya stabil olarak hesaplanır.">
+          <small>7 Gün Trend</small>
+          <strong id="octoTrend7d">-</strong>
+        </div>
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="Son 30 günlük genel performans eğilimini özetler. Şimdilik stabil hesaplanır; ileri aşamada günlük seriyle daha detaylı ölçülebilir.">
+          <small>30 Gün Trend</small>
+          <strong id="octoTrend30d">-</strong>
+        </div>
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="Rakip reklam verisi bağlandığında kampanyanın rakiplere göre konumunu gösterir. Rakip verisi yoksa bekleme durumunda kalır.">
+          <small>Rakip Konumu</small>
+          <strong id="octoCompetitorPosition">-</strong>
+        </div>
+      </div>
+
+      <div class="ra-octo-v2-grid effects" id="octoV2EffectGrid">
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="Octo önerisi uygulanırsa ROAS tarafında beklenen tahmini iyileşme oranıdır. Garanti sonuç değil, performans sinyaline göre tahmindir.">
+          <small>Beklenen ROAS Etkisi</small>
+          <strong id="octoRoasGain">-</strong>
+        </div>
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="Kreatif, hedefleme ve mesaj iyileştirmesi sonrası beklenen tahmini CTR artışıdır.">
+          <small>Beklenen CTR Etkisi</small>
+          <strong id="octoCtrGain">-</strong>
+        </div>
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="Önerinin uygulanma zorluk seviyesidir. Düşük, orta veya yüksek olarak değerlendirilir.">
+          <small>Zorluk</small>
+          <strong id="octoDifficulty">-</strong>
+        </div>
+        <div class="ra-octo-v2-card ra-has-tip" data-tip="Önerinin uygulanması ve ilk etkisinin gözlenmesi için tahmini süredir.">
+          <small>Uygulama Süresi</small>
+          <strong id="octoImplementationTime">-</strong>
+        </div>
+      </div>
+      <div class="ra-octo-columns">
+        <div class="ra-octo-box">
+          <h4>1. Octo Kampanya Analizi</h4>
+          <ul id="octoAnalysisList"><li>Analiz bekleniyor...</li></ul>
+        </div>
+        <div class="ra-octo-box">
+          <h4>2. Octo Yorum & Öneri</h4>
+          <ul id="octoRecommendationList"><li>Öneriler bekleniyor...</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function getCampaignCsrfToken(){
+  const match = document.cookie.match(/(^|;)\s*csrftoken\s*=\s*([^;]+)/);
+  return match ? decodeURIComponent(match.pop()) : '';
+}
+function openOctoCampaignModal(){
+  const modal = document.getElementById('octoCampaignModal');
+  if(modal){
+    modal.classList.add('show');
+    document.documentElement.classList.add('ra-octo-lock');
+    document.body.classList.add('ra-octo-lock');
+  }
+}
+function closeOctoCampaignModal(){
+  const modal = document.getElementById('octoCampaignModal');
+  if(modal){
+    modal.classList.remove('show');
+    document.documentElement.classList.remove('ra-octo-lock');
+    document.body.classList.remove('ra-octo-lock');
+  }
+}
+function formatTRNumberFromParts(integerPart, decimalPart){
+  const cleanInt = String(integerPart || '0').replace(/\D/g, '');
+  const grouped = cleanInt.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return decimalPart ? grouped + ',' + decimalPart : grouped;
+}
+
+function formatOctoText(value){
+  if(value === null || value === undefined) return '';
+  let text = String(value);
+
+  // 246473.23 TL -> 246.473,23 TL
+  text = text.replace(/\b(\d{4,})(?:\.(\d{1,2}))?\s*TL\b/g, function(_, intPart, decPart){
+    return formatTRNumberFromParts(intPart, (decPart || '00').padEnd(2, '0')) + ' TL';
+  });
+
+  // 13.04x -> 13,04x
+  text = text.replace(/\b(\d+)\.(\d{1,2})x\b/g, function(_, intPart, decPart){
+    return intPart + ',' + decPart.padEnd(2, '0') + 'x';
+  });
+
+  // 1.81% / %1.81 -> 1,81% / %1,81
+  text = text.replace(/\b(\d+)\.(\d{1,2})%/g, function(_, intPart, decPart){
+    return intPart + ',' + decPart.padEnd(2, '0') + '%';
+  });
+  text = text.replace(/%(\d+)\.(\d{1,2})\b/g, function(_, intPart, decPart){
+    return '%' + intPart + ',' + decPart.padEnd(2, '0');
+  });
+
+  return text;
+}
+
+function formatOctoValue(value, suffix=''){
+  if(value === null || value === undefined || value === '') return '-';
+  const num = Number(value);
+  if(Number.isFinite(num)){
+    return num.toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
+  }
+  return formatOctoText(value) + suffix;
+}
+
+function setOctoText(id, value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = formatOctoText(value || '-');
+}
+
+function fillList(id, items){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = '';
+  const safeItems = Array.isArray(items) && items.length ? items : ['İçerik bulunamadı.'];
+  safeItems.forEach(function(item){
+    const li = document.createElement('li');
+    li.textContent = formatOctoText(item);
+    el.appendChild(li);
+  });
+}
+async function readJsonSafely(response){
+  const text = await response.text();
+  if(!text || !text.trim()){
+    throw new Error('Sunucudan boş yanıt geldi. HTTP ' + response.status + '. View mutlaka JsonResponse dönmeli.');
+  }
+  try{
+    return JSON.parse(text);
+  }catch(err){
+    console.error('JSON olmayan Octo yanıtı:', text.substring(0, 1500));
+    throw new Error('Sunucu JSON dönmedi. HTTP ' + response.status + '. Yanıt: ' + text.substring(0, 300));
+  }
+}
+function getItems(data, primary, fallback){
+  const value = data[primary] || data[fallback] || [];
+  if(Array.isArray(value)) return value;
+  if(typeof value === 'string' && value.trim()){
+    return value.split('\n').map(x => x.replace(/^-\s*/, '').trim()).filter(Boolean);
+  }
+  return [];
+}
+function setOctoSavedState(data, url){
+  const saved = document.getElementById('octoModalSaved');
+  if(!saved) return;
+  const recommendationId = data.recommendation_id || data.recommendationId || null;
+  const analysisId = data.analysis_id || data.id || '-';
+  const savedAt = data.saved_at || data.created_at || '';
+  const checked = data.is_applied ? 'checked' : '';
+  const appliedText = data.is_applied ? `Uygulandı${data.applied_at ? ' · ' + data.applied_at : ''}` : 'Henüz uygulanmadı';
+  saved.innerHTML = `
+    <span>${data.cached ? 'Kayıtlı analiz gösteriliyor' : 'Kaydedildi'} · Analiz ID: ${analysisId}${savedAt ? ' · ' + savedAt : ''}</span>
+    ${analysisId && analysisId !== '-' ? `
+      <a class="ra-octo-pdf-btn" href="/campaign-center/octo-analysis-pdf/${analysisId}/" target="_blank" rel="noopener">
+        <i class="fas fa-file-pdf"></i> PDF Raporu İndir
+      </a>
+    ` : ''}
+    ${recommendationId ? `
+      <label style="display:inline-flex;align-items:center;gap:6px;margin-left:10px;cursor:pointer;">
+        <input type="checkbox" id="octoAppliedCheckbox" ${checked}>
+        <span id="octoAppliedText">${appliedText}</span>
+      </label>
+    ` : ''}
+    ${data.cached ? `
+      <button type="button" class="ra-octo-action" id="octoForceRefreshBtn" style="margin-left:10px;">Yeniden Analiz Et</button>
+    ` : ''}
+  `;
+  const checkbox = document.getElementById('octoAppliedCheckbox');
+  if(checkbox && recommendationId){
+    checkbox.addEventListener('change', function(){ markRecommendationApplied(recommendationId, checkbox.checked); });
+  }
+  const forceBtn = document.getElementById('octoForceRefreshBtn');
+  if(forceBtn){
+    forceBtn.addEventListener('click', function(){ runOctoRequest(url, true); });
+  }
+}
+async function markRecommendationApplied(recommendationId, isApplied){
+  const form = new FormData();
+  form.append('is_applied', isApplied ? '1' : '0');
+  const response = await fetch(`/campaign-center/octo-recommendation/${recommendationId}/mark-applied/`, {
+    method:'POST',
+    headers:{'X-CSRFToken':getCampaignCsrfToken(),'X-Requested-With':'XMLHttpRequest','Accept':'application/json'},
+    credentials:'same-origin',
+    body:form
+  });
+  const data = await readJsonSafely(response);
+  if(!response.ok || !data.ok){ throw new Error(data.message || data.error || 'Öneri durumu güncellenemedi.'); }
+  const txt = document.getElementById('octoAppliedText');
+  if(txt){ txt.textContent = data.is_applied ? `Uygulandı${data.applied_at ? ' · ' + data.applied_at : ''}` : 'Henüz uygulanmadı'; }
+}
+async function runOctoRequest(url, force=false){
+  const form = new FormData();
+  if(force) form.append('force','1');
+  document.getElementById('octoModalScore').textContent='--';
+  document.getElementById('octoModalLabel').textContent = force ? 'Yeniden analiz ediliyor' : 'Analiz hazırlanıyor';
+  fillList('octoAnalysisList', [force ? 'Yeni analiz oluşturuluyor...' : 'Metrikler okunuyor ve kampanya başarı sinyalleri hesaplanıyor...']);
+  fillList('octoRecommendationList', [force ? 'Yeni öneriler hazırlanıyor...' : 'Octo önerileri hazırlanıyor...']);
+  try{
+  const params = new URLSearchParams();
+  if(force) params.set('force','1');
+  const currentParams = new URLSearchParams(window.location.search || '');
+  ['period','start_date','end_date'].forEach(function(key){
+    const value = currentParams.get(key);
+    if(value) params.set(key, value);
+  });
+  const requestUrl = url + (params.toString() ? (url.indexOf('?') >= 0 ? '&' : '?') + params.toString() : '');
+
+  const response = await fetch(requestUrl, {
+    method: 'GET',
+    headers: {
+       'X-Requested-With': 'XMLHttpRequest',
+       'Accept': 'application/json'
+    },
+    credentials: 'same-origin'
+  });
+    const data = await readJsonSafely(response);
+    if(!response.ok || !data.ok){ throw new Error(data.message || data.error || 'Analiz oluşturulamadı.'); }
+    const analysisItems = getItems(data, 'analysis_items', 'analysis');
+    const recommendationItems = getItems(data, 'recommendation_items', 'recommendations');
+
+    document.getElementById('octoModalScore').textContent = data.score || '--';
+    setOctoScoreLevelClass(data.score);
+    document.getElementById('octoModalLabel').textContent = data.cached ? 'Kayıtlı analiz gösteriliyor' : (data.success_label || data.label || 'Analiz tamamlandı');
+
+    setOctoText('octoBestMetric', data.best_metric || '-');
+    setOctoText('octoWorstMetric', data.worst_metric || '-');
+    setOctoText('octoRiskScore', (data.risk_score !== undefined && data.risk_score !== null) ? formatOctoValue(data.risk_score, ' / 100') + (data.risk_label ? ' · ' + data.risk_label : '') : '-');
+    setOctoText('octoTrend7d', data.trend_7d || '-');
+    setOctoText('octoTrend30d', data.trend_30d || '-');
+    setOctoText('octoCompetitorPosition', data.competitor_position || '-');
+
+    setOctoText('octoRoasGain', data.estimated_roas_gain ? '+' + formatOctoValue(data.estimated_roas_gain, '%') : '-');
+    setOctoText('octoCtrGain', data.estimated_ctr_gain ? '+' + formatOctoValue(data.estimated_ctr_gain, '%') : '-');
+    setOctoText('octoDifficulty', data.difficulty_level || '-');
+    setOctoText('octoImplementationTime', data.implementation_time || '-');
+
+    fillList('octoAnalysisList', analysisItems);
+    fillList('octoRecommendationList', recommendationItems);
+    setOctoSavedState(data, url);
+  }catch(err){
+    console.error('Octo hata detayı:', err);
+    document.getElementById('octoModalScore').textContent='--';
+    document.getElementById('octoModalLabel').textContent='Hata';
+    fillList('octoAnalysisList', ['Hata: ' + err.message]);
+    fillList('octoRecommendationList', ['Gerçek hata: ' + err.message]);
+  }
+}
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.ra-octo-action');
+  if(!btn || btn.id === 'octoForceRefreshBtn') return;
+  e.preventDefault();
+  const url = btn.dataset.url;
+  const campaignName = btn.dataset.campaign || 'Kampanya';
+  document.getElementById('octoCampaignModalTitle').innerHTML = '<i class="fas fa-robot"></i> Octo Kampanya Analizi · ' + campaignName;
+  document.getElementById('octoModalSaved').textContent='';
+  setOctoText('octoBestMetric','-');
+  setOctoText('octoWorstMetric','-');
+  setOctoText('octoRiskScore','-');
+  setOctoText('octoTrend7d','-');
+  setOctoText('octoTrend30d','-');
+  setOctoText('octoCompetitorPosition','-');
+  setOctoText('octoRoasGain','-');
+  setOctoText('octoCtrGain','-');
+  setOctoText('octoDifficulty','-');
+  setOctoText('octoImplementationTime','-');
+  openOctoCampaignModal();
+  btn.disabled=true;
+  runOctoRequest(url,false).finally(function(){ btn.disabled=false; });
+});
+document.getElementById('octoCampaignModal')?.addEventListener('click', function(e){
+  if(e.target.id === 'octoCampaignModal') closeOctoCampaignModal();
+});
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    closeOctoCampaignModal();
+  }
+});
+
+</script>
+
+
+
+<style id="octo-popup-professional-fit-fix">
+/* OCTO POPUP PROFESSIONAL FIT FIX */
+html.ra-octo-lock,
+body.ra-octo-lock{
+  overflow:hidden!important;
+  height:100%!important;
+}
+
+.ra-octo-modal-backdrop{
+  position:fixed!important;
+  inset:0!important;
+  z-index:99999!important;
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:88px 18px 18px!important;
+  background:rgba(0,0,0,.68)!important;
+  backdrop-filter:blur(7px)!important;
+  overflow:hidden!important;
+}
+
+.ra-octo-modal-backdrop.show{
+  display:flex!important;
+}
+
+.ra-octo-modal{
+  width:min(980px, calc(100vw - 36px))!important;
+  height:min(760px, calc(100vh - 112px))!important;
+  max-width:calc(100vw - 36px)!important;
+  max-height:calc(100vh - 112px)!important;
+  margin:0!important;
+  overflow:hidden!important;
+  border-radius:26px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  background:linear-gradient(180deg,#101936,#070b1e)!important;
+  border:1px solid rgba(139,132,255,.30)!important;
+  box-shadow:0 34px 95px rgba(0,0,0,.58)!important;
+}
+
+.ra-octo-modal-head{
+  position:sticky!important;
+  top:0!important;
+  z-index:3!important;
+  flex:0 0 auto!important;
+  min-height:64px!important;
+  padding:16px 18px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  border-bottom:1px solid rgba(139,132,255,.20)!important;
+  background:linear-gradient(180deg,rgba(16,25,54,.98),rgba(10,16,40,.98))!important;
+}
+
+.ra-octo-modal-head h3{
+  margin:0!important;
+  font-size:16px!important;
+  line-height:1.25!important;
+  max-width:calc(100% - 52px)!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+.ra-octo-close{
+  flex:0 0 38px!important;
+  width:38px!important;
+  height:38px!important;
+  cursor:pointer!important;
+}
+
+.ra-octo-modal-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding:18px!important;
+  scrollbar-width:thin;
+}
+
+.ra-octo-modal-body::-webkit-scrollbar{
+  width:8px;
+}
+.ra-octo-modal-body::-webkit-scrollbar-thumb{
+  background:rgba(139,132,255,.36);
+  border-radius:999px;
+}
+
+/* Popup içindeki üst skor alanını daha derli toplu yap */
+.ra-octo-score-line{
+  justify-content:center!important;
+  text-align:center!important;
+  margin-bottom:14px!important;
+}
+
+.ra-octo-score{
+  margin:0 auto!important;
+}
+
+.ra-octo-label{
+  justify-content:center!important;
+}
+
+/* Yeni Octo bilgi kartları ortalı ve profesyonel */
+.ra-octo-v2-grid{
+  width:100%!important;
+  display:grid!important;
+  gap:10px!important;
+  margin:14px 0!important;
+}
+
+#octoV2InsightGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+
+#octoV2EffectGrid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+
+.ra-octo-v2-card{
+  min-height:92px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  border:1px solid rgba(139,132,255,.18)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.035))!important;
+  border-radius:18px!important;
+  padding:13px 12px!important;
+}
+
+.ra-octo-v2-card small{
+  width:100%!important;
+  display:block!important;
+  color:#B8BED0!important;
+  font-size:11px!important;
+  font-weight:850!important;
+  line-height:1.35!important;
+  margin:0 0 7px!important;
+  text-align:center!important;
+}
+
+.ra-octo-v2-card strong{
+  width:100%!important;
+  display:block!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  line-height:1.25!important;
+  text-align:center!important;
+  overflow-wrap:anywhere!important;
+  font-variant-numeric:tabular-nums!important;
+}
+
+/* Analiz / öneri kutuları modal içinde taşmasın */
+.ra-octo-columns{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:14px!important;
+  min-width:0!important;
+}
+
+.ra-octo-box{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+
+.ra-octo-box h4{
+  text-align:center!important;
+}
+
+.ra-octo-box ul{
+  max-width:100%!important;
+  overflow-wrap:anywhere!important;
+}
+
+/* Kaydetme / uygulandı satırı ortalı */
+.ra-octo-saved,
+#octoModalSaved{
+  text-align:center!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex-wrap:wrap!important;
+  gap:10px!important;
+}
+
+/* Modal açıkken sayfanın kendisinde yatay taşma olmasın */
+.ra-campaign-shell,
+.ra-table-panel,
+.ra-table-wrap{
+  max-width:100%!important;
+}
+
+@media(max-width:980px){
+  .ra-octo-modal-backdrop{
+    padding:78px 12px 12px!important;
+  }
+  .ra-octo-modal{
+    width:calc(100vw - 24px)!important;
+    height:calc(100vh - 96px)!important;
+    max-height:calc(100vh - 96px)!important;
+    border-radius:22px!important;
+  }
+  #octoV2InsightGrid,
+  #octoV2EffectGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .ra-octo-columns{
+    grid-template-columns:1fr!important;
+  }
+}
+
+@media(max-width:560px){
+  .ra-octo-modal-backdrop{
+    padding:68px 8px 8px!important;
+  }
+  .ra-octo-modal{
+    width:calc(100vw - 16px)!important;
+    height:calc(100vh - 78px)!important;
+    max-height:calc(100vh - 78px)!important;
+    border-radius:18px!important;
+  }
+  #octoV2InsightGrid,
+  #octoV2EffectGrid{
+    grid-template-columns:1fr!important;
+  }
+  .ra-octo-modal-head h3{
+    font-size:14px!important;
+  }
+}
+</style>
+
+
+<script id="octo-popup-lock-patch">
+(function(){
+  const oldOpen = window.openOctoCampaignModal;
+  const oldClose = window.closeOctoCampaignModal;
+
+  window.openOctoCampaignModal = function(){
+    document.documentElement.classList.add('ra-octo-lock');
+    document.body.classList.add('ra-octo-lock');
+    const modal = document.getElementById('octoCampaignModal');
+    if(modal){ modal.classList.add('show'); }
+    if(typeof oldOpen === 'function'){
+      try { oldOpen(); } catch(e) {}
+    }
+  };
+
+  window.closeOctoCampaignModal = function(){
+    const modal = document.getElementById('octoCampaignModal');
+    if(modal){ modal.classList.remove('show'); }
+    document.documentElement.classList.remove('ra-octo-lock');
+    document.body.classList.remove('ra-octo-lock');
+    if(typeof oldClose === 'function'){
+      try { oldClose(); } catch(e) {}
+    }
+  };
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      window.closeOctoCampaignModal();
+    }
+  });
+})();
+</script>
+
+
+
+<style id="campaign-table-sticky-action-and-pdf-fix">
+/* Kampanya tablosunda Octo Analiz butonu yatay scroll beklemeden sağda sabit görünür. */
+.ra-table-wrap{
+  overflow-x:auto!important;
+  overflow-y:visible!important;
+  padding-right:0!important;
+  scrollbar-width:thin;
+}
+.ra-table th:last-child,
+.ra-table td:last-child{
+  position:sticky!important;
+  right:0!important;
+  z-index:8!important;
+  min-width:168px!important;
+  text-align:center!important;
+  background:linear-gradient(90deg,rgba(11,16,40,.94),rgba(11,16,40,.99))!important;
+  box-shadow:-18px 0 28px rgba(0,0,0,.24)!important;
+}
+.ra-table thead th:last-child{
+  z-index:12!important;
+  background:#0B1028!important;
+}
+.ra-table td:last-child .ra-badge{
+  margin-bottom:8px!important;
+}
+.ra-table td:last-child .ra-octo-action{
+  width:100%!important;
+  max-width:138px!important;
+  margin:8px auto 0!important;
+}
+.ra-octo-pdf-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  border:1px solid rgba(35,209,139,.26);
+  background:rgba(35,209,139,.10);
+  color:#a9f6d6!important;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:11px;
+  font-weight:950;
+  text-decoration:none!important;
+}
+.ra-octo-pdf-btn:hover{
+  border-color:rgba(35,209,139,.55);
+  box-shadow:0 10px 22px rgba(35,209,139,.12);
+  color:#fff!important;
+}
+</style>
+
+
+
+
+
+
+
+
+
+<style id="octo-score-square-and-clean-status-final">
+/* Popup: büyük kare Octo Skoru kartı, sol tarafta */
+.ra-octo-score-line{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  gap:16px!important;
+  margin:0 0 18px!important;
+  text-align:left!important;
+}
+
+.ra-octo-score{
+  width:180px!important;
+  height:180px!important;
+  min-width:180px!important;
+  min-height:180px!important;
+  padding:18px!important;
+  border-radius:26px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  margin:0!important;
+  text-align:center!important;
+  font-size:58px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  background:linear-gradient(180deg,rgba(108,99,255,.22),rgba(108,99,255,.08))!important;
+  border:1px solid rgba(108,99,255,.42)!important;
+  box-shadow:0 26px 64px rgba(108,99,255,.22)!important;
+  font-variant-numeric:tabular-nums!important;
+}
+
+.ra-octo-score::before{
+  content:"OCTO SKORU";
+  display:block;
+  width:100%;
+  font-size:12px;
+  line-height:1.1;
+  font-weight:950;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  opacity:.9;
+  text-align:center;
+}
+
+.ra-octo-label{
+  min-height:38px!important;
+  margin-top:0!important;
+  align-self:flex-start!important;
+  justify-content:center!important;
+  white-space:nowrap!important;
+}
+
+/* Kampanya satırlarını eski temiz koyu zemine yakın tut, başarıyı rozetle göster */
+.ra-table tbody tr.ra-row-success td,
+.ra-table tbody tr.ra-row-danger td,
+.ra-table tbody tr.ra-row-warning td,
+.ra-table tbody tr.ra-row-learning td,
+.ra-table tbody tr.ra-row-neutral td{
+  background:rgba(255,255,255,.052)!important;
+  border-top-color:rgba(255,255,255,.08)!important;
+  border-bottom-color:rgba(255,255,255,.08)!important;
+  box-shadow:none!important;
+}
+
+.ra-table tbody tr.ra-row-success td:first-child,
+.ra-table tbody tr.ra-row-danger td:first-child,
+.ra-table tbody tr.ra-row-warning td:first-child,
+.ra-table tbody tr.ra-row-learning td:first-child,
+.ra-table tbody tr.ra-row-neutral td:first-child{
+  border-left:1px solid rgba(255,255,255,.08)!important;
+  box-shadow:none!important;
+}
+
+.ra-table tbody tr.ra-row-success td:last-child,
+.ra-table tbody tr.ra-row-danger td:last-child,
+.ra-table tbody tr.ra-row-warning td:last-child,
+.ra-table tbody tr.ra-row-learning td:last-child,
+.ra-table tbody tr.ra-row-neutral td:last-child{
+  background:linear-gradient(90deg,rgba(11,16,40,.94),rgba(11,16,40,.99))!important;
+  box-shadow:-18px 0 28px rgba(0,0,0,.24)!important;
+}
+
+.ra-table tbody tr.ra-row-success .ra-name,
+.ra-table tbody tr.ra-row-danger .ra-name,
+.ra-table tbody tr.ra-row-warning .ra-name,
+.ra-table tbody tr.ra-row-learning .ra-name,
+.ra-table tbody tr.ra-row-neutral .ra-name{
+  color:#fff!important;
+  text-shadow:none!important;
+}
+
+/* Başarı/başarısızlık rozetleri */
+.ra-success-pill{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  font-weight:950!important;
+}
+
+.ra-success-pill.success{
+  background:rgba(35,209,139,.18)!important;
+  border:1px solid rgba(35,209,139,.45)!important;
+  color:#7EF0BC!important;
+}
+
+.ra-success-pill.success::before{
+  content:"🟢";
+}
+
+.ra-success-pill.danger{
+  background:rgba(255,82,82,.18)!important;
+  border:1px solid rgba(255,82,82,.45)!important;
+  color:#FF9A9A!important;
+}
+
+.ra-success-pill.danger::before{
+  content:"🔴";
+}
+
+.ra-success-pill.warning{
+  background:rgba(247,201,72,.16)!important;
+  border:1px solid rgba(247,201,72,.42)!important;
+  color:#FFE394!important;
+}
+
+.ra-success-pill.warning::before{
+  content:"🟡";
+}
+
+.ra-success-pill.learning{
+  background:rgba(71,181,255,.16)!important;
+  border:1px solid rgba(71,181,255,.42)!important;
+  color:#BFE8FF!important;
+}
+
+.ra-success-pill.learning::before{
+  content:"🔵";
+}
+
+.ra-success-pill.neutral{
+  background:rgba(184,190,208,.13)!important;
+  border:1px solid rgba(184,190,208,.25)!important;
+  color:#D5DAEA!important;
+}
+
+.ra-success-pill.neutral::before{
+  content:"⚪";
+}
+
+/* Skor seviyesine göre popup kart renkleri: JS class eklemese bile default mor kalır */
+.ra-octo-score.score-success{
+  border-color:rgba(35,209,139,.62)!important;
+  box-shadow:0 26px 64px rgba(35,209,139,.18)!important;
+}
+.ra-octo-score.score-warning{
+  border-color:rgba(247,201,72,.62)!important;
+  box-shadow:0 26px 64px rgba(247,201,72,.15)!important;
+}
+.ra-octo-score.score-danger{
+  border-color:rgba(255,82,82,.62)!important;
+  box-shadow:0 26px 64px rgba(255,82,82,.16)!important;
+}
+.ra-octo-score.score-info{
+  border-color:rgba(71,181,255,.62)!important;
+  box-shadow:0 26px 64px rgba(71,181,255,.15)!important;
+}
+
+@media(max-width:760px){
+  .ra-octo-score-line{
+    justify-content:center!important;
+    align-items:center!important;
+    flex-direction:column!important;
+    text-align:center!important;
+  }
+  .ra-octo-label{
+    align-self:center!important;
+  }
+}
+</style>
+
+
+<script id="octo-score-level-class-patch">
+(function(){
+  window.setOctoScoreLevelClass = function(score){
+    const el = document.getElementById('octoModalScore');
+    if(!el) return;
+    el.classList.remove('score-success','score-info','score-warning','score-danger');
+    const n = Number(score || 0);
+    if(n >= 90){ el.classList.add('score-success'); }
+    else if(n >= 70){ el.classList.add('score-info'); }
+    else if(n >= 50){ el.classList.add('score-warning'); }
+    else { el.classList.add('score-danger'); }
+  };
+})();
+</script>
+
+
+
+<style id="campaign-table-top-scrollbar-fix">
+/* Kampanya tablosu için üst yatay scrollbar */
+.ra-table-top-scroll{
+  width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  height:16px;
+  margin:4px 0 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.07);
+  scrollbar-width:thin;
+}
+.ra-table-top-scroll-inner{
+  height:1px;
+}
+.ra-table-top-scroll::-webkit-scrollbar{
+  height:10px;
+}
+.ra-table-top-scroll::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.045);
+  border-radius:999px;
+}
+.ra-table-top-scroll::-webkit-scrollbar-thumb{
+  background:linear-gradient(90deg,rgba(108,99,255,.75),rgba(71,181,255,.75));
+  border-radius:999px;
+}
+.ra-table-wrap::-webkit-scrollbar{
+  height:10px;
+}
+.ra-table-wrap::-webkit-scrollbar-track{
+  background:rgba(255,255,255,.045);
+  border-radius:999px;
+}
+.ra-table-wrap::-webkit-scrollbar-thumb{
+  background:linear-gradient(90deg,rgba(108,99,255,.75),rgba(71,181,255,.75));
+  border-radius:999px;
+}
+</style>
+
+
+<script id="campaign-table-top-scrollbar-sync">
+(function(){
+  function setupCampaignTopScrollbar(){
+    const tableWrap = document.querySelector('.ra-table-wrap');
+    const table = document.querySelector('.ra-table');
+
+    if(!tableWrap || !table) return;
+
+    let topScroll = document.querySelector('.ra-table-top-scroll');
+
+    if(!topScroll){
+      topScroll = document.createElement('div');
+      topScroll.className = 'ra-table-top-scroll';
+      topScroll.innerHTML = '<div class="ra-table-top-scroll-inner"></div>';
+      tableWrap.parentNode.insertBefore(topScroll, tableWrap);
+    }
+
+    const topInner = topScroll.querySelector('.ra-table-top-scroll-inner');
+
+    function syncWidth(){
+      topInner.style.width = table.scrollWidth + 'px';
+
+      if(table.scrollWidth <= tableWrap.clientWidth + 2){
+        topScroll.style.display = 'none';
+      }else{
+        topScroll.style.display = 'block';
+      }
+    }
+
+    let lock = false;
+
+    topScroll.addEventListener('scroll', function(){
+      if(lock) return;
+      lock = true;
+      tableWrap.scrollLeft = topScroll.scrollLeft;
+      lock = false;
+    });
+
+    tableWrap.addEventListener('scroll', function(){
+      if(lock) return;
+      lock = true;
+      topScroll.scrollLeft = tableWrap.scrollLeft;
+      lock = false;
+    });
+
+    syncWidth();
+    window.addEventListener('resize', syncWidth);
+
+    if(window.ResizeObserver){
+      const observer = new ResizeObserver(syncWidth);
+      observer.observe(table);
+      observer.observe(tableWrap);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', setupCampaignTopScrollbar);
+  }else{
+    setupCampaignTopScrollbar();
+  }
+})();
+</script>
+
+
+
+
+
+
+<style id="campaign-pagination-final-style">
+.ra-table-head{
+  align-items:flex-start!important;
+}
+.ra-table-tools{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.ra-per-page{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--ra-muted);
+  font-size:12px;
+  font-weight:850;
+  white-space:nowrap;
+}
+.ra-per-page select{
+  border:1px solid rgba(255,255,255,.10);
+  background:#0B1028;
+  color:#fff;
+  border-radius:12px;
+  padding:9px 10px;
+  outline:none;
+  font-weight:850;
+}
+.ra-pagination-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+  margin:14px 0 4px;
+  padding:12px 14px;
+  border-radius:20px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.08);
+}
+.ra-pagination-info{
+  color:var(--ra-muted);
+  font-size:12px;
+  font-weight:850;
+}
+.ra-pagination-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.ra-page-link{
+  min-width:34px;
+  height:34px;
+  padding:0 10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.055);
+  color:#fff;
+  font-size:12px;
+  font-weight:950;
+  text-decoration:none;
+}
+.ra-page-link:hover{
+  color:#fff;
+  border-color:rgba(139,132,255,.48);
+  background:rgba(108,99,255,.16);
+}
+.ra-page-link.active{
+  background:linear-gradient(135deg,var(--ra-accent),var(--ra-accent-2));
+  border-color:transparent;
+  box-shadow:0 10px 24px rgba(108,99,255,.22);
+}
+.ra-page-link.disabled{
+  opacity:.45;
+  pointer-events:none;
+}
+@media(max-width:760px){
+  .ra-table-head{
+    flex-direction:column;
+  }
+  .ra-table-tools{
+    justify-content:flex-start;
+    width:100%;
+  }
+}
+</style>
+
+{% endblock %}

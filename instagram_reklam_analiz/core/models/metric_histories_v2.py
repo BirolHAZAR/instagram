@@ -6,32 +6,87 @@ class BaseMetricHistory(models.Model):
 
     impressions = models.BigIntegerField(default=0)
     reach = models.BigIntegerField(default=0)
-    frequency = models.DecimalField(max_digits=10, decimal_places=4, default=0)
+    frequency = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        default=0,
+    )
 
     clicks = models.BigIntegerField(default=0)
     link_clicks = models.BigIntegerField(default=0)
     unique_clicks = models.BigIntegerField(default=0)
 
-    spend = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-    currency = models.CharField(max_length=10, default="TRY")
+    spend = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+    )
+    currency = models.CharField(
+        max_length=10,
+        default="TRY",
+    )
 
-    ctr = models.DecimalField(max_digits=10, decimal_places=4, default=0)
-    cpc = models.DecimalField(max_digits=10, decimal_places=4, default=0)
-    cpm = models.DecimalField(max_digits=10, decimal_places=4, default=0)
+    ctr = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        default=0,
+    )
+    cpc = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        default=0,
+    )
+    cpm = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        default=0,
+    )
 
-    conversions = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-    conversion_value = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-    cost_per_conversion = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+    conversions = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        default=0,
+    )
+    conversion_value = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+    )
+    cost_per_conversion = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        default=0,
+    )
 
-    purchases = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-    add_to_cart = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-    initiate_checkout = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-    leads = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+    purchases = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        default=0,
+    )
+    add_to_cart = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        default=0,
+    )
+    initiate_checkout = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        default=0,
+    )
+    leads = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        default=0,
+    )
 
     landing_page_views = models.BigIntegerField(default=0)
     outbound_clicks = models.BigIntegerField(default=0)
 
-    roas = models.DecimalField(max_digits=14, decimal_places=4, default=0)
+    roas = models.DecimalField(
+        max_digits=14,
+        decimal_places=4,
+        default=0,
+    )
 
     likes = models.BigIntegerField(default=0)
     comments = models.BigIntegerField(default=0)
@@ -40,11 +95,20 @@ class BaseMetricHistory(models.Model):
     video_views = models.BigIntegerField(default=0)
 
     engagement = models.BigIntegerField(default=0)
-    engagement_rate = models.DecimalField(max_digits=10, decimal_places=4, default=0)
+    engagement_rate = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        default=0,
+    )
 
-    raw_metrics = models.JSONField(default=dict, blank=True)
+    raw_metrics = models.JSONField(
+        default=dict,
+        blank=True,
+    )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
 
     class Meta:
         abstract = True
@@ -60,11 +124,22 @@ class CampaignMetricHistory(BaseMetricHistory):
     class Meta:
         verbose_name = "Kampanya Metrik Geçmişi"
         verbose_name_plural = "Kampanya Metrik Geçmişleri"
-        unique_together = ("campaign", "date")
         ordering = ["-date"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["campaign", "date"],
+                name="uniq_campaign_metric_date",
+            ),
+        ]
+
         indexes = [
-            models.Index(fields=["campaign", "date"]),
-            models.Index(fields=["date"]),
+            models.Index(
+                fields=["campaign", "date"],
+            ),
+            models.Index(
+                fields=["date"],
+            ),
         ]
 
     def __str__(self):
@@ -81,11 +156,22 @@ class AdGroupMetricHistory(BaseMetricHistory):
     class Meta:
         verbose_name = "Reklam Grubu Metrik Geçmişi"
         verbose_name_plural = "Reklam Grubu Metrik Geçmişleri"
-        unique_together = ("ad_group", "date")
         ordering = ["-date"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["ad_group", "date"],
+                name="uniq_adgroup_metric_date",
+            ),
+        ]
+
         indexes = [
-            models.Index(fields=["ad_group", "date"]),
-            models.Index(fields=["date"]),
+            models.Index(
+                fields=["ad_group", "date"],
+            ),
+            models.Index(
+                fields=["date"],
+            ),
         ]
 
     def __str__(self):
@@ -99,21 +185,46 @@ class AdMetricHistory(BaseMetricHistory):
         related_name="metric_history",
     )
 
-    estimated_engagement = models.BigIntegerField(default=0)
-    estimated_reach_min = models.BigIntegerField(blank=True, null=True)
-    estimated_reach_max = models.BigIntegerField(blank=True, null=True)
+    estimated_engagement = models.BigIntegerField(
+        default=0,
+    )
 
-    is_competitor_snapshot = models.BooleanField(default=False)
+    estimated_reach_min = models.BigIntegerField(
+        blank=True,
+        null=True,
+    )
+
+    estimated_reach_max = models.BigIntegerField(
+        blank=True,
+        null=True,
+    )
+
+    is_competitor_snapshot = models.BooleanField(
+        default=False,
+    )
 
     class Meta:
         verbose_name = "Reklam Metrik Geçmişi"
         verbose_name_plural = "Reklam Metrik Geçmişleri"
-        unique_together = ("ad", "date")
         ordering = ["-date"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["ad", "date"],
+                name="uniq_ad_metric_date",
+            ),
+        ]
+
         indexes = [
-            models.Index(fields=["ad", "date"]),
-            models.Index(fields=["date"]),
-            models.Index(fields=["is_competitor_snapshot"]),
+            models.Index(
+                fields=["ad", "date"],
+            ),
+            models.Index(
+                fields=["date"],
+            ),
+            models.Index(
+                fields=["is_competitor_snapshot"],
+            ),
         ]
 
     def __str__(self):
@@ -127,18 +238,43 @@ class CreativeMetricHistory(BaseMetricHistory):
         related_name="metric_history",
     )
 
-    thumbstop_rate = models.DecimalField(max_digits=10, decimal_places=4, default=0)
-    hook_rate = models.DecimalField(max_digits=10, decimal_places=4, default=0)
-    hold_rate = models.DecimalField(max_digits=10, decimal_places=4, default=0)
+    thumbstop_rate = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        default=0,
+    )
+
+    hook_rate = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        default=0,
+    )
+
+    hold_rate = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        default=0,
+    )
 
     class Meta:
         verbose_name = "Kreatif Metrik Geçmişi"
         verbose_name_plural = "Kreatif Metrik Geçmişleri"
-        unique_together = ("creative", "date")
         ordering = ["-date"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["creative", "date"],
+                name="uniq_creative_metric_date",
+            ),
+        ]
+
         indexes = [
-            models.Index(fields=["creative", "date"]),
-            models.Index(fields=["date"]),
+            models.Index(
+                fields=["creative", "date"],
+            ),
+            models.Index(
+                fields=["date"],
+            ),
         ]
 
     def __str__(self):
