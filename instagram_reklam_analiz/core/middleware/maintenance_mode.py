@@ -16,7 +16,10 @@ class MaintenanceModeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if self._is_exempt(request.path_info):
+        # Superusers must always retain access so they can disable maintenance mode
+        # from Django Admin even while the public site is unavailable.
+        user = getattr(request, "user", None)
+        if getattr(user, "is_superuser", False) or self._is_exempt(request.path_info):
             return self.get_response(request)
 
         settings = self._get_settings()

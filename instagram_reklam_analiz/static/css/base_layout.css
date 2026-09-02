@@ -968,12 +968,7 @@
         .ra-sidebar .nav-item.open .dropdown-menu-nav { display: block !important; }
         .ra-sidebar .nav-item.dropdown:hover .dropdown-menu-nav { display: none !important; }
         .ra-sidebar .nav-item.dropdown.open:hover .dropdown-menu-nav { display: block !important; }
-        .ra-sidebar .nav-item.public-corporate > .dropdown-menu-nav { display: block !important; }
-        .ra-sidebar .nav-item.public-corporate > .nav-link {
-            background: rgba(108,99,255,.18) !important;
-            color: #ffffff !important;
-            box-shadow: inset 0 0 0 1px rgba(139,132,255,.24);
-        }
+
         .ra-sidebar .dropdown-item-nav {
             padding: .62rem .68rem !important;
             border-radius: 13px !important;

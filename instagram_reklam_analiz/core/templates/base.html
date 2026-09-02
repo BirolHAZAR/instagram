@@ -16,7 +16,7 @@
 {% load static %}
 {% load agency_permissions %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base_layout.css' %}?v=agency-identity-20260724-1">
+    <link rel="stylesheet" href="{% static 'css/base_layout.css' %}?v=agency-identity-20260902-2">
     <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -154,7 +154,7 @@
         </div>
         <div class="ra-sidebar-scroll">
             <ul class="navbar-menu ra-sidebar-menu">
-                <li class="nav-item dropdown {% if not user.is_authenticated %}open public-corporate{% endif %}">
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-layer-group"></i><span>{{ labels.corporate }}</span><i class="fas fa-chevron-down ms-1"></i></a>
                     <div class="dropdown-menu-nav">
                         <a class="dropdown-item-nav" href="{% url 'index' %}"><i class="fas fa-home"></i> {{ labels.home }}</a>
@@ -166,7 +166,7 @@
                     </div>
                 </li>
 
-                <li class="nav-item dropdown {% if not user.is_authenticated %}open public-corporate{% endif %}">
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-users-viewfinder"></i><span>{{ labels.influencer_discovery }}</span><i class="fas fa-chevron-down ms-1"></i></a>
                     <div class="dropdown-menu-nav">
                         <a class="dropdown-item-nav" href="{% url 'influencer_discovery' %}"><i class="fas fa-table-list"></i> {{ labels.influencer_pool }}</a>
@@ -231,7 +231,7 @@
                     </div>
                 </li>
 
-                <li class="nav-item dropdown {% if not user.is_authenticated %}open public-corporate{% endif %}">
+                <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#"><i class="fas fa-share-nodes"></i><span>{{ labels.organic_content }}</span><i class="fas fa-chevron-down ms-1"></i></a>
                     <div class="dropdown-menu-nav">
                         {% can_agency_menu user 'organic_connections' as can_link %}{% if can_link %}<a class="dropdown-item-nav" href="{% url 'organic_connections' %}"><i class="fas fa-link"></i> {{ labels.organic_connections }}</a>{% endif %}
@@ -335,28 +335,28 @@
                 <div class="col-lg-2 col-md-6">
                     <h5>{{ labels.operations }}</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'campaign_panel' %}">{{ labels.campaign_panel }}</a></li>
-                        <li><a href="{% url 'campaign_center' %}">{{ labels.campaign_center }}</a></li>
-                        <li><a href="{% url 'reklam_panel' %}">{{ labels.ads_panel }}</a></li>
-                        <li><a href="{% url 'organic_content_center' %}">{{ labels.organic_content }}</a></li>
-                        <li><a href="{% url 'budget_optimization' %}">{{ labels.budget_optimization }}</a></li>
+                        {% can_agency_menu user 'campaign_panel' as can_link %}{% if can_link %}<li><a href="{% url 'campaign_panel' %}">{{ labels.campaign_panel }}</a></li>{% endif %}
+                        {% can_agency_menu user 'campaign_center' as can_link %}{% if can_link %}<li><a href="{% url 'campaign_center' %}">{{ labels.campaign_center }}</a></li>{% endif %}
+                        {% can_agency_menu user 'reklam_panel' as can_link %}{% if can_link %}<li><a href="{% url 'reklam_panel' %}">{{ labels.ads_panel }}</a></li>{% endif %}
+                        {% can_agency_menu user 'organic_content_center' as can_link %}{% if can_link %}<li><a href="{% url 'organic_content_center' %}">{{ labels.organic_content }}</a></li>{% endif %}
+                        {% can_agency_menu user 'apply_rules_to_campaigns' as can_link %}{% if can_link %}<li><a href="{% url 'budget_optimization' %}">{{ labels.budget_optimization }}</a></li>{% endif %}
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">
                     <h5>{{ labels.intelligence }}</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'competitor_intelligence' %}">{{ labels.competitor_intelligence }}</a></li>
-                        <li><a href="{% url 'rakip_ekle' %}">{{ labels.add_competitor }}</a></li>
-                        <li><a href="{% url 'performance_center' %}">{{ labels.performance_center }}</a></li>
-                        <li><a href="{% url 'ai_dashboard' %}">Octo AI</a></li>
+                        {% can_agency_menu user 'competitor_intelligence' as can_link %}{% if can_link %}<li><a href="{% url 'competitor_intelligence' %}">{{ labels.competitor_intelligence }}</a></li>{% endif %}
+                        {% can_agency_menu user 'rakip_ekle' as can_link %}{% if can_link %}<li><a href="{% url 'rakip_ekle' %}">{{ labels.add_competitor }}</a></li>{% endif %}
+                        {% can_agency_menu user 'performance_center' as can_link %}{% if can_link %}<li><a href="{% url 'performance_center' %}">{{ labels.performance_center }}</a></li>{% endif %}
+                        {% can_agency_menu user 'ai_dashboard' as can_link %}{% if can_link %}<li><a href="{% url 'ai_dashboard' %}">Octo AI</a></li>{% endif %}
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">
                     <h5>Sistem</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'platform_connections' %}">{{ labels.platform_connections }}</a></li>
-                        <li><a href="{% url 'notification_center' %}">{{ labels.notification_center }}</a></li>
-                        <li><a href="{% url 'my_account' %}">{{ labels.my_account }}</a></li>
+                        {% can_agency_menu user 'platform_connections' as can_link %}{% if can_link %}<li><a href="{% url 'platform_connections' %}">{{ labels.platform_connections }}</a></li>{% endif %}
+                        {% can_agency_menu user 'notification_center' as can_link %}{% if can_link %}<li><a href="{% url 'notification_center' %}">{{ labels.notification_center }}</a></li>{% endif %}
+                        {% can_agency_menu user 'my_account' as can_link %}{% if can_link %}<li><a href="{% url 'my_account' %}">{{ labels.my_account }}</a></li>{% endif %}
                         <li><a href="mailto:info@reklamanaliz.net">info@reklamanaliz.net</a></li>
                     </ul>
                 </div>
@@ -364,7 +364,7 @@
             <hr>
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
                 <p class="mb-0">&copy; {% now "Y" %} ReklamAnaliz.net. {{ labels.all_rights_reserved }}</p>
-                <p class="mb-0 footer-muted-note"><a href="{% url 'legal_document_index' %}">Sözleşmeler ve Politikalar</a> · {{ labels.ai_supported_ad_platform }}</p>
+                <p class="mb-0 footer-muted-note"><a href="{% url 'legal_document_index' %}">Sözleşmeler ve Politikalar</a> · {{ labels.tr_en_ready }} · {{ labels.ai_supported_ad_platform }}</p>
             </div>
         </div>
     </footer>

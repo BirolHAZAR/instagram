@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.http import HttpResponse
@@ -48,6 +49,21 @@ class MaintenanceModeTests(TestCase):
             with self.subTest(path=path):
                 response = self.middleware(self.request(path))
                 self.assertEqual(response.status_code, 200)
+
+    def test_superuser_bypasses_maintenance_mode(self):
+        SiteMaintenance.objects.create(is_active=True)
+        user = get_user_model().objects.create_superuser(
+            username="maintenance-admin",
+            email="maintenance-admin@example.com",
+            password="test-password",
+        )
+        request = self.factory.get("/admin/")
+        request.user = user
+
+        response = self.middleware(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b"normal")
 
     def test_singleton_save_always_updates_the_same_record(self):
         first = SiteMaintenance.objects.create(is_active=False)
