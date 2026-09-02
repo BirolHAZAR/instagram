@@ -335,28 +335,28 @@
                 <div class="col-lg-2 col-md-6">
                     <h5>{{ labels.operations }}</h5>
                     <ul class="list-unstyled">
-                        {% can_agency_menu user 'campaign_panel' as can_link %}{% if can_link %}<li><a href="{% url 'campaign_panel' %}">{{ labels.campaign_panel }}</a></li>{% endif %}
-                        {% can_agency_menu user 'campaign_center' as can_link %}{% if can_link %}<li><a href="{% url 'campaign_center' %}">{{ labels.campaign_center }}</a></li>{% endif %}
-                        {% can_agency_menu user 'reklam_panel' as can_link %}{% if can_link %}<li><a href="{% url 'reklam_panel' %}">{{ labels.ads_panel }}</a></li>{% endif %}
-                        {% can_agency_menu user 'organic_content_center' as can_link %}{% if can_link %}<li><a href="{% url 'organic_content_center' %}">{{ labels.organic_content }}</a></li>{% endif %}
-                        {% can_agency_menu user 'apply_rules_to_campaigns' as can_link %}{% if can_link %}<li><a href="{% url 'budget_optimization' %}">{{ labels.budget_optimization }}</a></li>{% endif %}
+                        <li><a href="{% url 'campaign_panel' %}">{{ labels.campaign_panel }}</a></li>
+                        <li><a href="{% url 'campaign_center' %}">{{ labels.campaign_center }}</a></li>
+                        <li><a href="{% url 'reklam_panel' %}">{{ labels.ads_panel }}</a></li>
+                        <li><a href="{% url 'organic_content_center' %}">{{ labels.organic_content }}</a></li>
+                        <li><a href="{% url 'budget_optimization' %}">{{ labels.budget_optimization }}</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">
                     <h5>{{ labels.intelligence }}</h5>
                     <ul class="list-unstyled">
-                        {% can_agency_menu user 'competitor_intelligence' as can_link %}{% if can_link %}<li><a href="{% url 'competitor_intelligence' %}">{{ labels.competitor_intelligence }}</a></li>{% endif %}
-                        {% can_agency_menu user 'rakip_ekle' as can_link %}{% if can_link %}<li><a href="{% url 'rakip_ekle' %}">{{ labels.add_competitor }}</a></li>{% endif %}
-                        {% can_agency_menu user 'performance_center' as can_link %}{% if can_link %}<li><a href="{% url 'performance_center' %}">{{ labels.performance_center }}</a></li>{% endif %}
-                        {% can_agency_menu user 'ai_dashboard' as can_link %}{% if can_link %}<li><a href="{% url 'ai_dashboard' %}">Octo AI</a></li>{% endif %}
+                        <li><a href="{% url 'competitor_intelligence' %}">{{ labels.competitor_intelligence }}</a></li>
+                        <li><a href="{% url 'rakip_ekle' %}">{{ labels.add_competitor }}</a></li>
+                        <li><a href="{% url 'performance_center' %}">{{ labels.performance_center }}</a></li>
+                        <li><a href="{% url 'ai_dashboard' %}">Octo AI</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">
                     <h5>Sistem</h5>
                     <ul class="list-unstyled">
-                        {% can_agency_menu user 'platform_connections' as can_link %}{% if can_link %}<li><a href="{% url 'platform_connections' %}">{{ labels.platform_connections }}</a></li>{% endif %}
-                        {% can_agency_menu user 'notification_center' as can_link %}{% if can_link %}<li><a href="{% url 'notification_center' %}">{{ labels.notification_center }}</a></li>{% endif %}
-                        {% can_agency_menu user 'my_account' as can_link %}{% if can_link %}<li><a href="{% url 'my_account' %}">{{ labels.my_account }}</a></li>{% endif %}
+                        <li><a href="{% url 'platform_connections' %}">{{ labels.platform_connections }}</a></li>
+                        <li><a href="{% url 'notification_center' %}">{{ labels.notification_center }}</a></li>
+                        <li><a href="{% url 'my_account' %}">{{ labels.my_account }}</a></li>
                         <li><a href="mailto:info@reklamanaliz.net">info@reklamanaliz.net</a></li>
                     </ul>
                 </div>
