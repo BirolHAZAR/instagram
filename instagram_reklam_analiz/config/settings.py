@@ -197,6 +197,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'django.contrib.sites',
     'django.contrib.humanize',
+    'django_celery_beat',
+    'django_celery_results',
     'rest_framework',
     'daphne',
     'channels',
