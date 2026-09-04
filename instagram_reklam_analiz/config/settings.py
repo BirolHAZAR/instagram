@@ -206,7 +206,6 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     "core.apps.CoreConfig",
-    'django_celery_results',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
